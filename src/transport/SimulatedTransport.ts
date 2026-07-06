@@ -39,6 +39,7 @@ export class SimulatedTransport implements LocationTransport {
   private origin: Coordinate;
   private tickMs: number;
   private nowSec: () => number;
+  private anchored = false;
 
   constructor(opts: Options) {
     this.rng = mulberry32(opts.seed);
@@ -81,8 +82,21 @@ export class SimulatedTransport implements LocationTransport {
     // position/rally broadcasts vanish into the simulated ether (no echo needed)
   }
 
-  /** Update my (real GPS) position so 'approach' friends walk toward the real me. */
-  setOrigin(origin: Coordinate): void { this.origin = origin; }
+  /**
+   * Update my position. The FIRST real origin (GPS, or fallback if denied) re-seats the
+   * simulated friends around it, so the demo always shows them near you — otherwise they'd
+   * stay anchored to the placeholder origin the transport was built with (e.g. 7km away).
+   * Later origin updates just re-target 'approach' friends; they don't teleport everyone.
+   */
+  setOrigin(origin: Coordinate): void {
+    this.origin = origin;
+    if (!this.anchored) {
+      this.anchored = true;
+      for (const f of this.friends) {
+        f.pos = movePoint(origin, f.startBearingDeg, f.startDistanceM);
+      }
+    }
+  }
 
   scenario(action: SimScenario, friendId: number): void {
     const f = this.friends.find((x) => x.id === friendId);
