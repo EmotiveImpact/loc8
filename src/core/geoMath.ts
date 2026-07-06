@@ -22,3 +22,56 @@ export function getAbsoluteBearing(from: Coordinate, to: Coordinate): number {
   const x = Math.cos(fromLat) * Math.sin(toLat) - Math.sin(fromLat) * Math.cos(toLat) * Math.cos(dLon);
   return ((Math.atan2(y, x) * 180) / Math.PI + 360) % 360;
 }
+
+/** Destination point given start, bearing, meters (equirectangular approx — fine <2km). */
+export function movePoint(from: Coordinate, bearingDeg: number, meters: number): Coordinate {
+  const dLat = (meters * Math.cos(rad(bearingDeg))) / 111320;
+  const dLon = (meters * Math.sin(rad(bearingDeg))) / (111320 * Math.cos(rad(from.latitude)));
+  return { latitude: from.latitude + dLat, longitude: from.longitude + dLon };
+}
+
+/**
+ * Low-pass filter for magnetometer headings (festival EM noise makes raw headings jitter).
+ * Handles the 359°→0° wrap so the needle never spins the long way round.
+ */
+export function smoothHeading(currentDeg: number, nextDeg: number, alpha = 0.2): number {
+  let diff = nextDeg - currentDeg;
+  if (diff > 180) diff -= 360;
+  else if (diff < -180) diff += 360;
+  return (currentDeg + alpha * diff + 360) % 360;
+}
+
+/** Piecewise distance→pixel scale: linear to 150m (inner 70% of radius), log 150m→1.5km (outer 30%). */
+export const LINEAR_MAX_M = 150;
+export const OUTER_MAX_M = 1500;
+const LINEAR_FRACTION = 0.7;
+
+export function radarRadiusForDistance(distanceM: number, radarRadiusPx: number): number {
+  if (distanceM <= 0) return 0;
+  if (distanceM <= LINEAR_MAX_M) {
+    return (distanceM / LINEAR_MAX_M) * LINEAR_FRACTION * radarRadiusPx;
+  }
+  const clamped = Math.min(distanceM, OUTER_MAX_M);
+  const frac = Math.log(clamped / LINEAR_MAX_M) / Math.log(OUTER_MAX_M / LINEAR_MAX_M);
+  return (LINEAR_FRACTION + frac * (1 - LINEAR_FRACTION)) * radarRadiusPx;
+}
+
+export interface RadarPoint {
+  x: number;              // px right of center
+  y: number;              // px below center (screen coords; north = -y)
+  distanceMeters: number;
+  absoluteBearing: number;
+}
+
+/** North-up radar plot (deliberately NO device heading — spec §6). */
+export function calculateRadarPoint(
+  myLocation: Coordinate,
+  friendLocation: Coordinate,
+  radarRadiusPx: number,
+): RadarPoint {
+  const distanceMeters = getHaversineDistance(myLocation, friendLocation);
+  const absoluteBearing = getAbsoluteBearing(myLocation, friendLocation);
+  const r = radarRadiusForDistance(distanceMeters, radarRadiusPx);
+  const theta = rad(absoluteBearing);
+  return { x: r * Math.sin(theta), y: -r * Math.cos(theta), distanceMeters, absoluteBearing };
+}
