@@ -1,0 +1,326 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Loc8 — Clickable Prototype</title>
+<style>
+  *{box-sizing:border-box;margin:0;padding:0;-webkit-font-smoothing:antialiased;-webkit-tap-highlight-color:transparent}
+  :root{--pink:#ff5a8c;--orange:#ff9a5a;--teal:#4be3c0;--blue:#8c9aff;--yellow:#ffcf5a;--bg:#0a0b12;--card:#161a2b}
+  body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;
+    background:radial-gradient(1000px 700px at 50% -10%, #241a3a, #07080f 60%);
+    min-height:100vh;color:#fff;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:18px;padding:28px 12px}
+  .title{text-align:center}
+  .title h1{font-size:22px;font-weight:800;letter-spacing:-.5px}
+  .title h1 b{background:linear-gradient(90deg,var(--pink),var(--orange));-webkit-background-clip:text;background-clip:text;color:transparent}
+  .title p{opacity:.55;font-size:13px;margin-top:4px}
+
+  /* PHONE */
+  .phone{width:340px;height:710px;border-radius:46px;padding:12px;position:relative;
+    background:linear-gradient(160deg,#2a2f45,#101320);box-shadow:0 40px 100px rgba(0,0,0,.6),inset 0 0 0 2px #33384f}
+  .notch{position:absolute;top:20px;left:50%;transform:translateX(-50%);width:120px;height:26px;background:#000;border-radius:16px;z-index:60}
+  .screen{width:100%;height:100%;border-radius:34px;overflow:hidden;position:relative;background:radial-gradient(circle at 50% 40%,#171b30 0%,#0a0c16 72%)}
+
+  /* generic view */
+  .view{position:absolute;inset:0;display:none;flex-direction:column}
+  .view.active{display:flex}
+  .sb{height:44px;flex:0 0 auto}
+
+  /* top bar */
+  .top{display:flex;align-items:center;justify-content:space-between;padding:6px 20px 8px;z-index:20}
+  .brand{font-weight:800;font-size:19px}.brand b{background:linear-gradient(90deg,var(--pink),var(--orange));-webkit-background-clip:text;background-clip:text;color:transparent}
+  .mesh{display:flex;align-items:center;gap:6px;background:rgba(75,227,192,.12);color:var(--teal);font-size:11px;font-weight:700;padding:5px 10px;border-radius:20px;border:1px solid rgba(75,227,192,.25)}
+  .live{width:6px;height:6px;border-radius:50%;background:var(--teal);box-shadow:0 0 8px var(--teal);animation:pulse 1.6s infinite}
+  @keyframes pulse{0%,100%{opacity:1}50%{opacity:.25}}
+
+  /* RADAR */
+  .radar-wrap{flex:1;position:relative}
+  .radar{position:absolute;top:44%;left:50%;transform:translate(-50%,-50%);width:300px;height:300px}
+  .ring{position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);border-radius:50%;border:1px solid rgba(255,255,255,.07)}
+  .r1{width:100px;height:100px}.r2{width:200px;height:200px}.r3{width:300px;height:300px}
+  .rlab{position:absolute;left:50%;transform:translateX(-50%);font-size:9px;color:rgba(255,255,255,.28)}
+  .sweep{position:absolute;top:50%;left:50%;width:150px;height:150px;transform-origin:top left;
+    background:conic-gradient(from -10deg,rgba(255,90,140,.28),rgba(255,90,140,0) 55deg);border-radius:0 0 0 150px;animation:spin 3.4s linear infinite}
+  @keyframes spin{to{transform:translate(0,-50%) rotate(360deg)}}
+  .me{position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);z-index:6}
+  .me .core{width:18px;height:18px;border-radius:50%;background:#fff;box-shadow:0 0 0 6px rgba(255,255,255,.12)}
+  .me .halo{position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);width:18px;height:18px;border-radius:50%;box-shadow:0 0 0 2px rgba(255,90,140,.5);animation:halo 2.4s ease-out infinite}
+  @keyframes halo{0%{width:18px;height:18px;opacity:.8}100%{width:150px;height:150px;opacity:0}}
+  .blip{position:absolute;z-index:7;display:flex;flex-direction:column;align-items:center;gap:4px;transform:translate(-50%,-50%);cursor:pointer;transition:top .9s linear,left .9s linear}
+  .av{width:38px;height:38px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-weight:700;font-size:14px;color:#0a0b12;border:2px solid rgba(255,255,255,.85);box-shadow:0 4px 12px rgba(0,0,0,.5)}
+  .tag{font-size:10px;font-weight:600;background:rgba(0,0,0,.6);padding:2px 7px;border-radius:10px;white-space:nowrap}.tag b{color:var(--teal)}
+  .pinmark{position:absolute;z-index:6;transform:translate(-50%,-100%);display:flex;flex-direction:column;align-items:center;cursor:pointer}
+  .pinmark .flag{font-size:24px;filter:drop-shadow(0 3px 6px rgba(0,0,0,.6))}
+  .pinmark .plab{font-size:9px;font-weight:700;color:var(--yellow);background:rgba(0,0,0,.6);padding:1px 6px;border-radius:8px}
+
+  /* floating actions */
+  .fabs{position:absolute;right:16px;bottom:220px;display:flex;flex-direction:column;gap:12px;z-index:25}
+  .fab{width:50px;height:50px;border-radius:16px;background:var(--card);border:1px solid rgba(255,255,255,.1);display:flex;align-items:center;justify-content:center;font-size:20px;cursor:pointer;box-shadow:0 6px 18px rgba(0,0,0,.4)}
+  .fab.on{background:linear-gradient(135deg,var(--pink),var(--orange))}
+
+  /* bottom sheet */
+  .sheet{position:absolute;bottom:0;left:0;right:0;background:rgba(16,19,32,.94);backdrop-filter:blur(14px);
+    border-top:1px solid rgba(255,255,255,.08);border-radius:26px 26px 0 0;padding:14px 16px 90px;z-index:30}
+  .grab{width:38px;height:4px;border-radius:4px;background:rgba(255,255,255,.2);margin:0 auto 12px}
+  .sheet h4{font-size:11px;text-transform:uppercase;letter-spacing:1px;opacity:.5;margin-bottom:8px}
+  .frow{display:flex;align-items:center;gap:12px;padding:8px 0;cursor:pointer;border-radius:12px}
+  .frow:active{background:rgba(255,255,255,.04)}
+  .frow .fa{width:36px;height:36px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-weight:700;font-size:13px;color:#0a0b12}
+  .frow .nm{flex:1}.frow .nm .n{font-size:14px;font-weight:600}.frow .nm .s{font-size:11px;opacity:.5}
+  .frow .go{background:linear-gradient(90deg,var(--pink),var(--orange));color:#fff;font-size:12px;font-weight:700;padding:7px 14px;border-radius:20px}
+  .relay{color:var(--blue)!important}
+
+  /* bottom nav */
+  .nav{position:absolute;bottom:0;left:0;right:0;height:74px;background:rgba(10,12,22,.92);backdrop-filter:blur(14px);
+    border-top:1px solid rgba(255,255,255,.07);display:flex;z-index:40;padding-bottom:8px}
+  .navb{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:3px;font-size:10px;opacity:.5;cursor:pointer}
+  .navb.active{opacity:1;color:var(--pink)}
+  .navb .ic{font-size:20px}
+
+  /* COMPASS */
+  #compass{background:radial-gradient(circle at 50% 42%,#1a1430 0%,#08060f 72%);z-index:70;align-items:center}
+  .cback{position:absolute;top:56px;left:18px;font-size:14px;opacity:.8;cursor:pointer;background:rgba(255,255,255,.06);padding:8px 14px;border-radius:20px;z-index:5}
+  .cpill{margin-top:64px;background:#1c2136;padding:7px 16px;border-radius:20px;font-size:12px}
+  .arrowbox{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center}
+  .arrow{font-size:150px;line-height:1;color:var(--teal);text-shadow:0 0 40px rgba(75,227,192,.6);transition:transform 1s ease}
+  .cdist{font-size:54px;font-weight:800;margin-top:20px}
+  .cwho{font-size:15px;color:var(--teal);opacity:.9;margin-top:2px}
+  .cwarm{margin-top:16px;font-size:12px;opacity:.5}
+  .cshare{margin:0 0 40px;background:rgba(255,255,255,.08);border:1px solid rgba(255,255,255,.12);color:#fff;padding:12px 22px;border-radius:24px;font-size:14px;font-weight:600;cursor:pointer}
+
+  /* CREW view */
+  .cwrap{flex:1;padding:8px 18px;overflow:auto}
+  .crow{display:flex;align-items:center;gap:12px;padding:12px;background:var(--card);border-radius:16px;margin-bottom:10px;border:1px solid rgba(255,255,255,.05)}
+  .crow .fa{width:40px;height:40px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-weight:700;color:#0a0b12}
+  .crow .st{font-size:11px;opacity:.5}
+  .crow .badge{font-size:10px;font-weight:700;padding:3px 8px;border-radius:10px}
+  .on{background:rgba(75,227,192,.15);color:var(--teal)}
+  .off{background:rgba(255,255,255,.08);opacity:.6}
+  .bigbtn{display:block;width:100%;padding:15px;border-radius:16px;border:none;font-size:15px;font-weight:700;cursor:pointer;margin-top:8px}
+  .bp{background:linear-gradient(90deg,var(--pink),var(--orange));color:#fff}
+  .bs{background:rgba(255,255,255,.06);color:#fff;border:1px solid rgba(255,255,255,.12);margin-top:12px}
+
+  /* MODALS */
+  .modal{position:absolute;inset:0;background:rgba(4,5,10,.7);backdrop-filter:blur(4px);z-index:80;display:none;align-items:flex-end}
+  .modal.active{display:flex}
+  .msheet{width:100%;background:#12141f;border-radius:26px 26px 0 0;padding:20px 20px 30px;border-top:1px solid rgba(255,255,255,.1);animation:up .25s ease}
+  @keyframes up{from{transform:translateY(40px);opacity:.4}to{transform:translateY(0);opacity:1}}
+  .msheet h3{font-size:18px;margin-bottom:4px}.msheet .sub{font-size:13px;opacity:.55;margin-bottom:18px}
+  .opt{display:flex;gap:12px;align-items:flex-start;padding:14px;border-radius:14px;border:1px solid rgba(255,255,255,.08);margin-bottom:10px;cursor:pointer}
+  .opt.sel{border-color:var(--pink);background:rgba(255,90,140,.08)}
+  .opt .dot{width:20px;height:20px;border-radius:50%;border:2px solid rgba(255,255,255,.3);flex:0 0 auto;margin-top:2px}
+  .opt.sel .dot{border-color:var(--pink);background:var(--pink);box-shadow:inset 0 0 0 3px #12141f}
+  .opt .ot{font-size:14px;font-weight:600}.opt .od{font-size:12px;opacity:.55;margin-top:2px}
+  .close{width:100%;padding:13px;border-radius:14px;background:rgba(255,255,255,.06);border:1px solid rgba(255,255,255,.12);color:#fff;font-weight:600;font-size:14px;cursor:pointer;margin-top:6px}
+  .code{font-family:ui-monospace,Menlo,monospace;font-size:26px;font-weight:700;text-align:center;letter-spacing:1px;background:rgba(255,255,255,.05);padding:18px;border-radius:14px;margin:8px 0 6px;color:var(--teal)}
+  .codehint{text-align:center;font-size:12px;opacity:.5;margin-bottom:16px}
+  .copybtn{width:100%;padding:13px;border-radius:14px;background:linear-gradient(90deg,var(--pink),var(--orange));border:none;color:#fff;font-weight:700;font-size:14px;cursor:pointer;margin-bottom:10px}
+  .qr{width:180px;height:180px;margin:6px auto 14px;border-radius:16px;background:
+    conic-gradient(from 0deg,#0a0b12 25%,#fff 0 50%,#0a0b12 0 75%,#fff 0) 0 0/24px 24px,#fff;
+    display:flex;align-items:center;justify-content:center;position:relative;overflow:hidden;border:6px solid #fff}
+  .qr::after{content:'';position:absolute;inset:34px;background:
+    linear-gradient(#0a0b12 0 0) center/60% 8px no-repeat,
+    linear-gradient(#0a0b12 0 0) center/8px 60% no-repeat,
+    repeating-linear-gradient(#0a0b12 0 6px,#fff 0 12px)}
+  .toast{position:absolute;bottom:96px;left:50%;transform:translateX(-50%);background:#fff;color:#0a0b12;font-weight:700;font-size:13px;padding:10px 18px;border-radius:22px;z-index:90;opacity:0;transition:opacity .2s;pointer-events:none}
+  .toast.show{opacity:1}
+  .hint{text-align:center;font-size:12px;opacity:.5;max-width:340px;line-height:1.5}
+  .tapnote{position:absolute;top:108px;left:50%;transform:translateX(-50%);font-size:11px;opacity:.4;z-index:15}
+</style>
+</head>
+<body>
+  <div class="title"><h1><b>Loc8</b> — tap-through prototype</h1><p>Click friends, drop a pin, flip privacy, share a Plus Code, add via QR</p></div>
+
+  <div class="phone">
+    <div class="notch"></div>
+    <div class="screen">
+
+      <!-- ===== RADAR ===== -->
+      <div id="radar" class="view active">
+        <div class="sb"></div>
+        <div class="top">
+          <div class="brand">Loc<b>8</b></div>
+          <div class="mesh"><span class="live"></span> MESH · 4 nearby</div>
+        </div>
+        <div class="tapnote">👇 tap a friend dot or a “Find →” row</div>
+        <div class="radar-wrap">
+          <div class="radar">
+            <div class="ring r3"></div><div class="ring r2"></div><div class="ring r1"></div>
+            <div class="rlab" style="top:calc(50% - 50px - 12px)">100m</div>
+            <div class="rlab" style="top:calc(50% - 100px - 12px)">250m</div>
+            <div class="sweep"></div>
+            <div class="me"><div class="halo"></div><div class="core"></div></div>
+            <div id="pinMark" class="pinmark" style="top:34%;left:60%;display:none" onclick="openShare('Rally pin','849VCWC8+X7')">
+              <div class="flag">🚩</div><div class="plab">MEET HERE</div>
+            </div>
+          </div>
+          <div class="fabs">
+            <div id="pinFab" class="fab" title="Drop rally pin" onclick="togglePin()">🚩</div>
+            <div id="darkFab" class="fab" title="Go dark" onclick="openModal('privacy')">👁️</div>
+          </div>
+        </div>
+        <div class="sheet">
+          <div class="grab"></div>
+          <h4>Your crew · 3 online</h4>
+          <div class="frow" onclick="openCompass('maya')">
+            <div class="fa" style="background:var(--teal)">M</div>
+            <div class="nm"><div class="n">Maya</div><div class="s">80m · NE · 3s ago</div></div>
+            <div class="go">Find →</div>
+          </div>
+          <div class="frow" onclick="openCompass('jules')">
+            <div class="fa" style="background:var(--orange)">J</div>
+            <div class="nm"><div class="n">Jules</div><div class="s">140m · SW · 8s ago</div></div>
+            <div class="go">Find →</div>
+          </div>
+          <div class="frow" onclick="openCompass('sam')">
+            <div class="fa" style="background:var(--blue)">S</div>
+            <div class="nm"><div class="n">Sam</div><div class="s relay">210m · W · via Maya's phone 🔗</div></div>
+            <div class="go">Find →</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- ===== CREW ===== -->
+      <div id="crew" class="view">
+        <div class="sb"></div>
+        <div class="top"><div class="brand">Your <b>crew</b></div><div class="mesh"><span class="live"></span> MESH</div></div>
+        <div class="cwrap">
+          <div class="crow"><div class="fa" style="background:var(--teal)">M</div><div class="nm" style="flex:1"><div class="n">Maya</div><div class="st">Sharing live · 80m</div></div><div class="badge on">LIVE</div></div>
+          <div class="crow"><div class="fa" style="background:var(--orange)">J</div><div class="nm" style="flex:1"><div class="n">Jules</div><div class="st">Sharing live · 140m</div></div><div class="badge on">LIVE</div></div>
+          <div class="crow"><div class="fa" style="background:var(--blue)">S</div><div class="nm" style="flex:1"><div class="n">Sam</div><div class="st">Via relay · 210m</div></div><div class="badge on">LIVE</div></div>
+          <div class="crow"><div class="fa" style="background:#666">R</div><div class="nm" style="flex:1"><div class="n">Rae</div><div class="st">Went dark · last seen 4m ago</div></div><div class="badge off">DARK</div></div>
+          <button class="bigbtn bp" onclick="openModal('qr')">＋ Add friend via QR</button>
+          <button class="bigbtn bs" onclick="toast('Mocked in prototype — real invites in v1')">🔗 Create crew link</button>
+        </div>
+      </div>
+
+      <!-- ===== COMPASS ===== -->
+      <div id="compass" class="view">
+        <div class="cback" onclick="closeCompass()">‹ Back to radar</div>
+        <div class="cpill">Following · <span id="cName">Maya</span></div>
+        <div class="arrowbox">
+          <div class="arrow" id="cArrow">➤</div>
+          <div class="cdist"><span id="cDist">80</span>m</div>
+          <div class="cwho"><span id="cWho">Maya</span> · this way</div>
+          <div class="cwarm" id="cWarm">🔥 getting warmer</div>
+        </div>
+        <button class="cshare" onclick="openShare(currentName, currentCode)">Share <span id="cShareName">Maya</span>'s spot</button>
+      </div>
+
+      <!-- ===== NAV ===== -->
+      <div class="nav">
+        <div id="nRadar" class="navb active" onclick="tab('radar')"><div class="ic">📡</div>Radar</div>
+        <div id="nCrew" class="navb" onclick="tab('crew')"><div class="ic">👥</div>Crew</div>
+      </div>
+
+      <!-- ===== PRIVACY MODAL ===== -->
+      <div id="privacy" class="modal">
+        <div class="msheet">
+          <h3>Who can see you?</h3>
+          <div class="sub">Switch anytime. “Go dark” is one tap.</div>
+          <div class="opt sel" id="m-live" onclick="setMode('live')"><div class="dot"></div><div><div class="ot">Live (background)</div><div class="od">Broadcast even in your pocket. Radar stays true. Best experience.</div></div></div>
+          <div class="opt" id="m-open" onclick="setMode('open')"><div class="dot"></div><div><div class="ot">Only while app is open</div><div class="od">Battery-saver. Visible only with Loc8 on screen.</div></div></div>
+          <div class="opt" id="m-dark" onclick="setMode('dark')"><div class="dot"></div><div><div class="ot">Invisible / on-demand</div><div class="od">You disappear. Show up only when you tap share or answer a ping.</div></div></div>
+          <button class="close" onclick="closeModal('privacy')">Done</button>
+        </div>
+      </div>
+
+      <!-- ===== SHARE MODAL ===== -->
+      <div id="share" class="modal">
+        <div class="msheet">
+          <h3 id="shTitle">Maya's exact spot</h3>
+          <div class="sub">Plus Code — works offline, free. Shout it or text it.</div>
+          <div class="code" id="shCode">849VCWC8+R9</div>
+          <div class="codehint">≈ 3×3m square · maps.google.com/plus</div>
+          <button class="copybtn" onclick="toast('Copied!')">Copy Plus Code</button>
+          <button class="close" onclick="closeModal('share')">Close</button>
+        </div>
+      </div>
+
+      <!-- ===== QR MODAL ===== -->
+      <div id="qr" class="modal">
+        <div class="msheet">
+          <h3>Add a friend nearby</h3>
+          <div class="sub">Have them scan this — pairs over Bluetooth, no internet.</div>
+          <div class="qr"></div>
+          <button class="copybtn" onclick="toast('Mocked pairing — real BLE QR in v2')">📷 Scan their code instead</button>
+          <button class="close" onclick="closeModal('qr')">Close</button>
+        </div>
+      </div>
+
+      <div id="toast" class="toast"></div>
+
+    </div>
+  </div>
+
+  <p class="hint">Prototype with simulated friends — locations drift & distances update live, just like the real app will. Everything runs behind one swappable “transport” layer, so v2 drops in the real Bluetooth mesh without changing any of these screens.</p>
+
+<script>
+  var friends = {
+    maya:{name:'Maya', dist:80,  who:'NE', code:'849VCWC8+R9', rot:35,  el:null, tX:60, tY:26},
+    jules:{name:'Jules',dist:140, who:'SW', code:'849VCWC7+M4', rot:210, el:null, tX:34, tY:72},
+    sam:{name:'Sam',   dist:210, who:'W',  code:'849VCWC6+P8', rot:270, el:null, tX:14, tY:46}
+  };
+  var currentName='Maya', currentCode='849VCWC8+R9', following=null, pinOn=false;
+
+  // build radar blips
+  var radar=document.querySelector('#radar .radar');
+  Object.keys(friends).forEach(function(id){
+    var f=friends[id];
+    var d=document.createElement('div'); d.className='blip';
+    d.style.top=f.tY+'%'; d.style.left=f.tX+'%';
+    d.onclick=function(){openCompass(id)};
+    d.innerHTML='<div class="av" style="background:'+(id=='maya'?'var(--teal)':id=='jules'?'var(--orange)':'var(--blue)')+'">'+f.name[0]+'</div><div class="tag">'+f.name+' <b class="bd">'+f.dist+'m</b></div>';
+    radar.appendChild(d); f.el=d;
+  });
+
+  function tab(name){
+    if(name=='radar'){document.getElementById('radar').classList.add('active');document.getElementById('crew').classList.remove('active');document.getElementById('nRadar').classList.add('active');document.getElementById('nCrew').classList.remove('active');}
+    else{document.getElementById('crew').classList.add('active');document.getElementById('radar').classList.remove('active');document.getElementById('nCrew').classList.add('active');document.getElementById('nRadar').classList.remove('active');}
+  }
+  function openCompass(id){
+    var f=friends[id]; following=id; currentName=f.name; currentCode=f.code;
+    document.getElementById('cName').textContent=f.name;
+    document.getElementById('cWho').textContent=f.name;
+    document.getElementById('cShareName').textContent=f.name;
+    document.getElementById('cDist').textContent=f.dist;
+    document.getElementById('cArrow').style.transform='rotate('+f.rot+'deg)';
+    document.getElementById('radar').classList.remove('active');
+    document.getElementById('crew').classList.remove('active');
+    document.getElementById('compass').classList.add('active');
+  }
+  function closeCompass(){following=null;document.getElementById('compass').classList.remove('active');document.getElementById('radar').classList.add('active');}
+  function togglePin(){pinOn=!pinOn;document.getElementById('pinMark').style.display=pinOn?'flex':'none';document.getElementById('pinFab').classList.toggle('on',pinOn);toast(pinOn?'🚩 Rally pin dropped — crew notified':'Pin removed');}
+  function openModal(id){document.getElementById(id).classList.add('active');}
+  function closeModal(id){document.getElementById(id).classList.remove('active');}
+  function openShare(name,code){currentName=name;currentCode=code;document.getElementById('shTitle').textContent=name+(name=='Rally pin'?' location':"'s exact spot");document.getElementById('shCode').textContent=code;openModal('share');}
+  function setMode(m){
+    ['live','open','dark'].forEach(function(x){document.getElementById('m-'+x).classList.toggle('sel',x==m);});
+    var fab=document.getElementById('darkFab'); fab.textContent=(m=='dark')?'🚫':'👁️';
+    fab.classList.toggle('on',m=='dark');
+  }
+  var tt;
+  function toast(msg){var t=document.getElementById('toast');t.textContent=msg;t.classList.add('show');clearTimeout(tt);tt=setTimeout(function(){t.classList.remove('show')},1600);}
+
+  // live drift — move blips slightly + tick distances
+  setInterval(function(){
+    Object.keys(friends).forEach(function(id){
+      var f=friends[id];
+      f.tX+=(Math.random()-0.5)*3; f.tY+=(Math.random()-0.5)*3;
+      f.tX=Math.max(10,Math.min(85,f.tX)); f.tY=Math.max(16,Math.min(80,f.tY));
+      f.el.style.left=f.tX+'%'; f.el.style.top=f.tY+'%';
+      var delta=Math.round((Math.random()-0.5)*10); f.dist=Math.max(5,f.dist+delta);
+      f.el.querySelector('.bd').textContent=f.dist+'m';
+    });
+    // update crew sheet distances
+    document.querySelectorAll('#radar .frow .s').forEach(function(s,i){
+      var ids=['maya','jules','sam']; var f=friends[ids[i]];
+      s.innerHTML = (i==2? f.dist+'m · W · via Maya\'s phone 🔗' : f.dist+'m · '+f.who+' · '+(3+i*5)+'s ago');
+    });
+    // update compass if following
+    if(following){var f=friends[following];document.getElementById('cDist').textContent=f.dist;
+      document.getElementById('cWarm').textContent=f.dist<70?'🔥 very warm — almost there':f.dist<150?'🔥 getting warmer':'🧭 keep walking';}
+  },1400);
+</script>
+</body>
+</html>
