@@ -5,9 +5,17 @@ import { useCrewStore } from '../src/state/crewStore';
 import { getMeshService, getTransport, bootCrew } from '../src/services/appServices';
 import { useMyLocation } from '../src/hooks/useMyLocation';
 import { RadarView } from '../src/ui/RadarView';
+import { CrewSheet } from '../src/ui/CrewSheet';
+import { useRouter, type Href } from 'expo-router';
 import { colors } from '../src/ui/theme';
 
+// `/crew` (app/crew.tsx) is added in this task; the generated typed-routes
+// union has not regenerated yet, so reference it through the documented `Href`
+// escape hatch (same pattern as app/_layout.tsx for `/onboarding`).
+const CREW: Href = '/crew' as Href;
+
 export default function RadarHome() {
+  const router = useRouter();
   const meshNearby = useCrewStore((s) => s.meshNearby);
   const banner = useCrewStore((s) => s.banner);
   const setBanner = useCrewStore((s) => s.setBanner);
@@ -58,6 +66,10 @@ export default function RadarHome() {
       )}
 
       <RadarView />
+      <Pressable style={st.crewNav} onPress={() => router.push(CREW)}>
+        <Text style={st.crewNavText}>👥 Manage crew & session</Text>
+      </Pressable>
+      <CrewSheet />
     </View>
   );
 }
@@ -83,4 +95,6 @@ const st = StyleSheet.create({
   },
   sessionCtaText: { color: '#fff', fontWeight: '800', fontSize: 14 },
   warn: { color: colors.yellow, fontSize: 11, textAlign: 'center', marginTop: 8 },
+  crewNav: { alignItems: 'center', paddingVertical: 6 },
+  crewNavText: { color: colors.textDim, fontSize: 12, fontWeight: '600' },
 });
