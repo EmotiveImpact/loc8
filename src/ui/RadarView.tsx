@@ -7,10 +7,12 @@ import { useCrewStore, freshnessSec, STALE_SEC, GHOST_SEC } from '../state/crewS
 import { calculateRadarPoint, LINEAR_MAX_M, OUTER_MAX_M } from '../core/geoMath';
 import { useNowSec } from '../hooks/useNowSec';
 import { Blip } from './Blip';
+import { ShareSheet } from './ShareSheet';
 import { colors } from './theme';
 
 export function RadarView() {
   const [size, setSize] = useState(0);
+  const [shareOpen, setShareOpen] = useState(false);
   const friends = useCrewStore((s) => s.friends);
   const myLocation = useCrewStore((s) => s.myLocation);
   const rallyPin = useCrewStore((s) => s.rallyPin);
@@ -40,12 +42,24 @@ export function RadarView() {
             const pt = calculateRadarPoint(myLocation, rallyPin, radius);
             const dropper = friends[rallyPin.droppedById]?.name ?? 'You';
             return (
-              <View style={[st.pin, { transform: [{ translateX: pt.x }, { translateY: pt.y }] }]}>
+              <Pressable
+                onPress={() => setShareOpen(true)}
+                style={[st.pin, { transform: [{ translateX: pt.x }, { translateY: pt.y }] }]}
+              >
                 <Text style={{ fontSize: 22 }}>🚩</Text>
                 <Text style={st.pinLabel}>{dropper} · {Math.round(pt.distanceMeters)}m</Text>
-              </View>
+              </Pressable>
             );
           })()}
+
+          {rallyPin && myLocation && (
+            <ShareSheet
+              visible={shareOpen}
+              title="Rally point"
+              location={rallyPin}
+              onClose={() => setShareOpen(false)}
+            />
+          )}
 
           {/* friends */}
           {myLocation && Object.values(friends).map((f) => {

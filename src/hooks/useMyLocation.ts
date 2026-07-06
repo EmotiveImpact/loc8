@@ -22,14 +22,22 @@ export function useMyLocation(): LocationStatus {
         return;
       }
       setStatus('granted');
-      sub = await Location.watchPositionAsync(
-        { accuracy: Location.Accuracy.Balanced, timeInterval: 3000, distanceInterval: 2 },
-        (loc) => {
-          const c = { latitude: loc.coords.latitude, longitude: loc.coords.longitude };
-          setMyLocation(c);
-          getTransport().setOrigin(c);
-        },
-      );
+      try {
+        sub = await Location.watchPositionAsync(
+          { accuracy: Location.Accuracy.Balanced, timeInterval: 3000, distanceInterval: 2 },
+          (loc) => {
+            const c = { latitude: loc.coords.latitude, longitude: loc.coords.longitude };
+            setMyLocation(c);
+            getTransport().setOrigin(c);
+          },
+          // Swallow mid-session GPS errors so they don't become unhandled rejections.
+          () => {},
+        );
+      } catch {
+        // Watch rejected after grant (e.g. system Location Services off) — fall back.
+        setMyLocation(FALLBACK_ORIGIN);
+        getTransport().setOrigin(FALLBACK_ORIGIN);
+      }
     })();
     return () => sub?.remove();
   }, []);
