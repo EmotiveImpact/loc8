@@ -9,6 +9,8 @@ const ACTIONS: Array<{ label: string; run(): void }> = [
   { label: '☀️ Rae comes back', run: () => getTransport().scenario('return', 104) },
   { label: '🏃 Maya approaches you (→ 🎉)', run: () => getTransport().scenario('approach', 101) },
   { label: '🚶 Maya wanders off again', run: () => getTransport().scenario('return', 101) },
+  { label: '📍 Maya asks where you are', run: () => getTransport().simulateIncomingPing(101, 'pingWhere') },
+  { label: '📣 Jules: come find me', run: () => getTransport().simulateIncomingPing(102, 'pingComeFind') },
   { label: '🪫 My battery low (beacon mode)', run: () => useCrewStore.getState().setBeacon(true) },
   { label: '🔋 Battery ok', run: () => useCrewStore.getState().setBeacon(false) },
 ];

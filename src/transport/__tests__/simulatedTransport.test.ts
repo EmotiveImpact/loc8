@@ -78,6 +78,23 @@ describe('SimulatedTransport', () => {
       expect(d).toBeLessThan(500); // within max startDistance (320m) + one walk step, not ~4000km
     }
   });
+  it('simulateIncomingPing emits a ping packet from the friend to the local user', () => {
+    const t = makeTransport();
+    const out: Packet[] = [];
+    t.onPacket((p) => out.push(p));
+    t.simulateIncomingPing(101, 'pingWhere');
+    expect(out.length).toBe(1);
+    expect(out[0].type).toBe('pingWhere');
+    expect(out[0].senderId).toBe(101); // from the friend
+    expect(out[0].targetId).toBe(0);   // addressed to me
+  });
+  it('simulateIncomingPing is a no-op for an unknown friend id', () => {
+    const t = makeTransport();
+    const out: Packet[] = [];
+    t.onPacket((p) => out.push(p));
+    t.simulateIncomingPing(999, 'pingComeFind');
+    expect(out.length).toBe(0);
+  });
   it('does not teleport friends on later origin updates (only first anchors)', () => {
     const A = { latitude: 40.7128, longitude: -74.006 };
     const B = { latitude: 51.5074, longitude: -0.1278 }; // London — a later, different origin

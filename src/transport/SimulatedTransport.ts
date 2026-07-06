@@ -108,6 +108,24 @@ export class SimulatedTransport implements LocationTransport {
     if (action === 'lowBattery') f.batteryPct = 9;
   }
 
+  /**
+   * Simulate an INCOMING ping from a friend to the local user (targetId 0).
+   * Emits through the normal packet pathway so it flows meshService.onPacket →
+   * trust.accept → crewStore.applyPacket's ping branch, which sets the tappable
+   * banner + notifyPing. No-op if the friend id is unknown.
+   */
+  simulateIncomingPing(friendId: number, kind: 'pingWhere' | 'pingComeFind'): void {
+    const f = this.friends.find((x) => x.id === friendId);
+    if (!f) return;
+    const packet: Packet = {
+      type: kind, senderId: f.id, targetId: 0,
+      latitude: f.pos.latitude, longitude: f.pos.longitude,
+      headingDeg: Math.round(f.headingDeg), batteryPct: Math.round(f.batteryPct),
+      timestampSec: this.nowSec(), accuracyM: 8 + Math.floor(this.rng() * 15),
+    };
+    this.emit(packet, f.relayVia);
+  }
+
   /** One simulation step. Public so tests and demo controls can drive time manually. */
   tick(): void {
     const now = this.nowSec();
