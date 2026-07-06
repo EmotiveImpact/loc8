@@ -57,6 +57,10 @@ describe('smoothHeading (low-pass with wrap-around)', () => {
   it('handles the 10°→350° wrap', () => {
     expect(smoothHeading(10, 350, 0.5)).toBeCloseTo(0, 5);
   });
+  it('ignores a non-finite reading (keeps current) and still smooths a later finite reading', () => {
+    expect(smoothHeading(90, NaN)).toBe(90); // one NaN can't poison the filter
+    expect(smoothHeading(90, 110, 0.5)).toBeCloseTo(100, 5); // later finite reading smooths normally
+  });
 });
 
 describe('radarRadiusForDistance (piecewise linear→log)', () => {

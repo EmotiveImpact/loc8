@@ -42,6 +42,18 @@ describe('PacketCodec', () => {
     new DataView(buf).setUint8(0, 99);
     expect(() => decodePacket(buf)).toThrow(/type/i);
   });
+  it('normalizes headings into [0,359] (negative and >=360 rounding)', () => {
+    // JS % is remainder not modulo: -1 must wrap to 359, not a huge uint16.
+    const neg = decodePacket(encodePacket({ ...sample, headingDeg: -1 }));
+    expect(neg.headingDeg).toBe(359);
+    expect(neg.headingDeg).toBeGreaterThanOrEqual(0);
+    expect(neg.headingDeg).toBeLessThanOrEqual(359);
+    // 359.6 rounds up to 360 which must normalize to 0, not be stored as 360.
+    const wrap = decodePacket(encodePacket({ ...sample, headingDeg: 359.6 }));
+    expect(wrap.headingDeg).toBe(0);
+    expect(wrap.headingDeg).toBeGreaterThanOrEqual(0);
+    expect(wrap.headingDeg).toBeLessThanOrEqual(359);
+  });
   it('round-trips every packet type', () => {
     (['position', 'pingWhere', 'pingComeFind', 'rally'] as const).forEach((type) => {
       expect(decodePacket(encodePacket({ ...sample, type })).type).toBe(type);

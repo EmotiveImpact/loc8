@@ -18,7 +18,13 @@ export function useSmoothedHeading(): number {
       try {
         sub = await Location.watchHeadingAsync((h) => {
           if (!mounted) return;
-          const raw = h.trueHeading >= 0 ? h.trueHeading : h.magHeading;
+          const raw =
+            Number.isFinite(h.trueHeading) && h.trueHeading >= 0
+              ? h.trueHeading
+              : Number.isFinite(h.magHeading)
+                ? h.magHeading
+                : undefined;
+          if (raw === undefined) return; // no usable heading — keep current
           current.current = smoothHeading(current.current, raw, 0.25);
           setHeading(current.current);
         });

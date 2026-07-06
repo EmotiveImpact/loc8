@@ -16,7 +16,7 @@ export function encodePacket(p: Packet): ArrayBuffer {
   v.setUint32(5, p.targetId);
   v.setInt32(9, Math.round(p.latitude * 1e7));
   v.setInt32(13, Math.round(p.longitude * 1e7));
-  v.setUint16(17, Math.round(p.headingDeg) % 360);
+  v.setUint16(17, ((Math.round(p.headingDeg) % 360) + 360) % 360);
   v.setUint8(19, Math.min(100, Math.max(0, Math.round(p.batteryPct))));
   v.setUint32(20, p.timestampSec);
   v.setUint8(24, Math.min(255, Math.max(0, Math.round(p.accuracyM))));

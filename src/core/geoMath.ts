@@ -35,6 +35,7 @@ export function movePoint(from: Coordinate, bearingDeg: number, meters: number):
  * Handles the 359°→0° wrap so the needle never spins the long way round.
  */
 export function smoothHeading(currentDeg: number, nextDeg: number, alpha = 0.2): number {
+  if (!Number.isFinite(nextDeg)) return currentDeg;
   let diff = nextDeg - currentDeg;
   if (diff > 180) diff -= 360;
   else if (diff < -180) diff += 360;

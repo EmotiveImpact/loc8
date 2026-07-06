@@ -16,6 +16,13 @@ describe('TrustLayer', () => {
     const t = new TrustLayer(600, now);
     expect(t.accept({ ...base, timestampSec: 1060 - 601 })).toBe(false);
   });
+  it('rejects future-dated packets and still accepts a later real packet from the same sender', () => {
+    const t = new TrustLayer(600, now);
+    // A forged/skewed packet dated far in the future must NOT be stored in lastSeen.
+    expect(t.accept({ ...base, timestampSec: 1060 + 601 })).toBe(false);
+    // A subsequent normal (in-window) packet from the same sender is still accepted.
+    expect(t.accept({ ...base, timestampSec: 1055 })).toBe(true);
+  });
   it('rejects an exact replay (same timestamp)', () => {
     const t = new TrustLayer(600, now);
     expect(t.accept(base)).toBe(true);
