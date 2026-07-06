@@ -8,6 +8,7 @@ import { useCrewStore, freshnessSec } from '../../src/state/crewStore';
 import { getHaversineDistance, getAbsoluteBearing } from '../../src/core/geoMath';
 import { useSmoothedHeading } from '../../src/hooks/useSmoothedHeading';
 import { useNowSec } from '../../src/hooks/useNowSec';
+import { ShareSheet } from '../../src/ui/ShareSheet';
 import { colors } from '../../src/ui/theme';
 
 export default function CompassScreen() {
@@ -34,6 +35,7 @@ export default function CompassScreen() {
   const inProximity = dist !== null && dist < proximityAt;
   const found = dist !== null && dist < 15;
   const [celebrationShown, setCelebrationShown] = useState(false);
+  const [shareOpen, setShareOpen] = useState(false);
 
   useEffect(() => {
     if (inProximity) Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
@@ -97,6 +99,15 @@ export default function CompassScreen() {
           {fresh !== null && fresh > 30 && <Text style={st.staleNote}>position is {fresh}s old</Text>}
         </View>
       )}
+      <Pressable style={st.shareBtn} onPress={() => setShareOpen(true)}>
+        <Text style={st.shareT}>Share {friend.name}'s spot</Text>
+      </Pressable>
+      <ShareSheet
+        visible={shareOpen}
+        title={`${friend.name}'s exact spot`}
+        location={friendPos}
+        onClose={() => setShareOpen(false)}
+      />
     </View>
   );
 }
@@ -124,4 +135,9 @@ const st = StyleSheet.create({
   foundH: { color: colors.text, fontSize: 28, fontWeight: '800', marginTop: 10 },
   doneBtn: { backgroundColor: colors.pink, borderRadius: 14, paddingHorizontal: 24, paddingVertical: 14, marginTop: 18 },
   doneText: { color: '#fff', fontWeight: '800' },
+  shareBtn: {
+    marginBottom: 40, borderRadius: 22, borderWidth: 1, borderColor: colors.cardBorder,
+    paddingHorizontal: 22, paddingVertical: 12,
+  },
+  shareT: { color: colors.text, fontWeight: '700', fontSize: 14 },
 });

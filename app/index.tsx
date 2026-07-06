@@ -1,11 +1,13 @@
 // app/index.tsx
-import { useEffect } from 'react';
+import { useEffect, useState } from 'react';
 import { View, Text, StyleSheet, Pressable } from 'react-native';
 import { useCrewStore } from '../src/state/crewStore';
 import { getMeshService, getTransport, bootCrew } from '../src/services/appServices';
 import { useMyLocation } from '../src/hooks/useMyLocation';
 import { RadarView } from '../src/ui/RadarView';
 import { CrewSheet } from '../src/ui/CrewSheet';
+import { PrivacyModal } from '../src/ui/PrivacyModal';
+import { DevMenu } from '../src/ui/DevMenu';
 import { useRouter, type Href } from 'expo-router';
 import { colors } from '../src/ui/theme';
 
@@ -22,6 +24,10 @@ export default function RadarHome() {
   const sessionEndsAtSec = useCrewStore((s) => s.sessionEndsAtSec);
   const startSession = useCrewStore((s) => s.startSession);
   const locationStatus = useMyLocation();
+  const [privacyOpen, setPrivacyOpen] = useState(false);
+  const [devOpen, setDevOpen] = useState(false);
+  const privacyMode = useCrewStore((s) => s.privacyMode);
+  const beaconMode = useCrewStore((s) => s.beaconMode);
 
   useEffect(() => {
     bootCrew();
@@ -69,6 +75,27 @@ export default function RadarHome() {
       <Pressable style={st.crewNav} onPress={() => router.push(CREW)}>
         <Text style={st.crewNavText}>👥 Manage crew & session</Text>
       </Pressable>
+      <View style={st.fabs}>
+        <Pressable style={st.fab} onPress={() => { getMeshService().dropRally(); }}>
+          <Text style={st.fabT}>🚩</Text>
+        </Pressable>
+        <Pressable
+          style={[st.fab, privacyMode === 'invisible' && st.fabOn]}
+          onPress={() => setPrivacyOpen(true)}
+        >
+          <Text style={st.fabT}>{privacyMode === 'invisible' ? '🚫' : '👁️'}</Text>
+        </Pressable>
+        {__DEV__ && (
+          <Pressable style={st.fab} onPress={() => setDevOpen(true)}>
+            <Text style={st.fabT}>🛠</Text>
+          </Pressable>
+        )}
+      </View>
+      {beaconMode && (
+        <Text style={st.warn}>🪫 Power saver — updating once a minute, you're still findable</Text>
+      )}
+      <PrivacyModal visible={privacyOpen} onClose={() => setPrivacyOpen(false)} />
+      <DevMenu visible={devOpen} onClose={() => setDevOpen(false)} />
       <CrewSheet />
     </View>
   );
@@ -97,4 +124,11 @@ const st = StyleSheet.create({
   warn: { color: colors.yellow, fontSize: 11, textAlign: 'center', marginTop: 8 },
   crewNav: { alignItems: 'center', paddingVertical: 6 },
   crewNavText: { color: colors.textDim, fontSize: 12, fontWeight: '600' },
+  fabs: { position: 'absolute', right: 16, bottom: 300, gap: 12, zIndex: 20 },
+  fab: {
+    width: 50, height: 50, borderRadius: 16, backgroundColor: colors.card,
+    borderWidth: 1, borderColor: colors.cardBorder, alignItems: 'center', justifyContent: 'center',
+  },
+  fabOn: { backgroundColor: colors.pink },
+  fabT: { fontSize: 20 },
 });
