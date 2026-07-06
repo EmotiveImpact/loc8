@@ -1,0 +1,60 @@
+import { useCrewStore, freshnessSec, STALE_SEC } from '../crewStore';
+import type { Packet } from '../../core/types';
+
+const posPacket = (senderId: number, timestampSec: number): Packet => ({
+  type: 'position', senderId, targetId: 0, latitude: 37.77, longitude: -122.41,
+  headingDeg: 0, batteryPct: 70, timestampSec, accuracyM: 10,
+});
+
+beforeEach(() => {
+  useCrewStore.getState().reset();
+  useCrewStore.getState().registerFriends([
+    { id: 101, name: 'Maya', color: '#4be3c0' },
+    { id: 102, name: 'Jules', color: '#ff9a5a' },
+  ]);
+});
+
+describe('crewStore', () => {
+  it('applies position packets to the right friend', () => {
+    useCrewStore.getState().applyPacket(posPacket(101, 1000), 'someRelay');
+    const f = useCrewStore.getState().friends[101];
+    expect(f.lastPacket?.timestampSec).toBe(1000);
+    expect(f.relayVia).toBe('someRelay');
+  });
+
+  it('computes freshness and staleness', () => {
+    useCrewStore.getState().applyPacket(posPacket(101, 1000));
+    const f = useCrewStore.getState().friends[101];
+    expect(freshnessSec(f, 1010)).toBe(10);
+    expect(freshnessSec(f, 1000 + STALE_SEC + 1)! > STALE_SEC).toBe(true);
+    expect(freshnessSec(useCrewStore.getState().friends[102], 1010)).toBeNull(); // never seen
+  });
+
+  it('session: starts with duration, expires, extends', () => {
+    const s = useCrewStore.getState();
+    s.startSession(6, 1000);                      // 6h from t=1000
+    expect(useCrewStore.getState().sessionEndsAtSec).toBe(1000 + 6 * 3600);
+    expect(useCrewStore.getState().isSessionActive(1000 + 3600)).toBe(true);
+    expect(useCrewStore.getState().isSessionActive(1000 + 7 * 3600)).toBe(false);
+    s.extendSession(2);
+    expect(useCrewStore.getState().sessionEndsAtSec).toBe(1000 + 8 * 3600);
+    s.endSession();
+    expect(useCrewStore.getState().sessionEndsAtSec).toBeNull();
+  });
+
+  it('rally pin: latest wins, older rally packets ignored', () => {
+    const s = useCrewStore.getState();
+    s.applyPacket({ ...posPacket(101, 2000), type: 'rally' });
+    expect(useCrewStore.getState().rallyPin?.droppedById).toBe(101);
+    s.applyPacket({ ...posPacket(102, 1500), type: 'rally' });   // older — ignored
+    expect(useCrewStore.getState().rallyPin?.droppedById).toBe(101);
+    s.applyPacket({ ...posPacket(102, 2500), type: 'rally' });   // newer — replaces
+    expect(useCrewStore.getState().rallyPin?.droppedById).toBe(102);
+  });
+
+  it('ping packets set a banner instead of moving blips', () => {
+    useCrewStore.getState().applyPacket({ ...posPacket(101, 1000), type: 'pingWhere', targetId: 1 });
+    expect(useCrewStore.getState().banner).toMatch(/Maya/);
+    expect(useCrewStore.getState().friends[101].lastPacket).toBeUndefined();
+  });
+});
