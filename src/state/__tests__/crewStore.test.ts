@@ -57,4 +57,13 @@ describe('crewStore', () => {
     expect(useCrewStore.getState().banner?.text).toMatch(/Maya/);
     expect(useCrewStore.getState().friends[101].lastPacket).toBeUndefined();
   });
+
+  it('markCelebrated then clearCelebrated removes the flag (allows re-celebration)', () => {
+    const s = useCrewStore.getState();
+    s.markCelebrated(101);
+    expect(useCrewStore.getState().celebrated[101]).toBe(true);
+    s.clearCelebrated(101);
+    expect(useCrewStore.getState().celebrated[101]).toBeUndefined();
+    expect(101 in useCrewStore.getState().celebrated).toBe(false);
+  });
 });

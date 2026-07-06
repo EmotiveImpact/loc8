@@ -43,6 +43,7 @@ interface CrewState {
   setBeacon(on: boolean): void;
   setBanner(b: { text: string; friendId?: number } | null): void;
   markCelebrated(friendId: number): void;
+  clearCelebrated(friendId: number): void;
   dropLocalPin(pin: RallyPin): void;
   reset(): void;
 }
@@ -109,6 +110,11 @@ export const useCrewStore = create<CrewState>((set, get) => ({
   setBanner: (banner) => set({ banner }),
   markCelebrated: (friendId) =>
     set({ celebrated: { ...get().celebrated, [friendId]: true } }),
+  clearCelebrated: (friendId) =>
+    set(() => {
+      const { [friendId]: _removed, ...rest } = get().celebrated;
+      return { celebrated: rest };
+    }),
   dropLocalPin: (rallyPin) => set({ rallyPin }),
 
   reset: () => set({ ...initial, friends: {} }),

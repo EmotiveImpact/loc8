@@ -28,6 +28,7 @@ export default function CompassScreen() {
   const arrowDeg = ((bearing - heading) + 360) % 360;
 
   const markCelebrated = useCrewStore((s) => s.markCelebrated);
+  const clearCelebrated = useCrewStore((s) => s.clearCelebrated);
   const celebrated = useCrewStore((s) => s.celebrated[Number(id)]);
   const accuracy = friend?.lastPacket?.accuracyM ?? 15;
   // Proximity threshold adapts to GPS accuracy (spec §3): never pretend arrow precision we don't have.
@@ -38,16 +39,24 @@ export default function CompassScreen() {
   const [shareOpen, setShareOpen] = useState(false);
 
   useEffect(() => {
-    if (inProximity) Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
+    if (inProximity) Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light).catch(() => {});
   }, [friend?.lastPacket?.timestampSec, inProximity]);
 
   useEffect(() => {
     if (found && !celebrated && !celebrationShown) {
       setCelebrationShown(true);
       markCelebrated(Number(id));
-      Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success);
+      Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success).catch(() => {});
     }
   }, [found]);
+
+  useEffect(() => {
+    // Drifted apart after celebrating: dismiss the 🎉 view and re-arm for a future reunion.
+    if (dist !== null && dist > proximityAt && celebrated) {
+      clearCelebrated(Number(id));
+      setCelebrationShown(false);
+    }
+  }, [dist !== null && dist > proximityAt, celebrated]);
 
   useEffect(() => {
     // rotate the short way round
@@ -59,7 +68,7 @@ export default function CompassScreen() {
   }, [arrowDeg]);
 
   const arrowStyle = useAnimatedStyle(() => ({
-    transform: [{ rotate: `${rotation.value}deg` }],
+    transform: [{ rotate: `${rotation.value - 90}deg` }],
   }));
 
   if (!friend) return null;
