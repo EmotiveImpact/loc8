@@ -1,4 +1,5 @@
 import { SimulatedTransport } from '../SimulatedTransport';
+import { getHaversineDistance } from '../../core/geoMath';
 import type { Packet } from '../../core/types';
 
 const ORIGIN = { latitude: 37.7749, longitude: -122.4194 };
@@ -65,5 +66,28 @@ describe('SimulatedTransport', () => {
     t.onPacket((p) => { if (p.senderId === 101) back.push(p); });
     t.tick();
     expect(back.length).toBe(1);
+  });
+  it('re-anchors friends around the first real origin (setOrigin)', () => {
+    const FAR = { latitude: 40.7128, longitude: -74.006 }; // NYC — ~4100km from the SF seed origin
+    const t = makeTransport();          // friends seeded around ORIGIN (SF)
+    t.setOrigin(FAR);                   // first real GPS arrives
+    const positions = collect(t, 1).filter((p) => p.type === 'position');
+    expect(positions.length).toBeGreaterThan(0);
+    for (const p of positions) {
+      const d = getHaversineDistance(FAR, { latitude: p.latitude, longitude: p.longitude });
+      expect(d).toBeLessThan(500); // within max startDistance (320m) + one walk step, not ~4000km
+    }
+  });
+  it('does not teleport friends on later origin updates (only first anchors)', () => {
+    const A = { latitude: 40.7128, longitude: -74.006 };
+    const B = { latitude: 51.5074, longitude: -0.1278 }; // London — a later, different origin
+    const t = makeTransport();
+    t.setOrigin(A);           // anchors here
+    t.setOrigin(B);           // must NOT re-anchor everyone to London
+    const positions = collect(t, 1).filter((p) => p.type === 'position');
+    for (const p of positions) {
+      const d = getHaversineDistance(A, { latitude: p.latitude, longitude: p.longitude });
+      expect(d).toBeLessThan(500); // still near the first anchor, not the second
+    }
   });
 });
