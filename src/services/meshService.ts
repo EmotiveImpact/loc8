@@ -1,4 +1,5 @@
 // src/services/meshService.ts
+import { AppState, type AppStateStatus, type NativeEventSubscription } from 'react-native';
 import { useCrewStore } from '../state/crewStore';
 import { TrustLayer } from '../core/trustLayer';
 import type { LocationTransport } from '../transport/LocationTransport';
@@ -23,6 +24,9 @@ export function createMeshService(
 ): MeshService {
   let timer: ReturnType<typeof setInterval> | null = null;
   let lastBroadcastSec = 0;
+  let wasActive = false;
+  let foreground = true;
+  let appStateSub: NativeEventSubscription | null = null;
   const store = () => useCrewStore.getState();
 
   const myPacket = (type: PacketType, targetId = 0): Packet | null => {
@@ -37,10 +41,15 @@ export function createMeshService(
 
   const service: MeshService = {
     start() {
+      if (timer) return;   // idempotent — don't re-register callbacks or start a 2nd interval
       transport.onPacket((p, relayVia) => {
         if (trust.accept(p)) store().applyPacket(p, relayVia);
       });
       transport.onMeshStatus((st) => store().setMeshNearby(st.nearbyCount));
+      foreground = AppState.currentState !== 'background';
+      appStateSub = AppState.addEventListener('change', (next: AppStateStatus) => {
+        foreground = next === 'active';
+      });
       transport.start();
       timer = setInterval(() => service.broadcastTick(), 1000);
     },
@@ -48,6 +57,9 @@ export function createMeshService(
     stop() {
       if (timer) clearInterval(timer);
       timer = null;
+      appStateSub?.remove();
+      appStateSub = null;
+      transport.clearListeners();
       transport.stop();
     },
 
@@ -59,10 +71,17 @@ export function createMeshService(
       if (s.sessionEndsAtSec !== null && now >= s.sessionEndsAtSec) {
         s.endSession();
         s.setBanner({ text: '⏳ Session ended — you stopped broadcasting' });
+        wasActive = false;
         return;
       }
-      if (!s.isSessionActive(now)) return;
+      const active = s.isSessionActive(now);
+      // inactive → active transition: broadcast immediately, don't wait out a stale interval
+      if (active && !wasActive) lastBroadcastSec = 0;
+      wasActive = active;
+      if (!active) return;
       if (s.privacyMode === 'invisible') return;
+      // 'open' mode: findable only while the app is foregrounded
+      if (s.privacyMode === 'open' && !foreground) return;
 
       const interval = s.beaconMode ? BEACON_INTERVAL_SEC : BROADCAST_INTERVAL_SEC;
       if (now - lastBroadcastSec < interval) return;

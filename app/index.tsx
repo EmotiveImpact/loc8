@@ -2,7 +2,7 @@
 import { useEffect, useState } from 'react';
 import { View, Text, StyleSheet, Pressable } from 'react-native';
 import { useCrewStore } from '../src/state/crewStore';
-import { getMeshService, getTransport, bootCrew } from '../src/services/appServices';
+import { getMeshService, bootCrew } from '../src/services/appServices';
 import { useMyLocation } from '../src/hooks/useMyLocation';
 import { useBatteryGuard } from '../src/hooks/useBatteryGuard';
 import { RadarView } from '../src/ui/RadarView';
@@ -34,9 +34,9 @@ export default function RadarHome() {
 
   useEffect(() => {
     bootCrew();
-    getMeshService().start();
-    getTransport().start();
-    return () => { getTransport().stop(); };
+    const mesh = getMeshService();
+    mesh.start();
+    return () => { mesh.stop(); };
   }, []);
 
   useEffect(() => {

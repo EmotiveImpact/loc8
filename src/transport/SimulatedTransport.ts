@@ -69,6 +69,7 @@ export class SimulatedTransport implements LocationTransport {
 
   onPacket(cb: (p: Packet, relayVia?: string) => void): void { this.packetCbs.push(cb); }
   onMeshStatus(cb: (s: MeshStatus) => void): void { this.statusCbs.push(cb); }
+  clearListeners(): void { this.packetCbs = []; this.statusCbs = []; }
 
   /** My outgoing packets. Sim friends react to pings addressed to them. */
   broadcast(packet: Packet): void {

@@ -13,4 +13,6 @@ export interface LocationTransport {
   /** Deduped/replay-checked packets arriving from the mesh. relayVia = name of the hop, if any. */
   onPacket(cb: (packet: Packet, relayVia?: string) => void): void;
   onMeshStatus(cb: (status: MeshStatus) => void): void;
+  /** Drop all registered onPacket/onMeshStatus callbacks (so restarts don't accumulate them). */
+  clearListeners(): void;
 }

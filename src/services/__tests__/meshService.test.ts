@@ -6,13 +6,17 @@ import type { LocationTransport, MeshStatus } from '../../transport/LocationTran
 import type { Packet } from '../../core/types';
 
 class FakeTransport implements LocationTransport {
-  packetCb?: (p: Packet, via?: string) => void;
-  statusCb?: (s: MeshStatus) => void;
+  packetCbs: Array<(p: Packet, via?: string) => void> = [];
+  statusCbs: Array<(s: MeshStatus) => void> = [];
   sent: Packet[] = [];
   start() {} stop() {}
   broadcast(p: Packet) { this.sent.push(p); }
-  onPacket(cb: (p: Packet, via?: string) => void) { this.packetCb = cb; }
-  onMeshStatus(cb: (s: MeshStatus) => void) { this.statusCb = cb; }
+  onPacket(cb: (p: Packet, via?: string) => void) { this.packetCbs.push(cb); }
+  onMeshStatus(cb: (s: MeshStatus) => void) { this.statusCbs.push(cb); }
+  clearListeners() { this.packetCbs = []; this.statusCbs = []; }
+  // convenience for tests that emit a single inbound packet
+  get packetCb() { return this.packetCbs[0]; }
+  get statusCb() { return this.statusCbs[0]; }
 }
 
 const pos = (senderId: number, ts: number): Packet => ({
@@ -84,5 +88,34 @@ describe('meshService', () => {
     svc.dropRally();
     expect(transport.sent.some((p) => p.type === 'rally')).toBe(true);
     expect(useCrewStore.getState().rallyPin?.droppedById).toBe(1);
+  });
+
+  it('start() is idempotent — a second start() does not double-broadcast per tick', () => {
+    const svc = createMeshService(transport, new TrustLayer(600, nowSec), nowSec);
+    svc.start();
+    svc.start();                                    // second start must be a no-op
+    // exactly one inbound callback registered (no accumulation)
+    expect(transport.packetCbs.length).toBe(1);
+    useCrewStore.getState().startSession(6, clock);
+    clock += 10;                                     // clear the interval gate
+    svc.broadcastTick();
+    expect(transport.sent.length).toBe(1);          // one tick → one broadcast, not two
+  });
+
+  it('after endSession then startSession, the next broadcastTick sends immediately', () => {
+    const svc = createMeshService(transport, new TrustLayer(600, nowSec), nowSec);
+    svc.start();
+    useCrewStore.getState().startSession(6, clock);
+    svc.broadcastTick();                            // first broadcast; lastBroadcastSec = now
+    expect(transport.sent.length).toBe(1);
+
+    useCrewStore.getState().endSession();
+    svc.broadcastTick();                            // inactive → no broadcast, wasActive cleared
+    expect(transport.sent.length).toBe(1);
+
+    clock += 2;                                      // still well under BROADCAST_INTERVAL_SEC
+    useCrewStore.getState().startSession(6, clock);
+    svc.broadcastTick();                            // new session → must broadcast immediately
+    expect(transport.sent.length).toBe(2);
   });
 });
