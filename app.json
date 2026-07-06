@@ -1,14 +1,21 @@
 {
   "expo": {
-    "name": "loc8-tmp",
-    "slug": "loc8-tmp",
+    "name": "Loc8",
+    "slug": "loc8",
     "version": "1.0.0",
     "orientation": "portrait",
     "icon": "./assets/images/icon.png",
-    "scheme": "loc8tmp",
+    "scheme": "loc8",
     "userInterfaceStyle": "automatic",
     "ios": {
-      "icon": "./assets/expo.icon"
+      "icon": "./assets/expo.icon",
+      "supportsTablet": true,
+      "infoPlist": {
+        "NSLocationWhenInUseUsageDescription": "Loc8 uses your location to show your crew where you are — even with no signal. It's shared only with your crew, end-to-end encrypted.",
+        "NSLocationAlwaysAndWhenInUseUsageDescription": "Loc8 keeps you findable to your crew in the background during an active session. Shared only with your crew.",
+        "NSMotionUsageDescription": "Loc8 uses the compass to point the arrow toward your friends.",
+        "NSBluetoothAlwaysUsageDescription": "Loc8 uses Bluetooth to find your crew directly, phone-to-phone, when there's no internet."
+      }
     },
     "android": {
       "adaptiveIcon": {
@@ -17,7 +24,14 @@
         "backgroundImage": "./assets/images/android-icon-background.png",
         "monochromeImage": "./assets/images/android-icon-monochrome.png"
       },
-      "predictiveBackGestureEnabled": false
+      "predictiveBackGestureEnabled": false,
+      "permissions": [
+        "ACCESS_COARSE_LOCATION",
+        "ACCESS_FINE_LOCATION",
+        "BLUETOOTH_SCAN",
+        "BLUETOOTH_ADVERTISE",
+        "BLUETOOTH_CONNECT"
+      ]
     },
     "web": {
       "output": "static",
@@ -25,6 +39,12 @@
     },
     "plugins": [
       "expo-router",
+      [
+        "expo-location",
+        {
+          "locationAlwaysAndWhenInUsePermission": "Loc8 keeps you findable to your crew during an active session, shared only with your crew."
+        }
+      ],
       [
         "expo-splash-screen",
         {

@@ -47,8 +47,6 @@ export default function RadarHome() {
     }
   }, [banner]);
 
-  const hasAny = Object.values(useCrewStore((s) => s.friends)).some((f) => f.lastPacket);
-
   return (
     <View style={st.wrap}>
       <View style={st.top}>
