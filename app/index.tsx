@@ -10,6 +10,7 @@ import { PrivacyModal } from '../src/ui/PrivacyModal';
 import { DevMenu } from '../src/ui/DevMenu';
 import { useRouter, type Href } from 'expo-router';
 import { colors } from '../src/ui/theme';
+import { notifyPing } from '../src/services/notifications';
 
 // `/crew` (app/crew.tsx) is added in this task; the generated typed-routes
 // union has not regenerated yet, so reference it through the documented `Href`
@@ -38,7 +39,8 @@ export default function RadarHome() {
 
   useEffect(() => {
     if (banner) {
-      const t = setTimeout(() => setBanner(null), 4000);
+      if (banner.friendId) notifyPing('Loc8', banner.text, banner.friendId);
+      const t = setTimeout(() => setBanner(null), 5000);
       return () => clearTimeout(t);
     }
   }, [banner]);
@@ -55,7 +57,17 @@ export default function RadarHome() {
         </View>
       </View>
 
-      {banner && <View style={st.banner}><Text style={st.bannerText}>{banner}</Text></View>}
+      {banner && (
+        <Pressable
+          style={st.banner}
+          onPress={() => {
+            if (banner.friendId) router.push(`/compass/${banner.friendId}` as Href);
+            setBanner(null);
+          }}
+        >
+          <Text style={st.bannerText}>{banner.text}{banner.friendId ? '  →' : ''}</Text>
+        </Pressable>
+      )}
 
       {sessionEndsAtSec === null && (
         <Pressable style={st.sessionCta} onPress={() => startSession(6)}>

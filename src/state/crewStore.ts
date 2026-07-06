@@ -27,7 +27,7 @@ interface CrewState {
   myLocation: Coordinate | null;
   meshNearby: number;
   beaconMode: boolean;
-  banner: string | null;
+  banner: { text: string; friendId?: number } | null;
   celebrated: Record<number, boolean>;
 
   setProfile(p: Profile): void;
@@ -41,7 +41,7 @@ interface CrewState {
   setMyLocation(c: Coordinate): void;
   setMeshNearby(n: number): void;
   setBeacon(on: boolean): void;
-  setBanner(b: string | null): void;
+  setBanner(b: { text: string; friendId?: number } | null): void;
   markCelebrated(friendId: number): void;
   dropLocalPin(pin: RallyPin): void;
   reset(): void;
@@ -76,15 +76,16 @@ export const useCrewStore = create<CrewState>((set, get) => ({
             latitude: p.latitude, longitude: p.longitude,
             droppedById: p.senderId, atSec: p.timestampSec,
           },
-          banner: `🚩 ${get().friends[p.senderId]?.name ?? 'Someone'} dropped a rally pin`,
+          banner: { text: `🚩 ${get().friends[p.senderId]?.name ?? 'Someone'} dropped a rally pin` },
         });
       }
     } else if (p.type === 'pingWhere' || p.type === 'pingComeFind') {
       const name = get().friends[p.senderId]?.name ?? 'Someone';
       set({
-        banner: p.type === 'pingWhere'
-          ? `📍 ${name} asked: where are you?`
-          : `📣 ${name}: come find me!`,
+        banner: {
+          text: p.type === 'pingWhere' ? `📍 ${name} asked: where are you?` : `📣 ${name}: come find me!`,
+          friendId: p.senderId,
+        },
       });
     }
   },

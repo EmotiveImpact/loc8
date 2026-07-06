@@ -64,7 +64,7 @@ describe('meshService', () => {
     clock += 3700;                                  // past expiry
     svc.broadcastTick();
     expect(useCrewStore.getState().sessionEndsAtSec).toBeNull();
-    expect(useCrewStore.getState().banner).toMatch(/session ended/i);
+    expect(useCrewStore.getState().banner?.text).toMatch(/session ended/i);
     expect(transport.sent.length).toBe(0);
   });
 

@@ -2,6 +2,7 @@
 import { Stack, useRouter, useSegments, type Href } from 'expo-router';
 import { useEffect } from 'react';
 import { StatusBar } from 'expo-status-bar';
+import * as Notifications from 'expo-notifications';
 import { useCrewStore } from '../src/state/crewStore';
 import { colors } from '../src/ui/theme';
 
@@ -21,6 +22,14 @@ export default function RootLayout() {
     if (!profile && !inOnboarding) router.replace(ONBOARDING);
     if (profile && inOnboarding) router.replace('/');
   }, [profile, segments]);
+
+  useEffect(() => {
+    const sub = Notifications.addNotificationResponseReceivedListener((resp) => {
+      const url = resp.notification.request.content.data?.url as string | undefined;
+      if (url) router.push(url as never);
+    });
+    return () => sub.remove();
+  }, []);
 
   return (
     <>

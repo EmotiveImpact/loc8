@@ -54,7 +54,7 @@ describe('crewStore', () => {
 
   it('ping packets set a banner instead of moving blips', () => {
     useCrewStore.getState().applyPacket({ ...posPacket(101, 1000), type: 'pingWhere', targetId: 1 });
-    expect(useCrewStore.getState().banner).toMatch(/Maya/);
+    expect(useCrewStore.getState().banner?.text).toMatch(/Maya/);
     expect(useCrewStore.getState().friends[101].lastPacket).toBeUndefined();
   });
 });
