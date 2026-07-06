@@ -2,7 +2,7 @@
 import { useState } from 'react';
 import { View, Text, StyleSheet, Pressable } from 'react-native';
 import Svg, { Circle } from 'react-native-svg';
-import { useRouter } from 'expo-router';
+import { useRouter, type Href } from 'expo-router';
 import { useCrewStore, freshnessSec, STALE_SEC, GHOST_SEC } from '../state/crewStore';
 import { calculateRadarPoint, LINEAR_MAX_M, OUTER_MAX_M } from '../core/geoMath';
 import { useNowSec } from '../hooks/useNowSec';
@@ -66,7 +66,7 @@ export function RadarView() {
                 relayVia={f.relayVia}
                 stale={fresh !== null && fresh > STALE_SEC}
                 ghost={fresh !== null && fresh > GHOST_SEC}
-                onPress={() => router.push(`/compass/${f.id}`)}
+                onPress={() => router.push(`/compass/${f.id}` as Href)}
               />
             );
           })}
