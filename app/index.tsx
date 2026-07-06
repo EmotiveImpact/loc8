@@ -4,6 +4,7 @@ import { View, Text, StyleSheet, Pressable } from 'react-native';
 import { useCrewStore } from '../src/state/crewStore';
 import { getMeshService, getTransport, bootCrew } from '../src/services/appServices';
 import { useMyLocation } from '../src/hooks/useMyLocation';
+import { useBatteryGuard } from '../src/hooks/useBatteryGuard';
 import { RadarView } from '../src/ui/RadarView';
 import { CrewSheet } from '../src/ui/CrewSheet';
 import { PrivacyModal } from '../src/ui/PrivacyModal';
@@ -25,6 +26,7 @@ export default function RadarHome() {
   const sessionEndsAtSec = useCrewStore((s) => s.sessionEndsAtSec);
   const startSession = useCrewStore((s) => s.startSession);
   const locationStatus = useMyLocation();
+  useBatteryGuard();
   const [privacyOpen, setPrivacyOpen] = useState(false);
   const [devOpen, setDevOpen] = useState(false);
   const privacyMode = useCrewStore((s) => s.privacyMode);
