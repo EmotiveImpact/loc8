@@ -19,7 +19,8 @@
           "bluetooth-central",
           "bluetooth-peripheral"
         ]
-      }
+      },
+      "bundleIdentifier": "com.emotiveimpact.loc8"
     },
     "android": {
       "adaptiveIcon": {
@@ -37,7 +38,8 @@
         "BLUETOOTH_CONNECT",
         "FOREGROUND_SERVICE",
         "FOREGROUND_SERVICE_CONNECTED_DEVICE"
-      ]
+      ],
+      "package": "com.emotiveimpact.loc8"
     },
     "web": {
       "output": "static",
