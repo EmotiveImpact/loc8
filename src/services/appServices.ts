@@ -1,5 +1,7 @@
 // src/services/appServices.ts
+import type { LocationTransport } from '../transport/LocationTransport';
 import { SimulatedTransport } from '../transport/SimulatedTransport';
+import { BleMeshTransport } from '../transport/BleMeshTransport';
 import { TrustLayer } from '../core/trustLayer';
 import { createMeshService, type MeshService } from './meshService';
 import { useCrewStore } from '../state/crewStore';
@@ -15,18 +17,35 @@ export const DEMO_CREW = [
 // Fallback origin if location permission denied (spec §10 error handling): Golden Gate Park.
 export const FALLBACK_ORIGIN: Coordinate = { latitude: 37.7694, longitude: -122.4862 };
 
-let transport: SimulatedTransport | null = null;
+let transport: LocationTransport | null = null;
 let service: MeshService | null = null;
 
-export function getTransport(): SimulatedTransport {
+/**
+ * Transport factory (mesh spike brief §2): EXPO_PUBLIC_TRANSPORT=ble → real BLE mesh
+ * via the loc8-mesh native module; anything else/unset → SimulatedTransport, so the
+ * demo keeps working everywhere the native module isn't installed.
+ */
+export function getTransport(): LocationTransport {
   if (!transport) {
-    transport = new SimulatedTransport({
-      seed: 42,
-      origin: useCrewStore.getState().myLocation ?? FALLBACK_ORIGIN,
-      friends: DEMO_CREW,
-    });
+    transport = process.env.EXPO_PUBLIC_TRANSPORT === 'ble'
+      ? new BleMeshTransport()
+      : new SimulatedTransport({
+          seed: 42,
+          origin: useCrewStore.getState().myLocation ?? FALLBACK_ORIGIN,
+          friends: DEMO_CREW,
+        });
   }
   return transport;
+}
+
+/**
+ * The active transport ONLY when it's the sim — for sim-only controls
+ * (setOrigin/scenario/simulateIncomingPing). Returns null on the BLE mesh,
+ * where real peers move themselves; callers must no-op in that case.
+ */
+export function getSimTransport(): SimulatedTransport | null {
+  const t = getTransport();
+  return t instanceof SimulatedTransport ? t : null;
 }
 
 export function getMeshService(): MeshService {

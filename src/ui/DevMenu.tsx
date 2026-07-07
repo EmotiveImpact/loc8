@@ -1,16 +1,18 @@
 // src/ui/DevMenu.tsx
 import { Modal, View, Text, Pressable, StyleSheet } from 'react-native';
-import { getTransport } from '../services/appServices';
+import { getSimTransport } from '../services/appServices';
 import { useCrewStore } from '../state/crewStore';
 import { colors } from './theme';
 
+// Sim-only demo scenarios: on the real BLE mesh (EXPO_PUBLIC_TRANSPORT=ble)
+// getSimTransport() is null and these actions no-op.
 const ACTIONS: Array<{ label: string; run(): void }> = [
-  { label: '🌑 Rae goes dark', run: () => getTransport().scenario('goDark', 104) },
-  { label: '☀️ Rae comes back', run: () => getTransport().scenario('return', 104) },
-  { label: '🏃 Maya approaches you (→ 🎉)', run: () => getTransport().scenario('approach', 101) },
-  { label: '🚶 Maya wanders off again', run: () => getTransport().scenario('return', 101) },
-  { label: '📍 Maya asks where you are', run: () => getTransport().simulateIncomingPing(101, 'pingWhere') },
-  { label: '📣 Jules: come find me', run: () => getTransport().simulateIncomingPing(102, 'pingComeFind') },
+  { label: '🌑 Rae goes dark', run: () => getSimTransport()?.scenario('goDark', 104) },
+  { label: '☀️ Rae comes back', run: () => getSimTransport()?.scenario('return', 104) },
+  { label: '🏃 Maya approaches you (→ 🎉)', run: () => getSimTransport()?.scenario('approach', 101) },
+  { label: '🚶 Maya wanders off again', run: () => getSimTransport()?.scenario('return', 101) },
+  { label: '📍 Maya asks where you are', run: () => getSimTransport()?.simulateIncomingPing(101, 'pingWhere') },
+  { label: '📣 Jules: come find me', run: () => getSimTransport()?.simulateIncomingPing(102, 'pingComeFind') },
   { label: '🪫 My battery low (beacon mode)', run: () => useCrewStore.getState().setBeacon(true) },
   { label: '🔋 Battery ok', run: () => useCrewStore.getState().setBeacon(false) },
 ];

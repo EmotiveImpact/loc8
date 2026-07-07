@@ -14,7 +14,11 @@
         "NSLocationWhenInUseUsageDescription": "Loc8 uses your location to show your crew where you are — even with no signal. It's shared only with your crew, end-to-end encrypted.",
         "NSLocationAlwaysAndWhenInUseUsageDescription": "Loc8 keeps you findable to your crew in the background during an active session. Shared only with your crew.",
         "NSMotionUsageDescription": "Loc8 uses the compass to point the arrow toward your friends.",
-        "NSBluetoothAlwaysUsageDescription": "Loc8 uses Bluetooth to find your crew directly, phone-to-phone, when there's no internet."
+        "NSBluetoothAlwaysUsageDescription": "Loc8 uses Bluetooth to find your crew directly, phone-to-phone, when there's no internet.",
+        "UIBackgroundModes": [
+          "bluetooth-central",
+          "bluetooth-peripheral"
+        ]
       }
     },
     "android": {
@@ -30,7 +34,9 @@
         "ACCESS_FINE_LOCATION",
         "BLUETOOTH_SCAN",
         "BLUETOOTH_ADVERTISE",
-        "BLUETOOTH_CONNECT"
+        "BLUETOOTH_CONNECT",
+        "FOREGROUND_SERVICE",
+        "FOREGROUND_SERVICE_CONNECTED_DEVICE"
       ]
     },
     "web": {
