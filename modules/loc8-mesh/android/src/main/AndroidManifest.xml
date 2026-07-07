@@ -1,0 +1,28 @@
+<!--
+  Loc8Mesh module manifest — folded into the app manifest by the Gradle
+  manifest merger (spike brief §2).
+
+  BLE permissions (BLUETOOTH_SCAN / BLUETOOTH_ADVERTISE / BLUETOOTH_CONNECT)
+  live in app.json android.permissions; the FGS permissions are declared here
+  so the module is self-contained. Runtime permission REQUESTS are the app's
+  job — Loc8MeshModule.start() only CHECKS and rejects with the missing list.
+-->
+<manifest xmlns:android="http://schemas.android.com/apk/res/android">
+  <!-- Optional so the merged APK stays installable on BLE-less hardware;
+       start() degrades gracefully when the adapter is missing. -->
+  <uses-feature
+    android:name="android.hardware.bluetooth_le"
+    android:required="false" />
+
+  <uses-permission android:name="android.permission.FOREGROUND_SERVICE" />
+  <uses-permission android:name="android.permission.FOREGROUND_SERVICE_CONNECTED_DEVICE" />
+
+  <application>
+    <!-- connectedDevice FGS: exempt from the Android 15/16 dataSync-style
+         timeouts; keeps the mesh relaying while the app is backgrounded. -->
+    <service
+      android:name="expo.modules.loc8mesh.Loc8MeshService"
+      android:exported="false"
+      android:foregroundServiceType="connectedDevice" />
+  </application>
+</manifest>
