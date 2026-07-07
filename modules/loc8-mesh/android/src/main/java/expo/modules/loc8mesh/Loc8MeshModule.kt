@@ -5,7 +5,7 @@
 // §2), the platform twin of modules/loc8-mesh/ios/Loc8MeshModule.swift.
 // Contract (mirrored by modules/loc8-mesh/index.ts):
 //   - Events "onPacket"  -> { data: Uint8Array(25) — framing already stripped, relayVia?: String }
-//   - Events "onMeshStatus" -> { nearbyCount: Int, connected: Boolean }
+//   - Events "onMeshStatus" -> { nearbyCount: Int, connected: Boolean, degraded: Boolean }
 //   - AsyncFunction start()/stop() — idempotent
 //   - AsyncFunction broadcast(ByteArray) — exactly 25 bytes
 //
@@ -15,6 +15,7 @@
 package expo.modules.loc8mesh
 
 import android.Manifest
+import android.app.ForegroundServiceStartNotAllowedException
 import android.content.Context
 import android.content.pm.PackageManager
 import android.os.Build
@@ -30,6 +31,12 @@ internal class InvalidPacketSizeException(size: Int) : CodedException(
 internal class MissingBlePermissionsException(missing: List<String>) : CodedException(
     "Cannot start the Loc8 mesh — missing runtime permissions: ${missing.joinToString(", ")}. " +
         "Request them from the app UI before calling start()."
+)
+
+internal class MeshForegroundStartException(cause: Throwable) : CodedException(
+    "Cannot start the Loc8 mesh foreground service while the app is backgrounded " +
+        "(Android 12+ FGS restriction). Retry start() once the app is foregrounded.",
+    cause
 )
 
 class Loc8MeshModule : Module() {
@@ -51,12 +58,13 @@ class Loc8MeshModule : Module() {
                 }
                 sendEvent("onPacket", body)
             }
-            MeshBleService.shared.onStatus = { nearbyCount, connected ->
+            MeshBleService.shared.onStatus = { nearbyCount, connected, degraded ->
                 sendEvent(
                     "onMeshStatus",
                     mapOf(
                         "nearbyCount" to nearbyCount,
-                        "connected" to connected
+                        "connected" to connected,
+                        "degraded" to degraded
                     )
                 )
             }
@@ -76,7 +84,19 @@ class Loc8MeshModule : Module() {
                 throw MissingBlePermissionsException(missing)
             }
             // FGS first (must start while foregrounded), then the mesh itself.
-            Loc8MeshService.start(ctx)
+            // A background start throws ForegroundServiceStartNotAllowedException
+            // on API 31+ — surface it as a clear CodedException so the JS layer
+            // un-latches and retries on the next foreground.
+            try {
+                Loc8MeshService.start(ctx)
+            } catch (e: IllegalStateException) {
+                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S &&
+                    e is ForegroundServiceStartNotAllowedException
+                ) {
+                    throw MeshForegroundStartException(e)
+                }
+                throw e
+            }
             MeshBleService.shared.start(ctx)
         }
 
@@ -96,10 +116,14 @@ class Loc8MeshModule : Module() {
     /** BLE runtime permissions we require but do not request (spike scope). */
     private fun missingPermissions(context: Context): List<String> {
         val required = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
+            // ACCESS_FINE_LOCATION is included because BLUETOOTH_SCAN is declared
+            // WITHOUT neverForLocation (RSSI proximity) — scan results are
+            // location-gated on 31+ too.
             listOf(
                 Manifest.permission.BLUETOOTH_SCAN,
                 Manifest.permission.BLUETOOTH_ADVERTISE,
-                Manifest.permission.BLUETOOTH_CONNECT
+                Manifest.permission.BLUETOOTH_CONNECT,
+                Manifest.permission.ACCESS_FINE_LOCATION
             )
         } else {
             // Pre-31: scanning requires location; BLUETOOTH/BLUETOOTH_ADMIN are

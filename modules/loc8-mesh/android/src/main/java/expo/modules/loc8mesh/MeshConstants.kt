@@ -39,8 +39,16 @@ object MeshConstants {
     /** The 25-byte Loc8 packet (src/core/packetCodec.ts) rides unchanged as payload. */
     const val PAYLOAD_SIZE = 25
 
-    /** Raw frame = 14 + 8 + 25 = 47 bytes, PKCS#7-padded to 256 on the wire. */
+    /** Raw frame = 14 + 8 + 25 = 47 bytes on the wire (see PAD_EGRESS_FRAMES). */
     const val PADDED_FRAME_SIZE = 256
+
+    /**
+     * Egress padding switch — mirrors iOS MeshConstants.padEgressFrames and MUST
+     * stay in lockstep. false (default): raw 47-byte frames go on the wire, so
+     * they fit any negotiated MTU ≥ 50. true: PKCS#7-pad to 256 (bitchat-mainnet
+     * piggyback tests only). Decode ALWAYS accepts both raw-47 and padded-256.
+     */
+    const val PAD_EGRESS_FRAMES = false
 
     /** senderID(8) = 0x4C4F4338 ("LOC8") ‖ uint32 senderId (BE). */
     val SENDER_ID_PREFIX = byteArrayOf(0x4C, 0x4F, 0x43, 0x38) // "LOC8"
@@ -77,8 +85,10 @@ object MeshConstants {
     const val RSSI_GATE_ISOLATED = -95
 
     /**
-     * MTU we request as a GATT client: 256-byte frame + 3-byte ATT header.
-     * Writes fall back to with-response when the negotiated MTU is smaller.
+     * MTU we request as a GATT client: padded 256-byte frame + 3-byte ATT
+     * header (generous headroom for raw-47 frames too). Links whose negotiated
+     * MTU can't carry a frame in one ATT write are skipped on egress — never
+     * a long-write fallback.
      */
     const val DESIRED_MTU = 259
 }

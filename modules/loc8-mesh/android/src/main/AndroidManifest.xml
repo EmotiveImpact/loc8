@@ -14,6 +14,15 @@
     android:name="android.hardware.bluetooth_le"
     android:required="false" />
 
+  <!-- Pre-31 legacy install-time Bluetooth permissions (replaced by the
+       runtime BLUETOOTH_SCAN/ADVERTISE/CONNECT trio on API 31+). -->
+  <uses-permission
+    android:name="android.permission.BLUETOOTH"
+    android:maxSdkVersion="30" />
+  <uses-permission
+    android:name="android.permission.BLUETOOTH_ADMIN"
+    android:maxSdkVersion="30" />
+
   <uses-permission android:name="android.permission.FOREGROUND_SERVICE" />
   <uses-permission android:name="android.permission.FOREGROUND_SERVICE_CONNECTED_DEVICE" />
 

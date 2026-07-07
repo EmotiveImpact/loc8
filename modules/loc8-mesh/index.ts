@@ -11,14 +11,20 @@ import { requireNativeModule, type NativeModule, type EventSubscription } from '
 export interface MeshPacketEvent {
   /** Post-dedup/TTL-guard ingress: the raw 25-byte Loc8 packet (framing stripped natively). */
   data: Uint8Array;
-  /** Name/ID of the relaying hop, if the packet arrived via one. */
+  /**
+   * Present when the packet arrived via at least one relay hop. Currently the
+   * literal string "mesh" — the relaying hop's identity is unavailable
+   * without announce packets (the frame's senderID is the originator).
+   */
   relayVia?: string;
 }
 
 export interface MeshStatusEvent {
-  /** Distinct live GATT peer links. */
+  /** Distinct live GATT peer links (a dual-role peer counts once). */
   nearbyCount: number;
   connected: boolean;
+  /** Android only: chipset can't advertise — scan-only degraded mode (absent on iOS). */
+  degraded?: boolean;
 }
 
 type Loc8MeshModuleEvents = {

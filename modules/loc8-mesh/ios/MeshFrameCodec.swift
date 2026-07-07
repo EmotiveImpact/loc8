@@ -10,7 +10,10 @@
 // Frame (big-endian):
 //   version(1)=0x01 | type(1)=0x30 | ttl(1) | timestamp(8, UInt64 ms since epoch)
 //   | flags(1)=0x00 | payloadLength(2)=25 | senderID(8) | payload(25)
-// Raw frame = 14 + 8 + 25 = 47 bytes, PKCS#7-padded to 256 on the wire.
+// Raw frame = 14 + 8 + 25 = 47 bytes. Egress is RAW 47 bytes by default
+// (MeshConstants.padEgressFrames) so frames fit any negotiated BLE MTU;
+// PKCS#7 padding to 256 is only enabled for bitchat-network piggybacking.
+// Decode accepts BOTH forms.
 //
 
 import Foundation
@@ -51,9 +54,10 @@ enum MeshPadding {
 enum MeshFrameCodec {
     static let rawFrameSize = MeshConstants.v1HeaderSize + MeshConstants.senderIDSize + MeshConstants.payloadSize // 47
 
-    /// Encode a frame and PKCS#7-pad it to 256 bytes for the wire.
+    /// Encode a frame for the wire: raw 47 bytes by default; PKCS#7-padded to
+    /// 256 only when MeshConstants.padEgressFrames is set (bitchat piggyback).
     static func encode(_ frame: MeshFrame) -> Data {
-        var data = Data(capacity: MeshConstants.paddedFrameSize)
+        var data = Data(capacity: MeshConstants.padEgressFrames ? MeshConstants.paddedFrameSize : rawFrameSize)
         data.append(MeshConstants.protocolVersion)
         data.append(MeshConstants.messageType)
         data.append(frame.ttl)
@@ -66,6 +70,7 @@ enum MeshFrameCodec {
         data.append(UInt8(length & 0xFF))
         data.append(frame.senderID.prefix(MeshConstants.senderIDSize))
         data.append(frame.payload.prefix(MeshConstants.payloadSize))
+        guard MeshConstants.padEgressFrames else { return data }
         return MeshPadding.pad(data, toSize: MeshConstants.paddedFrameSize)
     }
 

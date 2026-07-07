@@ -39,9 +39,21 @@ export class BleMeshTransport implements LocationTransport {
         this.statusCbs.forEach((cb) => cb(status));
       }),
     );
-    // Fire-and-forget: LocationTransport.start() is sync; native start errors
-    // (e.g. Bluetooth off) surface via onMeshStatus, not an unhandled rejection.
-    Loc8Mesh.start().catch(() => {});
+    // LocationTransport.start() is sync, so the native start is fire-and-forget —
+    // but a rejection (Bluetooth off, missing permissions, background FGS
+    // restriction) UN-LATCHES `started` and detaches the native subscriptions,
+    // so a later start() (e.g. meshService's foreground retry) really retries.
+    // Listeners see a zeroed onMeshStatus so the UI reflects "mesh down".
+    Loc8Mesh.start().catch((e) => {
+      this.started = false;
+      this.subs.forEach((s) => s.remove());
+      this.subs = [];
+      console.warn(
+        `[BleMeshTransport] native start failed: ${e instanceof Error ? e.message : String(e)}`,
+      );
+      const status: MeshStatus = { nearbyCount: 0, connected: false };
+      this.statusCbs.forEach((cb) => cb(status));
+    });
   }
 
   stop(): void {

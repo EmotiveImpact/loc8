@@ -126,6 +126,24 @@ describe('BleMeshTransport', () => {
     expect(mesh.__listenerCounts()).toEqual({ packet: 1, status: 1 });
   });
 
+  it('a failed native start un-latches, emits a zeroed status, and allows a retry', async () => {
+    const warn = jest.spyOn(console, 'warn').mockImplementation(() => {});
+    const statusCb = jest.fn();
+    transport.onMeshStatus(statusCb);
+    mesh.start.mockImplementationOnce(() => Promise.reject(new Error('Bluetooth off')));
+    transport.start();
+    await new Promise((r) => setTimeout(r, 0));   // let the rejection handler run
+    // Un-latched: status listeners told the mesh is down, native subs detached.
+    expect(statusCb).toHaveBeenCalledWith({ nearbyCount: 0, connected: false });
+    expect(mesh.__listenerCounts()).toEqual({ packet: 0, status: 0 });
+    expect(warn).toHaveBeenCalled();
+    // A second start() really retries (no swallow-and-latch).
+    transport.start();
+    expect(mesh.start).toHaveBeenCalledTimes(2);
+    expect(mesh.__listenerCounts()).toEqual({ packet: 1, status: 1 });
+    warn.mockRestore();
+  });
+
   it('stop after start tears down subscriptions and allows a clean restart', () => {
     transport.start();
     transport.stop();

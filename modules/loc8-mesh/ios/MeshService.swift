@@ -5,7 +5,8 @@
 // Dual-role CoreBluetooth GATT mesh for Loc8 (spike brief §2/§3).
 // Heavily simplified adaptation of bitchat's BLEService.swift (The Unlicense —
 // public domain): no announce/noise/fragments/sync/signing, single message
-// type (0x30), fixed 256-byte frames.
+// type (0x30), raw 47-byte frames on egress (decode also accepts the
+// bitchat-style 256-padded form).
 //
 // Roles run concurrently:
 //   - CBCentralManager scans for the LOC8-MESH service and connects (max 6
@@ -16,7 +17,8 @@
 //     subscribed centrals.
 //
 // Simplifications vs bitchat, called out per the spike brief:
-//   - Continuous scanning (no duty cycling) — acceptable for the spike;
+//   - Continuous scanning with a periodic stop/start restart (~20 s) so iOS
+//     re-delivers already-seen peripherals after disconnects; no duty cycling —
 //     revisit for battery before v2 ships.
 //   - Full fanout on egress/relay (no ~log2(degree) message-ID-seeded subset)
 //     — fine at spike scale (handfuls of phones), required change for
@@ -27,6 +29,7 @@
 
 import CoreBluetooth
 import Foundation
+import os.log
 
 final class MeshService: NSObject {
     static let shared = MeshService()
@@ -37,6 +40,7 @@ final class MeshService: NSObject {
     var onStatus: ((Int, Bool) -> Void)?
 
     private let queue = DispatchQueue(label: "me.loc8.mesh.ble", qos: .userInitiated)
+    private let log = Logger(subsystem: "me.loc8.mesh", category: "MeshService")
 
     private var central: CBCentralManager?
     private var peripheralManager: CBPeripheralManager?
@@ -47,6 +51,17 @@ final class MeshService: NSObject {
     private var centralLinks: [UUID: CBPeripheral] = [:]
     private var centralCharacteristics: [UUID: CBCharacteristic] = [:]
     private var lastConnectAttempt = Date.distantPast
+    /// Peers with a rate-limit deferred connect scheduled (so a discovery
+    /// discarded by the 0.5 s rate limit isn't lost until the next rescan).
+    private var scheduledConnectRetries: Set<UUID> = []
+    /// Token per pending connect attempt; the 10 s timeout only fires for the
+    /// attempt it was armed for (a reconnect mints a fresh token).
+    private var pendingConnectTokens: [UUID: Date] = [:]
+    /// Frames waiting on writeWithoutResponse backpressure, per peer.
+    /// Bounded (drop-oldest); flushed from peripheralIsReady.
+    private var pendingWrites: [UUID: [Data]] = [:]
+    /// Periodic scan stop/start so iOS re-delivers already-seen peripherals.
+    private var scanRestartTimer: DispatchSourceTimer?
 
     // Peripheral role.
     private var meshCharacteristic: CBMutableCharacteristic?
@@ -93,6 +108,19 @@ final class MeshService: NSObject {
             }
             peripheralManager = CBPeripheralManager(delegate: self, queue: queue, options: peripheralOptions)
             // Scanning/advertising is armed from the poweredOn state callbacks.
+
+            // Periodic scan restart (H2): a long-lived iOS scan with
+            // allow-duplicates=false never re-delivers a peripheral it has
+            // already reported, so a dropped peer would otherwise be
+            // unreachable until app restart. Mirrors bitchat.
+            let timer = DispatchSource.makeTimerSource(queue: queue)
+            timer.schedule(
+                deadline: .now() + MeshConstants.scanRestartIntervalSeconds,
+                repeating: MeshConstants.scanRestartIntervalSeconds
+            )
+            timer.setEventHandler { [weak self] in self?.restartScan() }
+            timer.resume()
+            scanRestartTimer = timer
         }
     }
 
@@ -105,12 +133,18 @@ final class MeshService: NSObject {
             for item in pendingRelays.values { item.cancel() }
             pendingRelays.removeAll()
 
+            scanRestartTimer?.cancel()
+            scanRestartTimer = nil
+
             if central?.isScanning == true { central?.stopScan() }
             for peripheral in centralLinks.values { central?.cancelPeripheralConnection(peripheral) }
             for peripheral in pendingPeripherals.values { central?.cancelPeripheralConnection(peripheral) }
             centralLinks.removeAll()
             centralCharacteristics.removeAll()
             pendingPeripherals.removeAll()
+            pendingConnectTokens.removeAll()
+            scheduledConnectRetries.removeAll()
+            pendingWrites.removeAll()
 
             peripheralManager?.stopAdvertising()
             peripheralManager?.removeAllServices()
@@ -161,27 +195,53 @@ final class MeshService: NSObject {
     /// Full fanout — see header comment.
     private func sendFrame(_ data: Data, excludingLink excluded: UUID?) {
         // Central role: write to each connected peer's characteristic.
+        // Write-without-response ONLY — long (prepared) writes via
+        // .withResponse are broken cross-platform, so links whose negotiated
+        // MTU can't carry the frame are skipped, never downgraded.
         for (id, peripheral) in centralLinks {
             if id == excluded { continue }
             guard let characteristic = centralCharacteristics[id] else { continue }
-            // Prefer write-without-response; fall back to write-with-response
-            // when the negotiated MTU can't carry the 256-byte frame.
-            if peripheral.maximumWriteValueLength(for: .withoutResponse) >= data.count {
+            guard peripheral.maximumWriteValueLength(for: .withoutResponse) >= data.count else {
+                log.warning("mesh egress: skipping link \(id, privacy: .public) — MTU too small for \(data.count)-byte frame")
+                continue
+            }
+            // Backpressure (M1): respect canSendWriteWithoutResponse and keep
+            // per-peer FIFO order; queued frames flush from peripheralIsReady.
+            if peripheral.canSendWriteWithoutResponse, pendingWrites[id]?.isEmpty ?? true {
                 peripheral.writeValue(data, for: characteristic, type: .withoutResponse)
-            } else if characteristic.properties.contains(.write) {
-                peripheral.writeValue(data, for: characteristic, type: .withResponse)
+            } else {
+                enqueueWrite(data, for: id)
             }
         }
 
-        // Peripheral role: notify subscribed centrals.
+        // Peripheral role: notify subscribed centrals whose notification MTU
+        // can carry the frame; undersized subscribers are skipped (a truncated
+        // frame would fail decode anyway).
         guard let characteristic = meshCharacteristic, !subscribers.isEmpty else { return }
-        let targets = subscribers.values.filter { $0.identifier != excluded }
+        let targets = subscribers.values.filter { central in
+            guard central.identifier != excluded else { return false }
+            guard central.maximumUpdateValueLength >= data.count else {
+                log.warning("mesh egress: skipping subscriber \(central.identifier, privacy: .public) — notify MTU too small for \(data.count)-byte frame")
+                return false
+            }
+            return true
+        }
         guard !targets.isEmpty else { return }
         let ok = peripheralManager?.updateValue(data, for: characteristic, onSubscribedCentrals: targets) ?? false
         if !ok {
             // Update queue full — retry when CoreBluetooth signals readiness.
             pendingNotifies.append((data: data, centralIDs: targets.map { $0.identifier }))
         }
+    }
+
+    /// Per-peer bounded FIFO for backpressured write-without-response frames.
+    private func enqueueWrite(_ data: Data, for id: UUID) {
+        var backlog = pendingWrites[id, default: []]
+        if backlog.count >= MeshConstants.maxPendingWritesPerPeer {
+            backlog.removeFirst() // drop-oldest: stale positions are worthless
+        }
+        backlog.append(data)
+        pendingWrites[id] = backlog
     }
 
     // MARK: - Ingress
@@ -265,6 +325,15 @@ final class MeshService: NSObject {
         )
     }
 
+    /// Stop + restart the scan so already-reported peripherals are
+    /// re-delivered (reconnect path). Called by the periodic timer and on
+    /// peer disconnect.
+    private func restartScan() {
+        guard running, let central, central.state == .poweredOn else { return }
+        if central.isScanning { central.stopScan() }
+        startScanningIfPossible()
+    }
+
     private func startAdvertisingIfPossible() {
         guard running, let peripheralManager, peripheralManager.state == .poweredOn else { return }
         if !serviceAdded {
@@ -299,6 +368,8 @@ extension MeshService: CBCentralManagerDelegate {
             centralLinks.removeAll()
             centralCharacteristics.removeAll()
             pendingPeripherals.removeAll()
+            pendingConnectTokens.removeAll()
+            pendingWrites.removeAll()
             emitStatusIfChanged()
         }
     }
@@ -326,9 +397,6 @@ extension MeshService: CBCentralManagerDelegate {
                         advertisementData: [String: Any],
                         rssi RSSI: NSNumber) {
         guard running else { return }
-        let id = peripheral.identifier
-        guard centralLinks[id] == nil, pendingPeripherals[id] == nil else { return }
-        guard centralLinks.count < MeshConstants.maxCentralLinks else { return }
 
         // RSSI gate: -90 dBm, relaxed to -95 when we have no links at all.
         // 127 is CoreBluetooth's "unavailable" sentinel.
@@ -337,14 +405,53 @@ extension MeshService: CBCentralManagerDelegate {
         let gate = linkCount() == 0 ? MeshConstants.rssiGateIsolated : MeshConstants.rssiGate
         guard rssi >= gate else { return }
 
-        // 0.5 s connect rate-limit.
+        attemptConnect(peripheral)
+    }
+
+    /// Connect with capacity + rate-limit guards. A rate-limited attempt is
+    /// re-scheduled for the remaining interval (H2) instead of discarded —
+    /// otherwise a peer discovered in the shadow of another connect would be
+    /// invisible until the next scan restart.
+    private func attemptConnect(_ peripheral: CBPeripheral) {
+        guard running, let central, central.state == .poweredOn else { return }
+        let id = peripheral.identifier
+        guard centralLinks[id] == nil, pendingPeripherals[id] == nil else { return }
+        // L1: in-flight connects count against the cap too.
+        guard centralLinks.count + pendingPeripherals.count < MeshConstants.maxCentralLinks else { return }
+
+        // 0.5 s connect rate-limit — defer, don't drop.
         let now = Date()
-        guard now.timeIntervalSince(lastConnectAttempt) >= MeshConstants.connectRateLimitSeconds else { return }
+        let elapsed = now.timeIntervalSince(lastConnectAttempt)
+        if elapsed < MeshConstants.connectRateLimitSeconds {
+            guard !scheduledConnectRetries.contains(id) else { return }
+            scheduledConnectRetries.insert(id)
+            let remaining = MeshConstants.connectRateLimitSeconds - elapsed
+            queue.asyncAfter(deadline: .now() + remaining + 0.01) { [weak self] in
+                guard let self else { return }
+                self.scheduledConnectRetries.remove(id)
+                self.attemptConnect(peripheral)
+            }
+            return
+        }
         lastConnectAttempt = now
 
         peripheral.delegate = self
         pendingPeripherals[id] = peripheral
+        let token = now
+        pendingConnectTokens[id] = token
         central.connect(peripheral, options: nil)
+
+        // M2: connect/discovery timeout — a peripheral stuck pending blocks a
+        // capacity slot forever (CoreBluetooth connects never time out on
+        // their own). Cancel so the periodic rescan can retry it.
+        queue.asyncAfter(deadline: .now() + MeshConstants.connectTimeoutSeconds) { [weak self] in
+            guard let self, self.running else { return }
+            guard self.pendingConnectTokens[id] == token, let stuck = self.pendingPeripherals[id] else { return }
+            self.log.warning("mesh connect: timeout for \(id, privacy: .public) — cancelling so rescan can retry")
+            self.pendingPeripherals.removeValue(forKey: id)
+            self.pendingConnectTokens.removeValue(forKey: id)
+            self.central?.cancelPeripheralConnection(stuck)
+        }
     }
 
     func centralManager(_ central: CBCentralManager, didConnect peripheral: CBPeripheral) {
@@ -354,14 +461,20 @@ extension MeshService: CBCentralManagerDelegate {
 
     func centralManager(_ central: CBCentralManager, didFailToConnect peripheral: CBPeripheral, error: Error?) {
         pendingPeripherals.removeValue(forKey: peripheral.identifier)
+        pendingConnectTokens.removeValue(forKey: peripheral.identifier)
     }
 
     func centralManager(_ central: CBCentralManager, didDisconnectPeripheral peripheral: CBPeripheral, error: Error?) {
         let id = peripheral.identifier
         pendingPeripherals.removeValue(forKey: id)
+        pendingConnectTokens.removeValue(forKey: id)
         centralLinks.removeValue(forKey: id)
         centralCharacteristics.removeValue(forKey: id)
+        pendingWrites.removeValue(forKey: id)
         emitStatusIfChanged()
+        // H2: restart the scan so this (already-reported) peripheral is
+        // re-delivered and can be reconnected.
+        restartScan()
     }
 }
 
@@ -385,10 +498,47 @@ extension MeshService: CBPeripheralDelegate {
         }
         let id = peripheral.identifier
         pendingPeripherals.removeValue(forKey: id)
+        pendingConnectTokens.removeValue(forKey: id)
         centralLinks[id] = peripheral
         centralCharacteristics[id] = characteristic
         peripheral.setNotifyValue(true, for: characteristic)
         emitStatusIfChanged()
+    }
+
+    /// L2: a link that can't deliver notifications is half-deaf (we could
+    /// write to it but never hear back) — treat it as dead so it doesn't
+    /// occupy a slot or count toward nearbyCount.
+    func peripheral(_ peripheral: CBPeripheral,
+                    didUpdateNotificationStateFor characteristic: CBCharacteristic,
+                    error: Error?) {
+        guard characteristic.uuid == MeshConstants.characteristicUUID else { return }
+        if error != nil || !characteristic.isNotifying {
+            let id = peripheral.identifier
+            log.warning("mesh link \(id, privacy: .public): notify subscription failed/dropped — tearing down link")
+            centralLinks.removeValue(forKey: id)
+            centralCharacteristics.removeValue(forKey: id)
+            pendingWrites.removeValue(forKey: id)
+            central?.cancelPeripheralConnection(peripheral)
+            emitStatusIfChanged()
+        }
+    }
+
+    /// M1: flush the per-peer backpressure queue when the write channel drains.
+    func peripheralIsReady(toSendWriteWithoutResponse peripheral: CBPeripheral) {
+        let id = peripheral.identifier
+        guard var backlog = pendingWrites[id], !backlog.isEmpty else { return }
+        guard let characteristic = centralCharacteristics[id] else {
+            pendingWrites.removeValue(forKey: id)
+            return
+        }
+        while !backlog.isEmpty && peripheral.canSendWriteWithoutResponse {
+            peripheral.writeValue(backlog.removeFirst(), for: characteristic, type: .withoutResponse)
+        }
+        if backlog.isEmpty {
+            pendingWrites.removeValue(forKey: id)
+        } else {
+            pendingWrites[id] = backlog
+        }
     }
 
     func peripheral(_ peripheral: CBPeripheral, didUpdateValueFor characteristic: CBCharacteristic, error: Error?) {
@@ -458,6 +608,10 @@ extension MeshService: CBPeripheralManagerDelegate {
 
     func peripheralManager(_ peripheral: CBPeripheralManager, didReceiveRead request: CBATTRequest) {
         // Read is exposed for probing/debugging only; there is no "current value".
+        guard request.offset == 0 else {
+            peripheral.respond(to: request, withResult: .invalidOffset)
+            return
+        }
         request.value = Data()
         peripheral.respond(to: request, withResult: .success)
     }
@@ -469,7 +623,9 @@ extension MeshService: CBPeripheralManagerDelegate {
         }
         while !pendingNotifies.isEmpty {
             let next = pendingNotifies[0]
-            let targets = next.centralIDs.compactMap { subscribers[$0] }
+            let targets = next.centralIDs
+                .compactMap { subscribers[$0] }
+                .filter { $0.maximumUpdateValueLength >= next.data.count }
             if targets.isEmpty {
                 pendingNotifies.removeFirst()
                 continue

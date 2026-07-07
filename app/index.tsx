@@ -12,6 +12,7 @@ import { DevMenu } from '../src/ui/DevMenu';
 import { useRouter, type Href } from 'expo-router';
 import { colors } from '../src/ui/theme';
 import { notifyPing } from '../src/services/notifications';
+import { ensureBlePermissions } from '../src/services/blePermissions';
 
 // `/crew` (app/crew.tsx) is added in this task; the generated typed-routes
 // union has not regenerated yet, so reference it through the documented `Href`
@@ -35,8 +36,17 @@ export default function RadarHome() {
   useEffect(() => {
     bootCrew();
     const mesh = getMeshService();
-    mesh.start();
-    return () => { mesh.stop(); };
+    let cancelled = false;
+    (async () => {
+      // Real BLE transport: Android 12+ needs runtime BLE permissions BEFORE
+      // the native mesh starts — otherwise it rejects and the mesh stays dead.
+      if (process.env.EXPO_PUBLIC_TRANSPORT === 'ble' && !(await ensureBlePermissions())) {
+        setBanner({ text: '⚠️ Bluetooth permission needed — mesh is off' });
+        return;
+      }
+      if (!cancelled) mesh.start();
+    })();
+    return () => { cancelled = true; mesh.stop(); };
   }, []);
 
   useEffect(() => {

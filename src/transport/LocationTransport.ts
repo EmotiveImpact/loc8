@@ -3,6 +3,8 @@ import type { Packet } from '../core/types';
 export interface MeshStatus {
   nearbyCount: number;
   connected: boolean;
+  /** Android BLE only: chipset can't advertise — scan-only degraded mode (undiscoverable). */
+  degraded?: boolean;
 }
 
 export interface LocationTransport {

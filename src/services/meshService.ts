@@ -48,7 +48,13 @@ export function createMeshService(
       transport.onMeshStatus((st) => store().setMeshNearby(st.nearbyCount));
       foreground = AppState.currentState !== 'background';
       appStateSub = AppState.addEventListener('change', (next: AppStateStatus) => {
+        const cameToForeground = next === 'active' && !foreground;
         foreground = next === 'active';
+        // Returning to the foreground retries a native transport start that
+        // failed earlier (background FGS restriction, permissions granted after
+        // boot). transport.start() is idempotent, so this is a no-op when the
+        // mesh is already up.
+        if (cameToForeground) transport.start();
       });
       transport.start();
       timer = setInterval(() => service.broadcastTick(), 1000);

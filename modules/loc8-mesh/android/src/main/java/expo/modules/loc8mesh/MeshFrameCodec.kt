@@ -9,7 +9,9 @@
 // Frame (big-endian):
 //   version(1)=0x01 | type(1)=0x30 | ttl(1) | timestamp(8, UInt64 ms since epoch)
 //   | flags(1)=0x00 | payloadLength(2)=25 | senderID(8) | payload(25)
-// Raw frame = 14 + 8 + 25 = 47 bytes, PKCS#7-padded to 256 on the wire.
+// Raw frame = 14 + 8 + 25 = 47 bytes. Egress ships the raw frame by default
+// (MeshConstants.PAD_EGRESS_FRAMES) so it fits any negotiated BLE MTU; decode
+// accepts both raw-47 and PKCS#7-padded-256 forms.
 
 package expo.modules.loc8mesh
 
@@ -60,7 +62,10 @@ object MeshFrameCodec {
     const val RAW_FRAME_SIZE =
         MeshConstants.V1_HEADER_SIZE + MeshConstants.SENDER_ID_SIZE + MeshConstants.PAYLOAD_SIZE // 47
 
-    /** Encode a frame and PKCS#7-pad it to 256 bytes for the wire. */
+    /**
+     * Encode a frame for the wire: raw 47 bytes by default, PKCS#7-padded to
+     * 256 only when MeshConstants.PAD_EGRESS_FRAMES is set (bitchat piggyback).
+     */
     fun encode(frame: MeshFrame): ByteArray {
         val raw = ByteArray(RAW_FRAME_SIZE)
         raw[0] = MeshConstants.PROTOCOL_VERSION
@@ -76,6 +81,7 @@ object MeshFrameCodec {
         raw[13] = (MeshConstants.PAYLOAD_SIZE and 0xFF).toByte()
         System.arraycopy(frame.senderID, 0, raw, 14, MeshConstants.SENDER_ID_SIZE)
         System.arraycopy(frame.payload, 0, raw, 22, MeshConstants.PAYLOAD_SIZE)
+        if (!MeshConstants.PAD_EGRESS_FRAMES) return raw
         return MeshPadding.pad(raw, MeshConstants.PADDED_FRAME_SIZE)
     }
 

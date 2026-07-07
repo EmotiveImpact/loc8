@@ -9,8 +9,9 @@
 // Roles run concurrently:
 //   - BluetoothLeScanner (filtered on the LOC8-MESH service UUID) discovers
 //     peers; we connect as GATT client (max 6 links), ingress via
-//     characteristic notifications, egress via write-without-response
-//     (fallback to with-response when negotiated MTU < 259).
+//     characteristic notifications, egress via write-without-response only —
+//     links whose negotiated MTU can't carry a whole frame are skipped
+//     (never a with-response/long-write fallback).
 //   - BluetoothLeAdvertiser advertises the service UUID only (a 128-bit UUID
 //     eats 18 of the 31 legacy adv bytes — no name, no tx power);
 //     BluetoothGattServer hosts the characteristic + CCCD, ingress via
@@ -54,7 +55,10 @@ import android.bluetooth.le.ScanCallback
 import android.bluetooth.le.ScanFilter
 import android.bluetooth.le.ScanResult
 import android.bluetooth.le.ScanSettings
+import android.content.BroadcastReceiver
 import android.content.Context
+import android.content.Intent
+import android.content.IntentFilter
 import android.os.Build
 import android.os.Handler
 import android.os.HandlerThread
@@ -75,9 +79,9 @@ class MeshBleService private constructor() {
     @Volatile
     var onPacket: ((ByteArray, String?) -> Unit)? = null
 
-    /** (nearbyCount, connected) — invoked on the mesh handler thread. */
+    /** (nearbyCount, connected, degraded) — invoked on the mesh handler thread. */
     @Volatile
-    var onStatus: ((Int, Boolean) -> Unit)? = null
+    var onStatus: ((Int, Boolean, Boolean) -> Unit)? = null
 
     @Volatile
     private var handler: Handler? = null
@@ -109,6 +113,15 @@ class MeshBleService private constructor() {
     // Peripheral role: centrals subscribed to our characteristic via CCCD.
     private val subscribers = HashMap<String, BluetoothDevice>()
 
+    /** Per-subscriber MTU (server-side onMtuChanged); ATT default 23 until told otherwise. */
+    private val subscriberMtus = HashMap<String, Int>()
+
+    /** Devices we've already logged an MTU-too-small egress skip for (log once per device). */
+    private val mtuSkipLogged = HashSet<String>()
+
+    /** Registered while running: re-arms the mesh when the adapter cycles off→on. */
+    private var stateReceiver: BroadcastReceiver? = null
+
     // Mesh logic.
     private val dedup = MeshDeduplicator()
     private val pendingRelays = HashMap<String, Runnable>()
@@ -122,17 +135,25 @@ class MeshBleService private constructor() {
     /** Idempotent: repeated calls while running are no-ops. */
     fun start(context: Context) {
         val app = context.applicationContext
-        ensureHandler().post {
+        val h = ensureHandler()
+        h.post {
+            // A stop() that raced in between quit this thread's handler; don't
+            // arm state a fresh start() thread can't see.
+            if (handler !== h) return@post
             if (running) return@post
             running = true
             appContext = app
+
+            // Adapter off→on re-arm (LOW d): register while running so a user
+            // toggling Bluetooth brings the mesh back without an app restart.
+            registerAdapterStateReceiver(app)
 
             val manager = app.getSystemService(Context.BLUETOOTH_SERVICE) as? BluetoothManager
             bluetoothManager = manager
             adapter = manager?.adapter
             val localAdapter = adapter
             if (localAdapter == null || !localAdapter.isEnabled) {
-                Log.w(TAG, "Bluetooth adapter unavailable or disabled — mesh idle until restart")
+                Log.w(TAG, "Bluetooth adapter unavailable or disabled — mesh idle until adapter on")
                 emitStatusIfChanged(force = true)
                 return@post
             }
@@ -144,45 +165,20 @@ class MeshBleService private constructor() {
         }
     }
 
-    /** Idempotent: tears down all links, scanning and advertising. */
+    /** Idempotent: tears down all links, scanning and advertising, and quits the mesh thread. */
     fun stop() {
-        ensureHandler().post {
+        // No handler → never started (or already stopped); don't resurrect a
+        // thread just to find nothing to tear down.
+        val h = handler ?: return
+        h.post {
             if (!running) return@post
             running = false
 
-            val h = handler
-            for (r in pendingRelays.values) h?.removeCallbacks(r)
-            pendingRelays.clear()
+            stateReceiver?.let { r -> runCatching { appContext?.unregisterReceiver(r) } }
+            stateReceiver = null
 
-            if (scanning) {
-                runCatching { scanner?.stopScan(scanCallback) }
-                scanning = false
-            }
-            if (advertising) {
-                runCatching { advertiser?.stopAdvertising(advertiseCallback) }
-                advertising = false
-            }
+            dropRadioState()
 
-            for (gatt in pendingGatts.values) {
-                runCatching { gatt.disconnect() }
-                runCatching { gatt.close() }
-            }
-            for (gatt in centralLinks.values) {
-                runCatching { gatt.disconnect() }
-                runCatching { gatt.close() }
-            }
-            pendingGatts.clear()
-            centralLinks.clear()
-            centralCharacteristics.clear()
-            linkMtus.clear()
-
-            subscribers.clear()
-            runCatching { gattServer?.close() }
-            gattServer = null
-            meshCharacteristic = null
-
-            scanner = null
-            advertiser = null
             adapter = null
             bluetoothManager = null
             appContext = null
@@ -191,7 +187,111 @@ class MeshBleService private constructor() {
 
             dedup.reset()
             emitStatusIfChanged(force = true)
+
+            // LOW c: quit the handler thread (drains messages already queued —
+            // including this one — then exits). ensureHandler() recreates it on
+            // the next start(); the stale-handler guard there keeps a racing
+            // start() off this dying thread.
+            synchronized(this@MeshBleService) {
+                handler = null
+                handlerThread?.quitSafely()
+                handlerThread = null
+            }
         }
+    }
+
+    // MARK: - Adapter state (LOW d)
+
+    /** Called on the mesh handler thread (start()'s posted block). */
+    private fun registerAdapterStateReceiver(app: Context) {
+        if (stateReceiver != null) return
+        val receiver = object : BroadcastReceiver() {
+            override fun onReceive(context: Context, intent: Intent) {
+                if (intent.action != BluetoothAdapter.ACTION_STATE_CHANGED) return
+                val state = intent.getIntExtra(BluetoothAdapter.EXTRA_STATE, BluetoothAdapter.ERROR)
+                handler?.post { handleAdapterStateChange(state) }
+            }
+        }
+        val filter = IntentFilter(BluetoothAdapter.ACTION_STATE_CHANGED)
+        val registered = runCatching {
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+                // System broadcasts are delivered regardless of the export flag.
+                app.registerReceiver(receiver, filter, Context.RECEIVER_NOT_EXPORTED)
+            } else {
+                app.registerReceiver(receiver, filter)
+            }
+        }.isSuccess
+        if (registered) stateReceiver = receiver
+        else Log.w(TAG, "Could not register ACTION_STATE_CHANGED receiver")
+    }
+
+    /** Mesh handler thread only. */
+    private fun handleAdapterStateChange(state: Int) {
+        if (!running) return
+        when (state) {
+            BluetoothAdapter.STATE_ON -> {
+                val app = appContext ?: return
+                if (bluetoothManager == null) {
+                    bluetoothManager = app.getSystemService(Context.BLUETOOTH_SERVICE) as? BluetoothManager
+                }
+                adapter = bluetoothManager?.adapter ?: return
+                Log.i(TAG, "Bluetooth adapter back on — re-arming mesh")
+                scanOnlyMode = false // re-probe advertising support on the fresh stack
+                if (gattServer == null) openGattServerIfPossible(app)
+                startScanningIfPossible()
+                startAdvertisingIfPossible()
+                emitStatusIfChanged(force = true)
+            }
+            BluetoothAdapter.STATE_TURNING_OFF, BluetoothAdapter.STATE_OFF -> {
+                Log.w(TAG, "Bluetooth adapter off — dropping radio state, mesh idle until adapter on")
+                dropRadioState()
+            }
+        }
+    }
+
+    /**
+     * Mesh handler thread only. Releases every radio-facing object (scan,
+     * advertise, client links, GATT server, pending relays) but keeps `running`,
+     * the handler thread and the state receiver — used by stop() and by the
+     * adapter turning off (where a later STATE_ON re-arms).
+     */
+    private fun dropRadioState() {
+        val h = handler
+        for (r in pendingRelays.values) h?.removeCallbacks(r)
+        pendingRelays.clear()
+
+        if (scanning) {
+            runCatching { scanner?.stopScan(scanCallback) }
+            scanning = false
+        }
+        if (advertising) {
+            runCatching { advertiser?.stopAdvertising(advertiseCallback) }
+            advertising = false
+        }
+        scanner = null
+        advertiser = null
+
+        for (gatt in pendingGatts.values) {
+            runCatching { gatt.disconnect() }
+            runCatching { gatt.close() }
+        }
+        for (gatt in centralLinks.values) {
+            runCatching { gatt.disconnect() }
+            runCatching { gatt.close() }
+        }
+        pendingGatts.clear()
+        centralLinks.clear()
+        centralCharacteristics.clear()
+        linkMtus.clear()
+
+        subscribers.clear()
+        subscriberMtus.clear()
+        mtuSkipLogged.clear()
+        runCatching { gattServer?.close() }
+        gattServer = null
+        meshCharacteristic = null
+
+        emitStatusIfChanged(force = true)
     }
 
     /**
@@ -200,7 +300,9 @@ class MeshBleService private constructor() {
      * `payload` must be exactly 25 bytes (validated by the module layer).
      */
     fun broadcast(payload: ByteArray) {
-        ensureHandler().post {
+        // Only start() may create the mesh thread; a broadcast while stopped is dropped.
+        val h = handler ?: return
+        h.post {
             if (!running) return@post
 
             // senderID(8) = "LOC8" ‖ uint32 senderId (BE). The uint32 comes from
@@ -242,17 +344,23 @@ class MeshBleService private constructor() {
      */
     private fun sendFrame(data: ByteArray, excludedLinkId: String?) {
         // Central role: write to each connected peer's characteristic.
+        // Write-without-response ONLY — a link whose usable ATT payload
+        // (mtu − 3) can't carry the whole frame is SKIPPED (a with-response
+        // write would trigger the long-write/prepared-write path, which
+        // misbehaving stacks answer with status 133 loops). With raw 47-byte
+        // frames any negotiated MTU ≥ 50 passes; the ATT floor of 23 only
+        // bites until our DESIRED_MTU request lands.
         for ((address, gatt) in centralLinks) {
             if (address == excludedLinkId) continue
             val characteristic = centralCharacteristics[address] ?: continue
-            // Prefer write-without-response; fall back to with-response when the
-            // negotiated MTU can't carry the 256-byte frame in one ATT write.
             val mtu = linkMtus[address] ?: 23
-            val writeType = if (mtu >= data.size + 3) {
-                BluetoothGattCharacteristic.WRITE_TYPE_NO_RESPONSE
-            } else {
-                BluetoothGattCharacteristic.WRITE_TYPE_DEFAULT
+            if (mtu - 3 < data.size) {
+                if (mtuSkipLogged.add(address)) {
+                    Log.w(TAG, "Skipping write to $address: MTU $mtu can't carry ${data.size}-byte frame")
+                }
+                continue
             }
+            val writeType = BluetoothGattCharacteristic.WRITE_TYPE_NO_RESPONSE
             val ok = runCatching {
                 if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
                     gatt.writeCharacteristic(characteristic, data, writeType) == BluetoothStatusCodes.SUCCESS
@@ -263,11 +371,20 @@ class MeshBleService private constructor() {
             if (!ok) Log.w(TAG, "writeCharacteristic failed for $address")
         }
 
-        // Peripheral role: notify subscribed centrals.
+        // Peripheral role: notify subscribed centrals. A notification also
+        // rides one ATT PDU — skip subscribers whose MTU can't carry the frame
+        // (default 23 until the server-side onMtuChanged says otherwise).
         val server = gattServer ?: return
         val characteristic = meshCharacteristic ?: return
         for ((address, device) in subscribers) {
             if (address == excludedLinkId) continue
+            val mtu = subscriberMtus[address] ?: 23
+            if (mtu - 3 < data.size) {
+                if (mtuSkipLogged.add(address)) {
+                    Log.w(TAG, "Skipping notify to $address: MTU $mtu can't carry ${data.size}-byte frame")
+                }
+                continue
+            }
             runCatching {
                 if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
                     server.notifyCharacteristicChanged(device, characteristic, false, data)
@@ -360,13 +477,22 @@ class MeshBleService private constructor() {
 
     // MARK: - Status
 
-    private fun linkCount(): Int = centralLinks.size + subscribers.size
+    /**
+     * DISTINCT device addresses across both roles — a dual-role peer (we hold
+     * a client link to it AND it subscribed to our server) counts once.
+     */
+    private fun linkCount(): Int {
+        if (subscribers.isEmpty()) return centralLinks.size
+        val addresses = HashSet(centralLinks.keys)
+        addresses.addAll(subscribers.keys)
+        return addresses.size
+    }
 
     private fun emitStatusIfChanged(force: Boolean = false) {
         val count = linkCount()
         if (!force && count == lastReportedLinkCount) return
         lastReportedLinkCount = count
-        onStatus?.invoke(count, count > 0)
+        onStatus?.invoke(count, count > 0, scanOnlyMode)
     }
 
     // MARK: - Scanning (central role)
@@ -405,7 +531,8 @@ class MeshBleService private constructor() {
         if (!running) return
         val address = device.address ?: return
         if (centralLinks.containsKey(address) || pendingGatts.containsKey(address)) return
-        if (centralLinks.size >= MeshConstants.MAX_CENTRAL_LINKS) return
+        // Max-6 budget counts in-flight connects too, or a scan burst overshoots.
+        if (centralLinks.size + pendingGatts.size >= MeshConstants.MAX_CENTRAL_LINKS) return
 
         // RSSI gate: -90 dBm, relaxed to -95 when we have no links at all.
         val gate = if (linkCount() == 0) MeshConstants.RSSI_GATE_ISOLATED else MeshConstants.RSSI_GATE
@@ -434,9 +561,10 @@ class MeshBleService private constructor() {
                     // leak the gatt in pendingGatts.
                     dropClientLink(address, gatt)
                 } else if (newState == BluetoothProfile.STATE_CONNECTED) {
-                    // Ask for 259 (256-byte frame + 3-byte ATT header); services are
-                    // discovered from onMtuChanged. If the request can't even be
-                    // issued, discover right away and fall back to with-response.
+                    // Ask for 259 (padded-frame + 3-byte ATT header — generous for
+                    // raw-47 frames); services are discovered from onMtuChanged.
+                    // If the request can't even be issued, discover right away —
+                    // egress then skips the link until its MTU can carry a frame.
                     if (!runCatching { gatt.requestMtu(MeshConstants.DESIRED_MTU) }.getOrDefault(false)) {
                         runCatching { gatt.discoverServices() }
                     }
@@ -497,6 +625,16 @@ class MeshBleService private constructor() {
             return
         }
 
+        // Re-check the cap before promoting: several pendings can discover
+        // services back-to-back and each was admitted against the same budget.
+        if (centralLinks.size >= MeshConstants.MAX_CENTRAL_LINKS) {
+            pendingGatts.remove(address)
+            linkMtus.remove(address)
+            runCatching { gatt.disconnect() }
+            runCatching { gatt.close() }
+            return
+        }
+
         pendingGatts.remove(address)
         centralLinks[address] = gatt
         centralCharacteristics[address] = characteristic
@@ -521,6 +659,7 @@ class MeshBleService private constructor() {
         centralLinks.remove(address)
         centralCharacteristics.remove(address)
         linkMtus.remove(address)
+        mtuSkipLogged.remove(address)
         runCatching { gatt.close() }
         emitStatusIfChanged()
     }
@@ -606,7 +745,8 @@ class MeshBleService private constructor() {
     /**
      * Degraded mode (brief risk 6): this chipset can't advertise, so peers
      * can't discover us — but we still scan, connect and relay as a client.
-     * onMeshStatus keeps reporting real link counts; the mode is logged.
+     * onMeshStatus keeps reporting real link counts and surfaces the mode via
+     * the `degraded` flag.
      */
     private fun enterScanOnlyMode(reason: String) {
         if (scanOnlyMode) return
@@ -620,9 +760,29 @@ class MeshBleService private constructor() {
             if (newState == BluetoothProfile.STATE_DISCONNECTED) {
                 val address = device.address ?: return
                 handler?.post {
+                    subscriberMtus.remove(address)
+                    mtuSkipLogged.remove(address)
                     if (subscribers.remove(address) != null) emitStatusIfChanged()
                 }
             }
+        }
+
+        /** Server-side MTU tracking (M2): centrals tell us their negotiated MTU here. */
+        override fun onMtuChanged(device: BluetoothDevice, mtu: Int) {
+            val address = device.address ?: return
+            handler?.post {
+                subscriberMtus[address] = mtu
+                mtuSkipLogged.remove(address) // re-log if it's somehow still too small
+            }
+        }
+
+        // We never accept prepared/long writes (frames always fit one ATT PDU);
+        // answering the execute phase with "not supported" stops a misbehaving
+        // peer from spinning the 133/long-write loop against us.
+        override fun onExecuteWrite(device: BluetoothDevice, requestId: Int, execute: Boolean) {
+            gattServer?.sendResponse(
+                device, requestId, BluetoothGatt.GATT_REQUEST_NOT_SUPPORTED, 0, null
+            )
         }
 
         override fun onCharacteristicWriteRequest(
@@ -635,10 +795,18 @@ class MeshBleService private constructor() {
             value: ByteArray?
         ) {
             // Respond promptly on the binder thread; process on the mesh thread.
+            if (preparedWrite) {
+                // Long writes are rejected outright — frames always fit one PDU.
+                if (responseNeeded) {
+                    gattServer?.sendResponse(
+                        device, requestId, BluetoothGatt.GATT_REQUEST_NOT_SUPPORTED, offset, null
+                    )
+                }
+                return
+            }
             if (responseNeeded) {
                 gattServer?.sendResponse(device, requestId, BluetoothGatt.GATT_SUCCESS, offset, null)
             }
-            if (preparedWrite) return // long writes never occur at frame size 256 ≤ MTU
             if (characteristic.uuid != MeshConstants.CHARACTERISTIC_UUID) return
             if (value == null || value.isEmpty()) return
             val data = value.copyOf()
@@ -677,6 +845,10 @@ class MeshBleService private constructor() {
             characteristic: BluetoothGattCharacteristic
         ) {
             // Read is exposed for probing/debugging only; there is no "current value".
+            if (offset > 0) {
+                gattServer?.sendResponse(device, requestId, BluetoothGatt.GATT_INVALID_OFFSET, offset, null)
+                return
+            }
             gattServer?.sendResponse(device, requestId, BluetoothGatt.GATT_SUCCESS, 0, ByteArray(0))
         }
 
@@ -688,6 +860,10 @@ class MeshBleService private constructor() {
         ) {
             // Best-effort CCCD read: report "notifications off"; state is owned
             // on the mesh thread and this must answer promptly.
+            if (offset > 0) {
+                gattServer?.sendResponse(device, requestId, BluetoothGatt.GATT_INVALID_OFFSET, offset, null)
+                return
+            }
             val value = if (descriptor.uuid == MeshConstants.CCCD_UUID) {
                 BluetoothGattDescriptor.DISABLE_NOTIFICATION_VALUE
             } else {
