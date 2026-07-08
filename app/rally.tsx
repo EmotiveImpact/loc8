@@ -3,12 +3,14 @@ import { useState } from 'react';
 import { View, Text, Pressable, StyleSheet, ScrollView, Share } from 'react-native';
 import * as Clipboard from 'expo-clipboard';
 import { LinearGradient } from 'expo-linear-gradient';
+import { BlurView } from 'expo-blur';
 import { useRouter } from 'expo-router';
 import { useCrewStore, freshnessSec, GHOST_SEC } from '../src/state/crewStore';
 import { getMeshService } from '../src/services/appServices';
 import { getHaversineDistance } from '../src/core/geoMath';
 import { encodePlusCode } from '../src/core/plusCodes';
 import { useNowSec } from '../src/hooks/useNowSec';
+import { AuroraBackground } from '../src/ui/AuroraBackground';
 import { colors, gradients, fonts } from '../src/ui/theme';
 import { Flag, Navigation, Copy, Check, X, Trash2 } from 'lucide-react-native';
 
@@ -44,6 +46,7 @@ export default function RallyScreen() {
 
   return (
     <View style={st.wrap}>
+      <AuroraBackground />
       <Pressable style={st.close} onPress={() => router.back()}>
         <X size={18} color={colors.text} strokeWidth={2} />
       </Pressable>
@@ -75,6 +78,7 @@ export default function RallyScreen() {
             </Pressable>
 
             <View style={st.card}>
+              <BlurView tint="dark" intensity={24} style={StyleSheet.absoluteFill} />
               <Text style={st.cardH}>CREW · {arrivals.length}</Text>
               {arrivals.length === 0 ? (
                 <Text style={st.p}>No crew in range yet.</Text>
@@ -97,6 +101,7 @@ export default function RallyScreen() {
             </View>
 
             <View style={st.card}>
+              <BlurView tint="dark" intensity={24} style={StyleSheet.absoluteFill} />
               <Text style={st.cardH}>PLUS CODE</Text>
               <Text style={st.code}>{code}</Text>
               <View style={st.row}>
@@ -137,7 +142,7 @@ const st = StyleSheet.create({
   p: { color: colors.textDim, fontSize: 14, lineHeight: 21, textAlign: 'center', fontFamily: fonts.body },
   goldBtn: { flexDirection: 'row', alignItems: 'center', justifyContent: 'center', gap: 8, backgroundColor: colors.gold, borderRadius: 14, paddingVertical: 15, paddingHorizontal: 22, alignSelf: 'stretch' },
   goldBtnText: { color: '#1a0a10', fontFamily: fonts.bodyBold, fontSize: 15 },
-  card: { alignSelf: 'stretch', backgroundColor: colors.card, borderRadius: 16, padding: 16, gap: 10, borderWidth: 1, borderColor: colors.cardBorder },
+  card: { alignSelf: 'stretch', backgroundColor: colors.glass, borderRadius: 16, padding: 16, gap: 10, borderWidth: 1, borderColor: colors.line, overflow: 'hidden' },
   cardH: { color: colors.textDim, fontSize: 11, fontFamily: fonts.bodyBold, letterSpacing: 1 },
   crewRow: { flexDirection: 'row', alignItems: 'center', gap: 10 },
   av: { width: 32, height: 32, borderRadius: 16, alignItems: 'center', justifyContent: 'center' },

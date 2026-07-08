@@ -3,6 +3,7 @@
 // Rally is NOT a tab route — it pushes the /rally modal.
 import { View, Text, Pressable, StyleSheet } from 'react-native';
 import { LinearGradient } from 'expo-linear-gradient';
+import { BlurView } from 'expo-blur';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useRouter, type Href } from 'expo-router';
 import type { BottomTabBarProps } from 'expo-router/tabs';
@@ -44,6 +45,7 @@ export function TabBar({ state, navigation }: BottomTabBarProps) {
   return (
     <View pointerEvents="box-none" style={[st.host, { paddingBottom: Math.max(insets.bottom, 10) }]}>
       <View style={st.bar}>
+        <BlurView tint="dark" intensity={30} style={st.glass} />
         {renderTab(TABS[0])}
         {renderTab(TABS[1])}
 
@@ -70,9 +72,10 @@ const st = StyleSheet.create({
   bar: {
     flexDirection: 'row', alignItems: 'flex-end', justifyContent: 'space-around',
     height: 62, borderRadius: 24, paddingHorizontal: 6, paddingVertical: 9,
-    backgroundColor: 'rgba(16,12,28,0.92)',
-    borderWidth: 1, borderColor: 'rgba(255,255,255,0.09)',
+    backgroundColor: 'rgba(16,12,28,0.55)',
+    borderWidth: 1, borderColor: colors.line,
   },
+  glass: { position: 'absolute', top: 0, left: 0, right: 0, bottom: 0, borderRadius: 24, overflow: 'hidden' },
   slot: { flex: 1, alignItems: 'center', justifyContent: 'flex-end', gap: 3, paddingBottom: 2 },
   label: { fontSize: 10, fontFamily: fonts.bodySemi },
   rallySlot: { flex: 1, alignItems: 'center', justifyContent: 'flex-end', gap: 3 },

@@ -1,9 +1,12 @@
 // app/onboarding.tsx
 import { useState } from 'react';
 import { View, Text, TextInput, Pressable, StyleSheet, Linking } from 'react-native';
+import { BlurView } from 'expo-blur';
+import { LinearGradient } from 'expo-linear-gradient';
 import * as Location from 'expo-location';
 import { useCrewStore } from '../src/state/crewStore';
-import { colors, FRIEND_COLORS } from '../src/ui/theme';
+import { colors, fonts, gradients, FRIEND_COLORS } from '../src/ui/theme';
+import { AuroraBackground } from '../src/ui/AuroraBackground';
 import { MapPin } from 'lucide-react-native';
 
 export default function Onboarding() {
@@ -26,12 +29,15 @@ export default function Onboarding() {
   if (step === 'profile') {
     return (
       <View style={st.wrap}>
+        <AuroraBackground />
         <Text style={st.logo}>Loc<Text style={{ color: colors.pink }}>8</Text></Text>
         <Text style={st.tagline}>Find your crew when the signal's gone.</Text>
-        <TextInput
-          style={st.input} placeholder="Your name" placeholderTextColor={colors.textDim}
-          value={name} onChangeText={setName} maxLength={12}
-        />
+        <BlurView tint="dark" intensity={24} style={st.inputWrap}>
+          <TextInput
+            style={st.input} placeholder="Your name" placeholderTextColor={colors.textDim}
+            value={name} onChangeText={setName} maxLength={12}
+          />
+        </BlurView>
         <View style={st.colorRow}>
           {FRIEND_COLORS.map((c) => (
             <Pressable
@@ -45,7 +51,9 @@ export default function Onboarding() {
           disabled={!name.trim()}
           onPress={() => setStep('location')}
         >
-          <Text style={st.btnText}>Continue</Text>
+          <LinearGradient colors={gradients.sunset} start={{ x: 0, y: 0 }} end={{ x: 1, y: 1 }} style={st.btnInner}>
+            <Text style={st.btnText}>Continue</Text>
+          </LinearGradient>
         </Pressable>
       </View>
     );
@@ -54,13 +62,16 @@ export default function Onboarding() {
   if (step === 'denied') {
     return (
       <View style={st.wrap}>
+        <AuroraBackground />
         <Text style={st.h}>Loc8 can't work without location</Text>
         <Text style={st.p}>
           Your GPS position is how your crew finds you. It's end-to-end encrypted — it never
           leaves your crew. Enable location in Settings to continue.
         </Text>
         <Pressable style={st.btn} onPress={() => Linking.openSettings()}>
-          <Text style={st.btnText}>Open Settings</Text>
+          <LinearGradient colors={gradients.sunset} start={{ x: 0, y: 0 }} end={{ x: 1, y: 1 }} style={st.btnInner}>
+            <Text style={st.btnText}>Open Settings</Text>
+          </LinearGradient>
         </Pressable>
         <Pressable style={st.btnGhost} onPress={requestLocation}>
           <Text style={st.btnGhostText}>Try again</Text>
@@ -71,6 +82,7 @@ export default function Onboarding() {
 
   return (
     <View style={st.wrap}>
+      <AuroraBackground />
       <MapPin size={56} color={colors.pink} strokeWidth={2} />
       <Text style={st.h}>Your location, your crew only</Text>
       <Text style={st.p}>
@@ -78,7 +90,9 @@ export default function Onboarding() {
         location is end-to-end encrypted and never touches a server.
       </Text>
       <Pressable style={st.btn} onPress={requestLocation}>
-        <Text style={st.btnText}>Enable location</Text>
+        <LinearGradient colors={gradients.sunset} start={{ x: 0, y: 0 }} end={{ x: 1, y: 1 }} style={st.btnInner}>
+          <Text style={st.btnText}>Enable location</Text>
+        </LinearGradient>
       </Pressable>
     </View>
   );
@@ -86,22 +100,21 @@ export default function Onboarding() {
 
 const st = StyleSheet.create({
   wrap: { flex: 1, backgroundColor: colors.bg, alignItems: 'center', justifyContent: 'center', padding: 28, gap: 16 },
-  logo: { color: colors.text, fontSize: 42, fontWeight: '800' },
-  tagline: { color: colors.textDim, fontSize: 15, marginBottom: 12 },
-  h: { color: colors.text, fontSize: 22, fontWeight: '800', textAlign: 'center' },
-  p: { color: colors.textDim, fontSize: 14, textAlign: 'center', lineHeight: 21 },
-  input: {
-    width: '100%', backgroundColor: colors.card, borderRadius: 14, padding: 16,
-    color: colors.text, fontSize: 16, borderWidth: 1, borderColor: colors.cardBorder,
+  logo: { color: colors.text, fontSize: 42, fontFamily: fonts.display },
+  tagline: { color: colors.textDim, fontSize: 15, marginBottom: 12, fontFamily: fonts.bodyMed, textAlign: 'center' },
+  h: { color: colors.text, fontSize: 22, fontFamily: fonts.display, textAlign: 'center' },
+  p: { color: colors.textDim, fontSize: 14, textAlign: 'center', lineHeight: 21, fontFamily: fonts.body },
+  inputWrap: {
+    width: '100%', borderRadius: 14, overflow: 'hidden',
+    backgroundColor: colors.glass, borderWidth: 1, borderColor: colors.line,
   },
+  input: { padding: 16, color: colors.text, fontSize: 16, fontFamily: fonts.body },
   colorRow: { flexDirection: 'row', gap: 12 },
   swatch: { width: 36, height: 36, borderRadius: 18 },
   swatchSel: { borderWidth: 3, borderColor: '#fff' },
-  btn: {
-    width: '100%', backgroundColor: colors.pink, borderRadius: 14, padding: 16,
-    alignItems: 'center', marginTop: 8,
-  },
-  btnText: { color: '#fff', fontWeight: '800', fontSize: 16 },
+  btn: { width: '100%', borderRadius: 14, overflow: 'hidden', marginTop: 8 },
+  btnInner: { padding: 16, alignItems: 'center' },
+  btnText: { color: '#fff', fontFamily: fonts.bodyBold, fontSize: 16 },
   btnGhost: { padding: 12 },
-  btnGhostText: { color: colors.textDim, fontSize: 14 },
+  btnGhostText: { color: colors.textDim, fontSize: 14, fontFamily: fonts.bodySemi },
 });

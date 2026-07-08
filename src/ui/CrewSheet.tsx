@@ -1,11 +1,12 @@
 // src/ui/CrewSheet.tsx
 import { View, Text, Pressable, StyleSheet, Alert } from 'react-native';
+import { BlurView } from 'expo-blur';
 import { useRouter, type Href } from 'expo-router';
 import { useCrewStore, freshnessSec, GHOST_SEC } from '../state/crewStore';
 import { getMeshService } from '../services/appServices';
 import { getHaversineDistance } from '../core/geoMath';
 import { useNowSec } from '../hooks/useNowSec';
-import { colors } from './theme';
+import { colors, fonts } from './theme';
 import { Radio, Waypoints, ChevronRight } from 'lucide-react-native';
 
 export function CrewSheet() {
@@ -28,7 +29,7 @@ export function CrewSheet() {
   ).length;
 
   return (
-    <View style={st.sheet}>
+    <BlurView tint="dark" intensity={28} style={st.sheet}>
       <View style={st.grab} />
       <View style={[st.mesh, meshOn ? st.meshOn : st.meshOff]}>
         {meshOn
@@ -75,14 +76,14 @@ export function CrewSheet() {
           </View>
         );
       })}
-    </View>
+    </BlurView>
   );
 }
 
 const st = StyleSheet.create({
   sheet: {
-    backgroundColor: 'rgba(16,19,32,0.96)', borderTopLeftRadius: 26, borderTopRightRadius: 26,
-    borderTopWidth: 1, borderColor: colors.cardBorder, paddingHorizontal: 16, paddingTop: 12, paddingBottom: 28,
+    backgroundColor: colors.glass, borderTopLeftRadius: 26, borderTopRightRadius: 26, overflow: 'hidden',
+    borderTopWidth: 1, borderColor: colors.line, paddingHorizontal: 16, paddingTop: 12, paddingBottom: 28,
   },
   grab: { width: 38, height: 4, borderRadius: 2, backgroundColor: 'rgba(255,255,255,0.2)', alignSelf: 'center', marginBottom: 10 },
   mesh: {
@@ -96,11 +97,11 @@ const st = StyleSheet.create({
   row: { flexDirection: 'row', alignItems: 'center', gap: 10, paddingVertical: 7 },
   subRow: { flexDirection: 'row', alignItems: 'center', gap: 4 },
   av: { width: 34, height: 34, borderRadius: 17, alignItems: 'center', justifyContent: 'center' },
-  avText: { color: colors.bg, fontWeight: '800', fontSize: 13 },
-  name: { color: colors.text, fontSize: 14, fontWeight: '600' },
-  sub: { color: colors.textDim, fontSize: 11 },
-  pingBtn: { paddingHorizontal: 10, paddingVertical: 7, borderRadius: 16, borderWidth: 1, borderColor: colors.cardBorder },
+  avText: { color: colors.bg, fontFamily: fonts.display, fontSize: 12 },
+  name: { color: colors.text, fontSize: 14, fontFamily: fonts.bodySemi },
+  sub: { color: colors.textDim, fontSize: 11, fontFamily: fonts.body },
+  pingBtn: { paddingHorizontal: 10, paddingVertical: 7, borderRadius: 16, borderWidth: 1, borderColor: colors.line },
   pingText: { color: colors.text, fontSize: 12, fontWeight: '700' },
   findBtn: { flexDirection: 'row', alignItems: 'center', gap: 2, backgroundColor: colors.pink, paddingHorizontal: 14, paddingVertical: 7, borderRadius: 16 },
-  findText: { color: '#fff', fontSize: 12, fontWeight: '700' },
+  findText: { color: '#fff', fontSize: 12, fontFamily: fonts.bodySemi },
 });

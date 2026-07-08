@@ -1,5 +1,7 @@
 // app/compass/[id].tsx
 import { View, Text, Pressable, StyleSheet } from 'react-native';
+import { BlurView } from 'expo-blur';
+import { LinearGradient } from 'expo-linear-gradient';
 import { useLocalSearchParams, useRouter } from 'expo-router';
 import Animated, { useAnimatedStyle, useSharedValue, withTiming } from 'react-native-reanimated';
 import { useEffect, useState } from 'react';
@@ -9,7 +11,8 @@ import { getHaversineDistance, getAbsoluteBearing } from '../../src/core/geoMath
 import { useSmoothedHeading } from '../../src/hooks/useSmoothedHeading';
 import { useNowSec } from '../../src/hooks/useNowSec';
 import { ShareSheet } from '../../src/ui/ShareSheet';
-import { colors } from '../../src/ui/theme';
+import { AuroraBackground } from '../../src/ui/AuroraBackground';
+import { colors, fonts, gradients } from '../../src/ui/theme';
 import { Navigation, ScanEye, PartyPopper, Flame, Compass, ChevronLeft } from 'lucide-react-native';
 
 const AnimatedNavigation = Animated.createAnimatedComponent(Navigation);
@@ -88,11 +91,14 @@ export default function CompassScreen() {
 
   return (
     <View style={st.wrap}>
+      <AuroraBackground />
       <Pressable style={st.back} onPress={() => router.back()}>
-        <ChevronLeft size={16} color={colors.text} strokeWidth={2} />
-        <Text style={st.backText}>Back to radar</Text>
+        <BlurView tint="dark" intensity={24} style={st.backInner}>
+          <ChevronLeft size={16} color={colors.text} strokeWidth={2} />
+          <Text style={st.backText}>Back to radar</Text>
+        </BlurView>
       </Pressable>
-      <View style={st.pill}><Text style={st.pillText}>Following · {friend.name}</Text></View>
+      <BlurView tint="dark" intensity={24} style={st.pill}><Text style={st.pillText}>Following · {friend.name}</Text></BlurView>
 
       {celebrationShown ? (
         <View style={st.center}>
@@ -100,7 +106,9 @@ export default function CompassScreen() {
           <Text style={st.foundH}>You found each other!</Text>
           <Text style={st.warm}>{friend.name} is right here.</Text>
           <Pressable style={st.doneBtn} onPress={() => router.back()}>
-            <Text style={st.doneText}>Back to radar</Text>
+            <LinearGradient colors={gradients.sunset} start={{ x: 0, y: 0 }} end={{ x: 1, y: 1 }} style={st.doneInner}>
+              <Text style={st.doneText}>Back to radar</Text>
+            </LinearGradient>
           </Pressable>
         </View>
       ) : inProximity ? (
@@ -122,16 +130,18 @@ export default function CompassScreen() {
           <Text style={st.dist}>{dist !== null ? `${Math.round(dist)}m` : '—'}</Text>
           <Text style={st.who}>{friend.name} · this way</Text>
           {warmth && (
-            <View style={st.warmRow}>
+            <BlurView tint="dark" intensity={16} style={st.warmRow}>
               <warmth.Icon size={13} color={warmth.color} strokeWidth={2} />
               <Text style={[st.warm, { color: warmth.color }]}>{warmth.text}</Text>
-            </View>
+            </BlurView>
           )}
           {fresh !== null && fresh > 30 && <Text style={st.staleNote}>position is {fresh}s old</Text>}
         </View>
       )}
       <Pressable style={st.shareBtn} onPress={() => setShareOpen(true)}>
-        <Text style={st.shareT}>Share {friend.name}'s spot</Text>
+        <BlurView tint="dark" intensity={24} style={st.shareInner}>
+          <Text style={st.shareT}>Share {friend.name}'s spot</Text>
+        </BlurView>
       </Pressable>
       <ShareSheet
         visible={shareOpen}
@@ -145,28 +155,32 @@ export default function CompassScreen() {
 
 const st = StyleSheet.create({
   wrap: { flex: 1, backgroundColor: colors.bg, paddingTop: 56, alignItems: 'center' },
-  back: { position: 'absolute', top: 56, left: 18, flexDirection: 'row', alignItems: 'center', gap: 2, backgroundColor: colors.card, borderRadius: 20, paddingHorizontal: 14, paddingVertical: 8, zIndex: 5 },
-  backText: { color: colors.text, fontSize: 13 },
-  pill: { backgroundColor: colors.card, borderRadius: 20, paddingHorizontal: 16, paddingVertical: 7, marginTop: 50 },
-  pillText: { color: colors.text, fontSize: 12, fontWeight: '600' },
+  back: { position: 'absolute', top: 56, left: 18, borderRadius: 20, overflow: 'hidden', zIndex: 5, borderWidth: 1, borderColor: colors.line },
+  backInner: { flexDirection: 'row', alignItems: 'center', gap: 2, backgroundColor: colors.glass, paddingHorizontal: 14, paddingVertical: 8 },
+  backText: { color: colors.text, fontSize: 13, fontFamily: fonts.bodyMed },
+  pill: { borderRadius: 20, overflow: 'hidden', marginTop: 50, backgroundColor: colors.glass, borderWidth: 1, borderColor: colors.line, paddingHorizontal: 16, paddingVertical: 7 },
+  pillText: { color: colors.text, fontSize: 12, fontFamily: fonts.bodySemi },
   center: { flex: 1, alignItems: 'center', justifyContent: 'center', gap: 6 },
   arrow: { marginBottom: 12 },
-  dist: { color: colors.text, fontSize: 52, fontWeight: '800' },
-  who: { color: colors.teal, fontSize: 14, fontWeight: '600' },
-  warmRow: { flexDirection: 'row', alignItems: 'center', gap: 5, marginTop: 8 },
-  warm: { color: colors.textDim, fontSize: 12 },
-  staleNote: { color: colors.yellow, fontSize: 11, marginTop: 4 },
+  dist: { color: colors.text, fontSize: 52, fontFamily: fonts.display },
+  who: { color: colors.teal, fontSize: 14, fontFamily: fonts.bodySemi },
+  warmRow: {
+    flexDirection: 'row', alignItems: 'center', gap: 5, marginTop: 8, overflow: 'hidden',
+    borderRadius: 16, paddingHorizontal: 12, paddingVertical: 6,
+    backgroundColor: colors.glass, borderWidth: 1, borderColor: colors.line,
+  },
+  warm: { color: colors.textDim, fontSize: 12, fontFamily: fonts.bodyMed },
+  staleNote: { color: colors.yellow, fontSize: 11, marginTop: 4, fontFamily: fonts.body },
   pulse: {
     width: 140, height: 140, borderRadius: 70, alignItems: 'center', justifyContent: 'center',
     borderWidth: 2, borderColor: colors.teal, backgroundColor: 'rgba(75,227,192,0.08)',
   },
-  proxH: { color: colors.text, fontSize: 24, fontWeight: '800', marginTop: 14 },
-  foundH: { color: colors.text, fontSize: 28, fontWeight: '800', marginTop: 10 },
-  doneBtn: { backgroundColor: colors.pink, borderRadius: 14, paddingHorizontal: 24, paddingVertical: 14, marginTop: 18 },
-  doneText: { color: '#fff', fontWeight: '800' },
-  shareBtn: {
-    marginBottom: 40, borderRadius: 22, borderWidth: 1, borderColor: colors.cardBorder,
-    paddingHorizontal: 22, paddingVertical: 12,
-  },
-  shareT: { color: colors.text, fontWeight: '700', fontSize: 14 },
+  proxH: { color: colors.text, fontSize: 24, fontFamily: fonts.display, marginTop: 14 },
+  foundH: { color: colors.text, fontSize: 28, fontFamily: fonts.display, marginTop: 10 },
+  doneBtn: { borderRadius: 14, overflow: 'hidden', marginTop: 18 },
+  doneInner: { paddingHorizontal: 24, paddingVertical: 14, alignItems: 'center' },
+  doneText: { color: '#fff', fontFamily: fonts.bodyBold },
+  shareBtn: { marginBottom: 40, borderRadius: 22, overflow: 'hidden', borderWidth: 1, borderColor: colors.line },
+  shareInner: { backgroundColor: colors.glass, paddingHorizontal: 22, paddingVertical: 12 },
+  shareT: { color: colors.text, fontFamily: fonts.bodySemi, fontSize: 14 },
 });

@@ -1,8 +1,10 @@
 // app/(tabs)/activity.tsx — the Activity feed (5th tab).
 import { View, Text, Pressable, StyleSheet, ScrollView } from 'react-native';
+import { BlurView } from 'expo-blur';
 import { useRouter, type Href } from 'expo-router';
 import { useCrewStore, type ActivityKind } from '../../src/state/crewStore';
 import { useNowSec } from '../../src/hooks/useNowSec';
+import { AuroraBackground } from '../../src/ui/AuroraBackground';
 import { colors, fonts } from '../../src/ui/theme';
 import { Bell, Flag, PartyPopper, Moon, Clock, ChevronRight, type LucideIcon } from 'lucide-react-native';
 
@@ -29,6 +31,7 @@ export default function ActivityScreen() {
 
   return (
     <View style={st.wrap}>
+      <AuroraBackground />
       <Text style={st.h1}>Activity</Text>
       {log.length === 0 ? (
         <View style={st.empty}>
@@ -49,6 +52,7 @@ export default function ActivityScreen() {
                 disabled={!tappable}
                 onPress={() => tappable && router.push(`/compass/${e.friendId}` as Href)}
               >
+                <BlurView tint="dark" intensity={24} style={StyleSheet.absoluteFill} />
                 <View style={[st.iconWrap, { backgroundColor: meta.color + '22' }]}>
                   <meta.Icon size={18} color={meta.color} strokeWidth={2} />
                 </View>
@@ -75,7 +79,7 @@ const st = StyleSheet.create({
   row: {
     flexDirection: 'row', alignItems: 'center', gap: 12,
     backgroundColor: colors.glass, borderRadius: 16, padding: 14,
-    borderWidth: 1, borderColor: colors.cardBorder,
+    borderWidth: 1, borderColor: colors.line, overflow: 'hidden',
   },
   iconWrap: { width: 38, height: 38, borderRadius: 12, alignItems: 'center', justifyContent: 'center' },
   rowText: { color: colors.text, fontSize: 14, fontFamily: fonts.bodySemi },

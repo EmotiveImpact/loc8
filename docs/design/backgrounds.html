@@ -1,0 +1,81 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Loc8 — Background Options</title>
+<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Unbounded:wght@600;800&family=Sora:wght@400;600&display=swap" rel="stylesheet">
+<style>
+  *{box-sizing:border-box;margin:0;padding:0}
+  :root{--ink:#fff;--muted:rgba(255,255,255,.55);--faint:rgba(255,255,255,.3);--line:rgba(255,255,255,.09);
+    --signal:#5ef2c8;--gold:#ffce4d;--rose:#ff4d7d;--peri:#7aa2ff;
+    --sunset:linear-gradient(135deg,#ff4d7d,#ff7a45,#ffb038);--rally:linear-gradient(135deg,#ffce4d,#ff9a3c);
+    --disp:'Unbounded',sans-serif;--body:'Sora',sans-serif}
+  body{font-family:var(--body);color:var(--ink);min-height:100vh;background:#0c0b12;padding:32px 16px 60px}
+  .head{max-width:1100px;margin:0 auto 24px;text-align:center}
+  h1{font-family:var(--disp);font-size:26px;font-weight:800}
+  .head p{color:var(--muted);font-size:13px;margin-top:8px}
+  .rail{max-width:1100px;margin:0 auto;display:flex;gap:24px;flex-wrap:wrap;justify-content:center}
+  .col{width:250px}.cap{margin-top:12px;text-align:center}.cap h3{font-family:var(--disp);font-size:14px;font-weight:600}.cap p{color:var(--muted);font-size:11.5px;margin-top:4px;line-height:1.5}
+  .phone{width:250px;height:520px;border-radius:38px;padding:8px;background:linear-gradient(160deg,rgba(255,255,255,.14),rgba(255,255,255,.02));box-shadow:0 30px 70px rgba(0,0,0,.6)}
+  .screen{width:100%;height:100%;border-radius:31px;overflow:hidden;position:relative}
+  /* ==== the 4 background treatments ==== */
+  .bg-flat{background:#08070d}
+  .bg-glow{background:radial-gradient(420px 320px at 50% 118%, rgba(94,242,200,.12), transparent 60%), #08070d}
+  .bg-vert{background:linear-gradient(180deg,#16122a 0%,#0a0813 55%,#07060c 100%)}
+  .bg-black{background:#000}
+  /* shared radar foreground */
+  .notch{position:absolute;top:12px;left:50%;transform:translateX(-50%);width:80px;height:18px;background:#000;border-radius:12px;z-index:20}
+  .brand{position:absolute;top:40px;left:0;right:0;text-align:center;font-family:var(--disp);font-weight:800;font-size:17px;z-index:10}
+  .brand b{background:var(--sunset);-webkit-background-clip:text;background-clip:text;color:transparent}
+  .radar{position:absolute;top:44%;left:50%;transform:translate(-50%,-50%);width:200px;height:200px}
+  .ring{position:absolute;inset:0;margin:auto;border-radius:50%;border:1px solid rgba(255,255,255,.07)}
+  .r1{width:68px;height:68px}.r2{width:134px;height:134px}.r3{width:200px;height:200px}
+  .glow{position:absolute;inset:0;margin:auto;width:180px;height:180px;border-radius:50%;background:radial-gradient(circle,rgba(94,242,200,.08),transparent 62%)}
+  .me{position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);width:18px;height:18px;border-radius:50%;background:var(--sunset);box-shadow:0 0 16px rgba(255,90,90,.6);z-index:5}
+  .mehalo{position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);width:18px;height:18px;border-radius:50%;box-shadow:0 0 0 2px rgba(255,77,125,.5);animation:ping 2.6s ease-out infinite}
+  @keyframes ping{0%{width:18px;height:18px;opacity:.8}100%{width:110px;height:110px;opacity:0}}
+  .blip{position:absolute;transform:translate(-50%,-50%);width:28px;height:28px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-family:var(--disp);font-weight:700;font-size:11px;color:#0a0813;box-shadow:0 4px 12px rgba(0,0,0,.5),0 0 0 2px rgba(10,8,19,.9)}
+  .nav{position:absolute;left:12px;right:12px;bottom:12px;height:52px;border-radius:20px;background:rgba(16,12,28,.82);border:1px solid var(--line);display:flex;align-items:flex-end;justify-content:space-around;padding:7px 6px;z-index:10}
+  .nb{display:flex;flex-direction:column;align-items:center;gap:2px;color:var(--faint);flex:1;font-size:8px;font-weight:600}
+  .nb.on{color:#ff7a45}
+  .rbtn{position:absolute;left:50%;top:-20px;transform:translateX(-50%);width:46px;height:46px;border-radius:50%;background:var(--rally);border:3px solid #0d0a17;display:flex;align-items:center;justify-content:center;font-size:18px}
+</style>
+</head>
+<body>
+  <div class="head"><h1>Pick the background</h1><p>Same radar on top of each — only the background differs. (The aurora is gone; these are the calmer options.)</p></div>
+  <div class="rail" id="rail"></div>
+
+<script>
+  const RADAR = `
+    <div class="notch"></div>
+    <div class="brand">Loc<b>8</b></div>
+    <div class="radar">
+      <div class="glow"></div><div class="ring r3"></div><div class="ring r2"></div><div class="ring r1"></div>
+      <div class="mehalo"></div><div class="me"></div>
+      <div class="blip" style="top:28%;left:64%;background:linear-gradient(135deg,#5ef2c8,#39c9a5)">M</div>
+      <div class="blip" style="top:68%;left:36%;background:linear-gradient(135deg,#7aa2ff,#5a78e0)">J</div>
+      <div class="blip" style="top:48%;left:20%;background:linear-gradient(135deg,#ffb038,#ff7a45)">S</div>
+    </div>
+    <div class="nav">
+      <div class="nb on"><div style="font-size:15px">◎</div>Radar</div>
+      <div class="nb"><div style="font-size:15px">◔</div>Activity</div>
+      <div class="rbtn">🚩</div><div class="nb" style="opacity:0">·</div>
+      <div class="nb"><div style="font-size:15px">◑</div>Crew</div>
+      <div class="nb"><div style="font-size:15px">◐</div>Me</div>
+    </div>`;
+  const opts = [
+    {c:'bg-flat', t:'1 · Clean flat dark', d:'Deep near-black (#08070d), nothing else. Crisp, content-first.'},
+    {c:'bg-glow', t:'2 · Subtle single glow', d:'One faint mint whisper from the bottom. A hint of depth, calm.'},
+    {c:'bg-vert', t:'3 · Deep vertical gradient', d:'Quietly lifted at top → black. Dimension, no colour wash.'},
+    {c:'bg-black', t:'4 · Pure black', d:'True #000. Maximum contrast, OLED, most minimal.'},
+  ];
+  document.getElementById('rail').innerHTML = opts.map(o=>`
+    <div class="col">
+      <div class="phone"><div class="screen ${o.c}">${RADAR}</div></div>
+      <div class="cap"><h3>${o.t}</h3><p>${o.d}</p></div>
+    </div>`).join('');
+</script>
+</body>
+</html>

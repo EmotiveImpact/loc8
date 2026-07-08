@@ -1,7 +1,9 @@
 // app/(tabs)/me.tsx — profile + privacy.
 import { View, Text, Pressable, StyleSheet, ScrollView } from 'react-native';
 import { LinearGradient } from 'expo-linear-gradient';
+import { BlurView } from 'expo-blur';
 import { useCrewStore, type PrivacyMode } from '../../src/state/crewStore';
+import { AuroraBackground } from '../../src/ui/AuroraBackground';
 import { colors, gradients, fonts } from '../../src/ui/theme';
 import { MoonStar, Settings, Shield, ChevronRight, type LucideIcon } from 'lucide-react-native';
 
@@ -27,7 +29,9 @@ export default function MeScreen() {
   const handle = `@${name.toLowerCase().replace(/\s+/g, '')}`;
 
   return (
-    <ScrollView style={st.wrap} contentContainerStyle={st.content}>
+    <View style={st.root}>
+      <AuroraBackground />
+      <ScrollView style={st.wrap} contentContainerStyle={st.content}>
       <Text style={st.h1}>Me</Text>
 
       <View style={st.profile}>
@@ -41,6 +45,7 @@ export default function MeScreen() {
       </View>
 
       <View style={st.card}>
+        <BlurView tint="dark" intensity={24} style={StyleSheet.absoluteFill} />
         <Text style={st.cardH}>WHO CAN SEE YOU</Text>
         <View style={st.segment}>
           {MODES.map((m) => {
@@ -63,6 +68,7 @@ export default function MeScreen() {
         style={[st.quickRow, privacyMode === 'invisible' && st.quickRowOn]}
         onPress={() => setPrivacy('invisible')}
       >
+        <BlurView tint="dark" intensity={24} style={StyleSheet.absoluteFill} />
         <MoonStar size={18} color={privacyMode === 'invisible' ? colors.gold : colors.text} strokeWidth={2} />
         <View style={{ flex: 1 }}>
           <Text style={st.quickTitle}>Go dark</Text>
@@ -73,6 +79,7 @@ export default function MeScreen() {
       </Pressable>
 
       <View style={st.card}>
+        <BlurView tint="dark" intensity={24} style={StyleSheet.absoluteFill} />
         {([
           { Icon: Settings, label: 'Settings' },
           { Icon: Shield, label: 'Privacy' },
@@ -84,12 +91,14 @@ export default function MeScreen() {
           </Pressable>
         ))}
       </View>
-    </ScrollView>
+      </ScrollView>
+    </View>
   );
 }
 
 const st = StyleSheet.create({
-  wrap: { flex: 1, backgroundColor: colors.bg },
+  root: { flex: 1, backgroundColor: colors.bg },
+  wrap: { flex: 1, backgroundColor: 'transparent' },
   content: { padding: 20, paddingTop: 60, paddingBottom: 130, gap: 16 },
   h1: { color: colors.text, fontSize: 24, fontFamily: fonts.display },
   profile: { flexDirection: 'row', alignItems: 'center', gap: 14 },
@@ -97,7 +106,7 @@ const st = StyleSheet.create({
   avatarText: { color: '#fff', fontSize: 26, fontFamily: fonts.display },
   name: { color: colors.text, fontSize: 20, fontFamily: fonts.displaySemi },
   handle: { color: colors.textDim, fontSize: 14, marginTop: 2, fontFamily: fonts.body },
-  card: { backgroundColor: colors.card, borderRadius: 16, padding: 16, gap: 12, borderWidth: 1, borderColor: colors.cardBorder },
+  card: { backgroundColor: colors.glass, borderRadius: 16, padding: 16, gap: 12, borderWidth: 1, borderColor: colors.line, overflow: 'hidden' },
   cardH: { color: colors.textDim, fontSize: 11, fontFamily: fonts.bodyBold, letterSpacing: 1 },
   segment: { flexDirection: 'row', backgroundColor: colors.glass, borderRadius: 12, padding: 4, gap: 4 },
   segItem: { flex: 1, alignItems: 'center', paddingVertical: 9, borderRadius: 9 },
@@ -107,8 +116,8 @@ const st = StyleSheet.create({
   p: { color: colors.textDim, fontSize: 13, lineHeight: 19, fontFamily: fonts.body },
   quickRow: {
     flexDirection: 'row', alignItems: 'center', gap: 12,
-    backgroundColor: colors.card, borderRadius: 16, padding: 16,
-    borderWidth: 1, borderColor: colors.cardBorder,
+    backgroundColor: colors.glass, borderRadius: 16, padding: 16,
+    borderWidth: 1, borderColor: colors.line, overflow: 'hidden',
   },
   quickRowOn: { borderColor: colors.gold },
   quickTitle: { color: colors.text, fontSize: 15, fontFamily: fonts.bodySemi },
