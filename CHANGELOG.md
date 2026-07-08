@@ -7,7 +7,7 @@ All notable work, mapped against the plans and specs it was built from. Newest f
 - Plan: [`docs/superpowers/plans/2026-07-06-loc8-v1-prototype.md`](docs/superpowers/plans/2026-07-06-loc8-v1-prototype.md) (Tasks 1–18)
 - Spec: [`docs/superpowers/specs/2026-07-07-v2-mesh-spike-brief.md`](docs/superpowers/specs/2026-07-07-v2-mesh-spike-brief.md)
 
-**Current state:** Expo SDK 57 · RN 0.86 · React 19 · app version `1.0.0` · **101 jest tests green (9 suites)** · app code `tsc --noEmit` clean · `npx expo export -p ios` bundles clean. Runs in the iOS simulator in **sim mode** (simulated transport); real BLE mesh (v2) runs only on hardware via `EXPO_PUBLIC_TRANSPORT=ble`.
+**Current state:** Expo SDK 57 · RN 0.86 · React 19 · app version `1.0.0` · **119 jest tests green (10 suites)** · app code `tsc --noEmit` clean · `npx expo export -p ios` bundles clean. Runs in the iOS simulator in **sim mode** (simulated transport); real BLE mesh (v2) runs only on hardware via `EXPO_PUBLIC_TRANSPORT=ble`.
 
 Legend: ✅ done & verified · 🟡 built, needs hardware/user to finish · ⏳ deferred/not started
 
@@ -55,7 +55,9 @@ The "Signal in the dark" design ported into the app, plus real (backend-free) cr
 - ✅ **Protocol** — `quickReply` packet type + `quickReplyCode` (uint8 reusing the heading slot; frame stays 25 bytes, lossless) — `c19346a`
 - ✅ **Proactive too** — the roster Ping button became a full "say something" chooser (both pings + all quick replies) — `c19346a`
 - ✅ **Activity = the crew timeline** — pings, replies, rallies, found-moments flow into one feed; replies render + are tappable — `c19346a`
-- 🟡 **Phase 2 (in progress):** short free-text notes, fragmented across mesh packets + reassembled — real text when a canned reply won't do.
+- ✅ **Phase 2 — free-text crew chat** — type a short note; it's UTF-8 **fragmented across 25-byte mesh packets** (`text` type: msgId/seq/total + ≤11 bytes) and **reassembled** on the other phones (out-of-order + dedup tolerant, 160-byte cap, orphaned-fragment eviction). Broadcasts crew-scoped; Activity gets a **compose bar** and renders message rows — Activity is now the crew's chat/timeline — `bd0c8a7`
+
+**Communication layer is now complete:** presence (radar + roster) · quick replies · rally · free-text chat — all offline over the mesh.
 
 ### Strategy & product docs (folded in earlier this phase)
 - ✅ Product architecture ("one engine, four doors"), business model, security vertical, identity/privacy/login, mapping/terrain, anchors/hardware (`docs/strategy/`) — `eb46c1f`, `0a68998`, `4fb0ce0`
