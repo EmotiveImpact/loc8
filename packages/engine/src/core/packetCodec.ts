@@ -4,12 +4,17 @@ import type { Packet, PacketType } from './types';
 export const PACKET_SIZE = 25;
 
 const TYPE_TO_CODE: Record<PacketType, number> = {
-  position: 0, pingWhere: 1, pingComeFind: 2, rally: 3, quickReply: 4, text: 5,
+  position: 0, pingWhere: 1, pingComeFind: 2, rally: 3, quickReply: 4, text: 5, profile: 6,
 };
-const CODE_TO_TYPE: PacketType[] = ['position', 'pingWhere', 'pingComeFind', 'rally', 'quickReply', 'text'];
+const CODE_TO_TYPE: PacketType[] = ['position', 'pingWhere', 'pingComeFind', 'rally', 'quickReply', 'text', 'profile'];
 
-/** Max UTF-8 bytes a single 'text' fragment carries (bytes 14–24). */
+/** Max UTF-8 bytes a single fragment ('text' or 'profile') carries (bytes 14–24). */
 export const TEXT_FRAG_BYTES = 11;
+
+/** Fragment-carrying packet types share the identical bytes 9–24 layout. */
+function isFragmentType(t: PacketType): boolean {
+  return t === 'text' || t === 'profile';
+}
 
 export function encodePacket(p: Packet): ArrayBuffer {
   const buf = new ArrayBuffer(PACKET_SIZE);
@@ -17,8 +22,8 @@ export function encodePacket(p: Packet): ArrayBuffer {
   v.setUint8(0, TYPE_TO_CODE[p.type]);
   v.setUint32(1, p.senderId);
   v.setUint32(5, p.targetId);
-  if (p.type === 'text') {
-    // A text fragment overlays the whole geo/aux region (bytes 9–24): it carries
+  if (isFragmentType(p.type)) {
+    // A fragment overlays the whole geo/aux region (bytes 9–24): it carries
     // no position/battery/timestamp — those are meaningless per-fragment. Layout:
     //   9-10 msgId(u16), 11 seq(u8), 12 total(u8), 13 fragLen(u8), 14-24 frag bytes.
     v.setUint16(9, (p.msgId ?? 0) & 0xffff);
@@ -56,7 +61,7 @@ export function decodePacket(buf: ArrayBuffer): Packet {
   const typeCode = v.getUint8(0);
   const type = CODE_TO_TYPE[typeCode];
   if (!type) throw new Error(`Unknown packet type code: ${typeCode}`);
-  if (type === 'text') {
+  if (isFragmentType(type)) {
     const fragLen = Math.min(TEXT_FRAG_BYTES, v.getUint8(13));
     const frag: number[] = [];
     for (let i = 0; i < fragLen; i++) frag.push(v.getUint8(14 + i));

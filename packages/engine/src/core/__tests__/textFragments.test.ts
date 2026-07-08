@@ -1,6 +1,7 @@
 // src/core/__tests__/textFragments.test.ts
 import {
-  fragmentText, TextReassembler, MAX_MESSAGE_BYTES, encodeUtf8, decodeUtf8,
+  fragmentText, fragmentProfile, TextReassembler, MAX_MESSAGE_BYTES, NAME_MAX_BYTES,
+  encodeUtf8, decodeUtf8,
 } from '../textFragments';
 import type { Packet } from '../types';
 
@@ -119,5 +120,44 @@ describe('textFragments', () => {
   it('utf8 helpers round-trip', () => {
     const s = 'héllo 🌍';
     expect(decodeUtf8(encodeUtf8(s))).toBe(s);
+  });
+});
+
+describe('fragmentProfile', () => {
+  const profileRoundTrip = (name: string): string | null => {
+    const frags = fragmentProfile({ senderId: 831, targetId: 0, msgId: 1, text: name, timestampSec: 500 });
+    const r = new TextReassembler();
+    let out: { text: string } | null = null;
+    for (const f of frags) out = r.add(f) ?? out;
+    return out ? out.text : null;
+  };
+
+  it('emits profile-typed fragments and round-trips a short name (one fragment)', () => {
+    const frags = fragmentProfile({ senderId: 831, targetId: 0, msgId: 1, text: 'Maya', timestampSec: 500 });
+    expect(frags.length).toBe(1);
+    expect(frags[0].type).toBe('profile');
+    expect(frags[0].total).toBe(1);
+    expect(profileRoundTrip('Maya')).toBe('Maya');
+  });
+
+  it('round-trips a multi-fragment long name (>11 bytes)', () => {
+    const name = 'Maximiliana Featherstonehaugh'; // 29 bytes → several fragments
+    const frags = fragmentProfile({ senderId: 1, targetId: 0, msgId: 2, text: name, timestampSec: 0 });
+    expect(frags.length).toBeGreaterThan(1);
+    expect(frags.every((f) => f.type === 'profile')).toBe(true);
+    expect(profileRoundTrip(name)).toBe(name);
+  });
+
+  it('round-trips a name with an emoji split across fragment boundaries', () => {
+    const name = 'DJ Sparkle 🎉✨🔥 Vibes';
+    expect(profileRoundTrip(name)).toBe(name);
+  });
+
+  it('clamps an over-cap name to NAME_MAX_BYTES', () => {
+    const huge = 'q'.repeat(200);
+    const frags = fragmentProfile({ senderId: 1, targetId: 0, msgId: 3, text: huge, timestampSec: 0 });
+    const totalBytes = frags.reduce((n, f) => n + (f.frag ?? []).length, 0);
+    expect(totalBytes).toBeLessThanOrEqual(NAME_MAX_BYTES);
+    expect(profileRoundTrip(huge)).toBe('q'.repeat(NAME_MAX_BYTES));
   });
 });

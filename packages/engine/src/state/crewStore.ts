@@ -104,6 +104,8 @@ interface CrewState {
   setAutoAddPeers(v: boolean): void;
   registerFriends(list: Array<Pick<FriendState, 'id' | 'name' | 'color'>>): void;
   applyPacket(p: Packet, relayVia?: string): void;
+  /** Apply a display name learned from a peer's 'profile' announce over the mesh. */
+  setFriendName(senderId: number, name: string): void;
   /** Surface a fully-reassembled crew message from another member. */
   receiveMessage(senderId: number, text: string): void;
   /** Echo the local user's own outgoing message into the timeline. */
@@ -302,6 +304,21 @@ export const useCrewStore = create<CrewState>((set, get) => ({
       set({ banner: { text, friendId: p.senderId, kind: 'reply' } });
       get().pushActivity({ kind: 'reply', text, atSec: p.timestampSec, friendId: p.senderId });
     }
+  },
+
+  setFriendName: (senderId, name) => {
+    // Ignore self (our own announce echoed back through the mesh).
+    if (get().profile && senderId === get().profile!.id) return;
+    const trimmed = name.trim();
+    if (!trimmed) return;
+    const existing = get().friends[senderId];
+    // Upgrade an existing (possibly placeholder) friend, or create one —
+    // mirroring the auto-register colour logic so colour stays deterministic.
+    const friend: FriendState = existing
+      ? { ...existing, name: trimmed }
+      : { id: senderId, name: trimmed, color: FRIEND_COLORS[senderId % FRIEND_COLORS.length] };
+    if (existing && existing.name === trimmed) return; // no-op
+    set({ friends: { ...get().friends, [senderId]: friend } });
   },
 
   receiveMessage: (senderId, text) => {

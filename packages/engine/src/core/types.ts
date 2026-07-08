@@ -3,7 +3,7 @@ export interface Coordinate {
   longitude: number;
 }
 
-export type PacketType = 'position' | 'pingWhere' | 'pingComeFind' | 'rally' | 'quickReply' | 'text';
+export type PacketType = 'position' | 'pingWhere' | 'pingComeFind' | 'rally' | 'quickReply' | 'text' | 'profile';
 
 export interface Packet {
   type: PacketType;
@@ -16,7 +16,8 @@ export interface Packet {
   timestampSec: number; // unix seconds
   accuracyM: number;   // 0–255 (GPS reported accuracy, meters)
   quickReplyCode?: number; // 0–255, only present on 'quickReply' packets
-  // Free-text fragmentation ('text' packets only). One 'text' packet = one fragment.
+  // Fragmentation fields, shared by 'text' (free-text chat) and 'profile' (a
+  // crew member's display name). One such packet = one fragment.
   msgId?: number;      // uint16, groups fragments of one message from a sender
   seq?: number;        // uint8, 0-based fragment index
   total?: number;      // uint8, total fragment count in this message

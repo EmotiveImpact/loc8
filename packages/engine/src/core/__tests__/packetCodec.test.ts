@@ -86,6 +86,23 @@ describe('PacketCodec', () => {
     const d = decodePacket(encodePacket(frag));
     expect(d.frag).toEqual([65, 66]);
   });
+  it('round-trips a profile fragment losslessly (same fields + size 25 as text)', () => {
+    const frag: Packet = {
+      type: 'profile', senderId: 831, targetId: 12345,
+      latitude: 0, longitude: 0, headingDeg: 0, batteryPct: 0,
+      timestampSec: 0, accuracyM: 0,
+      msgId: 60000, seq: 2, total: 4, frag: [77, 97, 121, 97, 240, 159, 142, 137, 1, 2, 3],
+    };
+    const d = decodePacket(encodePacket(frag));
+    expect(d.type).toBe('profile');
+    expect(d.senderId).toBe(831);
+    expect(d.targetId).toBe(12345);
+    expect(d.msgId).toBe(60000);
+    expect(d.seq).toBe(2);
+    expect(d.total).toBe(4);
+    expect(d.frag).toEqual([77, 97, 121, 97, 240, 159, 142, 137, 1, 2, 3]);
+    expect(encodePacket(frag).byteLength).toBe(PACKET_SIZE);
+  });
   it('round-trips a quickReply packet losslessly (code + type preserved)', () => {
     const reply: Packet = {
       type: 'quickReply', senderId: 7, targetId: 42,

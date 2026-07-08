@@ -13,6 +13,9 @@ import { TEXT_FRAG_BYTES } from './packetCodec';
 /** Hard cap on a message's UTF-8 byte length. ceil(160/11)=15 fragments max. */
 export const MAX_MESSAGE_BYTES = 160;
 
+/** Hard cap on a display name's UTF-8 byte length. ceil(48/11)=5 fragments max. */
+export const NAME_MAX_BYTES = 48;
+
 // Prefer the platform's TextEncoder/TextDecoder (Hermes/SDK57, Node) when
 // present; fall back to a small, dependency-free UTF-8 codec otherwise so this
 // module is portable across RN, web and jest without relying on Buffer.
@@ -98,27 +101,46 @@ export interface FragmentOpts {
   timestampSec: number;
 }
 
+/** Fragment-carrying packet types (share the identical byte 9–24 layout). */
+type FragType = 'text' | 'profile';
+
 /**
- * Split `text` into one 'text' Packet per ≤11-byte UTF-8 chunk. Over-cap input
- * is clamped to MAX_MESSAGE_BYTES (see encodeClamped). Always returns ≥1 packet.
+ * Split `text` into one Packet of `type` per ≤11-byte UTF-8 chunk. Over-cap
+ * input is clamped to `maxBytes` (see encodeClamped). Always returns ≥1 packet.
  */
-export function fragmentText(opts: FragmentOpts): Packet[] {
-  const bytes = encodeClamped(opts.text, MAX_MESSAGE_BYTES);
+function fragment(type: FragType, opts: FragmentOpts, maxBytes: number): Packet[] {
+  const bytes = encodeClamped(opts.text, maxBytes);
   const chunks: number[][] = [];
   for (let i = 0; i < bytes.length; i += TEXT_FRAG_BYTES) {
     chunks.push(bytes.slice(i, i + TEXT_FRAG_BYTES));
   }
-  if (chunks.length === 0) chunks.push([]); // empty message → one empty fragment
+  if (chunks.length === 0) chunks.push([]); // empty payload → one empty fragment
   const total = chunks.length;
   const msgId = opts.msgId & 0xffff;
   return chunks.map((frag, seq) => ({
-    type: 'text' as const,
+    type,
     senderId: opts.senderId,
     targetId: opts.targetId,
     latitude: 0, longitude: 0, headingDeg: 0, batteryPct: 0,
     timestampSec: opts.timestampSec, accuracyM: 0,
     msgId, seq, total, frag,
   }));
+}
+
+/**
+ * Split a free-text message into 'text' fragments. Over-cap input is clamped to
+ * MAX_MESSAGE_BYTES. Always returns ≥1 packet.
+ */
+export function fragmentText(opts: FragmentOpts): Packet[] {
+  return fragment('text', opts, MAX_MESSAGE_BYTES);
+}
+
+/**
+ * Split a display name into 'profile' fragments (metadata, not chat). Over-cap
+ * input is clamped to NAME_MAX_BYTES (≤5 fragments; most names are 1).
+ */
+export function fragmentProfile(opts: FragmentOpts): Packet[] {
+  return fragment('profile', opts, NAME_MAX_BYTES);
 }
 
 interface Partial {
@@ -130,7 +152,9 @@ interface Partial {
 }
 
 /**
- * Reassembles 'text' fragments into whole messages.
+ * Reassembles fragments ('text' or 'profile') into whole payloads. A single
+ * instance handles one fragment type at a time; the mesh service keeps a
+ * separate instance per type so their (senderId,msgId) keyspaces never collide.
  *  - Keyed by `${senderId}:${msgId}` so concurrent messages don't collide.
  *  - Tolerates out-of-order delivery and duplicate fragments (dedup by seq).
  *  - Caps buffered partial messages (default 32); evicts the oldest partial
@@ -145,7 +169,7 @@ export class TextReassembler {
   constructor(private cap = 32) {}
 
   add(p: Packet): { senderId: number; targetId: number; text: string } | null {
-    if (p.type !== 'text' || p.msgId == null || p.seq == null || p.total == null) return null;
+    if ((p.type !== 'text' && p.type !== 'profile') || p.msgId == null || p.seq == null || p.total == null) return null;
     const key = `${p.senderId}:${p.msgId}`;
     let buf = this.bufs.get(key);
     if (!buf) {
