@@ -10,7 +10,6 @@ import { useCrewStore } from '../../src/state/crewStore';
 import { useNowSec } from '../../src/hooks/useNowSec';
 import { colors, fonts, gradients } from '../../src/ui/theme';
 import { AuroraBackground } from '../../src/ui/AuroraBackground';
-import { CrewSheet } from '../../src/ui/CrewSheet';
 import { Copy, Share2, ScanLine, Plus, LogOut, X } from 'lucide-react-native';
 
 /** Extract a crew code from a scanned QR value (`loc8://crew/<CODE>` or a bare code). */
@@ -194,8 +193,6 @@ export default function CrewScreen() {
             </Pressable>
           </BlurView>
         )}
-
-        <CrewSheet />
 
         <Modal visible={scanning} animationType="slide" onRequestClose={() => setScanning(false)}>
           <View style={st.scanWrap}>

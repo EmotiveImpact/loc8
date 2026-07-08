@@ -8,6 +8,7 @@ import { useBatteryGuard } from '../../src/hooks/useBatteryGuard';
 import { RadarView } from '../../src/ui/RadarView';
 import { DevMenu } from '../../src/ui/DevMenu';
 import { MeshDebugOverlay } from '../../src/ui/MeshDebugOverlay';
+import { RadarCrewSheet } from '../../src/ui/RadarCrewSheet';
 import { AuroraBackground } from '../../src/ui/AuroraBackground';
 import { useRouter, type Href } from 'expo-router';
 import { colors, fonts } from '../../src/ui/theme';
@@ -107,6 +108,8 @@ export default function RadarHome() {
           </Pressable>
         </View>
       )}
+
+      <RadarCrewSheet />
 
       <DevMenu visible={devOpen} onClose={() => setDevOpen(false)} />
       <MeshDebugOverlay />
