@@ -7,7 +7,7 @@ All notable work, mapped against the plans and specs it was built from. Newest f
 - Plan: [`docs/superpowers/plans/2026-07-06-loc8-v1-prototype.md`](docs/superpowers/plans/2026-07-06-loc8-v1-prototype.md) (Tasks 1–18)
 - Spec: [`docs/superpowers/specs/2026-07-07-v2-mesh-spike-brief.md`](docs/superpowers/specs/2026-07-07-v2-mesh-spike-brief.md)
 
-**Current state:** Expo SDK 57 · RN 0.86 · React 19 · app version `1.0.0` · **82 jest tests green (8 suites)** · `tsc --noEmit` clean · `npx expo export -p ios` bundles clean. Runs in the iOS simulator in **sim mode** (simulated transport); real BLE mesh (v2) runs only on hardware via `EXPO_PUBLIC_TRANSPORT=ble`.
+**Current state:** Expo SDK 57 · RN 0.86 · React 19 · app version `1.0.0` · **95 jest tests green (9 suites)** · app code `tsc --noEmit` clean · `npx expo export -p ios` bundles clean. Runs in the iOS simulator in **sim mode** (simulated transport); real BLE mesh (v2) runs only on hardware via `EXPO_PUBLIC_TRANSPORT=ble`.
 
 Legend: ✅ done & verified · 🟡 built, needs hardware/user to finish · ⏳ deferred/not started
 
@@ -42,6 +42,13 @@ The "Signal in the dark" design ported into the app, plus real (backend-free) cr
 - ✅ **Local avatar photo** (`expo-image-picker`) — local-only (can't ride the 25-byte mesh packet) — `5daba20`
 - ✅ Real **Settings** screen — notifications toggle, distance units, mesh/network info, about — `5daba20`
 - ✅ "Privacy" row → "how your location is shared" explainer — `5daba20`
+
+### Haptics (baked in fully)
+- ✅ **Central haptic vocabulary** (`src/services/haptics.ts`) — semantic calls (`select · tap · success · warning · error · pingSent · pingReceived · rallyDrop · rallyReceived · proximityPulse · found`), all guarded (respect a `hapticsEnabled` setting, web no-op, never throw) and acyclic — `3fb7324`
+- ✅ **Wired across the whole app** — tab switches, every CTA, session start, ping **sent + received** (a distinct double-knock so you feel it pocketed), rally drop + received, go-dark, crew create/join, profile save, onboarding — `3fb7324`
+- ✅ **Signature moments** — the compass **proximity heartbeat** (pulse strength *and* rhythm escalate as you close in) and the **found-each-other burst** — `3fb7324`
+- ✅ **Accessibility toggle** in Settings; documented vocabulary + escalation math in [`docs/design/haptics.md`](docs/design/haptics.md) — `3fb7324`
+- Note: haptics are feelable only on a **real device** (not the simulator) — they light up on the phone build.
 
 ### Strategy & product docs (folded in earlier this phase)
 - ✅ Product architecture ("one engine, four doors"), business model, security vertical, identity/privacy/login, mapping/terrain, anchors/hardware (`docs/strategy/`) — `eb46c1f`, `0a68998`, `4fb0ce0`
