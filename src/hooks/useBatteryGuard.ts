@@ -30,7 +30,7 @@ export function useBatteryGuard(): void {
         const level = await Battery.getBatteryLevelAsync();
         if (mounted && level >= 0 && level < LOW_BATTERY) {
           setBeacon(true);
-          setBanner({ text: '🪫 Power saver on — updating once a minute, still findable' });
+          setBanner({ text: 'Power saver on — updating once a minute, still findable' });
         }
 
         if (mounted && typeof Battery.addBatteryLevelListener === 'function') {

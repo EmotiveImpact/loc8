@@ -4,6 +4,7 @@ import { View, Text, TextInput, Pressable, StyleSheet, Linking } from 'react-nat
 import * as Location from 'expo-location';
 import { useCrewStore } from '../src/state/crewStore';
 import { colors, FRIEND_COLORS } from '../src/ui/theme';
+import { MapPin } from 'lucide-react-native';
 
 export default function Onboarding() {
   const [step, setStep] = useState<'profile' | 'location' | 'denied'>('profile');
@@ -14,7 +15,9 @@ export default function Onboarding() {
   const requestLocation = async () => {
     const { status } = await Location.requestForegroundPermissionsAsync();
     if (status === 'granted') {
-      setProfile({ id: 1, name: name.trim() || 'You', color }); // triggers root redirect → home
+      // Unique per-install uint32 id (avoid 0) so phones never collide on the mesh.
+      const id = (Math.floor(Math.random() * 0xffffffff) >>> 0) || 1;
+      setProfile({ id, name: name.trim() || 'You', color }); // persists + triggers root redirect → home
     } else {
       setStep('denied');
     }
@@ -68,7 +71,7 @@ export default function Onboarding() {
 
   return (
     <View style={st.wrap}>
-      <Text style={{ fontSize: 56 }}>📍</Text>
+      <MapPin size={56} color={colors.pink} strokeWidth={2} />
       <Text style={st.h}>Your location, your crew only</Text>
       <Text style={st.p}>
         Loc8 uses your GPS to show your crew where you are — even with zero signal. Your

@@ -58,6 +58,27 @@ describe('crewStore', () => {
     expect(useCrewStore.getState().friends[101].lastPacket).toBeUndefined();
   });
 
+  it('drops packets from unknown senders when autoAddPeers is false (sim)', () => {
+    useCrewStore.getState().applyPacket(posPacket(999, 1000));
+    expect(useCrewStore.getState().friends[999]).toBeUndefined();
+  });
+
+  it('auto-adds an unknown sender and applies its packet when autoAddPeers is true', () => {
+    useCrewStore.getState().setAutoAddPeers(true);
+    useCrewStore.getState().applyPacket(posPacket(999, 1000));
+    const f = useCrewStore.getState().friends[999];
+    expect(f).toBeDefined();
+    expect(f.name).toMatch(/Friend/);
+    expect(f.lastPacket?.timestampSec).toBe(1000);
+  });
+
+  it('ignores self-echo packets (senderId === own profile id) in both modes', () => {
+    useCrewStore.getState().setProfile({ id: 555, name: 'You', color: '#fff' });
+    useCrewStore.getState().setAutoAddPeers(true);
+    useCrewStore.getState().applyPacket(posPacket(555, 1000));
+    expect(useCrewStore.getState().friends[555]).toBeUndefined();
+  });
+
   it('markCelebrated then clearCelebrated removes the flag (allows re-celebration)', () => {
     const s = useCrewStore.getState();
     s.markCelebrated(101);

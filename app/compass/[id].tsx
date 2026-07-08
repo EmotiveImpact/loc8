@@ -10,6 +10,9 @@ import { useSmoothedHeading } from '../../src/hooks/useSmoothedHeading';
 import { useNowSec } from '../../src/hooks/useNowSec';
 import { ShareSheet } from '../../src/ui/ShareSheet';
 import { colors } from '../../src/ui/theme';
+import { Navigation, ScanEye, PartyPopper, Flame, Compass, ChevronLeft } from 'lucide-react-native';
+
+const AnimatedNavigation = Animated.createAnimatedComponent(Navigation);
 
 export default function CompassScreen() {
   const { id } = useLocalSearchParams<{ id: string }>();
@@ -51,7 +54,7 @@ export default function CompassScreen() {
   }, [found]);
 
   useEffect(() => {
-    // Drifted apart after celebrating: dismiss the 🎉 view and re-arm for a future reunion.
+    // Drifted apart after celebrating: dismiss the celebration view and re-arm for a future reunion.
     if (dist !== null && dist > proximityAt && celebrated) {
       clearCelebrated(Number(id));
       setCelebrationShown(false);
@@ -68,24 +71,32 @@ export default function CompassScreen() {
   }, [arrowDeg]);
 
   const arrowStyle = useAnimatedStyle(() => ({
-    transform: [{ rotate: `${rotation.value - 90}deg` }],
+    // Navigation icon points UP at 0°, so arrowDeg=0 renders straight up (no -90 offset).
+    transform: [{ rotate: `${rotation.value}deg` }],
   }));
 
   if (!friend) return null;
   const fresh = friend.lastPacket ? freshnessSec(friend, now) : null;
   const warmth =
-    dist === null ? '' : dist < 70 ? '🔥 very warm — almost there' : dist < 150 ? '🔥 getting warmer' : '🧭 keep walking';
+    dist === null
+      ? null
+      : dist < 70
+        ? { Icon: Flame, text: 'very warm — almost there', color: colors.pink }
+        : dist < 150
+          ? { Icon: Flame, text: 'getting warmer', color: colors.orange }
+          : { Icon: Compass, text: 'keep walking', color: colors.textDim };
 
   return (
     <View style={st.wrap}>
       <Pressable style={st.back} onPress={() => router.back()}>
-        <Text style={st.backText}>‹ Back to radar</Text>
+        <ChevronLeft size={16} color={colors.text} strokeWidth={2} />
+        <Text style={st.backText}>Back to radar</Text>
       </Pressable>
       <View style={st.pill}><Text style={st.pillText}>Following · {friend.name}</Text></View>
 
       {celebrationShown ? (
         <View style={st.center}>
-          <Text style={{ fontSize: 90 }}>🎉</Text>
+          <PartyPopper size={90} color={colors.pink} strokeWidth={2} />
           <Text style={st.foundH}>You found each other!</Text>
           <Text style={st.warm}>{friend.name} is right here.</Text>
           <Pressable style={st.doneBtn} onPress={() => router.back()}>
@@ -94,17 +105,28 @@ export default function CompassScreen() {
         </View>
       ) : inProximity ? (
         <View style={st.center}>
-          <View style={st.pulse}><Text style={{ fontSize: 56 }}>👀</Text></View>
+          <View style={st.pulse}><ScanEye size={56} color={colors.teal} strokeWidth={2} /></View>
           <Text style={st.proxH}>You're basically there</Text>
           <Text style={st.warm}>GPS can't do better than ~{Math.round(accuracy)}m here — look around!</Text>
           <Text style={st.dist}>{Math.round(dist!)}m</Text>
         </View>
       ) : (
         <View style={st.center}>
-          <Animated.Text style={[st.arrow, arrowStyle]}>➤</Animated.Text>
+          <AnimatedNavigation
+            size={130}
+            color={colors.teal}
+            strokeWidth={2}
+            fill={colors.teal}
+            style={[st.arrow, arrowStyle]}
+          />
           <Text style={st.dist}>{dist !== null ? `${Math.round(dist)}m` : '—'}</Text>
           <Text style={st.who}>{friend.name} · this way</Text>
-          <Text style={st.warm}>{warmth}</Text>
+          {warmth && (
+            <View style={st.warmRow}>
+              <warmth.Icon size={13} color={warmth.color} strokeWidth={2} />
+              <Text style={[st.warm, { color: warmth.color }]}>{warmth.text}</Text>
+            </View>
+          )}
           {fresh !== null && fresh > 30 && <Text style={st.staleNote}>position is {fresh}s old</Text>}
         </View>
       )}
@@ -123,18 +145,16 @@ export default function CompassScreen() {
 
 const st = StyleSheet.create({
   wrap: { flex: 1, backgroundColor: colors.bg, paddingTop: 56, alignItems: 'center' },
-  back: { position: 'absolute', top: 56, left: 18, backgroundColor: colors.card, borderRadius: 20, paddingHorizontal: 14, paddingVertical: 8, zIndex: 5 },
+  back: { position: 'absolute', top: 56, left: 18, flexDirection: 'row', alignItems: 'center', gap: 2, backgroundColor: colors.card, borderRadius: 20, paddingHorizontal: 14, paddingVertical: 8, zIndex: 5 },
   backText: { color: colors.text, fontSize: 13 },
   pill: { backgroundColor: colors.card, borderRadius: 20, paddingHorizontal: 16, paddingVertical: 7, marginTop: 50 },
   pillText: { color: colors.text, fontSize: 12, fontWeight: '600' },
   center: { flex: 1, alignItems: 'center', justifyContent: 'center', gap: 6 },
-  arrow: {
-    fontSize: 130, color: colors.teal, marginBottom: 12,
-    textShadowColor: 'rgba(75,227,192,0.6)', textShadowRadius: 30, textShadowOffset: { width: 0, height: 0 },
-  },
+  arrow: { marginBottom: 12 },
   dist: { color: colors.text, fontSize: 52, fontWeight: '800' },
   who: { color: colors.teal, fontSize: 14, fontWeight: '600' },
-  warm: { color: colors.textDim, fontSize: 12, marginTop: 8 },
+  warmRow: { flexDirection: 'row', alignItems: 'center', gap: 5, marginTop: 8 },
+  warm: { color: colors.textDim, fontSize: 12 },
   staleNote: { color: colors.yellow, fontSize: 11, marginTop: 4 },
   pulse: {
     width: 140, height: 140, borderRadius: 70, alignItems: 'center', justifyContent: 'center',

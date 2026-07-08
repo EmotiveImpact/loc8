@@ -9,6 +9,7 @@ import { useNowSec } from '../hooks/useNowSec';
 import { Blip } from './Blip';
 import { ShareSheet } from './ShareSheet';
 import { colors } from './theme';
+import { Flag } from 'lucide-react-native';
 
 export function RadarView() {
   const [size, setSize] = useState(0);
@@ -46,7 +47,7 @@ export function RadarView() {
                 onPress={() => setShareOpen(true)}
                 style={[st.pin, { transform: [{ translateX: pt.x }, { translateY: pt.y }] }]}
               >
-                <Text style={{ fontSize: 22 }}>🚩</Text>
+                <Flag size={22} color={colors.yellow} strokeWidth={2} fill={colors.yellow} />
                 <Text style={st.pinLabel}>{dropper} · {Math.round(pt.distanceMeters)}m</Text>
               </Pressable>
             );

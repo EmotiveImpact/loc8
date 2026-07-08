@@ -5,6 +5,7 @@ import { useState } from 'react';
 import { encodePlusCode } from '../core/plusCodes';
 import type { Coordinate } from '../core/types';
 import { colors } from './theme';
+import { Check, Copy } from 'lucide-react-native';
 
 interface Props {
   visible: boolean;
@@ -32,7 +33,10 @@ export function ShareSheet({ visible, title, location, onClose }: Props) {
           <Text style={st.code}>{code}</Text>
           <Text style={st.hint}>≈ 14m square · plus.codes</Text>
           <Pressable style={st.btn} onPress={copy}>
-            <Text style={st.btnT}>{copied ? '✓ Copied' : 'Copy Plus Code'}</Text>
+            {copied
+              ? <Check size={16} color="#fff" strokeWidth={2.5} />
+              : <Copy size={16} color="#fff" strokeWidth={2} />}
+            <Text style={st.btnT}>{copied ? 'Copied' : 'Copy Plus Code'}</Text>
           </Pressable>
           <Pressable
             style={st.btnGhost}
@@ -58,7 +62,7 @@ const st = StyleSheet.create({
     fontVariant: ['tabular-nums'],
   },
   hint: { color: colors.textDim, fontSize: 12, textAlign: 'center' },
-  btn: { backgroundColor: colors.pink, borderRadius: 14, padding: 15, alignItems: 'center', marginTop: 6 },
+  btn: { flexDirection: 'row', gap: 8, backgroundColor: colors.pink, borderRadius: 14, padding: 15, alignItems: 'center', justifyContent: 'center', marginTop: 6 },
   btnT: { color: '#fff', fontWeight: '800', fontSize: 15 },
   btnGhost: { borderRadius: 14, padding: 13, alignItems: 'center', borderWidth: 1, borderColor: colors.cardBorder },
   btnGhostT: { color: colors.text, fontWeight: '700', fontSize: 14 },

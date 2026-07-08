@@ -2,6 +2,7 @@
 import { Text, View, Pressable, StyleSheet } from 'react-native';
 import Animated, { useSharedValue, useAnimatedStyle, withTiming } from 'react-native-reanimated';
 import { useEffect } from 'react';
+import { Waypoints } from 'lucide-react-native';
 import { colors } from './theme';
 
 interface Props {
@@ -27,10 +28,11 @@ export function Blip({ x, y, name, color, distanceM, freshness, relayVia, stale,
   }));
 
   const opacity = ghost ? 0.3 : stale ? 0.55 : 1;
+  const showRelay = !ghost && !!relayVia;
   const sub = ghost
     ? `last seen ${Math.floor((freshness ?? 0) / 60)}m ago`
     : relayVia
-      ? `${Math.round(distanceM)}m · via ${relayVia} 🔗`
+      ? `${Math.round(distanceM)}m · via ${relayVia}`
       : `${Math.round(distanceM)}m · ${freshness ?? 0}s`;
 
   return (
@@ -41,7 +43,10 @@ export function Blip({ x, y, name, color, distanceM, freshness, relayVia, stale,
         </View>
         <View style={st.tag}>
           <Text style={st.tagName}>{name}</Text>
-          <Text style={st.tagSub}>{sub}</Text>
+          <View style={st.tagSubRow}>
+            <Text style={st.tagSub}>{sub}</Text>
+            {showRelay && <Waypoints size={8} color={colors.teal} strokeWidth={2} />}
+          </View>
         </View>
       </Pressable>
     </Animated.View>
@@ -57,6 +62,7 @@ const st = StyleSheet.create({
   },
   initial: { color: colors.bg, fontWeight: '800', fontSize: 14 },
   tag: { backgroundColor: 'rgba(0,0,0,0.65)', borderRadius: 9, paddingHorizontal: 7, paddingVertical: 2, alignItems: 'center' },
+  tagSubRow: { flexDirection: 'row', alignItems: 'center', gap: 3 },
   tagName: { color: colors.text, fontSize: 10, fontWeight: '700' },
   tagSub: { color: colors.teal, fontSize: 9, fontWeight: '600' },
 });

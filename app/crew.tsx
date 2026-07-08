@@ -5,6 +5,7 @@ import { useRouter } from 'expo-router';
 import { useCrewStore } from '../src/state/crewStore';
 import { useNowSec } from '../src/hooks/useNowSec';
 import { colors } from '../src/ui/theme';
+import { ChevronLeft, Link2, QrCode, Plus } from 'lucide-react-native';
 
 export default function CrewScreen() {
   const router = useRouter();
@@ -21,7 +22,10 @@ export default function CrewScreen() {
 
   return (
     <View style={st.wrap}>
-      <Pressable onPress={() => router.back()}><Text style={st.back}>‹ Back</Text></Pressable>
+      <Pressable style={st.backRow} onPress={() => router.back()}>
+        <ChevronLeft size={16} color={colors.textDim} strokeWidth={2} />
+        <Text style={st.back}>Back</Text>
+      </Pressable>
       <Text style={st.h1}>Crew & session</Text>
 
       <View style={st.card}>
@@ -56,13 +60,15 @@ export default function CrewScreen() {
       <View style={st.card}>
         <Text style={st.cardH}>ADD FRIENDS</Text>
         <Pressable style={st.btn} onPress={() => setQrVisible(true)}>
-          <Text style={st.btnText}>＋ Add friend via QR</Text>
+          <Plus size={16} color="#fff" strokeWidth={2.5} />
+          <Text style={st.btnText}>Add friend via QR</Text>
         </Pressable>
         <Pressable
           style={st.btnGhost}
           onPress={() => Alert.alert('Mocked in v1', 'Crew invite links ship with the real mesh (v2).')}
         >
-          <Text style={st.btnGhostText}>🔗 Create crew link</Text>
+          <Link2 size={16} color={colors.text} strokeWidth={2} />
+          <Text style={st.btnGhostText}>Create crew link</Text>
         </Pressable>
       </View>
 
@@ -71,7 +77,7 @@ export default function CrewScreen() {
           <View style={st.modalCard}>
             <Text style={st.h1}>Add a friend nearby</Text>
             <Text style={st.p}>Have them scan this — pairs over Bluetooth, no internet.</Text>
-            <View style={st.qr}><Text style={{ fontSize: 64 }}>▦</Text></View>
+            <View style={st.qr}><QrCode size={96} color="#12141f" strokeWidth={1.5} /></View>
             <Text style={[st.p, { fontSize: 11 }]}>Mocked in v1 — real BLE pairing lands in v2.</Text>
             <Pressable style={st.btn} onPress={() => setQrVisible(false)}>
               <Text style={st.btnText}>Done</Text>
@@ -85,16 +91,17 @@ export default function CrewScreen() {
 
 const st = StyleSheet.create({
   wrap: { flex: 1, backgroundColor: colors.bg, padding: 20, paddingTop: 60, gap: 14 },
-  back: { color: colors.textDim, fontSize: 15, marginBottom: 6 },
+  backRow: { flexDirection: 'row', alignItems: 'center', gap: 2, marginBottom: 6 },
+  back: { color: colors.textDim, fontSize: 15 },
   h1: { color: colors.text, fontSize: 22, fontWeight: '800' },
   card: { backgroundColor: colors.card, borderRadius: 16, padding: 16, gap: 10, borderWidth: 1, borderColor: colors.cardBorder },
   cardH: { color: colors.textDim, fontSize: 11, fontWeight: '700', letterSpacing: 1 },
   big: { color: colors.text, fontSize: 28, fontWeight: '800' },
   p: { color: colors.textDim, fontSize: 13, lineHeight: 19 },
   row: { flexDirection: 'row', gap: 10 },
-  btn: { backgroundColor: colors.pink, borderRadius: 12, paddingVertical: 12, paddingHorizontal: 18, alignItems: 'center' },
+  btn: { flexDirection: 'row', gap: 8, backgroundColor: colors.pink, borderRadius: 12, paddingVertical: 12, paddingHorizontal: 18, alignItems: 'center', justifyContent: 'center' },
   btnText: { color: '#fff', fontWeight: '800', fontSize: 14 },
-  btnGhost: { borderRadius: 12, paddingVertical: 12, paddingHorizontal: 18, alignItems: 'center', borderWidth: 1, borderColor: colors.cardBorder },
+  btnGhost: { flexDirection: 'row', gap: 8, borderRadius: 12, paddingVertical: 12, paddingHorizontal: 18, alignItems: 'center', justifyContent: 'center', borderWidth: 1, borderColor: colors.cardBorder },
   btnGhostText: { color: colors.text, fontWeight: '700', fontSize: 14 },
   modalWrap: { flex: 1, backgroundColor: 'rgba(0,0,0,0.7)', justifyContent: 'flex-end' },
   modalCard: {

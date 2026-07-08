@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react';
 import { View, Text, Pressable, StyleSheet } from 'react-native';
 import { useMeshDebugStore } from '../state/meshDebugStore';
+import { ChevronDown, TriangleAlert } from 'lucide-react-native';
 import { colors } from './theme';
 
 /**
@@ -41,14 +42,19 @@ function Hud() {
         <View style={[st.led, { backgroundColor: health }]} />
         <Text style={st.title}>BLE MESH</Text>
         {s.degraded && <Text style={st.degraded}>SCAN-ONLY</Text>}
-        <Text style={st.collapse}>▾</Text>
+        <ChevronDown size={12} color={colors.textDim} strokeWidth={2} />
       </Pressable>
       <Row label="peers" value={`${s.nearbyCount}${s.connected ? '' : ' (down)'}`} />
       <Row label="sent" value={String(s.sent)} />
       <Row label="recv" value={String(s.received)} good={s.received > 0} />
       <Row label="dropped" value={String(s.dropped)} bad={s.dropped > 0} />
       <Row label="last rx" value={rxAgo} />
-      {s.lastError && <Text style={st.err} numberOfLines={3}>⚠ {s.lastError}</Text>}
+      {s.lastError && (
+        <View style={st.errRow}>
+          <TriangleAlert size={9} color={colors.danger} strokeWidth={2} />
+          <Text style={st.err} numberOfLines={3}>{s.lastError}</Text>
+        </View>
+      )}
       <Pressable style={st.resetBtn} onPress={() => useMeshDebugStore.getState().reset()}>
         <Text style={st.resetText}>reset counters</Text>
       </Pressable>
@@ -75,11 +81,11 @@ const st = StyleSheet.create({
   led: { width: 8, height: 8, borderRadius: 4 },
   title: { color: colors.text, fontSize: 11, fontWeight: '800', letterSpacing: 1, flex: 1 },
   degraded: { color: colors.yellow, fontSize: 8, fontWeight: '700' },
-  collapse: { color: colors.textDim, fontSize: 12 },
+  errRow: { flexDirection: 'row', gap: 4, marginTop: 6, alignItems: 'flex-start' },
   row: { flexDirection: 'row', justifyContent: 'space-between', paddingVertical: 2 },
   rowLabel: { color: colors.textDim, fontSize: 11 },
   rowValue: { color: colors.text, fontSize: 11, fontWeight: '700', fontVariant: ['tabular-nums'] },
-  err: { color: colors.danger, fontSize: 9, marginTop: 6, lineHeight: 12 },
+  err: { color: colors.danger, fontSize: 9, lineHeight: 12, flex: 1 },
   resetBtn: { marginTop: 8, alignItems: 'center' },
   resetText: { color: colors.textDim, fontSize: 9, textDecorationLine: 'underline' },
   dot: {

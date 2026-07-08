@@ -1,5 +1,9 @@
 import { create } from 'zustand';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 import type { Coordinate, Packet } from '../core/types';
+import { FRIEND_COLORS } from '../ui/theme';
+
+const PROFILE_KEY = 'loc8.profile.v1';
 
 export type PrivacyMode = 'live' | 'open' | 'invisible';
 
@@ -20,6 +24,8 @@ export function freshnessSec(f: FriendState, nowSec: number): number | null {
 
 interface CrewState {
   profile: Profile | null;
+  hydrated: boolean;
+  autoAddPeers: boolean;
   privacyMode: PrivacyMode;
   sessionEndsAtSec: number | null;
   friends: Record<number, FriendState>;
@@ -31,6 +37,8 @@ interface CrewState {
   celebrated: Record<number, boolean>;
 
   setProfile(p: Profile): void;
+  hydrate(): Promise<void>;
+  setAutoAddPeers(v: boolean): void;
   registerFriends(list: Array<Pick<FriendState, 'id' | 'name' | 'color'>>): void;
   applyPacket(p: Packet, relayVia?: string): void;
   startSession(hours: number, nowSec?: number): void;
@@ -49,7 +57,8 @@ interface CrewState {
 }
 
 const initial = {
-  profile: null, privacyMode: 'live' as PrivacyMode, sessionEndsAtSec: null,
+  profile: null, hydrated: false, autoAddPeers: false,
+  privacyMode: 'live' as PrivacyMode, sessionEndsAtSec: null,
   friends: {}, rallyPin: null, myLocation: null, meshNearby: 0,
   beaconMode: false, banner: null, celebrated: {},
 };
@@ -57,7 +66,27 @@ const initial = {
 export const useCrewStore = create<CrewState>((set, get) => ({
   ...initial,
 
-  setProfile: (profile) => set({ profile }),
+  setProfile: (profile) => {
+    set({ profile });
+    // Persist so the id stays stable and onboarding is skipped next launch.
+    AsyncStorage.setItem(PROFILE_KEY, JSON.stringify(profile)).catch(() => {});
+  },
+
+  hydrate: async () => {
+    try {
+      const raw = await AsyncStorage.getItem(PROFILE_KEY);
+      if (raw) {
+        const profile = JSON.parse(raw) as Profile;
+        if (profile && typeof profile.id === 'number') set({ profile });
+      }
+    } catch {
+      // Corrupt/unavailable storage — fall through to onboarding.
+    } finally {
+      set({ hydrated: true });
+    }
+  },
+
+  setAutoAddPeers: (autoAddPeers) => set({ autoAddPeers }),
 
   registerFriends: (list) =>
     set({
@@ -65,11 +94,28 @@ export const useCrewStore = create<CrewState>((set, get) => ({
     }),
 
   applyPacket: (p, relayVia) => {
+    // Self-echo guard: never treat our own broadcast (relayed back through the
+    // mesh) as a friend, in both sim and BLE modes.
+    if (get().profile && p.senderId === get().profile!.id) return;
+
+    // Auto-add real BLE peers: in BLE mode unknown senders are real crew, not noise.
+    const ensureFriend = (senderId: number) => {
+      if (get().friends[senderId] || !get().autoAddPeers) return get().friends[senderId];
+      const friend: FriendState = {
+        id: senderId,
+        name: `Friend ${senderId % 1000}`,
+        color: FRIEND_COLORS[senderId % FRIEND_COLORS.length],
+      };
+      set({ friends: { ...get().friends, [senderId]: friend } });
+      return friend;
+    };
+
     if (p.type === 'position') {
-      const f = get().friends[p.senderId];
-      if (!f) return; // unknown sender — not our crew, drop
+      const f = ensureFriend(p.senderId) ?? get().friends[p.senderId];
+      if (!f) return; // unknown sender (sim mode) — not our crew, drop
       set({ friends: { ...get().friends, [p.senderId]: { ...f, lastPacket: p, relayVia } } });
     } else if (p.type === 'rally') {
+      ensureFriend(p.senderId);
       const current = get().rallyPin;
       if (!current || p.timestampSec > current.atSec) {
         set({
@@ -77,14 +123,15 @@ export const useCrewStore = create<CrewState>((set, get) => ({
             latitude: p.latitude, longitude: p.longitude,
             droppedById: p.senderId, atSec: p.timestampSec,
           },
-          banner: { text: `🚩 ${get().friends[p.senderId]?.name ?? 'Someone'} dropped a rally pin` },
+          banner: { text: `${get().friends[p.senderId]?.name ?? 'Someone'} dropped a rally pin` },
         });
       }
     } else if (p.type === 'pingWhere' || p.type === 'pingComeFind') {
+      ensureFriend(p.senderId);
       const name = get().friends[p.senderId]?.name ?? 'Someone';
       set({
         banner: {
-          text: p.type === 'pingWhere' ? `📍 ${name} asked: where are you?` : `📣 ${name}: come find me!`,
+          text: p.type === 'pingWhere' ? `${name} asked: where are you?` : `${name}: come find me!`,
           friendId: p.senderId,
         },
       });

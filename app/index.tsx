@@ -14,6 +14,7 @@ import { useRouter, type Href } from 'expo-router';
 import { colors } from '../src/ui/theme';
 import { notifyPing } from '../src/services/notifications';
 import { ensureBlePermissions } from '../src/services/blePermissions';
+import { Play, TriangleAlert, BatteryLow, Users, Flag, Eye, EyeOff, Wrench, ChevronRight } from 'lucide-react-native';
 
 // `/crew` (app/crew.tsx) is added in this task; the generated typed-routes
 // union has not regenerated yet, so reference it through the documented `Href`
@@ -42,7 +43,7 @@ export default function RadarHome() {
       // Real BLE transport: Android 12+ needs runtime BLE permissions BEFORE
       // the native mesh starts — otherwise it rejects and the mesh stays dead.
       if (process.env.EXPO_PUBLIC_TRANSPORT === 'ble' && !(await ensureBlePermissions())) {
-        setBanner({ text: '⚠️ Bluetooth permission needed — mesh is off' });
+        setBanner({ text: 'Bluetooth permission needed — mesh is off' });
         return;
       }
       if (!cancelled) mesh.start();
@@ -62,10 +63,6 @@ export default function RadarHome() {
     <View style={st.wrap}>
       <View style={st.top}>
         <Text style={st.brand}>Loc<Text style={{ color: colors.pink }}>8</Text></Text>
-        <View style={st.mesh}>
-          <View style={st.dot} />
-          <Text style={st.meshText}>MESH · {meshNearby} nearby</Text>
-        </View>
       </View>
 
       {banner && (
@@ -76,18 +73,25 @@ export default function RadarHome() {
             setBanner(null);
           }}
         >
-          <Text style={st.bannerText}>{banner.text}{banner.friendId ? '  →' : ''}</Text>
+          <View style={st.bannerRow}>
+            <Text style={st.bannerText}>{banner.text}</Text>
+            {banner.friendId ? <ChevronRight size={16} color={colors.text} strokeWidth={2} /> : null}
+          </View>
         </Pressable>
       )}
 
       {sessionEndsAtSec === null && (
         <Pressable style={st.sessionCta} onPress={() => startSession(6)}>
-          <Text style={st.sessionCtaText}>▶ Start a 6h session — become findable</Text>
+          <Play size={15} color="#fff" strokeWidth={2} fill="#fff" />
+          <Text style={st.sessionCtaText}>Start a 6h session — become findable</Text>
         </Pressable>
       )}
 
       {locationStatus === 'denied' && (
-        <Text style={st.warn}>⚠ Location denied — demo mode around Golden Gate Park</Text>
+        <View style={st.warnRow}>
+          <TriangleAlert size={12} color={colors.yellow} strokeWidth={2} />
+          <Text style={st.warn}>Location denied — demo mode around Golden Gate Park</Text>
+        </View>
       )}
 
       {meshNearby === 0 && (
@@ -96,26 +100,32 @@ export default function RadarHome() {
 
       <RadarView />
       <Pressable style={st.crewNav} onPress={() => router.push(CREW)}>
-        <Text style={st.crewNavText}>👥 Manage crew & session</Text>
+        <Users size={14} color={colors.textDim} strokeWidth={2} />
+        <Text style={st.crewNavText}>Manage crew & session</Text>
       </Pressable>
       <View style={st.fabs}>
         <Pressable style={st.fab} onPress={() => { getMeshService().dropRally(); }}>
-          <Text style={st.fabT}>🚩</Text>
+          <Flag size={22} color={colors.text} strokeWidth={2} />
         </Pressable>
         <Pressable
           style={[st.fab, privacyMode === 'invisible' && st.fabOn]}
           onPress={() => setPrivacyOpen(true)}
         >
-          <Text style={st.fabT}>{privacyMode === 'invisible' ? '🚫' : '👁️'}</Text>
+          {privacyMode === 'invisible'
+            ? <EyeOff size={22} color="#fff" strokeWidth={2} />
+            : <Eye size={22} color={colors.text} strokeWidth={2} />}
         </Pressable>
         {__DEV__ && (
           <Pressable style={st.fab} onPress={() => setDevOpen(true)}>
-            <Text style={st.fabT}>🛠</Text>
+            <Wrench size={22} color={colors.text} strokeWidth={2} />
           </Pressable>
         )}
       </View>
       {beaconMode && (
-        <Text style={st.warn}>🪫 Power saver — updating once a minute, you're still findable</Text>
+        <View style={st.warnRow}>
+          <BatteryLow size={12} color={colors.yellow} strokeWidth={2} />
+          <Text style={st.warn}>Power saver — updating once a minute, you're still findable</Text>
+        </View>
       )}
       <PrivacyModal visible={privacyOpen} onClose={() => setPrivacyOpen(false)} />
       <DevMenu visible={devOpen} onClose={() => setDevOpen(false)} />
@@ -127,26 +137,22 @@ export default function RadarHome() {
 
 const st = StyleSheet.create({
   wrap: { flex: 1, backgroundColor: colors.bg, paddingTop: 56 },
-  top: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', paddingHorizontal: 20 },
+  top: { flexDirection: 'row', justifyContent: 'center', alignItems: 'center', paddingHorizontal: 20 },
   brand: { color: colors.text, fontSize: 20, fontWeight: '800' },
-  mesh: {
-    flexDirection: 'row', alignItems: 'center', gap: 6,
-    backgroundColor: 'rgba(75,227,192,0.12)', borderRadius: 20, paddingHorizontal: 10, paddingVertical: 5,
-    borderWidth: 1, borderColor: 'rgba(75,227,192,0.25)',
-  },
-  dot: { width: 6, height: 6, borderRadius: 3, backgroundColor: colors.teal },
-  meshText: { color: colors.teal, fontSize: 11, fontWeight: '700' },
   banner: {
     marginHorizontal: 20, marginTop: 10, backgroundColor: colors.card, borderRadius: 12,
     padding: 12, borderWidth: 1, borderColor: colors.cardBorder,
   },
-  bannerText: { color: colors.text, fontSize: 13, fontWeight: '600' },
+  bannerRow: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', gap: 8 },
+  bannerText: { color: colors.text, fontSize: 13, fontWeight: '600', flex: 1 },
   sessionCta: {
-    marginHorizontal: 20, marginTop: 10, backgroundColor: colors.pink, borderRadius: 12, padding: 14, alignItems: 'center',
+    flexDirection: 'row', alignItems: 'center', justifyContent: 'center', gap: 8,
+    marginHorizontal: 20, marginTop: 10, backgroundColor: colors.pink, borderRadius: 12, padding: 14,
   },
   sessionCtaText: { color: '#fff', fontWeight: '800', fontSize: 14 },
-  warn: { color: colors.yellow, fontSize: 11, textAlign: 'center', marginTop: 8 },
-  crewNav: { alignItems: 'center', paddingVertical: 6 },
+  warnRow: { flexDirection: 'row', alignItems: 'center', justifyContent: 'center', gap: 5, marginTop: 8 },
+  warn: { color: colors.yellow, fontSize: 11, textAlign: 'center' },
+  crewNav: { flexDirection: 'row', alignItems: 'center', justifyContent: 'center', gap: 6, paddingVertical: 6 },
   crewNavText: { color: colors.textDim, fontSize: 12, fontWeight: '600' },
   fabs: { position: 'absolute', right: 16, bottom: 300, gap: 12, zIndex: 20 },
   fab: {
@@ -154,5 +160,4 @@ const st = StyleSheet.create({
     borderWidth: 1, borderColor: colors.cardBorder, alignItems: 'center', justifyContent: 'center',
   },
   fabOn: { backgroundColor: colors.pink },
-  fabT: { fontSize: 20 },
 });

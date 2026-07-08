@@ -76,7 +76,7 @@ export function createMeshService(
       // session expiry (spec §4: auto-expire + notify)
       if (s.sessionEndsAtSec !== null && now >= s.sessionEndsAtSec) {
         s.endSession();
-        s.setBanner({ text: '⏳ Session ended — you stopped broadcasting' });
+        s.setBanner({ text: 'Session ended — you stopped broadcasting' });
         wasActive = false;
         return;
       }

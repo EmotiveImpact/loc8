@@ -56,5 +56,9 @@ export function getMeshService(): MeshService {
 }
 
 export function bootCrew(): void {
+  const isBle = process.env.EXPO_PUBLIC_TRANSPORT === 'ble';
+  // BLE mode: no fake friends — real peers auto-add as their packets arrive.
+  useCrewStore.getState().setAutoAddPeers(isBle);
+  if (isBle) return;
   useCrewStore.getState().registerFriends(DEMO_CREW.map(({ id, name, color }) => ({ id, name, color })));
 }

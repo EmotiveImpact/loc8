@@ -14,14 +14,20 @@ const ONBOARDING: Href = '/onboarding' as Href;
 
 export default function RootLayout() {
   const profile = useCrewStore((s) => s.profile);
+  const hydrated = useCrewStore((s) => s.hydrated);
+  const hydrate = useCrewStore((s) => s.hydrate);
   const segments = useSegments();
   const router = useRouter();
 
+  // Load the persisted profile before deciding onboarding-vs-home (no flash).
+  useEffect(() => { hydrate(); }, []);
+
   useEffect(() => {
+    if (!hydrated) return; // wait for AsyncStorage — the id may already exist
     const inOnboarding = (segments[0] as string) === 'onboarding';
     if (!profile && !inOnboarding) router.replace(ONBOARDING);
     if (profile && inOnboarding) router.replace('/');
-  }, [profile, segments]);
+  }, [hydrated, profile, segments]);
 
   useEffect(() => {
     const sub = Notifications.addNotificationResponseReceivedListener((resp) => {
