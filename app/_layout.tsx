@@ -1,6 +1,7 @@
 // app/_layout.tsx
 import { Stack, useRouter, useSegments, type Href } from 'expo-router';
 import { useEffect } from 'react';
+import { Linking } from 'react-native';
 import { StatusBar } from 'expo-status-bar';
 import * as Notifications from 'expo-notifications';
 import { useFonts, Unbounded_600SemiBold, Unbounded_800ExtraBold } from '@expo-google-fonts/unbounded';
@@ -43,6 +44,22 @@ export default function RootLayout() {
       const url = resp.notification.request.content.data?.url as string | undefined;
       if (url) router.push(url as never);
     });
+    return () => sub.remove();
+  }, []);
+
+  // Deep link: loc8://crew/<CODE> — join the crew, then route to the Crew tab.
+  useEffect(() => {
+    const handleUrl = (url: string | null) => {
+      if (!url) return;
+      const m = url.match(/loc8:\/\/crew\/(.+)/i);
+      if (!m) return;
+      const code = decodeURIComponent(m[1]).trim();
+      if (!code) return;
+      useCrewStore.getState().joinCrew(code);
+      router.push('/(tabs)/crew' as Href);
+    };
+    Linking.getInitialURL().then(handleUrl);
+    const sub = Linking.addEventListener('url', ({ url }) => handleUrl(url));
     return () => sub.remove();
   }, []);
 

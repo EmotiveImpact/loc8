@@ -15,6 +15,7 @@
         "NSLocationAlwaysAndWhenInUseUsageDescription": "Loc8 keeps you findable to your crew in the background during an active session. Shared only with your crew.",
         "NSMotionUsageDescription": "Loc8 uses the compass to point the arrow toward your friends.",
         "NSBluetoothAlwaysUsageDescription": "Loc8 uses Bluetooth to find your crew directly, phone-to-phone, when there's no internet.",
+        "NSCameraUsageDescription": "Loc8 scans a crew QR code to join your crew.",
         "UIBackgroundModes": [
           "bluetooth-central",
           "bluetooth-peripheral"
@@ -32,6 +33,7 @@
       },
       "predictiveBackGestureEnabled": false,
       "permissions": [
+        "CAMERA",
         "ACCESS_COARSE_LOCATION",
         "ACCESS_FINE_LOCATION",
         "BLUETOOTH_SCAN",

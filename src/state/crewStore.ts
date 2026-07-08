@@ -8,6 +8,38 @@ const PROFILE_KEY = 'loc8.profile.v1';
 export type PrivacyMode = 'live' | 'open' | 'invisible';
 
 export interface Profile { id: number; name: string; color: string; }
+
+export interface Crew { code: string; tag: number; }
+
+/** Alphabet for generated codes — omits confusable chars (0/O, 1/I). */
+const CODE_LETTERS = 'ABCDEFGHJKLMNPQRSTUVWXYZ';
+
+/** Deterministic uint32 FNV-1a hash of the uppercased code (never 0). */
+export function hashCrewCode(code: string): number {
+  const s = code.toUpperCase();
+  let h = 0x811c9dc5;
+  for (let i = 0; i < s.length; i++) {
+    h ^= s.charCodeAt(i);
+    h = Math.imul(h, 0x01000193);
+  }
+  h = h >>> 0;
+  return h === 0 ? 1 : h;
+}
+
+/** Normalize a user-entered/scanned code: trim + uppercase. */
+export function normalizeCrewCode(code: string): string {
+  return code.trim().toUpperCase();
+}
+
+/** Friendly random code, e.g. "FIRE-42": 4 letters + 2 digits. */
+function randomCrewCode(): string {
+  let letters = '';
+  for (let i = 0; i < 4; i++) {
+    letters += CODE_LETTERS[Math.floor(Math.random() * CODE_LETTERS.length)];
+  }
+  const num = 10 + Math.floor(Math.random() * 90); // 10–99
+  return `${letters}-${num}`;
+}
 export interface FriendState {
   id: number; name: string; color: string;
   lastPacket?: Packet; relayVia?: string;
@@ -36,6 +68,7 @@ export function freshnessSec(f: FriendState, nowSec: number): number | null {
 
 interface CrewState {
   profile: Profile | null;
+  crew: Crew | null;
   hydrated: boolean;
   autoAddPeers: boolean;
   privacyMode: PrivacyMode;
@@ -50,6 +83,9 @@ interface CrewState {
   activityLog: ActivityEvent[];
 
   setProfile(p: Profile): void;
+  createCrew(): string;
+  joinCrew(code: string): void;
+  leaveCrew(): void;
   hydrate(): Promise<void>;
   setAutoAddPeers(v: boolean): void;
   registerFriends(list: Array<Pick<FriendState, 'id' | 'name' | 'color'>>): void;
@@ -71,8 +107,18 @@ interface CrewState {
   reset(): void;
 }
 
+/** Persisted shape (v2): profile + crew stored together under PROFILE_KEY. */
+interface Persisted { profile: Profile | null; crew: Crew | null; }
+
+/** Persist profile + crew so id stays stable and the crew survives relaunch. */
+function persist(): void {
+  const { profile, crew } = useCrewStore.getState();
+  AsyncStorage.setItem(PROFILE_KEY, JSON.stringify({ profile, crew } as Persisted)).catch(() => {});
+}
+
 const initial = {
-  profile: null, hydrated: false, autoAddPeers: false,
+  profile: null as Profile | null, crew: null as Crew | null,
+  hydrated: false, autoAddPeers: false,
   privacyMode: 'live' as PrivacyMode, sessionEndsAtSec: null,
   friends: {}, rallyPin: null, myLocation: null, meshNearby: 0,
   beaconMode: false, banner: null, celebrated: {},
@@ -84,16 +130,41 @@ export const useCrewStore = create<CrewState>((set, get) => ({
 
   setProfile: (profile) => {
     set({ profile });
-    // Persist so the id stays stable and onboarding is skipped next launch.
-    AsyncStorage.setItem(PROFILE_KEY, JSON.stringify(profile)).catch(() => {});
+    persist();
+  },
+
+  createCrew: () => {
+    const code = randomCrewCode();
+    set({ crew: { code, tag: hashCrewCode(code) } });
+    persist();
+    return code;
+  },
+
+  joinCrew: (code) => {
+    const normalized = normalizeCrewCode(code);
+    if (!normalized) return;
+    set({ crew: { code: normalized, tag: hashCrewCode(normalized) } });
+    persist();
+  },
+
+  leaveCrew: () => {
+    set({ crew: null });
+    persist();
   },
 
   hydrate: async () => {
     try {
       const raw = await AsyncStorage.getItem(PROFILE_KEY);
       if (raw) {
-        const profile = JSON.parse(raw) as Profile;
-        if (profile && typeof profile.id === 'number') set({ profile });
+        const parsed = JSON.parse(raw) as Persisted | Profile;
+        // v2 shape { profile, crew } — or legacy bare Profile (has `id`).
+        if (parsed && 'profile' in parsed) {
+          const { profile, crew } = parsed as Persisted;
+          if (profile && typeof profile.id === 'number') set({ profile });
+          if (crew && typeof crew.tag === 'number') set({ crew });
+        } else if (parsed && typeof (parsed as Profile).id === 'number') {
+          set({ profile: parsed as Profile });
+        }
       }
     } catch {
       // Corrupt/unavailable storage — fall through to onboarding.
@@ -127,6 +198,20 @@ export const useCrewStore = create<CrewState>((set, get) => ({
     };
 
     if (p.type === 'position') {
+      const crew = get().crew;
+      if (crew) {
+        // Real-crew mode: only accept position packets tagged for our crew.
+        if (p.targetId !== crew.tag) return;
+        const existing = get().friends[p.senderId];
+        const f: FriendState = existing ?? {
+          id: p.senderId,
+          name: `Friend ${p.senderId % 1000}`,
+          color: FRIEND_COLORS[p.senderId % FRIEND_COLORS.length],
+        };
+        set({ friends: { ...get().friends, [p.senderId]: { ...f, lastPacket: p, relayVia } } });
+        return;
+      }
+      // No crew set: keep existing sim/BLE behavior (known-sender / autoAddPeers).
       const f = ensureFriend(p.senderId) ?? get().friends[p.senderId];
       if (!f) return; // unknown sender (sim mode) — not our crew, drop
       set({ friends: { ...get().friends, [p.senderId]: { ...f, lastPacket: p, relayVia } } });

@@ -105,6 +105,51 @@ describe('crewStore', () => {
     expect(log[0].friendId).toBe(101);
   });
 
+  it('createCrew sets a crew, returns a code, and hashes to a nonzero tag', () => {
+    const code = useCrewStore.getState().createCrew();
+    expect(typeof code).toBe('string');
+    expect(code.length).toBeGreaterThan(0);
+    const crew = useCrewStore.getState().crew;
+    expect(crew?.code).toBe(code);
+    expect(crew?.tag).toBeGreaterThan(0);
+  });
+
+  it('joinCrew normalizes the code and produces the same tag for the same code', () => {
+    useCrewStore.getState().joinCrew('  fire-42 ');
+    const a = useCrewStore.getState().crew;
+    expect(a?.code).toBe('FIRE-42'); // trimmed + uppercased
+    useCrewStore.getState().joinCrew('FIRE-42');
+    const b = useCrewStore.getState().crew;
+    expect(b?.tag).toBe(a?.tag); // deterministic hash
+    expect(b?.tag).toBeGreaterThan(0);
+  });
+
+  it('with a crew set, drops position packets whose targetId != crew.tag', () => {
+    useCrewStore.getState().joinCrew('FIRE-42');
+    const tag = useCrewStore.getState().crew!.tag;
+    // 101 is a pre-registered friend, but the packet is tagged for another crew.
+    useCrewStore.getState().applyPacket({ ...posPacket(101, 1000), targetId: tag + 1 });
+    expect(useCrewStore.getState().friends[101].lastPacket).toBeUndefined();
+  });
+
+  it('with a crew set, accepts + auto-registers a sender whose targetId == crew.tag', () => {
+    useCrewStore.getState().joinCrew('FIRE-42');
+    const tag = useCrewStore.getState().crew!.tag;
+    useCrewStore.getState().applyPacket({ ...posPacket(777, 1000), targetId: tag }, 'relayX');
+    const f = useCrewStore.getState().friends[777];
+    expect(f).toBeDefined();
+    expect(f.name).toMatch(/Friend/);
+    expect(f.lastPacket?.timestampSec).toBe(1000);
+    expect(f.relayVia).toBe('relayX');
+  });
+
+  it('leaveCrew clears the crew', () => {
+    useCrewStore.getState().createCrew();
+    expect(useCrewStore.getState().crew).not.toBeNull();
+    useCrewStore.getState().leaveCrew();
+    expect(useCrewStore.getState().crew).toBeNull();
+  });
+
   it('markCelebrated then clearCelebrated removes the flag (allows re-celebration)', () => {
     const s = useCrewStore.getState();
     s.markCelebrated(101);

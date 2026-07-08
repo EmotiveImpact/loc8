@@ -92,7 +92,8 @@ export function createMeshService(
 
       const interval = s.beaconMode ? BEACON_INTERVAL_SEC : BROADCAST_INTERVAL_SEC;
       if (now - lastBroadcastSec < interval) return;
-      const p = myPacket('position');
+      // Position packets carry the crew tag (0 = no crew); receivers filter on it.
+      const p = myPacket('position', s.crew?.tag ?? 0);
       if (!p) return;
       lastBroadcastSec = now;
       transport.broadcast(p);

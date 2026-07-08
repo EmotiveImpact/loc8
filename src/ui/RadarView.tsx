@@ -1,7 +1,7 @@
 // src/ui/RadarView.tsx
 import { useEffect, useState } from 'react';
 import { View, Text, StyleSheet, Pressable } from 'react-native';
-import Svg, { Circle, Defs, RadialGradient, Stop } from 'react-native-svg';
+import Svg, { Circle, Defs, RadialGradient, Stop, Path, LinearGradient as SvgLinearGradient } from 'react-native-svg';
 import Animated, { useSharedValue, useAnimatedStyle, withRepeat, withTiming, Easing } from 'react-native-reanimated';
 import { LinearGradient } from 'expo-linear-gradient';
 import { useRouter, type Href } from 'expo-router';
@@ -22,6 +22,18 @@ export function RadarView() {
   const now = useNowSec();
   const router = useRouter();
   const radius = size / 2 - 24;
+
+  // rotating radar sweep
+  const spin = useSharedValue(0);
+  useEffect(() => {
+    spin.value = withRepeat(withTiming(1, { duration: 4200, easing: Easing.linear }), -1, false);
+  }, []);
+  const sweepStyle = useAnimatedStyle(() => ({ transform: [{ rotate: `${spin.value * 360}deg` }] }));
+  const sweepA1 = -Math.PI / 2;
+  const sweepA2 = sweepA1 + (75 * Math.PI) / 180;
+  const sp1 = { x: radius + radius * Math.cos(sweepA1), y: radius + radius * Math.sin(sweepA1) };
+  const sp2 = { x: radius + radius * Math.cos(sweepA2), y: radius + radius * Math.sin(sweepA2) };
+  const sweepPath = `M${radius},${radius} L${sp1.x},${sp1.y} A${radius},${radius} 0 0 1 ${sp2.x},${sp2.y} Z`;
 
   // pulsing halo around the "you" beacon
   const pulse = useSharedValue(0);
@@ -50,6 +62,20 @@ export function RadarView() {
             <Circle cx={size / 2} cy={size / 2} r={radius * 0.7} stroke={colors.line} strokeWidth={1} fill="none" />
             <Circle cx={size / 2} cy={size / 2} r={radius} stroke={colors.line} strokeWidth={1} fill="none" />
           </Svg>
+          <Animated.View
+            pointerEvents="none"
+            style={[st.sweepBox, { width: radius * 2, height: radius * 2, marginLeft: -radius, marginTop: -radius }, sweepStyle]}
+          >
+            <Svg width={radius * 2} height={radius * 2}>
+              <Defs>
+                <SvgLinearGradient id="sweep" x1={sp1.x} y1={sp1.y} x2={sp2.x} y2={sp2.y} gradientUnits="userSpaceOnUse">
+                  <Stop offset="0" stopColor="#5ef2c8" stopOpacity="0.30" />
+                  <Stop offset="1" stopColor="#5ef2c8" stopOpacity="0" />
+                </SvgLinearGradient>
+              </Defs>
+              <Path d={sweepPath} fill="url(#sweep)" />
+            </Svg>
+          </Animated.View>
           <Text style={[st.ringLabel, { top: size / 2 - radius * 0.35 - 14 }]}>{Math.round(LINEAR_MAX_M / 2)}m</Text>
           <Text style={[st.ringLabel, { top: size / 2 - radius * 0.7 - 14 }]}>{LINEAR_MAX_M}m</Text>
           <Text style={[st.ringLabel, { top: size / 2 - radius - 14 }]}>{OUTER_MAX_M / 1000}km+</Text>
@@ -113,6 +139,7 @@ export function RadarView() {
 
 const st = StyleSheet.create({
   wrap: { flex: 1, alignItems: 'center', justifyContent: 'center' },
+  sweepBox: { position: 'absolute', left: '50%', top: '50%' },
   ringLabel: { position: 'absolute', alignSelf: 'center', color: colors.faint, fontFamily: fonts.body, fontSize: 9 },
   meHalo: {
     position: 'absolute', left: '50%', top: '50%', marginLeft: -10, marginTop: -10,
