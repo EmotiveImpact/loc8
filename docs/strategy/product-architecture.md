@@ -59,6 +59,29 @@ Vertical differences are **swappable modules on the shared engine**, not forks o
 
 One core, swappable feature packs, swappable branding.
 
+## Shared-engine capabilities (every door inherits these)
+
+These live in the **engine** (`packages/engine`: codec, transport, mesh service, comms, haptics) — NOT in any one app. Build once, every door gets them:
+
+- **Presence & positioning** — the mesh, TTL relay, freshness/ghost states, radar plotting.
+- **Communication (offline, over the mesh):**
+  - **Quick replies** — tap-to-send canned responses (a `quickReply` packet). Consumer: "On my way / Come to me". Guard: reskins to **status responses** — "En route / On scene / Need backup / Clear".
+  - **Free-text** — short notes fragmented across 25-byte packets + reassembled (`text` packet + `TextReassembler`). Consumer: crew chat. Guard/Command: **team comms / dispatch**.
+- **Haptics** — the semantic vocabulary (`haptics.*`). Consumer: proximity heartbeat, found-burst. Guard: **SOS / dispatch alert** patterns (an SOS should be un-missable in a pocket).
+
+The apps differ only in **surface** (screens, branding, which modules) — the comms and haptic *plumbing* is identical, because it's the same engine.
+
+## Monorepo layout (the four doors, one engine)
+
+```
+packages/engine   ← shared: core (codec/geo/plusCodes/trust/fragments), transport, services (mesh/haptics), state, types
+apps/loc8         ← Consumer app
+apps/guard        ← Guard field app        (built on @loc8/engine)
+apps/command      ← Command console        (built on @loc8/engine)
+```
+
+Rule: app-specific code lives in its `apps/*` folder; anything two doors could share moves down into `packages/engine`. Never fork the engine per app.
+
 ## Consumer app navigation
 
 Bottom nav: **Radar · Activity · [Rally — raised centre] · Crew · Me**
