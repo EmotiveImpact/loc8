@@ -1,14 +1,16 @@
 // src/ui/RadarView.tsx
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { View, Text, StyleSheet, Pressable } from 'react-native';
-import Svg, { Circle } from 'react-native-svg';
+import Svg, { Circle, Defs, RadialGradient, Stop } from 'react-native-svg';
+import Animated, { useSharedValue, useAnimatedStyle, withRepeat, withTiming, Easing } from 'react-native-reanimated';
+import { LinearGradient } from 'expo-linear-gradient';
 import { useRouter, type Href } from 'expo-router';
 import { useCrewStore, freshnessSec, STALE_SEC, GHOST_SEC } from '../state/crewStore';
 import { calculateRadarPoint, LINEAR_MAX_M, OUTER_MAX_M } from '../core/geoMath';
 import { useNowSec } from '../hooks/useNowSec';
 import { Blip } from './Blip';
 import { ShareSheet } from './ShareSheet';
-import { colors } from './theme';
+import { colors, fonts, gradients } from './theme';
 import { Flag } from 'lucide-react-native';
 
 export function RadarView() {
@@ -21,22 +23,40 @@ export function RadarView() {
   const router = useRouter();
   const radius = size / 2 - 24;
 
+  // pulsing halo around the "you" beacon
+  const pulse = useSharedValue(0);
+  useEffect(() => {
+    pulse.value = withRepeat(withTiming(1, { duration: 2600, easing: Easing.out(Easing.ease) }), -1, false);
+  }, []);
+  const haloStyle = useAnimatedStyle(() => ({
+    transform: [{ scale: 1 + pulse.value * 6 }],
+    opacity: 0.7 * (1 - pulse.value),
+  }));
+
   return (
     <View style={st.wrap} onLayout={(e) => setSize(Math.min(e.nativeEvent.layout.width, e.nativeEvent.layout.height))}>
       {size > 0 && (
         <>
           <Svg width={size} height={size} style={StyleSheet.absoluteFill}>
+            <Defs>
+              <RadialGradient id="glow" cx="0.5" cy="0.5" r="0.5">
+                <Stop offset="0" stopColor="#5ef2c8" stopOpacity="0.10" />
+                <Stop offset="1" stopColor="#5ef2c8" stopOpacity="0" />
+              </RadialGradient>
+            </Defs>
+            <Circle cx={size / 2} cy={size / 2} r={radius} fill="url(#glow)" />
             {/* rings: 75m (35%), 150m (70% — end of linear zone), outer log ring */}
-            <Circle cx={size / 2} cy={size / 2} r={radius * 0.35} stroke={colors.cardBorder} strokeWidth={1} fill="none" />
-            <Circle cx={size / 2} cy={size / 2} r={radius * 0.7} stroke={colors.cardBorder} strokeWidth={1} fill="none" />
-            <Circle cx={size / 2} cy={size / 2} r={radius} stroke={colors.cardBorder} strokeWidth={1} fill="none" />
+            <Circle cx={size / 2} cy={size / 2} r={radius * 0.35} stroke={colors.line} strokeWidth={1} fill="none" />
+            <Circle cx={size / 2} cy={size / 2} r={radius * 0.7} stroke={colors.line} strokeWidth={1} fill="none" />
+            <Circle cx={size / 2} cy={size / 2} r={radius} stroke={colors.line} strokeWidth={1} fill="none" />
           </Svg>
           <Text style={[st.ringLabel, { top: size / 2 - radius * 0.35 - 14 }]}>{Math.round(LINEAR_MAX_M / 2)}m</Text>
           <Text style={[st.ringLabel, { top: size / 2 - radius * 0.7 - 14 }]}>{LINEAR_MAX_M}m</Text>
           <Text style={[st.ringLabel, { top: size / 2 - radius - 14 }]}>{OUTER_MAX_M / 1000}km+</Text>
 
-          {/* me */}
-          <View style={st.me} />
+          {/* me — sunset beacon with pulsing halo */}
+          <Animated.View style={[st.meHalo, haloStyle]} />
+          <LinearGradient colors={gradients.sunset} start={{ x: 0, y: 0 }} end={{ x: 1, y: 1 }} style={st.meCore} />
 
           {/* rally pin */}
           {rallyPin && myLocation && (() => {
@@ -47,7 +67,7 @@ export function RadarView() {
                 onPress={() => setShareOpen(true)}
                 style={[st.pin, { transform: [{ translateX: pt.x }, { translateY: pt.y }] }]}
               >
-                <Flag size={22} color={colors.yellow} strokeWidth={2} fill={colors.yellow} />
+                <Flag size={22} color={colors.gold} strokeWidth={2} fill={colors.gold} />
                 <Text style={st.pinLabel}>{dropper} · {Math.round(pt.distanceMeters)}m</Text>
               </Pressable>
             );
@@ -93,15 +113,19 @@ export function RadarView() {
 
 const st = StyleSheet.create({
   wrap: { flex: 1, alignItems: 'center', justifyContent: 'center' },
-  ringLabel: { position: 'absolute', alignSelf: 'center', color: 'rgba(255,255,255,0.3)', fontSize: 9 },
-  me: {
-    position: 'absolute', left: '50%', top: '50%', marginLeft: -9, marginTop: -9,
-    width: 18, height: 18, borderRadius: 9, backgroundColor: '#fff',
-    shadowColor: '#fff', shadowOpacity: 0.8, shadowRadius: 8, elevation: 8,
+  ringLabel: { position: 'absolute', alignSelf: 'center', color: colors.faint, fontFamily: fonts.body, fontSize: 9 },
+  meHalo: {
+    position: 'absolute', left: '50%', top: '50%', marginLeft: -10, marginTop: -10,
+    width: 20, height: 20, borderRadius: 10, borderWidth: 2, borderColor: colors.rose,
+  },
+  meCore: {
+    position: 'absolute', left: '50%', top: '50%', marginLeft: -11, marginTop: -11,
+    width: 22, height: 22, borderRadius: 11,
+    shadowColor: colors.rose, shadowOpacity: 0.8, shadowRadius: 12, shadowOffset: { width: 0, height: 0 }, elevation: 10,
   },
   pin: { position: 'absolute', left: '50%', top: '50%', marginLeft: -12, marginTop: -30, alignItems: 'center' },
   pinLabel: {
-    color: colors.yellow, fontSize: 9, fontWeight: '700',
+    color: colors.gold, fontFamily: fonts.bodySemi, fontSize: 9,
     backgroundColor: 'rgba(0,0,0,0.6)', paddingHorizontal: 6, paddingVertical: 1, borderRadius: 8,
   },
 });

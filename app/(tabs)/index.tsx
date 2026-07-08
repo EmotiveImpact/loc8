@@ -8,6 +8,7 @@ import { useBatteryGuard } from '../../src/hooks/useBatteryGuard';
 import { RadarView } from '../../src/ui/RadarView';
 import { DevMenu } from '../../src/ui/DevMenu';
 import { MeshDebugOverlay } from '../../src/ui/MeshDebugOverlay';
+import { AuroraBackground } from '../../src/ui/AuroraBackground';
 import { useRouter, type Href } from 'expo-router';
 import { colors, fonts } from '../../src/ui/theme';
 import { notifyPing } from '../../src/services/notifications';
@@ -52,6 +53,7 @@ export default function RadarHome() {
 
   return (
     <View style={st.wrap}>
+      <AuroraBackground />
       <View style={st.top}>
         <Text style={st.brand}>Loc<Text style={{ color: colors.pink }}>8</Text></Text>
       </View>

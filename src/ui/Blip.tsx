@@ -1,9 +1,10 @@
 // src/ui/Blip.tsx
 import { Text, View, Pressable, StyleSheet } from 'react-native';
 import Animated, { useSharedValue, useAnimatedStyle, withTiming } from 'react-native-reanimated';
+import { LinearGradient } from 'expo-linear-gradient';
 import { useEffect } from 'react';
 import { Waypoints } from 'lucide-react-native';
-import { colors } from './theme';
+import { colors, fonts } from './theme';
 
 interface Props {
   x: number; y: number;                 // px offsets from radar center
@@ -14,6 +15,14 @@ interface Props {
   stale: boolean; ghost: boolean;
   onPress(): void;
 }
+
+// friend base colour → a 2-stop gradient for a bit of depth
+const AV_GRAD: Record<string, [string, string]> = {
+  '#5ef2c8': ['#5ef2c8', '#39c9a5'],
+  '#ff7a45': ['#ffb038', '#ff7a45'],
+  '#7aa2ff': ['#7aa2ff', '#5a78e0'],
+  '#ffce4d': ['#ffce4d', '#ff9a3c'],
+};
 
 export function Blip({ x, y, name, color, distanceM, freshness, relayVia, stale, ghost, onPress }: Props) {
   const tx = useSharedValue(x);
@@ -27,6 +36,7 @@ export function Blip({ x, y, name, color, distanceM, freshness, relayVia, stale,
     transform: [{ translateX: tx.value }, { translateY: ty.value }],
   }));
 
+  const grad = AV_GRAD[color] ?? [color, color];
   const opacity = ghost ? 0.3 : stale ? 0.55 : 1;
   const showRelay = !ghost && !!relayVia;
   const sub = ghost
@@ -38,14 +48,14 @@ export function Blip({ x, y, name, color, distanceM, freshness, relayVia, stale,
   return (
     <Animated.View style={[st.wrap, style, { opacity }]}>
       <Pressable onPress={onPress} style={st.inner}>
-        <View style={[st.avatar, { backgroundColor: color }]}>
+        <LinearGradient colors={grad as [string, string]} start={{ x: 0, y: 0 }} end={{ x: 1, y: 1 }} style={st.avatar}>
           <Text style={st.initial}>{name[0]}</Text>
-        </View>
+        </LinearGradient>
         <View style={st.tag}>
           <Text style={st.tagName}>{name}</Text>
           <View style={st.tagSubRow}>
             <Text style={st.tagSub}>{sub}</Text>
-            {showRelay && <Waypoints size={8} color={colors.teal} strokeWidth={2} />}
+            {showRelay && <Waypoints size={8} color={colors.signal2} strokeWidth={2} />}
           </View>
         </View>
       </Pressable>
@@ -54,15 +64,16 @@ export function Blip({ x, y, name, color, distanceM, freshness, relayVia, stale,
 }
 
 const st = StyleSheet.create({
-  wrap: { position: 'absolute', left: '50%', top: '50%', marginLeft: -19, marginTop: -19 },
-  inner: { alignItems: 'center', gap: 3 },
+  wrap: { position: 'absolute', left: '50%', top: '50%', marginLeft: -20, marginTop: -20 },
+  inner: { alignItems: 'center', gap: 4 },
   avatar: {
-    width: 38, height: 38, borderRadius: 19, alignItems: 'center', justifyContent: 'center',
-    borderWidth: 2, borderColor: 'rgba(255,255,255,0.85)',
+    width: 40, height: 40, borderRadius: 20, alignItems: 'center', justifyContent: 'center',
+    borderWidth: 2, borderColor: 'rgba(10,8,19,0.9)',
+    shadowColor: '#000', shadowOpacity: 0.5, shadowRadius: 8, shadowOffset: { width: 0, height: 5 }, elevation: 8,
   },
-  initial: { color: colors.bg, fontWeight: '800', fontSize: 14 },
-  tag: { backgroundColor: 'rgba(0,0,0,0.65)', borderRadius: 9, paddingHorizontal: 7, paddingVertical: 2, alignItems: 'center' },
-  tagSubRow: { flexDirection: 'row', alignItems: 'center', gap: 3 },
-  tagName: { color: colors.text, fontSize: 10, fontWeight: '700' },
-  tagSub: { color: colors.teal, fontSize: 9, fontWeight: '600' },
+  initial: { color: '#0a0813', fontFamily: fonts.display, fontSize: 15 },
+  tag: { backgroundColor: 'rgba(6,5,12,0.72)', borderRadius: 10, paddingHorizontal: 8, paddingVertical: 2, alignItems: 'center' },
+  tagSubRow: { flexDirection: 'row', alignItems: 'center', gap: 4 },
+  tagName: { color: colors.text, fontFamily: fonts.bodySemi, fontSize: 10 },
+  tagSub: { color: colors.signal, fontFamily: fonts.bodySemi, fontSize: 9 },
 });
