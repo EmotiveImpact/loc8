@@ -1,0 +1,245 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Loc8 — Bottom Nav</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Unbounded:wght@400;600;800&family=Sora:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+<style>
+  *{box-sizing:border-box;margin:0;padding:0}
+  :root{
+    --ink:#fff;--muted:rgba(255,255,255,.56);--faint:rgba(255,255,255,.32);
+    --glass:rgba(255,255,255,.045);--line:rgba(255,255,255,.09);
+    --signal:#5ef2c8;--signal2:#7aa2ff;--amber:#ffb038;--coral:#ff7a45;--rose:#ff4d7d;
+    --sunset:linear-gradient(135deg,#ff4d7d 0%,#ff7a45 55%,#ffb038 100%);
+    --disp:'Unbounded',sans-serif;--body:'Sora',-apple-system,sans-serif;
+  }
+  body{font-family:var(--body);color:var(--ink);min-height:100vh;
+    background:
+      radial-gradient(720px 520px at 78% -8%, rgba(255,77,125,.16), transparent 60%),
+      radial-gradient(680px 560px at 12% 8%, rgba(122,162,255,.12), transparent 60%),
+      radial-gradient(900px 700px at 50% 118%, rgba(94,242,200,.10), transparent 55%),
+      linear-gradient(180deg,#0b0917,#08070d 70%);
+    padding:34px 16px 70px;-webkit-font-smoothing:antialiased;position:relative;overflow-x:hidden}
+  body::after{content:'';position:fixed;inset:0;pointer-events:none;opacity:.045;z-index:999;mix-blend-mode:overlay;
+    background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='120' height='120'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.9' numOctaves='2'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E")}
+
+  .head{max-width:1080px;margin:0 auto 26px;text-align:center}
+  .kicker{font-size:11px;letter-spacing:3px;text-transform:uppercase;color:var(--signal);font-weight:600}
+  .head h1{font-family:var(--disp);font-size:30px;font-weight:800;letter-spacing:-1px;margin-top:8px}
+  .head h1 b{background:var(--sunset);-webkit-background-clip:text;background-clip:text;color:transparent}
+  .head p{color:var(--muted);font-size:13px;margin-top:10px;max-width:520px;margin-inline:auto;line-height:1.6}
+
+  /* nav detail strip */
+  .navdetail{max-width:420px;margin:0 auto 30px;background:rgba(14,11,26,.6);border:1px solid var(--line);border-radius:22px;padding:16px;text-align:center;backdrop-filter:blur(14px)}
+  .navdetail .lab{font-size:10px;letter-spacing:1.5px;text-transform:uppercase;color:var(--faint);margin-bottom:12px}
+
+  .rail{max-width:1080px;margin:0 auto;display:flex;gap:26px;flex-wrap:wrap;justify-content:center;align-items:flex-start}
+  .col{width:300px}
+  .cap{margin-top:14px;text-align:center}
+  .cap h3{font-family:var(--disp);font-size:15px;font-weight:600}
+  .cap p{color:var(--muted);font-size:12px;margin-top:5px;line-height:1.55}
+
+  .phone{width:300px;height:640px;border-radius:44px;padding:9px;position:relative;
+    background:linear-gradient(160deg,rgba(255,255,255,.14),rgba(255,255,255,.02));
+    box-shadow:0 40px 90px rgba(0,0,0,.6),0 0 0 1px rgba(255,255,255,.04)}
+  .screen{width:100%;height:100%;border-radius:36px;overflow:hidden;position:relative;
+    background:radial-gradient(120% 80% at 50% 0%,#16112a 0%,#0a0813 62%)}
+  .notch{position:absolute;top:14px;left:50%;transform:translateX(-50%);width:98px;height:22px;background:#000;border-radius:14px;z-index:40}
+  .sb{position:absolute;top:0;left:0;right:0;height:44px;display:flex;align-items:center;justify-content:space-between;padding:0 22px;font-size:12px;font-weight:600;z-index:30;color:rgba(255,255,255,.85)}
+  .brand{font-family:var(--disp);font-weight:800;font-size:19px;letter-spacing:-.5px}
+  .brand b{background:var(--sunset);-webkit-background-clip:text;background-clip:text;color:transparent}
+  .mesh{display:inline-flex;align-items:center;gap:6px;font-size:11px;font-weight:600;color:var(--signal);
+    background:rgba(94,242,200,.09);border:1px solid rgba(94,242,200,.22);padding:5px 10px;border-radius:22px}
+  .mdot{width:6px;height:6px;border-radius:50%;background:var(--signal);box-shadow:0 0 9px var(--signal)}
+  .icn{width:19px;height:19px;stroke:currentColor;stroke-width:2;fill:none;stroke-linecap:round;stroke-linejoin:round}
+  .top{position:absolute;top:52px;left:0;right:0;display:flex;align-items:center;justify-content:space-between;padding:0 22px;z-index:20}
+
+  /* ===== BOTTOM NAV ===== */
+  .nav{position:absolute;left:14px;right:14px;bottom:14px;height:66px;border-radius:26px;z-index:50;
+    background:rgba(16,12,28,.74);backdrop-filter:blur(22px);border:1px solid var(--line);
+    box-shadow:0 -8px 30px rgba(0,0,0,.35);display:flex;align-items:center;justify-content:space-around;padding:0 8px}
+  .nb{display:flex;flex-direction:column;align-items:center;gap:4px;color:var(--faint);flex:1;position:relative;padding-top:4px}
+  .nb .icn{width:22px;height:22px}
+  .nb span{font-size:10px;font-weight:600;letter-spacing:.2px}
+  .nb.on{color:#fff}
+  .nb.on .iconwrap{background:var(--sunset);box-shadow:0 6px 18px rgba(255,90,90,.4)}
+  .iconwrap{width:44px;height:32px;border-radius:12px;display:flex;align-items:center;justify-content:center;transition:.2s}
+  .nb.on .iconwrap .icn{stroke:#1a0a10}
+  .nb.on span{background:var(--sunset);-webkit-background-clip:text;background-clip:text;color:transparent}
+
+  /* content area padded above nav */
+  .body{position:absolute;top:44px;left:0;right:0;bottom:92px;overflow:hidden}
+
+  /* radar mini */
+  .radar-stage{position:absolute;top:40%;left:50%;transform:translate(-50%,-50%);width:250px;height:250px}
+  .rglow{position:absolute;inset:0;margin:auto;width:250px;height:250px;border-radius:50%;background:radial-gradient(circle,rgba(94,242,200,.10),transparent 62%)}
+  .ring{position:absolute;inset:0;margin:auto;border-radius:50%;border:1px solid rgba(255,255,255,.06)}
+  .ring.r1{width:84px;height:84px}.ring.r2{width:166px;height:166px}.ring.r3{width:250px;height:250px}
+  .sweep{position:absolute;inset:0;margin:auto;width:250px;height:250px;border-radius:50%;background:conic-gradient(from 0deg,rgba(94,242,200,.22),transparent 42%);animation:spin 4s linear infinite}
+  @keyframes spin{to{transform:rotate(360deg)}}
+  .me{position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);z-index:6}
+  .me .halo{position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);width:18px;height:18px;border-radius:50%;box-shadow:0 0 0 2px rgba(255,77,125,.6);animation:ping 2.6s ease-out infinite}
+  @keyframes ping{0%{width:18px;height:18px;opacity:.9}100%{width:130px;height:130px;opacity:0}}
+  .me .core{width:20px;height:20px;border-radius:50%;background:var(--sunset);box-shadow:0 0 18px rgba(255,90,90,.7)}
+  .blip{position:absolute;transform:translate(-50%,-50%);display:flex;flex-direction:column;align-items:center;gap:4px;z-index:7}
+  .av{width:36px;height:36px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-weight:700;font-size:14px;color:#0a0813;font-family:var(--disp);box-shadow:0 5px 16px rgba(0,0,0,.5),0 0 0 3px rgba(10,8,19,.9)}
+  .tag{font-size:9px;font-weight:600;background:rgba(6,5,12,.72);padding:2px 7px;border-radius:10px;white-space:nowrap}.tag b{color:var(--signal)}
+
+  /* collapsed crew peek */
+  .peek{position:absolute;left:14px;right:14px;bottom:0;background:rgba(14,11,26,.66);backdrop-filter:blur(18px);
+    border:1px solid var(--line);border-radius:22px;padding:11px 14px;display:flex;align-items:center;gap:10px}
+  .stack{display:flex}
+  .stack .av{width:30px;height:30px;font-size:12px;margin-left:-9px;box-shadow:0 0 0 3px #0d0a17}
+  .stack .av:first-child{margin-left:0}
+  .peek .pt{flex:1;font-size:12px;color:var(--muted)}.peek .pt b{color:#fff}
+  .peek .up{color:var(--faint)}
+
+  .fabmini{position:absolute;right:16px;bottom:78px;display:flex;flex-direction:column;gap:9px;z-index:30}
+  .fab{width:42px;height:42px;border-radius:14px;background:var(--glass);border:1px solid var(--line);backdrop-filter:blur(12px);display:flex;align-items:center;justify-content:center;color:#fff}
+  .fab.hot{background:var(--sunset);color:#1a0a10;border-color:transparent}
+
+  /* crew tab list */
+  .htitle{padding:6px 22px 4px}
+  .htitle h2{font-family:var(--disp);font-size:22px;font-weight:600}
+  .htitle .sub{font-size:12px;color:var(--muted);margin-top:2px}
+  .list{padding:8px 14px}
+  .crow{display:flex;align-items:center;gap:11px;padding:10px 8px;border-radius:16px;background:var(--glass);border:1px solid var(--line);margin-bottom:8px}
+  .cn{flex:1}.cn .nm{font-size:14px;font-weight:600}.cn .st{font-size:11px;color:var(--muted);margin-top:1px}
+  .badge{font-size:10px;font-weight:700;padding:4px 9px;border-radius:11px}
+  .live{background:rgba(94,242,200,.14);color:var(--signal)}.dark{background:rgba(255,255,255,.07);color:var(--faint)}
+  .addbtn{margin:6px 14px;padding:14px;border-radius:16px;background:var(--sunset);color:#1a0a10;font-weight:700;font-size:14px;display:flex;align-items:center;justify-content:center;gap:8px}
+  .sessrow{margin:6px 14px 0;padding:14px;border-radius:16px;background:var(--glass);border:1px solid var(--line);display:flex;align-items:center;gap:10px}
+  .sessrow .big{font-family:var(--disp);font-size:16px}
+
+  /* me tab */
+  .prof{display:flex;flex-direction:column;align-items:center;padding:16px 0 6px}
+  .pav{width:76px;height:76px;border-radius:50%;background:var(--sunset);display:flex;align-items:center;justify-content:center;font-family:var(--disp);font-weight:800;font-size:30px;color:#1a0a10;box-shadow:0 10px 30px rgba(255,90,90,.35)}
+  .pname{font-family:var(--disp);font-size:20px;font-weight:600;margin-top:12px}
+  .phandle{font-size:12px;color:var(--muted);margin-top:2px}
+  .seg{margin:14px;padding:6px;background:var(--glass);border:1px solid var(--line);border-radius:16px;display:flex;gap:4px}
+  .segb{flex:1;text-align:center;font-size:11px;font-weight:600;padding:9px 0;border-radius:11px;color:var(--muted)}
+  .segb.on{background:var(--sunset);color:#1a0a10}
+  .mrow{display:flex;align-items:center;gap:12px;padding:14px;margin:0 14px 8px;border-radius:16px;background:var(--glass);border:1px solid var(--line)}
+  .mrow .mt{flex:1;font-size:14px;font-weight:500}.mrow .ms{font-size:11px;color:var(--muted)}
+  .toggle{width:42px;height:24px;border-radius:14px;background:var(--sunset);position:relative}
+  .toggle::after{content:'';position:absolute;top:2px;right:2px;width:20px;height:20px;border-radius:50%;background:#fff}
+</style>
+</head>
+<body>
+  <div class="head">
+    <div class="kicker">Loc8 · adding a bottom menu</div>
+    <h1>Three tabs, <b>one focus</b></h1>
+    <p>Radar stays the hero. Crew and Me get real homes (roster, sessions, profile, privacy, login). The active tab lights up in sunset.</p>
+  </div>
+
+  <div class="navdetail">
+    <div class="lab">the bar</div>
+    <div class="nav" style="position:relative;left:0;right:0;bottom:0;margin:0">
+      <div class="nb on"><div class="iconwrap"><svg class="icn" viewBox="0 0 24 24"><path d="M22 12A10 10 0 1112 2M12 12l6-3"/><circle cx="12" cy="12" r="2.4" fill="#1a0a10" stroke="none"/></svg></div><span>Radar</span></div>
+      <div class="nb"><div class="iconwrap"><svg class="icn" viewBox="0 0 24 24"><path d="M17 21v-2a4 4 0 00-4-4H5a4 4 0 00-4 4v2M9 11a4 4 0 100-8 4 4 0 000 8M23 21v-2a4 4 0 00-3-3.87M16 3.13a4 4 0 010 7.75"/></svg></div><span>Crew</span></div>
+      <div class="nb"><div class="iconwrap"><svg class="icn" viewBox="0 0 24 24"><path d="M20 21a8 8 0 00-16 0M12 11a4 4 0 100-8 4 4 0 000 8"/></svg></div><span>Me</span></div>
+    </div>
+  </div>
+
+  <div class="rail">
+
+    <!-- RADAR tab -->
+    <div class="col">
+      <div class="phone"><div class="screen">
+        <div class="notch"></div>
+        <div class="sb"><span>9:41</span><span>􀙇 􀛨 􀋲</span></div>
+        <div class="top"><div class="brand">Loc<b>8</b></div><div class="mesh"><span class="mdot"></span> MESH · 4</div></div>
+        <div class="body">
+          <div class="radar-stage">
+            <div class="rglow"></div><div class="ring r3"></div><div class="ring r2"></div><div class="ring r1"></div>
+            <div class="sweep"></div>
+            <div class="me"><div class="halo"></div><div class="core"></div></div>
+            <div class="blip" style="top:28%;left:64%"><div class="av" style="background:linear-gradient(135deg,#5ef2c8,#39c9a5)">M</div><div class="tag">Maya·<b>68m</b></div></div>
+            <div class="blip" style="top:70%;left:36%"><div class="av" style="background:linear-gradient(135deg,#7aa2ff,#5a78e0)">J</div><div class="tag">Jules·<b>140m</b></div></div>
+            <div class="blip" style="top:46%;left:20%"><div class="av" style="background:linear-gradient(135deg,#ffb038,#ff7a45)">S</div><div class="tag">Sam·<b>210m</b></div></div>
+          </div>
+          <div class="fabmini">
+            <div class="fab hot"><svg class="icn" style="width:18px;height:18px" viewBox="0 0 24 24"><path d="M4 15s1-1 4-1 5 2 8 2 4-1 4-1V3s-1 1-4 1-5-2-8-2-4 1-4 1zM4 22v-7"/></svg></div>
+            <div class="fab"><svg class="icn" style="width:18px;height:18px" viewBox="0 0 24 24"><path d="M2 12s3-7 10-7 10 7 10 7-3 7-10 7S2 12 2 12z"/><circle cx="12" cy="12" r="3"/></svg></div>
+          </div>
+          <div class="peek">
+            <div class="stack">
+              <div class="av" style="background:linear-gradient(135deg,#5ef2c8,#39c9a5)">M</div>
+              <div class="av" style="background:linear-gradient(135deg,#7aa2ff,#5a78e0)">J</div>
+              <div class="av" style="background:linear-gradient(135deg,#ffb038,#ff7a45)">S</div>
+            </div>
+            <div class="pt"><b>3 nearby</b> · Maya closest, 68m</div>
+            <svg class="icn up" style="width:16px;height:16px" viewBox="0 0 24 24"><path d="M18 15l-6-6-6 6"/></svg>
+          </div>
+        </div>
+        <div class="nav">
+          <div class="nb on"><div class="iconwrap"><svg class="icn" viewBox="0 0 24 24"><path d="M22 12A10 10 0 1112 2M12 12l6-3"/><circle cx="12" cy="12" r="2.4" fill="#1a0a10" stroke="none"/></svg></div><span>Radar</span></div>
+          <div class="nb"><div class="iconwrap"><svg class="icn" viewBox="0 0 24 24"><path d="M17 21v-2a4 4 0 00-4-4H5a4 4 0 00-4 4v2M9 11a4 4 0 100-8 4 4 0 000 8M23 21v-2a4 4 0 00-3-3.87M16 3.13a4 4 0 010 7.75"/></svg></div><span>Crew</span></div>
+          <div class="nb"><div class="iconwrap"><svg class="icn" viewBox="0 0 24 24"><path d="M20 21a8 8 0 00-16 0M12 11a4 4 0 100-8 4 4 0 000 8"/></svg></div><span>Me</span></div>
+        </div>
+      </div></div>
+      <div class="cap"><h3>Radar tab</h3><p>Crew sheet → a slim <b>peek</b> (tap to expand / go to Crew). Radar finally breathes.</p></div>
+    </div>
+
+    <!-- CREW tab -->
+    <div class="col">
+      <div class="phone"><div class="screen">
+        <div class="notch"></div>
+        <div class="sb"><span>9:41</span><span>􀙇 􀛨 􀋲</span></div>
+        <div class="body">
+          <div class="htitle"><h2>Your crew</h2><div class="sub">Session ends in 5h 12m</div></div>
+          <div class="sessrow">
+            <svg class="icn" style="stroke:#5ef2c8" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><path d="M12 6v6l4 2"/></svg>
+            <div style="flex:1"><div class="big">5h 12m left</div><div style="font-size:11px;color:var(--muted)">You're findable</div></div>
+            <div class="badge live">LIVE</div>
+          </div>
+          <div class="list">
+            <div class="crow"><div class="av" style="background:linear-gradient(135deg,#5ef2c8,#39c9a5)">M</div><div class="cn"><div class="nm">Maya</div><div class="st">68m · NE · 3s ago</div></div><div class="badge live">LIVE</div></div>
+            <div class="crow"><div class="av" style="background:linear-gradient(135deg,#7aa2ff,#5a78e0)">J</div><div class="cn"><div class="nm">Jules</div><div class="st">140m · SW · 8s ago</div></div><div class="badge live">LIVE</div></div>
+            <div class="crow"><div class="av" style="background:linear-gradient(135deg,#ffb038,#ff7a45)">S</div><div class="cn"><div class="nm">Sam</div><div class="st">210m · via Maya</div></div><div class="badge live">LIVE</div></div>
+            <div class="crow"><div class="av" style="background:linear-gradient(135deg,#6b7280,#4b5563)">R</div><div class="cn"><div class="nm">Rae</div><div class="st">went dark · 4m ago</div></div><div class="badge dark">DARK</div></div>
+          </div>
+          <div class="addbtn"><svg class="icn" style="width:17px;height:17px;stroke:#1a0a10" viewBox="0 0 24 24"><path d="M12 5v14M5 12h14"/></svg> Add friend</div>
+        </div>
+        <div class="nav">
+          <div class="nb"><div class="iconwrap"><svg class="icn" viewBox="0 0 24 24"><path d="M22 12A10 10 0 1112 2M12 12l6-3"/></svg></div><span>Radar</span></div>
+          <div class="nb on"><div class="iconwrap"><svg class="icn" viewBox="0 0 24 24"><path d="M17 21v-2a4 4 0 00-4-4H5a4 4 0 00-4 4v2M9 11a4 4 0 100-8 4 4 0 000 8M23 21v-2a4 4 0 00-3-3.87M16 3.13a4 4 0 010 7.75"/></svg></div><span>Crew</span></div>
+          <div class="nb"><div class="iconwrap"><svg class="icn" viewBox="0 0 24 24"><path d="M20 21a8 8 0 00-16 0M12 11a4 4 0 100-8 4 4 0 000 8"/></svg></div><span>Me</span></div>
+        </div>
+      </div></div>
+      <div class="cap"><h3>Crew tab</h3><p>Full roster, live/dark status, the session timer, and Add-friend — all in one home.</p></div>
+    </div>
+
+    <!-- ME tab -->
+    <div class="col">
+      <div class="phone"><div class="screen">
+        <div class="notch"></div>
+        <div class="sb"><span>9:41</span><span>􀙇 􀛨 􀋲</span></div>
+        <div class="body">
+          <div class="prof">
+            <div class="pav">A</div>
+            <div class="pname">Augustus</div>
+            <div class="phandle">@augustus · findable</div>
+          </div>
+          <div class="seg">
+            <div class="segb on">Live</div><div class="segb">Only open</div><div class="segb">Invisible</div>
+          </div>
+          <div class="mrow"><svg class="icn" style="stroke:#ff7a45" viewBox="0 0 24 24"><path d="M18.36 6.64a9 9 0 11-12.73 0M12 2v10"/></svg><div class="mt">Go dark<div class="ms">Instantly hide from everyone</div></div><div class="toggle"></div></div>
+          <div class="mrow"><svg class="icn" style="stroke:#7aa2ff" viewBox="0 0 24 24"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg><div class="mt">Privacy<div class="ms">Who can see you</div></div><svg class="icn" style="width:16px" viewBox="0 0 24 24"><path d="M9 6l6 6-6 6"/></svg></div>
+          <div class="mrow"><svg class="icn" style="stroke:#5ef2c8" viewBox="0 0 24 24"><path d="M12 15a3 3 0 100-6 3 3 0 000 6M19 12a7 7 0 00-.1-1l2-1.6-2-3.4-2.3 1a7 7 0 00-1.7-1L16.5 3h-4l-.4 2.4a7 7 0 00-1.7 1l-2.3-1-2 3.4 2 1.6a7 7 0 000 2l-2 1.6 2 3.4 2.3-1a7 7 0 001.7 1l.4 2.4h4l.4-2.4a7 7 0 001.7-1l2.3 1 2-3.4-2-1.6a7 7 0 00.1-1z"/></svg><div class="mt">Settings<div class="ms">Account · notifications</div></div><svg class="icn" style="width:16px" viewBox="0 0 24 24"><path d="M9 6l6 6-6 6"/></svg></div>
+        </div>
+        <div class="nav">
+          <div class="nb"><div class="iconwrap"><svg class="icn" viewBox="0 0 24 24"><path d="M22 12A10 10 0 1112 2M12 12l6-3"/></svg></div><span>Radar</span></div>
+          <div class="nb"><div class="iconwrap"><svg class="icn" viewBox="0 0 24 24"><path d="M17 21v-2a4 4 0 00-4-4H5a4 4 0 00-4 4v2M9 11a4 4 0 100-8 4 4 0 000 8M23 21v-2a4 4 0 00-3-3.87M16 3.13a4 4 0 010 7.75"/></svg></div><span>Crew</span></div>
+          <div class="nb on"><div class="iconwrap"><svg class="icn" viewBox="0 0 24 24"><path d="M20 21a8 8 0 00-16 0M12 11a4 4 0 100-8 4 4 0 000 8"/></svg></div><span>Me</span></div>
+        </div>
+      </div></div>
+      <div class="cap"><h3>Me tab</h3><p>Profile + @handle, the 3-way privacy switch, one-tap go-dark, settings & login. The home identity/login needs.</p></div>
+    </div>
+
+  </div>
+</body>
+</html>
