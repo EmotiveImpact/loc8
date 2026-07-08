@@ -1,0 +1,298 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Loc8 Ops — Security Product</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Unbounded:wght@400;600;800&family=Sora:wght@300;400;500;600;700&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet">
+<style>
+  *{box-sizing:border-box;margin:0;padding:0}
+  :root{
+    --bg:#06070d;--panel:rgba(255,255,255,.04);--panel2:rgba(255,255,255,.02);--line:rgba(255,255,255,.09);
+    --ink:#fff;--muted:rgba(255,255,255,.55);--faint:rgba(255,255,255,.3);
+    --ok:#46e0a0;--caution:#ffb43a;--alert:#ff4053;--info:#7aa2ff;
+    --disp:'Unbounded',sans-serif;--body:'Sora',-apple-system,sans-serif;--mono:'Space Mono',monospace;
+  }
+  body{font-family:var(--body);color:var(--ink);min-height:100vh;
+    background:
+      radial-gradient(700px 500px at 85% -5%, rgba(255,64,83,.10), transparent 60%),
+      radial-gradient(700px 500px at 10% 5%, rgba(70,224,160,.08), transparent 60%),
+      linear-gradient(180deg,#080a12,#05060b 70%);
+    padding:32px 16px 70px;-webkit-font-smoothing:antialiased;position:relative;overflow-x:hidden}
+  body::after{content:'';position:fixed;inset:0;pointer-events:none;opacity:.05;z-index:999;mix-blend-mode:overlay;
+    background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='120' height='120'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.9'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E")}
+
+  .head{max-width:1200px;margin:0 auto 28px;text-align:center}
+  .kicker{font-family:var(--mono);font-size:11px;letter-spacing:3px;text-transform:uppercase;color:var(--alert);font-weight:700}
+  .head h1{font-family:var(--disp);font-size:32px;font-weight:800;letter-spacing:-1px;margin-top:8px}
+  .head h1 b{color:var(--ok)}
+  .head p{color:var(--muted);font-size:13px;margin-top:10px;max-width:600px;margin-inline:auto;line-height:1.6}
+  .three{display:flex;gap:10px;justify-content:center;flex-wrap:wrap;margin-top:16px}
+  .pchip{font-size:11px;border:1px solid var(--line);border-radius:12px;padding:8px 14px;background:var(--panel)}
+  .pchip b{color:var(--ok);font-family:var(--mono)}
+
+  .sect{max-width:1200px;margin:0 auto}
+  .slab{font-family:var(--mono);font-size:11px;letter-spacing:2px;text-transform:uppercase;color:var(--faint);margin:34px 0 16px;text-align:center}
+  .rail{display:flex;gap:24px;flex-wrap:wrap;justify-content:center;align-items:flex-start}
+  .col{width:290px}
+  .cap{margin-top:12px;text-align:center}
+  .cap h3{font-family:var(--disp);font-size:14px;font-weight:600}
+  .cap p{color:var(--muted);font-size:12px;margin-top:4px;line-height:1.5}
+
+  .phone{width:290px;height:610px;border-radius:42px;padding:8px;position:relative;
+    background:linear-gradient(160deg,rgba(255,255,255,.12),rgba(255,255,255,.02));box-shadow:0 36px 80px rgba(0,0,0,.6)}
+  .screen{width:100%;height:100%;border-radius:35px;overflow:hidden;position:relative;background:#080a11}
+  .notch{position:absolute;top:12px;left:50%;transform:translateX(-50%);width:92px;height:20px;background:#000;border-radius:13px;z-index:40}
+  .sb{position:absolute;top:0;left:0;right:0;height:42px;display:flex;align-items:center;justify-content:space-between;padding:0 20px;font-size:11px;font-weight:600;z-index:30;color:rgba(255,255,255,.8)}
+
+  .ghdr{position:absolute;top:48px;left:0;right:0;padding:0 18px;display:flex;align-items:center;justify-content:space-between;z-index:20}
+  .ghdr .who{font-size:13px;font-weight:700}
+  .ghdr .who small{display:block;font-family:var(--mono);font-size:9px;color:var(--muted);font-weight:400;margin-top:1px}
+  .meshb{font-family:var(--mono);font-size:9px;font-weight:700;color:var(--ok);background:rgba(70,224,160,.1);border:1px solid rgba(70,224,160,.25);padding:5px 8px;border-radius:9px}
+
+  /* map */
+  .map{position:absolute;top:88px;left:0;right:0;bottom:0;
+    background:
+      linear-gradient(rgba(255,255,255,.028) 1px,transparent 1px) 0 0/26px 26px,
+      linear-gradient(90deg,rgba(255,255,255,.028) 1px,transparent 1px) 0 0/26px 26px,
+      #0a0d15}
+  .zone{position:absolute;border:1px solid rgba(255,255,255,.06);border-radius:8px;background:rgba(255,255,255,.015)}
+  .zlab{position:absolute;font-family:var(--mono);font-size:8px;color:var(--faint)}
+  .dot{position:absolute;width:26px;height:26px;border-radius:50%;display:flex;align-items:center;justify-content:center;
+    font-family:var(--disp);font-weight:700;font-size:11px;color:#06070d;transform:translate(-50%,-50%);box-shadow:0 0 0 3px #0a0d15}
+  .dot.ok{background:var(--ok)} .dot.you{background:var(--info);box-shadow:0 0 0 3px #0a0d15,0 0 16px var(--info)}
+  .dot.caution{background:var(--caution)}
+  .youhalo{position:absolute;width:26px;height:26px;border-radius:50%;transform:translate(-50%,-50%);box-shadow:0 0 0 2px rgba(122,162,255,.5);animation:ping 2.4s ease-out infinite}
+  @keyframes ping{0%{width:26px;height:26px;opacity:.8}100%{width:96px;height:96px;opacity:0}}
+  .inc{position:absolute;transform:translate(-50%,-50%);z-index:8}
+  .inc .core{width:30px;height:30px;border-radius:50%;background:var(--alert);display:flex;align-items:center;justify-content:center;box-shadow:0 0 22px rgba(255,64,83,.7)}
+  .inc .r{position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);width:30px;height:30px;border-radius:50%;border:2px solid var(--alert);animation:ping2 1.8s ease-out infinite}
+  @keyframes ping2{0%{width:30px;height:30px;opacity:.8}100%{width:80px;height:80px;opacity:0}}
+  .inclab{position:absolute;top:34px;left:50%;transform:translateX(-50%);font-family:var(--mono);font-size:8px;font-weight:700;color:var(--alert);white-space:nowrap;background:rgba(6,7,13,.8);padding:2px 6px;border-radius:6px}
+
+  .icn{width:18px;height:18px;stroke:currentColor;stroke-width:2;fill:none;stroke-linecap:round;stroke-linejoin:round}
+
+  /* dispatch banner */
+  .disp{position:absolute;top:94px;left:14px;right:14px;background:rgba(255,64,83,.14);border:1px solid rgba(255,64,83,.4);
+    border-radius:14px;padding:11px 13px;display:flex;align-items:center;gap:10px;z-index:15;backdrop-filter:blur(8px)}
+  .disp .dt{flex:1;font-size:12px;font-weight:600}
+  .disp .dt small{display:block;font-family:var(--mono);font-size:9px;color:var(--muted);margin-top:1px}
+
+  /* bottom controls */
+  .gbottom{position:absolute;left:14px;right:14px;bottom:16px;z-index:20;display:flex;flex-direction:column;gap:10px}
+  .statuspill{display:flex;align-items:center;justify-content:center;gap:8px;background:rgba(70,224,160,.1);border:1px solid rgba(70,224,160,.25);
+    border-radius:14px;padding:9px;font-size:12px;color:var(--ok);font-weight:600}
+  .sos{height:64px;border-radius:20px;background:linear-gradient(135deg,#ff4053,#c81f30);display:flex;align-items:center;justify-content:center;gap:10px;
+    font-family:var(--disp);font-weight:700;font-size:16px;letter-spacing:.5px;box-shadow:0 12px 34px rgba(255,64,83,.4)}
+  .sos small{font-family:var(--mono);font-size:9px;font-weight:400;opacity:.85;letter-spacing:1px}
+
+  /* SOS active screen */
+  .sosactive{position:absolute;inset:0;background:radial-gradient(120% 90% at 50% 20%,rgba(255,64,83,.22),#0a0710 60%);
+    display:flex;flex-direction:column;align-items:center;padding:80px 22px 24px;text-align:center}
+  .sosring{position:relative;width:120px;height:120px;display:flex;align-items:center;justify-content:center}
+  .sosring .rr{position:absolute;inset:0;border-radius:50%;border:2px solid rgba(255,64,83,.55);animation:ping2 2s ease-out infinite}
+  .sosring .rr:nth-child(2){animation-delay:.7s}
+  .sosring .disc{width:74px;height:74px;border-radius:50%;background:var(--alert);display:flex;align-items:center;justify-content:center;box-shadow:0 0 44px rgba(255,64,83,.6)}
+  .sosactive h2{font-family:var(--disp);font-size:24px;font-weight:800;margin-top:26px;letter-spacing:.5px}
+  .sosactive .p{color:rgba(255,255,255,.75);font-size:13px;margin-top:8px;line-height:1.5}
+  .responders{width:100%;margin-top:22px;display:flex;flex-direction:column;gap:8px}
+  .resp{display:flex;align-items:center;gap:10px;background:var(--panel);border:1px solid var(--line);border-radius:13px;padding:11px}
+  .resp .ra{width:30px;height:30px;border-radius:50%;background:var(--ok);color:#06070d;display:flex;align-items:center;justify-content:center;font-weight:700;font-size:12px;font-family:var(--disp)}
+  .resp .rn{flex:1;text-align:left;font-size:13px;font-weight:600}
+  .resp .rd{font-family:var(--mono);font-size:11px;color:var(--ok)}
+  .sosactive .cancel{margin-top:auto;width:100%;padding:15px;border-radius:16px;background:var(--panel);border:1px solid var(--line);font-weight:600;font-size:14px}
+
+  /* dispatch/navigate screen */
+  .nav{position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;background:radial-gradient(120% 80% at 50% 25%,rgba(255,64,83,.12),#080a11 55%)}
+  .navhdr{margin-top:70px;text-align:center}
+  .navhdr .tag{font-family:var(--mono);font-size:10px;letter-spacing:2px;color:var(--alert);font-weight:700}
+  .navhdr h2{font-family:var(--disp);font-size:22px;font-weight:600;margin-top:4px}
+  .navarrow{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;position:relative}
+  .navarrow .g{position:absolute;width:180px;height:180px;border-radius:50%;background:radial-gradient(circle,rgba(255,64,83,.22),transparent 60%);filter:blur(8px)}
+  .navarrow svg{width:110px;height:110px;stroke:var(--alert);stroke-width:2.2;fill:rgba(255,64,83,.14);filter:drop-shadow(0 0 20px rgba(255,64,83,.5));animation:bob 2.2s ease-in-out infinite;transform:rotate(38deg)}
+  @keyframes bob{0%,100%{transform:rotate(38deg) translateY(0)}50%{transform:rotate(38deg) translateY(-8px)}}
+  .navdist{font-family:var(--disp);font-size:54px;font-weight:800;margin-top:20px}
+  .navdist small{font-family:var(--body);font-size:18px;color:var(--muted);font-weight:400}
+  .navwith{font-size:12px;color:var(--muted);margin-top:6px}
+  .navbtn{margin:0 0 40px;width:calc(100% - 44px);padding:16px;border-radius:18px;background:linear-gradient(135deg,#ff4053,#c81f30);text-align:center;font-family:var(--disp);font-weight:700;font-size:15px}
+
+  /* ===== Command console ===== */
+  .console{max-width:1120px;margin:0 auto;border-radius:20px;overflow:hidden;border:1px solid var(--line);
+    background:#080a11;box-shadow:0 40px 90px rgba(0,0,0,.6)}
+  .ctop{display:flex;align-items:center;gap:14px;padding:14px 18px;border-bottom:1px solid var(--line);background:rgba(255,255,255,.02)}
+  .ctop .logo{font-family:var(--disp);font-weight:800;font-size:16px}.ctop .logo b{color:var(--ok)}
+  .ctop .site{font-size:13px;color:var(--muted)}.ctop .site b{color:#fff}
+  .ctop .right{margin-left:auto;display:flex;align-items:center;gap:12px}
+  .ctag{font-family:var(--mono);font-size:10px;font-weight:700;color:var(--ok);background:rgba(70,224,160,.1);border:1px solid rgba(70,224,160,.25);padding:6px 10px;border-radius:9px}
+  .ctime{font-family:var(--mono);font-size:13px;color:#fff}
+  .cbody{display:grid;grid-template-columns:230px 1fr 250px;min-height:440px}
+  .cleft,.cright{padding:14px;display:flex;flex-direction:column;gap:10px}
+  .cleft{border-right:1px solid var(--line)}.cright{border-left:1px solid var(--line)}
+  .tiles{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+  .tile{background:var(--panel);border:1px solid var(--line);border-radius:12px;padding:11px}
+  .tile .n{font-family:var(--disp);font-size:24px;font-weight:800}
+  .tile .l{font-size:10px;color:var(--muted);margin-top:2px}
+  .tile.alert{background:rgba(255,64,83,.12);border-color:rgba(255,64,83,.4)}.tile.alert .n{color:var(--alert)}
+  .tile.ok .n{color:var(--ok)}
+  .feedttl{font-family:var(--mono);font-size:10px;letter-spacing:1.5px;text-transform:uppercase;color:var(--faint);margin-top:4px}
+  .feed{display:flex;flex-direction:column;gap:7px;overflow:auto}
+  .fitem{display:flex;gap:9px;font-size:12px;padding:9px;border-radius:10px;background:var(--panel2);border:1px solid var(--line)}
+  .fitem .fdot{width:8px;height:8px;border-radius:50%;margin-top:4px;flex:none}
+  .fitem .ft small{display:block;font-family:var(--mono);font-size:9px;color:var(--faint);margin-top:2px}
+  /* console map */
+  .cmap{position:relative;background:
+      linear-gradient(rgba(255,255,255,.03) 1px,transparent 1px) 0 0/34px 34px,
+      linear-gradient(90deg,rgba(255,255,255,.03) 1px,transparent 1px) 0 0/34px 34px,#0a0d15}
+  .roster{display:flex;flex-direction:column;gap:6px;overflow:auto}
+  .ritem{display:flex;align-items:center;gap:9px;padding:8px;border-radius:10px;background:var(--panel2);border:1px solid var(--line)}
+  .ritem .rd{width:8px;height:8px;border-radius:50%;flex:none}
+  .ritem .rn{flex:1;font-size:12px;font-weight:600}
+  .ritem .rz{font-family:var(--mono);font-size:10px;color:var(--muted)}
+  .muster{margin-top:auto;padding:13px;border-radius:13px;background:var(--panel);border:1px solid var(--line);text-align:center;font-weight:700;font-size:13px;display:flex;align-items:center;justify-content:center;gap:8px}
+</style>
+</head>
+<body>
+  <div class="head">
+    <div class="kicker">Loc8 Ops · security &amp; response</div>
+    <h1>When the radio isn't <b>enough</b></h1>
+    <p>The same offline mesh, retooled for a team whose job is coordination. Live team map, one-tap SOS, nearest-responder dispatch, muster — and it keeps working when the network is jammed or dead. Separate apps, one engine.</p>
+    <div class="three">
+      <span class="pchip">📱 <b>Loc8 Guard</b> — the guard's phone</span>
+      <span class="pchip">🖥️ <b>Loc8 Command</b> — the control room</span>
+      <span class="pchip">🔗 <b>same mesh engine</b> as the consumer app</span>
+    </div>
+  </div>
+
+  <div class="sect">
+    <div class="slab">— Loc8 Guard · the phone in every guard's pocket —</div>
+    <div class="rail">
+
+      <!-- 1 Team map -->
+      <div class="col">
+        <div class="phone"><div class="screen">
+          <div class="notch"></div>
+          <div class="sb"><span>23:47</span><span>􀙇 􀛨 􀋲</span></div>
+          <div class="ghdr"><div class="who">Night Shift · Team B<small>YOU · Guard 07 · Zone 2</small></div><div class="meshb">◈ MESH · OFFLINE-READY</div></div>
+          <div class="map">
+            <div class="zone" style="top:20px;left:20px;width:110px;height:90px"></div><div class="zlab" style="top:24px;left:26px">MAIN ROOM</div>
+            <div class="zone" style="top:20px;right:20px;width:100px;height:120px"></div><div class="zlab" style="top:24px;right:26px">BAR</div>
+            <div class="zone" style="bottom:170px;left:24px;width:90px;height:80px"></div><div class="zlab" style="bottom:238px;left:30px">SMOKING</div>
+            <!-- incident -->
+            <div class="inc" style="top:150px;left:76%"><div class="r"></div><div class="core"><svg class="icn" style="stroke:#fff" viewBox="0 0 24 24"><path d="M12 9v4M12 17h.01M10.3 3.9 1.8 18a2 2 0 0 0 1.7 3h17a2 2 0 0 0 1.7-3L13.7 3.9a2 2 0 0 0-3.4 0z"/></svg></div><div class="inclab">GATE C · fight</div></div>
+            <!-- guards -->
+            <div class="youhalo" style="top:330px;left:38%"></div><div class="dot you" style="top:330px;left:38%">07</div>
+            <div class="dot ok" style="top:120px;left:30%">03</div>
+            <div class="dot ok" style="top:210px;left:64%">05</div>
+            <div class="dot caution" style="top:300px;left:80%">09</div>
+          </div>
+          <div class="gbottom">
+            <div class="statuspill"><svg class="icn" style="width:15px;height:15px" viewBox="0 0 24 24"><path d="M20 6 9 17l-5-5"/></svg> On duty · 4 team-mates in range</div>
+            <div class="sos"><svg class="icn" style="width:22px;height:22px;stroke:#fff;stroke-width:2.4" viewBox="0 0 24 24"><path d="M12 2a10 10 0 100 20 10 10 0 000-20zM12 8v5M12 16h.01"/></svg> SOS <small>HOLD</small></div>
+          </div>
+        </div></div>
+        <div class="cap"><h3>Team map</h3><p>Every guard live (you = blue). Amber = lone/caution. Red incident pulses at Gate C. SOS always one hold away.</p></div>
+      </div>
+
+      <!-- 2 SOS active -->
+      <div class="col">
+        <div class="phone"><div class="screen">
+          <div class="notch"></div>
+          <div class="sb"><span>23:48</span><span>􀙇 􀛨 􀋲</span></div>
+          <div class="sosactive">
+            <div class="sosring"><div class="rr"></div><div class="rr"></div><div class="disc"><svg class="icn" style="width:34px;height:34px;stroke:#fff;stroke-width:2.4" viewBox="0 0 24 24"><path d="M12 2a10 10 0 100 20 10 10 0 000-20zM12 8v5M12 16h.01"/></svg></div></div>
+            <h2>SOS ACTIVE</h2>
+            <div class="p">Your location is broadcasting to the whole team — even with no signal.</div>
+            <div class="responders">
+              <div class="resp"><div class="ra">M</div><div class="rn">Marcus · Guard 05</div><div class="rd">40m · en route</div></div>
+              <div class="resp"><div class="ra">P</div><div class="rn">Priya · Guard 03</div><div class="rd">85m · en route</div></div>
+              <div class="resp"><div class="ra" style="background:var(--info)">C</div><div class="rn">Control room</div><div class="rd">notified</div></div>
+            </div>
+            <div class="cancel">Hold to cancel — I'm OK</div>
+          </div>
+        </div></div>
+        <div class="cap"><h3>SOS active</h3><p>Tap once. Location broadcasts, nearest guards auto-dispatched with live distance, control room alerted. Works offline.</p></div>
+      </div>
+
+      <!-- 3 Dispatch / navigate -->
+      <div class="col">
+        <div class="phone"><div class="screen">
+          <div class="notch"></div>
+          <div class="sb"><span>23:48</span><span>􀙇 􀛨 􀋲</span></div>
+          <div class="nav">
+            <div class="navhdr"><div class="tag">◈ DISPATCHED TO</div><h2>Gate C · fight</h2></div>
+            <div class="navarrow"><div class="g"></div><svg viewBox="0 0 24 24"><path d="M12 2l7 19-7-5-7 5 7-19z"/></svg></div>
+            <div class="navdist">55<small>m</small></div>
+            <div class="navwith">You + Marcus responding</div>
+            <div class="navbtn">EN ROUTE</div>
+          </div>
+        </div></div>
+        <div class="cap"><h3>Dispatch → navigate</h3><p>Nearest guards get a one-tap "go here" with a live arrow + distance — no fumbling coordinates over radio.</p></div>
+      </div>
+
+    </div>
+  </div>
+
+  <div class="sect">
+    <div class="slab">— Loc8 Command · the control room —</div>
+    <div class="console">
+      <div class="ctop">
+        <div class="logo">Loc<b>8</b> Command</div>
+        <div class="site">· <b>Ministry of Sound</b> · Night Shift</div>
+        <div class="right"><span class="ctag">◈ MESH · NETWORK-INDEPENDENT</span><span class="ctime">23:47:52</span></div>
+      </div>
+      <div class="cbody">
+        <!-- left: tiles + feed -->
+        <div class="cleft">
+          <div class="tiles">
+            <div class="tile ok"><div class="n">12</div><div class="l">On duty</div></div>
+            <div class="tile"><div class="n" style="color:var(--caution)">2</div><div class="l">Responding</div></div>
+            <div class="tile alert"><div class="n">1</div><div class="l">SOS active</div></div>
+            <div class="tile ok"><div class="n">94%</div><div class="l">Coverage</div></div>
+          </div>
+          <div class="feedttl">Live feed</div>
+          <div class="feed">
+            <div class="fitem"><span class="fdot" style="background:var(--alert)"></span><div class="ft">SOS — Guard 07 at Gate C<small>23:47 · 2 dispatched</small></div></div>
+            <div class="fitem"><span class="fdot" style="background:var(--caution)"></span><div class="ft">Guard 09 lone in Car Park<small>23:44 · auto check-in ok</small></div></div>
+            <div class="fitem"><span class="fdot" style="background:var(--info)"></span><div class="ft">Ejection logged — Bar<small>23:39 · Guard 05</small></div></div>
+            <div class="fitem"><span class="fdot" style="background:var(--ok)"></span><div class="ft">Shift start — 12 checked in<small>22:00</small></div></div>
+          </div>
+        </div>
+        <!-- center: map -->
+        <div class="cmap">
+          <div class="zone" style="top:30px;left:34px;width:180px;height:130px"></div><div class="zlab" style="top:36px;left:42px">MAIN ROOM</div>
+          <div class="zone" style="top:30px;right:40px;width:150px;height:170px"></div><div class="zlab" style="top:36px;right:48px">BAR</div>
+          <div class="zone" style="bottom:40px;left:40px;width:150px;height:120px"></div><div class="zlab" style="bottom:150px;left:48px">SMOKING TERRACE</div>
+          <div class="zone" style="bottom:40px;right:46px;width:160px;height:110px"></div><div class="zlab" style="bottom:140px;right:54px">CAR PARK</div>
+          <!-- incident -->
+          <div class="inc" style="top:120px;right:120px"><div class="r"></div><div class="core"><svg class="icn" style="stroke:#fff" viewBox="0 0 24 24"><path d="M12 9v4M12 17h.01M10.3 3.9 1.8 18a2 2 0 0 0 1.7 3h17a2 2 0 0 0 1.7-3L13.7 3.9a2 2 0 0 0-3.4 0z"/></svg></div><div class="inclab">SOS · Guard 07</div></div>
+          <div class="dot ok" style="top:90px;left:120px">03</div>
+          <div class="dot ok" style="top:170px;left:230px">05</div>
+          <div class="dot ok" style="top:250px;left:150px">01</div>
+          <div class="dot ok" style="top:300px;left:320px">04</div>
+          <div class="dot caution" style="bottom:90px;right:110px">09</div>
+          <div class="dot ok" style="top:200px;left:400px">02</div>
+          <div class="dot ok" style="bottom:120px;left:200px">06</div>
+        </div>
+        <!-- right: roster + muster -->
+        <div class="cright">
+          <div class="feedttl" style="margin-top:0">Roster · 12</div>
+          <div class="roster">
+            <div class="ritem"><span class="rd" style="background:var(--alert)"></span><span class="rn">Guard 07 · SOS</span><span class="rz">Gate C</span></div>
+            <div class="ritem"><span class="rd" style="background:var(--caution)"></span><span class="rn">Guard 05 · resp</span><span class="rz">→ Gate C</span></div>
+            <div class="ritem"><span class="rd" style="background:var(--caution)"></span><span class="rn">Guard 03 · resp</span><span class="rz">→ Gate C</span></div>
+            <div class="ritem"><span class="rd" style="background:var(--caution)"></span><span class="rn">Guard 09 · lone</span><span class="rz">Car Park</span></div>
+            <div class="ritem"><span class="rd" style="background:var(--ok)"></span><span class="rn">Guard 01</span><span class="rz">Main</span></div>
+            <div class="ritem"><span class="rd" style="background:var(--ok)"></span><span class="rn">Guard 02</span><span class="rz">Bar</span></div>
+            <div class="ritem"><span class="rd" style="background:var(--ok)"></span><span class="rn">Guard 04</span><span class="rz">Bar</span></div>
+            <div class="ritem"><span class="rd" style="background:var(--ok)"></span><span class="rn">Guard 06</span><span class="rz">Terrace</span></div>
+          </div>
+          <div class="muster"><svg class="icn" style="width:16px;height:16px" viewBox="0 0 24 24"><path d="M16 21v-2a4 4 0 00-4-4H6a4 4 0 00-4 4v2M9 7a4 4 0 100 8 4 4 0 000-8M22 21v-2a4 4 0 00-3-3.9M16 3.1a4 4 0 010 7.8"/></svg> Call muster</div>
+        </div>
+      </div>
+    </div>
+    <div class="cap" style="max-width:600px;margin:14px auto 0"><h3>Command console</h3><p>Everyone live on the venue map, incident feed, one-glance status tiles, roster, and a muster button — the supervisor's mission control, running on the same mesh even if the venue's wifi drops.</p></div>
+  </div>
+</body>
+</html>
