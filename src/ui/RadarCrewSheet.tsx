@@ -2,8 +2,12 @@
 // The radar's "act on people" surface: a peek bar above the tab bar that opens
 // the crew roster (Ping / Find) as a slide-up sheet. Management (code, QR,
 // sessions) lives on the Crew tab; this is where you act on who's here.
+//
+// The expanded sheet is an in-screen overlay (NOT a modal) so the tab bar stays
+// visible and tappable — the frosted nav floats over the sheet (Find My pattern).
 import { useState } from 'react';
-import { View, Text, Pressable, StyleSheet, Modal } from 'react-native';
+import { View, Text, Pressable, StyleSheet } from 'react-native';
+import Animated, { FadeIn, FadeOut, SlideInDown, SlideOutDown } from 'react-native-reanimated';
 import { BlurView } from 'expo-blur';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useCrewStore, freshnessSec, GHOST_SEC } from '../state/crewStore';
@@ -11,6 +15,8 @@ import { useNowSec } from '../hooks/useNowSec';
 import { CrewSheet } from './CrewSheet';
 import { colors, fonts } from './theme';
 import { ChevronUp, Users } from 'lucide-react-native';
+
+const AnimatedPressable = Animated.createAnimatedComponent(Pressable);
 
 export function RadarCrewSheet() {
   const [open, setOpen] = useState(false);
@@ -28,27 +34,40 @@ export function RadarCrewSheet() {
 
   return (
     <>
-      <Pressable style={[st.peek, { bottom: insets.bottom + 82 }]} onPress={() => setOpen(true)}>
-        <BlurView tint="dark" intensity={30} style={st.peekBlur}>
-          <View style={st.grab} />
-          <View style={st.peekRow}>
-            <Users size={16} color={colors.signal} strokeWidth={2} />
-            <Text style={st.peekText}>Your crew · {online} online</Text>
-            {meshNearby > 0 && <Text style={st.mesh}>· mesh {meshNearby}</Text>}
-            <View style={{ flex: 1 }} />
-            <ChevronUp size={18} color={colors.faint} strokeWidth={2.5} />
-          </View>
-        </BlurView>
-      </Pressable>
+      {/* collapsed peek — sits just above the floating tab bar */}
+      {!open && (
+        <Pressable style={[st.peek, { bottom: insets.bottom + 82 }]} onPress={() => setOpen(true)}>
+          <BlurView tint="dark" intensity={30} style={st.peekBlur}>
+            <View style={st.grab} />
+            <View style={st.peekRow}>
+              <Users size={16} color={colors.signal} strokeWidth={2} />
+              <Text style={st.peekText}>Your crew · {online} online</Text>
+              {meshNearby > 0 && <Text style={st.mesh}>· mesh {meshNearby}</Text>}
+              <View style={{ flex: 1 }} />
+              <ChevronUp size={18} color={colors.faint} strokeWidth={2.5} />
+            </View>
+          </BlurView>
+        </Pressable>
+      )}
 
-      <Modal visible={open} transparent animationType="slide" onRequestClose={() => setOpen(false)}>
-        <View style={st.modalRoot}>
-          <Pressable style={st.scrim} onPress={() => setOpen(false)} />
-          <View style={{ paddingBottom: insets.bottom }}>
+      {/* expanded roster — dims only the radar; the tab bar floats on top and stays live */}
+      {open && (
+        <>
+          <AnimatedPressable
+            entering={FadeIn.duration(160)}
+            exiting={FadeOut.duration(160)}
+            style={st.scrim}
+            onPress={() => setOpen(false)}
+          />
+          <Animated.View
+            entering={SlideInDown.duration(240)}
+            exiting={SlideOutDown.duration(200)}
+            style={st.sheetHost}
+          >
             <CrewSheet />
-          </View>
-        </View>
-      </Modal>
+          </Animated.View>
+        </>
+      )}
     </>
   );
 }
@@ -63,6 +82,6 @@ const st = StyleSheet.create({
   peekRow: { flexDirection: 'row', alignItems: 'center', gap: 7 },
   peekText: { color: colors.text, fontFamily: fonts.bodySemi, fontSize: 13 },
   mesh: { color: colors.signal, fontFamily: fonts.bodySemi, fontSize: 12 },
-  modalRoot: { flex: 1, justifyContent: 'flex-end' },
-  scrim: { position: 'absolute', top: 0, left: 0, right: 0, bottom: 0, backgroundColor: 'rgba(0,0,0,0.5)' },
+  scrim: { position: 'absolute', top: 0, left: 0, right: 0, bottom: 0, backgroundColor: 'rgba(0,0,0,0.45)' },
+  sheetHost: { position: 'absolute', left: 0, right: 0, bottom: 0 },
 });

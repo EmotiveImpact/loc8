@@ -1,6 +1,7 @@
 // src/ui/CrewSheet.tsx
 import { View, Text, Pressable, StyleSheet, Alert } from 'react-native';
 import { BlurView } from 'expo-blur';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useRouter, type Href } from 'expo-router';
 import { useCrewStore, freshnessSec, GHOST_SEC } from '../state/crewStore';
 import { getMeshService } from '../services/appServices';
@@ -15,6 +16,7 @@ export function CrewSheet() {
   const meshNearby = useCrewStore((s) => s.meshNearby);
   const now = useNowSec();
   const router = useRouter();
+  const insets = useSafeAreaInsets();
   const meshOn = meshNearby > 0;
 
   const ping = (id: number, name: string) =>
@@ -29,7 +31,7 @@ export function CrewSheet() {
   ).length;
 
   return (
-    <BlurView tint="dark" intensity={28} style={st.sheet}>
+    <BlurView tint="dark" intensity={28} style={[st.sheet, { paddingBottom: insets.bottom + 76 }]}>
       <View style={st.grab} />
       <View style={[st.mesh, meshOn ? st.meshOn : st.meshOff]}>
         {meshOn
@@ -83,7 +85,7 @@ export function CrewSheet() {
 const st = StyleSheet.create({
   sheet: {
     backgroundColor: colors.glass, borderTopLeftRadius: 26, borderTopRightRadius: 26, overflow: 'hidden',
-    borderTopWidth: 1, borderColor: colors.line, paddingHorizontal: 16, paddingTop: 12, paddingBottom: 28,
+    borderTopWidth: 1, borderColor: colors.line, paddingHorizontal: 16, paddingTop: 12,
   },
   grab: { width: 38, height: 4, borderRadius: 2, backgroundColor: 'rgba(255,255,255,0.2)', alignSelf: 'center', marginBottom: 10 },
   mesh: {
