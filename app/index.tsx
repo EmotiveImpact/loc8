@@ -9,6 +9,7 @@ import { RadarView } from '../src/ui/RadarView';
 import { CrewSheet } from '../src/ui/CrewSheet';
 import { PrivacyModal } from '../src/ui/PrivacyModal';
 import { DevMenu } from '../src/ui/DevMenu';
+import { MeshDebugOverlay } from '../src/ui/MeshDebugOverlay';
 import { useRouter, type Href } from 'expo-router';
 import { colors } from '../src/ui/theme';
 import { notifyPing } from '../src/services/notifications';
@@ -118,6 +119,7 @@ export default function RadarHome() {
       )}
       <PrivacyModal visible={privacyOpen} onClose={() => setPrivacyOpen(false)} />
       <DevMenu visible={devOpen} onClose={() => setDevOpen(false)} />
+      <MeshDebugOverlay />
       <CrewSheet />
     </View>
   );

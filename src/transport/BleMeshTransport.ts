@@ -1,7 +1,10 @@
 import type { Packet } from '../core/types';
 import { encodePacket, decodePacket } from '../core/packetCodec';
 import type { LocationTransport, MeshStatus } from './LocationTransport';
+import { useMeshDebugStore } from '../state/meshDebugStore';
 import * as Loc8Mesh from '../../modules/loc8-mesh';
+
+const dbg = () => useMeshDebugStore.getState();
 
 type Subscription = { remove(): void };
 
@@ -31,11 +34,14 @@ export class BleMeshTransport implements LocationTransport {
           const { buffer, byteOffset, byteLength } = event.data;
           packet = decodePacket(buffer.slice(byteOffset, byteOffset + byteLength) as ArrayBuffer);
         } catch {
+          dbg().markDropped();
           return;   // malformed packet off the air — drop silently, never crash
         }
+        dbg().markReceived();
         this.packetCbs.forEach((cb) => cb(packet, event.relayVia));
       }),
       Loc8Mesh.addStatusListener((status) => {
+        dbg().setStatus(status);
         this.statusCbs.forEach((cb) => cb(status));
       }),
     );
@@ -48,10 +54,11 @@ export class BleMeshTransport implements LocationTransport {
       this.started = false;
       this.subs.forEach((s) => s.remove());
       this.subs = [];
-      console.warn(
-        `[BleMeshTransport] native start failed: ${e instanceof Error ? e.message : String(e)}`,
-      );
+      const msg = e instanceof Error ? e.message : String(e);
+      console.warn(`[BleMeshTransport] native start failed: ${msg}`);
+      dbg().setError(msg);
       const status: MeshStatus = { nearbyCount: 0, connected: false };
+      dbg().setStatus(status);
       this.statusCbs.forEach((cb) => cb(status));
     });
   }
@@ -66,6 +73,7 @@ export class BleMeshTransport implements LocationTransport {
 
   /** Send my packet into the mesh — encode to 25 bytes, native adds bitchat framing. */
   broadcast(packet: Packet): void {
+    dbg().markSent();
     Loc8Mesh.broadcast(new Uint8Array(encodePacket(packet))).catch(() => {});
   }
 
