@@ -1,14 +1,13 @@
-// app/crew.tsx
-import { View, Text, Pressable, StyleSheet, Modal, Alert } from 'react-native';
+// app/(tabs)/crew.tsx
+import { View, Text, Pressable, StyleSheet, Modal, Alert, ScrollView } from 'react-native';
 import { useState } from 'react';
-import { useRouter } from 'expo-router';
-import { useCrewStore } from '../src/state/crewStore';
-import { useNowSec } from '../src/hooks/useNowSec';
-import { colors } from '../src/ui/theme';
-import { ChevronLeft, Link2, QrCode, Plus } from 'lucide-react-native';
+import { useCrewStore } from '../../src/state/crewStore';
+import { useNowSec } from '../../src/hooks/useNowSec';
+import { colors, fonts } from '../../src/ui/theme';
+import { CrewSheet } from '../../src/ui/CrewSheet';
+import { Link2, QrCode, Plus } from 'lucide-react-native';
 
 export default function CrewScreen() {
-  const router = useRouter();
   const now = useNowSec();
   const sessionEndsAtSec = useCrewStore((s) => s.sessionEndsAtSec);
   const startSession = useCrewStore((s) => s.startSession);
@@ -21,12 +20,8 @@ export default function CrewScreen() {
   const mm = Math.floor((remaining % 3600) / 60);
 
   return (
-    <View style={st.wrap}>
-      <Pressable style={st.backRow} onPress={() => router.back()}>
-        <ChevronLeft size={16} color={colors.textDim} strokeWidth={2} />
-        <Text style={st.back}>Back</Text>
-      </Pressable>
-      <Text style={st.h1}>Crew & session</Text>
+    <ScrollView style={st.wrap} contentContainerStyle={st.content}>
+      <Text style={st.h1}>Crew &amp; session</Text>
 
       <View style={st.card}>
         <Text style={st.cardH}>SESSION</Text>
@@ -72,6 +67,8 @@ export default function CrewScreen() {
         </Pressable>
       </View>
 
+      <CrewSheet />
+
       <Modal visible={qrVisible} transparent animationType="slide">
         <View style={st.modalWrap}>
           <View style={st.modalCard}>
@@ -85,24 +82,23 @@ export default function CrewScreen() {
           </View>
         </View>
       </Modal>
-    </View>
+    </ScrollView>
   );
 }
 
 const st = StyleSheet.create({
-  wrap: { flex: 1, backgroundColor: colors.bg, padding: 20, paddingTop: 60, gap: 14 },
-  backRow: { flexDirection: 'row', alignItems: 'center', gap: 2, marginBottom: 6 },
-  back: { color: colors.textDim, fontSize: 15 },
-  h1: { color: colors.text, fontSize: 22, fontWeight: '800' },
+  wrap: { flex: 1, backgroundColor: colors.bg },
+  content: { padding: 20, paddingTop: 60, paddingBottom: 130, gap: 14 },
+  h1: { color: colors.text, fontSize: 24, fontFamily: fonts.display },
   card: { backgroundColor: colors.card, borderRadius: 16, padding: 16, gap: 10, borderWidth: 1, borderColor: colors.cardBorder },
-  cardH: { color: colors.textDim, fontSize: 11, fontWeight: '700', letterSpacing: 1 },
-  big: { color: colors.text, fontSize: 28, fontWeight: '800' },
-  p: { color: colors.textDim, fontSize: 13, lineHeight: 19 },
+  cardH: { color: colors.textDim, fontSize: 11, fontFamily: fonts.bodyBold, letterSpacing: 1 },
+  big: { color: colors.text, fontSize: 28, fontFamily: fonts.display },
+  p: { color: colors.textDim, fontSize: 13, lineHeight: 19, fontFamily: fonts.body },
   row: { flexDirection: 'row', gap: 10 },
   btn: { flexDirection: 'row', gap: 8, backgroundColor: colors.pink, borderRadius: 12, paddingVertical: 12, paddingHorizontal: 18, alignItems: 'center', justifyContent: 'center' },
-  btnText: { color: '#fff', fontWeight: '800', fontSize: 14 },
+  btnText: { color: '#fff', fontFamily: fonts.bodyBold, fontSize: 14 },
   btnGhost: { flexDirection: 'row', gap: 8, borderRadius: 12, paddingVertical: 12, paddingHorizontal: 18, alignItems: 'center', justifyContent: 'center', borderWidth: 1, borderColor: colors.cardBorder },
-  btnGhostText: { color: colors.text, fontWeight: '700', fontSize: 14 },
+  btnGhostText: { color: colors.text, fontFamily: fonts.bodySemi, fontSize: 14 },
   modalWrap: { flex: 1, backgroundColor: 'rgba(0,0,0,0.7)', justifyContent: 'flex-end' },
   modalCard: {
     backgroundColor: '#12141f', borderTopLeftRadius: 26, borderTopRightRadius: 26,

@@ -14,6 +14,18 @@ export interface FriendState {
 }
 export interface RallyPin { latitude: number; longitude: number; droppedById: number; atSec: number; }
 
+export type ActivityKind = 'ping' | 'rally' | 'found' | 'dark' | 'session';
+export interface ActivityEvent {
+  id: number;
+  kind: ActivityKind;
+  text: string;
+  atSec: number;
+  friendId?: number;
+}
+
+const ACTIVITY_CAP = 50;
+let activitySeq = 1;
+
 export const STALE_SEC = 90;    // desaturate blips older than this
 export const GHOST_SEC = 240;   // "went dark" ghost state
 
@@ -35,6 +47,7 @@ interface CrewState {
   beaconMode: boolean;
   banner: { text: string; friendId?: number } | null;
   celebrated: Record<number, boolean>;
+  activityLog: ActivityEvent[];
 
   setProfile(p: Profile): void;
   hydrate(): Promise<void>;
@@ -53,6 +66,8 @@ interface CrewState {
   markCelebrated(friendId: number): void;
   clearCelebrated(friendId: number): void;
   dropLocalPin(pin: RallyPin): void;
+  clearRally(): void;
+  pushActivity(e: Omit<ActivityEvent, 'id'>): void;
   reset(): void;
 }
 
@@ -61,6 +76,7 @@ const initial = {
   privacyMode: 'live' as PrivacyMode, sessionEndsAtSec: null,
   friends: {}, rallyPin: null, myLocation: null, meshNearby: 0,
   beaconMode: false, banner: null, celebrated: {},
+  activityLog: [] as ActivityEvent[],
 };
 
 export const useCrewStore = create<CrewState>((set, get) => ({
@@ -118,23 +134,22 @@ export const useCrewStore = create<CrewState>((set, get) => ({
       ensureFriend(p.senderId);
       const current = get().rallyPin;
       if (!current || p.timestampSec > current.atSec) {
+        const name = get().friends[p.senderId]?.name ?? 'Someone';
         set({
           rallyPin: {
             latitude: p.latitude, longitude: p.longitude,
             droppedById: p.senderId, atSec: p.timestampSec,
           },
-          banner: { text: `${get().friends[p.senderId]?.name ?? 'Someone'} dropped a rally pin` },
+          banner: { text: `${name} dropped a rally pin` },
         });
+        get().pushActivity({ kind: 'rally', text: `${name} dropped a rally pin`, atSec: p.timestampSec, friendId: p.senderId });
       }
     } else if (p.type === 'pingWhere' || p.type === 'pingComeFind') {
       ensureFriend(p.senderId);
       const name = get().friends[p.senderId]?.name ?? 'Someone';
-      set({
-        banner: {
-          text: p.type === 'pingWhere' ? `${name} asked: where are you?` : `${name}: come find me!`,
-          friendId: p.senderId,
-        },
-      });
+      const text = p.type === 'pingWhere' ? `${name} asked: where are you?` : `${name}: come find me!`;
+      set({ banner: { text, friendId: p.senderId } });
+      get().pushActivity({ kind: 'ping', text, atSec: p.timestampSec, friendId: p.senderId });
     }
   },
 
@@ -155,14 +170,25 @@ export const useCrewStore = create<CrewState>((set, get) => ({
   setMeshNearby: (meshNearby) => set({ meshNearby }),
   setBeacon: (beaconMode) => set({ beaconMode }),
   setBanner: (banner) => set({ banner }),
-  markCelebrated: (friendId) =>
-    set({ celebrated: { ...get().celebrated, [friendId]: true } }),
+  markCelebrated: (friendId) => {
+    if (!get().celebrated[friendId]) {
+      const name = get().friends[friendId]?.name ?? 'Someone';
+      get().pushActivity({
+        kind: 'found', text: `You found ${name}!`,
+        atSec: Math.floor(Date.now() / 1000), friendId,
+      });
+    }
+    set({ celebrated: { ...get().celebrated, [friendId]: true } });
+  },
   clearCelebrated: (friendId) =>
     set(() => {
       const { [friendId]: _removed, ...rest } = get().celebrated;
       return { celebrated: rest };
     }),
   dropLocalPin: (rallyPin) => set({ rallyPin }),
+  clearRally: () => set({ rallyPin: null }),
+  pushActivity: (e) =>
+    set({ activityLog: [{ ...e, id: activitySeq++ }, ...get().activityLog].slice(0, ACTIVITY_CAP) }),
 
-  reset: () => set({ ...initial, friends: {} }),
+  reset: () => set({ ...initial, friends: {}, activityLog: [] }),
 }));

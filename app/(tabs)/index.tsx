@@ -1,25 +1,18 @@
-// app/index.tsx
+// app/(tabs)/index.tsx
 import { useEffect, useState } from 'react';
 import { View, Text, StyleSheet, Pressable } from 'react-native';
-import { useCrewStore } from '../src/state/crewStore';
-import { getMeshService, bootCrew } from '../src/services/appServices';
-import { useMyLocation } from '../src/hooks/useMyLocation';
-import { useBatteryGuard } from '../src/hooks/useBatteryGuard';
-import { RadarView } from '../src/ui/RadarView';
-import { CrewSheet } from '../src/ui/CrewSheet';
-import { PrivacyModal } from '../src/ui/PrivacyModal';
-import { DevMenu } from '../src/ui/DevMenu';
-import { MeshDebugOverlay } from '../src/ui/MeshDebugOverlay';
+import { useCrewStore } from '../../src/state/crewStore';
+import { getMeshService, bootCrew } from '../../src/services/appServices';
+import { useMyLocation } from '../../src/hooks/useMyLocation';
+import { useBatteryGuard } from '../../src/hooks/useBatteryGuard';
+import { RadarView } from '../../src/ui/RadarView';
+import { DevMenu } from '../../src/ui/DevMenu';
+import { MeshDebugOverlay } from '../../src/ui/MeshDebugOverlay';
 import { useRouter, type Href } from 'expo-router';
-import { colors } from '../src/ui/theme';
-import { notifyPing } from '../src/services/notifications';
-import { ensureBlePermissions } from '../src/services/blePermissions';
-import { Play, TriangleAlert, BatteryLow, Users, Flag, Eye, EyeOff, Wrench, ChevronRight } from 'lucide-react-native';
-
-// `/crew` (app/crew.tsx) is added in this task; the generated typed-routes
-// union has not regenerated yet, so reference it through the documented `Href`
-// escape hatch (same pattern as app/_layout.tsx for `/onboarding`).
-const CREW: Href = '/crew' as Href;
+import { colors, fonts } from '../../src/ui/theme';
+import { notifyPing } from '../../src/services/notifications';
+import { ensureBlePermissions } from '../../src/services/blePermissions';
+import { Play, TriangleAlert, BatteryLow, Wrench, ChevronRight } from 'lucide-react-native';
 
 export default function RadarHome() {
   const router = useRouter();
@@ -30,9 +23,7 @@ export default function RadarHome() {
   const startSession = useCrewStore((s) => s.startSession);
   const locationStatus = useMyLocation();
   useBatteryGuard();
-  const [privacyOpen, setPrivacyOpen] = useState(false);
   const [devOpen, setDevOpen] = useState(false);
-  const privacyMode = useCrewStore((s) => s.privacyMode);
   const beaconMode = useCrewStore((s) => s.beaconMode);
 
   useEffect(() => {
@@ -99,65 +90,49 @@ export default function RadarHome() {
       )}
 
       <RadarView />
-      <Pressable style={st.crewNav} onPress={() => router.push(CREW)}>
-        <Users size={14} color={colors.textDim} strokeWidth={2} />
-        <Text style={st.crewNavText}>Manage crew & session</Text>
-      </Pressable>
-      <View style={st.fabs}>
-        <Pressable style={st.fab} onPress={() => { getMeshService().dropRally(); }}>
-          <Flag size={22} color={colors.text} strokeWidth={2} />
-        </Pressable>
-        <Pressable
-          style={[st.fab, privacyMode === 'invisible' && st.fabOn]}
-          onPress={() => setPrivacyOpen(true)}
-        >
-          {privacyMode === 'invisible'
-            ? <EyeOff size={22} color="#fff" strokeWidth={2} />
-            : <Eye size={22} color={colors.text} strokeWidth={2} />}
-        </Pressable>
-        {__DEV__ && (
-          <Pressable style={st.fab} onPress={() => setDevOpen(true)}>
-            <Wrench size={22} color={colors.text} strokeWidth={2} />
-          </Pressable>
-        )}
-      </View>
+
       {beaconMode && (
         <View style={st.warnRow}>
           <BatteryLow size={12} color={colors.yellow} strokeWidth={2} />
           <Text style={st.warn}>Power saver — updating once a minute, you're still findable</Text>
         </View>
       )}
-      <PrivacyModal visible={privacyOpen} onClose={() => setPrivacyOpen(false)} />
+
+      {__DEV__ && (
+        <View style={st.fabs}>
+          <Pressable style={st.fab} onPress={() => setDevOpen(true)}>
+            <Wrench size={22} color={colors.text} strokeWidth={2} />
+          </Pressable>
+        </View>
+      )}
+
       <DevMenu visible={devOpen} onClose={() => setDevOpen(false)} />
       <MeshDebugOverlay />
-      <CrewSheet />
     </View>
   );
 }
 
 const st = StyleSheet.create({
-  wrap: { flex: 1, backgroundColor: colors.bg, paddingTop: 56 },
+  // Bottom padding clears the floating tab bar.
+  wrap: { flex: 1, backgroundColor: colors.bg, paddingTop: 56, paddingBottom: 110 },
   top: { flexDirection: 'row', justifyContent: 'center', alignItems: 'center', paddingHorizontal: 20 },
-  brand: { color: colors.text, fontSize: 20, fontWeight: '800' },
+  brand: { color: colors.text, fontSize: 22, fontFamily: fonts.display },
   banner: {
     marginHorizontal: 20, marginTop: 10, backgroundColor: colors.card, borderRadius: 12,
     padding: 12, borderWidth: 1, borderColor: colors.cardBorder,
   },
   bannerRow: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', gap: 8 },
-  bannerText: { color: colors.text, fontSize: 13, fontWeight: '600', flex: 1 },
+  bannerText: { color: colors.text, fontSize: 13, fontFamily: fonts.bodySemi, flex: 1 },
   sessionCta: {
     flexDirection: 'row', alignItems: 'center', justifyContent: 'center', gap: 8,
     marginHorizontal: 20, marginTop: 10, backgroundColor: colors.pink, borderRadius: 12, padding: 14,
   },
-  sessionCtaText: { color: '#fff', fontWeight: '800', fontSize: 14 },
+  sessionCtaText: { color: '#fff', fontFamily: fonts.bodyBold, fontSize: 14 },
   warnRow: { flexDirection: 'row', alignItems: 'center', justifyContent: 'center', gap: 5, marginTop: 8 },
-  warn: { color: colors.yellow, fontSize: 11, textAlign: 'center' },
-  crewNav: { flexDirection: 'row', alignItems: 'center', justifyContent: 'center', gap: 6, paddingVertical: 6 },
-  crewNavText: { color: colors.textDim, fontSize: 12, fontWeight: '600' },
-  fabs: { position: 'absolute', right: 16, bottom: 300, gap: 12, zIndex: 20 },
+  warn: { color: colors.yellow, fontSize: 11, textAlign: 'center', fontFamily: fonts.body },
+  fabs: { position: 'absolute', right: 16, bottom: 130, gap: 12, zIndex: 20 },
   fab: {
     width: 50, height: 50, borderRadius: 16, backgroundColor: colors.card,
     borderWidth: 1, borderColor: colors.cardBorder, alignItems: 'center', justifyContent: 'center',
   },
-  fabOn: { backgroundColor: colors.pink },
 });

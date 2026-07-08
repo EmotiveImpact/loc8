@@ -79,6 +79,32 @@ describe('crewStore', () => {
     expect(useCrewStore.getState().friends[555]).toBeUndefined();
   });
 
+  it('pushActivity prepends newest-first, assigns ids, and caps the log at 50', () => {
+    const s = useCrewStore.getState();
+    s.pushActivity({ kind: 'ping', text: 'first', atSec: 1000 });
+    s.pushActivity({ kind: 'rally', text: 'second', atSec: 1001 });
+    const log = useCrewStore.getState().activityLog;
+    expect(log[0].text).toBe('second');           // newest first
+    expect(log[1].text).toBe('first');
+    expect(log[0].id).not.toBe(log[1].id);         // unique ids
+    for (let i = 0; i < 60; i++) s.pushActivity({ kind: 'ping', text: `x${i}`, atSec: 2000 + i });
+    expect(useCrewStore.getState().activityLog.length).toBe(50);   // capped
+  });
+
+  it('records a rally activity event when a rally packet is accepted', () => {
+    useCrewStore.getState().applyPacket({ ...posPacket(101, 3000), type: 'rally' });
+    const log = useCrewStore.getState().activityLog;
+    expect(log[0].kind).toBe('rally');
+    expect(log[0].text).toMatch(/Maya/);
+  });
+
+  it('records a ping activity event carrying the friendId', () => {
+    useCrewStore.getState().applyPacket({ ...posPacket(101, 3000), type: 'pingWhere' });
+    const log = useCrewStore.getState().activityLog;
+    expect(log[0].kind).toBe('ping');
+    expect(log[0].friendId).toBe(101);
+  });
+
   it('markCelebrated then clearCelebrated removes the flag (allows re-celebration)', () => {
     const s = useCrewStore.getState();
     s.markCelebrated(101);

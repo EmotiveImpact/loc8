@@ -3,6 +3,9 @@ import { Stack, useRouter, useSegments, type Href } from 'expo-router';
 import { useEffect } from 'react';
 import { StatusBar } from 'expo-status-bar';
 import * as Notifications from 'expo-notifications';
+import { useFonts, Unbounded_600SemiBold, Unbounded_800ExtraBold } from '@expo-google-fonts/unbounded';
+import { Sora_300Light, Sora_400Regular, Sora_500Medium, Sora_600SemiBold, Sora_700Bold } from '@expo-google-fonts/sora';
+import { SpaceMono_400Regular, SpaceMono_700Bold } from '@expo-google-fonts/space-mono';
 import { useCrewStore } from '../src/state/crewStore';
 import { colors } from '../src/ui/theme';
 
@@ -18,6 +21,12 @@ export default function RootLayout() {
   const hydrate = useCrewStore((s) => s.hydrate);
   const segments = useSegments();
   const router = useRouter();
+
+  const [fontsLoaded] = useFonts({
+    Unbounded_600SemiBold, Unbounded_800ExtraBold,
+    Sora_300Light, Sora_400Regular, Sora_500Medium, Sora_600SemiBold, Sora_700Bold,
+    SpaceMono_400Regular, SpaceMono_700Bold,
+  });
 
   // Load the persisted profile before deciding onboarding-vs-home (no flash).
   useEffect(() => { hydrate(); }, []);
@@ -37,6 +46,8 @@ export default function RootLayout() {
     return () => sub.remove();
   }, []);
 
+  if (!fontsLoaded) return null; // brief; native splash covers it
+
   return (
     <>
       <StatusBar style="light" />
@@ -45,7 +56,12 @@ export default function RootLayout() {
           headerShown: false,
           contentStyle: { backgroundColor: colors.bg },
         }}
-      />
+      >
+        <Stack.Screen name="(tabs)" />
+        <Stack.Screen name="onboarding" />
+        <Stack.Screen name="compass/[id]" />
+        <Stack.Screen name="rally" options={{ presentation: 'modal' }} />
+      </Stack>
     </>
   );
 }
