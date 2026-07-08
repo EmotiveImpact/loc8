@@ -47,7 +47,7 @@ export interface FriendState {
   id: number; name: string; color: string;
   lastPacket?: Packet; relayVia?: string;
 }
-export interface RallyPin { latitude: number; longitude: number; droppedById: number; atSec: number; }
+export interface RallyPin { latitude: number; longitude: number; droppedById: number; atSec: number; floor?: number; }
 
 /** Top banner. `kind` lets the UI decide what to render (e.g. reply chips for an incoming ping). */
 export type BannerKind = 'ping' | 'reply' | 'rally' | 'info';
@@ -86,6 +86,10 @@ interface CrewState {
   friends: Record<number, FriendState>;
   rallyPin: RallyPin | null;
   myLocation: Coordinate | null;
+  /** My current floor/level (0 = ground). Driven by floorService (baro or manual). */
+  myFloor: number;
+  /** 'auto' = barometer decides; 'manual' = the user pinned it (floorService stops overriding). */
+  floorMode: 'auto' | 'manual';
   meshNearby: number;
   beaconMode: boolean;
   banner: Banner | null;
@@ -116,6 +120,12 @@ interface CrewState {
   isSessionActive(nowSec: number): boolean;
   setPrivacy(m: PrivacyMode): void;
   setMyLocation(c: Coordinate): void;
+  /** Set my floor from the barometer (auto mode). No-op if the user pinned it manually. */
+  setMyFloor(floor: number): void;
+  /** Pin my floor manually (switches to 'manual' mode). */
+  setFloorManual(floor: number): void;
+  /** Hand floor back to the barometer. */
+  setFloorAuto(): void;
   setMeshNearby(n: number): void;
   setBeacon(on: boolean): void;
   setBanner(b: Banner | null): void;
@@ -150,7 +160,8 @@ const initial = {
   hydrated: false, autoAddPeers: false,
   privacyMode: 'live' as PrivacyMode, sessionEndsAtSec: null,
   notificationsEnabled: true, hapticsEnabled: true, units: 'm' as Units,
-  friends: {}, rallyPin: null, myLocation: null, meshNearby: 0,
+  friends: {}, rallyPin: null, myLocation: null, myFloor: 0, floorMode: 'auto' as const,
+  meshNearby: 0,
   beaconMode: false, banner: null, celebrated: {},
   activityLog: [] as ActivityEvent[],
 };
@@ -282,7 +293,7 @@ export const useCrewStore = create<CrewState>((set, get) => ({
         set({
           rallyPin: {
             latitude: p.latitude, longitude: p.longitude,
-            droppedById: p.senderId, atSec: p.timestampSec,
+            droppedById: p.senderId, atSec: p.timestampSec, floor: p.floor ?? 0,
           },
           banner: { text: `${name} dropped a rally pin`, kind: 'rally' },
         });
@@ -363,6 +374,10 @@ export const useCrewStore = create<CrewState>((set, get) => ({
 
   setPrivacy: (privacyMode) => set({ privacyMode }),
   setMyLocation: (myLocation) => set({ myLocation }),
+  // Auto (barometer) updates are ignored once the user has pinned a floor.
+  setMyFloor: (myFloor) => { if (get().floorMode === 'auto') set({ myFloor }); },
+  setFloorManual: (myFloor) => set({ myFloor, floorMode: 'manual' }),
+  setFloorAuto: () => set({ floorMode: 'auto' }),
   setMeshNearby: (meshNearby) => set({ meshNearby }),
   setBeacon: (beaconMode) => set({ beaconMode }),
   setBanner: (banner) => set({ banner }),

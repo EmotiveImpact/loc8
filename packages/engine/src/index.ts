@@ -9,6 +9,7 @@ export * from './core/plusCodes';
 export * from './core/trustLayer';
 export * from './core/packetCodec';
 export * from './core/textFragments';
+export * from './core/floorMath';
 
 // --- transport: location transport contract + implementations ---
 export * from './transport/LocationTransport';
@@ -20,6 +21,7 @@ export * from './transport/seededRandom';
 export * from './services/appServices';
 export * from './services/meshService';
 export * from './services/haptics';
+export * from './services/floorService';
 export * from './services/notifications';
 export * from './services/blePermissions';
 

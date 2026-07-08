@@ -7,12 +7,13 @@
 // boxes, per the gallery.
 import { useEffect, useRef, useState } from 'react';
 import { View, Text, Pressable, StyleSheet, Animated, Easing, type LayoutChangeEvent } from 'react-native';
-import { useCrewStore, getHaversineDistance, getAbsoluteBearing, freshnessSec, STALE_SEC } from '@loc8/engine';
+import { useCrewStore, getHaversineDistance, getAbsoluteBearing, freshnessSec, STALE_SEC, floorLabel } from '@loc8/engine';
 import type { Coordinate } from '@loc8/engine';
 import { useGuardStore, badgeLabel } from '../state/guardStore';
-import { guardFor } from '../state/guardTeam';
+import { guardFor, friendFloor } from '../state/guardTeam';
 import { useNowSec } from '../hooks/useNowSec';
 import { ops, fonts } from './opsTheme';
+import { FloorSwitcher } from './FloorSwitcher';
 
 const RANGE_M = 350; // metres mapped to the map radius before clamping
 
@@ -37,9 +38,26 @@ export function TeamMap({ onPressIncident }: { onPressIncident?: () => void }) {
   const friends = useCrewStore((s) => s.friends);
   const me = useCrewStore((s) => s.myLocation);
   const rallyPin = useCrewStore((s) => s.rallyPin);
+  const myFloor = useCrewStore((s) => s.myFloor);
   const dispatchLabel = useGuardStore((s) => s.dispatchLabel);
   const myBadge = useGuardStore((s) => s.badge);
+  const viewFloorRaw = useGuardStore((s) => s.viewFloor);
+  const setViewFloor = useGuardStore((s) => s.setViewFloor);
   const now = useNowSec();
+
+  const viewFloor = viewFloorRaw ?? myFloor;
+
+  // Floors that have people (teammates + you), roof→basement, with head counts.
+  const countByFloor: Record<number, number> = {};
+  for (const f of Object.values(friends)) {
+    if (!f.lastPacket) continue;
+    const fl = friendFloor(f);
+    countByFloor[fl] = (countByFloor[fl] ?? 0) + 1;
+  }
+  countByFloor[myFloor] = (countByFloor[myFloor] ?? 0) + 1; // you
+  const floors = Array.from(new Set([...Object.keys(countByFloor).map(Number), myFloor]))
+    .sort((a, b) => b - a);
+  const peeking = viewFloor !== myFloor;
 
   const pulse = useRef(new Animated.Value(0)).current;
   useEffect(() => {
@@ -88,8 +106,8 @@ export function TeamMap({ onPressIncident }: { onPressIncident?: () => void }) {
           </View>
         ))}
 
-      {/* incident marker (engine rally pin) */}
-      {me && rallyPin && maxR > 0 && (() => {
+      {/* incident marker (engine rally pin) — only on its floor */}
+      {me && rallyPin && (rallyPin.floor ?? 0) === viewFloor && maxR > 0 && (() => {
         const p = project(me, rallyPin, cx, cy, maxR);
         return (
           <Pressable
@@ -105,10 +123,11 @@ export function TeamMap({ onPressIncident }: { onPressIncident?: () => void }) {
         );
       })()}
 
-      {/* guard blips */}
+      {/* guard blips — only those on the viewed floor */}
       {me && maxR > 0 &&
         Object.values(friends).map((f) => {
           if (!f.lastPacket) return null;
+          if (friendFloor(f) !== viewFloor) return null;
           const at = { latitude: f.lastPacket.latitude, longitude: f.lastPacket.longitude };
           const p = project(me, at, cx, cy, maxR);
           const meta = guardFor(f.id);
@@ -124,10 +143,30 @@ export function TeamMap({ onPressIncident }: { onPressIncident?: () => void }) {
           );
         })}
 
-      {/* you */}
-      {maxR > 0 && (
+      {/* you — only when viewing your own floor */}
+      {maxR > 0 && myFloor === viewFloor && (
         <View style={[st.you, { left: cx, top: cy }]}>
           <Text style={st.dotText}>{badgeLabel(myBadge)}</Text>
+        </View>
+      )}
+
+      {/* floor switcher (right edge) */}
+      {floors.length > 1 && (
+        <View style={st.switcher}>
+          <FloorSwitcher
+            floors={floors}
+            viewFloor={viewFloor}
+            myFloor={myFloor}
+            countByFloor={countByFloor}
+            onSelect={(f) => setViewFloor(f === myFloor ? null : f)}
+          />
+        </View>
+      )}
+
+      {/* peeking-another-floor banner */}
+      {peeking && (
+        <View style={st.peekBanner}>
+          <Text style={st.peekTxt}>Viewing {floorLabel(viewFloor)} · you're on {floorLabel(myFloor)}</Text>
         </View>
       )}
     </View>
@@ -137,6 +176,12 @@ export function TeamMap({ onPressIncident }: { onPressIncident?: () => void }) {
 const DOT = 26;
 const st = StyleSheet.create({
   map: { flex: 1, backgroundColor: ops.bg2, overflow: 'hidden' },
+  switcher: { position: 'absolute', right: 10, top: 12 },
+  peekBanner: {
+    position: 'absolute', top: 12, left: 12, backgroundColor: 'rgba(122,162,255,0.14)',
+    borderWidth: 1, borderColor: 'rgba(122,162,255,0.4)', borderRadius: 10, paddingHorizontal: 10, paddingVertical: 6,
+  },
+  peekTxt: { color: ops.info, fontFamily: fonts.mono, fontSize: 10 },
   grid: { position: 'absolute', backgroundColor: 'rgba(255,255,255,0.028)' },
   zone: {
     position: 'absolute', borderWidth: 1, borderColor: 'rgba(255,255,255,0.06)',

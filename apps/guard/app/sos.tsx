@@ -6,7 +6,7 @@ import { View, Text, StyleSheet, Animated, Easing } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useRouter } from 'expo-router';
 import { Siren } from 'lucide-react-native';
-import { useCrewStore, getHaversineDistance } from '@loc8/engine';
+import { useCrewStore, getHaversineDistance, floorLabel } from '@loc8/engine';
 import { ops, fonts } from '../src/ui/opsTheme';
 import { HoldButton } from '../src/ui/HoldButton';
 import { useGuardStore, badgeLabel } from '../src/state/guardStore';
@@ -61,7 +61,10 @@ export default function SosActive() {
       </View>
 
       <Text style={st.title}>SOS ACTIVE</Text>
-      <Text style={st.p}>Your location is broadcasting to the team — even with no signal.</Text>
+      <View style={st.floorChip}>
+        <Text style={st.floorChipTxt}>◈ {floorLabel(rallyPin?.floor ?? 0)}</Text>
+      </View>
+      <Text style={st.p}>Your location and floor are broadcasting to the team — even with no signal.</Text>
 
       <View style={st.responders}>
         {responders.length === 0 && (
@@ -108,6 +111,11 @@ const st = StyleSheet.create({
     shadowColor: ops.alert, shadowOpacity: 0.6, shadowRadius: 24, elevation: 10,
   },
   title: { fontFamily: fonts.display, fontSize: 24, color: ops.ink, marginTop: 26, letterSpacing: 0.5 },
+  floorChip: {
+    marginTop: 10, backgroundColor: 'rgba(255,64,83,0.16)', borderWidth: 1, borderColor: 'rgba(255,64,83,0.5)',
+    borderRadius: 10, paddingHorizontal: 10, paddingVertical: 4,
+  },
+  floorChipTxt: { color: ops.alert, fontFamily: fonts.monoBold, fontSize: 11, letterSpacing: 0.5 },
   p: { color: 'rgba(255,255,255,0.75)', fontSize: 13, marginTop: 8, textAlign: 'center', lineHeight: 19, fontFamily: fonts.body },
   responders: { width: '100%', marginTop: 22, gap: 8 },
   noResp: { color: ops.muted, fontFamily: fonts.mono, fontSize: 12, textAlign: 'center', paddingVertical: 8 },

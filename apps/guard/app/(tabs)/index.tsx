@@ -5,8 +5,8 @@ import { useEffect, useRef } from 'react';
 import { View, Text, Pressable, StyleSheet } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useRouter, type Href } from 'expo-router';
-import { Check, Navigation } from 'lucide-react-native';
-import { useCrewStore, haptics } from '@loc8/engine';
+import { Check, Navigation, Layers } from 'lucide-react-native';
+import { useCrewStore, haptics, floorLabel } from '@loc8/engine';
 import { ops, fonts, tint } from '../../src/ui/opsTheme';
 import { OpsBackground } from '../../src/ui/OpsBackground';
 import { GuardHeader } from '../../src/ui/GuardHeader';
@@ -26,6 +26,8 @@ export default function TeamMapScreen() {
   const setBanner = useCrewStore((s) => s.setBanner);
   const dispatchLabel = useGuardStore((s) => s.dispatchLabel);
   const sosActive = useGuardStore((s) => s.sosActive);
+  const myFloor = useCrewStore((s) => s.myFloor);
+  const floorMode = useCrewStore((s) => s.floorMode);
 
   const inRange = Object.values(friends).filter((f) => f.lastPacket).length;
 
@@ -54,6 +56,13 @@ export default function TeamMapScreen() {
       <OpsBackground />
       <View style={{ paddingTop: insets.top + 8 }}>
         <GuardHeader />
+        <View style={st.floorRow}>
+          <Pressable style={st.floorPill} onPress={() => { haptics.tap(); router.push('/floor' as Href); }}>
+            <Layers size={13} color={ops.info} strokeWidth={2} />
+            <Text style={st.floorPillTxt}>Your level · {floorLabel(myFloor)}</Text>
+            <Text style={st.floorMode}>{floorMode === 'auto' ? 'AUTO' : 'PINNED'}</Text>
+          </Pressable>
+        </View>
       </View>
 
       {banner && (
@@ -100,6 +109,14 @@ const st = StyleSheet.create({
     borderWidth: 1, borderColor: ops.line, borderRadius: 12, padding: 11,
   },
   bannerTxt: { color: ops.ink, fontSize: 13, fontFamily: fonts.bodySemi },
+  floorRow: { paddingHorizontal: 18, marginTop: 8 },
+  floorPill: {
+    flexDirection: 'row', alignItems: 'center', gap: 7, alignSelf: 'flex-start',
+    backgroundColor: tint(ops.info, 0.1), borderWidth: 1, borderColor: tint(ops.info, 0.3),
+    borderRadius: 11, paddingHorizontal: 10, paddingVertical: 6,
+  },
+  floorPillTxt: { color: ops.ink, fontFamily: fonts.bodySemi, fontSize: 12 },
+  floorMode: { color: ops.info, fontFamily: fonts.monoBold, fontSize: 9, letterSpacing: 0.5 },
   mapWrap: { flex: 1, marginTop: 10, marginHorizontal: 0 },
   bottom: { position: 'absolute', left: 14, right: 14, bottom: 0, gap: 10 },
   statusPill: {

@@ -24,6 +24,7 @@ export interface Incident {
   id: number;
   type: IncidentType;
   location: string;
+  floor: number;
   atSec: number;
   byLabel: string;
 }
@@ -63,6 +64,9 @@ export interface GuardState {
   /** Lone-worker check-in prompt is showing (solo patrol). */
   loneCheckInActive: boolean;
 
+  /** Floor currently being VIEWED on the team map. null = follow my own floor. */
+  viewFloor: number | null;
+
   incidents: Incident[];
 
   goOnDuty(shift?: Partial<Shift>, badge?: number, nowSec?: number): void;
@@ -75,7 +79,8 @@ export interface GuardState {
   markSafe(): void;
   startLoneCheckIn(): void;
   resolveLoneCheckIn(): void;
-  logIncident(type: IncidentType, location: string, byLabel: string, nowSec?: number): void;
+  setViewFloor(floor: number | null): void;
+  logIncident(type: IncidentType, location: string, byLabel: string, floor: number, nowSec?: number): void;
   reset(): void;
 }
 
@@ -100,6 +105,7 @@ const initial = {
   musterActive: false,
   mustered: false,
   loneCheckInActive: false,
+  viewFloor: null as number | null,
   incidents: [] as Incident[],
 };
 
@@ -129,10 +135,12 @@ export const useGuardStore = create<GuardState>((set, get) => ({
   startLoneCheckIn: () => set({ loneCheckInActive: true }),
   resolveLoneCheckIn: () => set({ loneCheckInActive: false }),
 
-  logIncident: (type, location, byLabel, nowSec = now()) =>
+  setViewFloor: (viewFloor) => set({ viewFloor }),
+
+  logIncident: (type, location, byLabel, floor, nowSec = now()) =>
     set({
       incidents: [
-        { id: incidentSeq++, type, location, atSec: nowSec, byLabel },
+        { id: incidentSeq++, type, location, floor, atSec: nowSec, byLabel },
         ...get().incidents,
       ].slice(0, 50),
     }),

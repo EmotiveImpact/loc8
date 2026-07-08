@@ -60,14 +60,14 @@ describe('guardStore — muster', () => {
 });
 
 describe('guardStore — incidents', () => {
-  it('logs newest-first with an id, type, location and reporter', () => {
+  it('logs newest-first with an id, type, location, floor and reporter', () => {
     const g = useGuardStore.getState();
-    g.logIncident('Fight', 'Gate C', 'Guard 07', 100);
-    g.logIncident('Medical', 'Bar', 'Guard 05', 200);
+    g.logIncident('Fight', 'Gate C', 'Guard 07', 0, 100);
+    g.logIncident('Medical', 'Bar', 'Guard 05', 2, 200);
     const list = useGuardStore.getState().incidents;
     expect(list).toHaveLength(2);
-    expect(list[0]).toMatchObject({ type: 'Medical', location: 'Bar', byLabel: 'Guard 05', atSec: 200 });
-    expect(list[1].type).toBe('Fight');
+    expect(list[0]).toMatchObject({ type: 'Medical', location: 'Bar', byLabel: 'Guard 05', floor: 2, atSec: 200 });
+    expect(list[1]).toMatchObject({ type: 'Fight', floor: 0 });
     expect(list[0].id).not.toBe(list[1].id);
   });
 

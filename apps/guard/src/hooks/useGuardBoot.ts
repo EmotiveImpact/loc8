@@ -9,10 +9,11 @@ import { useEffect } from 'react';
 import {
   useCrewStore,
   getMeshService,
-  getSimTransport,
   ensureBlePermissions,
   movePoint,
   FALLBACK_ORIGIN,
+  startFloorService,
+  stopFloorService,
 } from '@loc8/engine';
 import { bootGuardTeam } from '../state/guardTeam';
 import { useGuardStore } from '../state/guardStore';
@@ -29,6 +30,7 @@ function seedDemoIncident(): void {
     longitude: at.longitude,
     droppedById: 102, // Marcus · Guard 05
     atSec: Math.floor(Date.now() / 1000),
+    floor: 0, // ground — visible on the default map view
   });
   useGuardStore.getState().setDispatch('Gate C · fight');
 }
@@ -45,12 +47,14 @@ export function useGuardBoot(): void {
       }
       if (cancelled) return;
       mesh.start();
+      startFloorService(); // barometric floor (auto) where available; manual otherwise
       // Give location a beat to arrive, then place the demo incident near you.
       setTimeout(() => { if (!cancelled) seedDemoIncident(); }, 1500);
     })();
     return () => {
       cancelled = true;
       mesh.stop();
+      stopFloorService();
     };
   }, []);
 }

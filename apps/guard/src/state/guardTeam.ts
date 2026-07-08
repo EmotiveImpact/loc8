@@ -16,14 +16,16 @@ export interface GuardMember {
   zone: string;
   status: GuardStatus;
   color: string;
+  /** Demo floor (sim mode only) — on real BLE the packet's floor wins. */
+  floor: number;
 }
 
 /** Reskin of the engine DEMO_CREW ids (101–104) as a night-shift security team. */
 export const GUARD_TEAM: GuardMember[] = [
-  { id: 101, name: 'Priya', badge: 3, zone: 'Zone 1', status: 'ok', color: ops.ok },
-  { id: 102, name: 'Marcus', badge: 5, zone: 'Zone 2', status: 'ok', color: ops.ok },
-  { id: 103, name: 'Dyani', badge: 9, zone: 'Car Park', status: 'caution', color: ops.caution },
-  { id: 104, name: 'Sam', badge: 2, zone: 'Cloakroom', status: 'ok', color: ops.ok },
+  { id: 101, name: 'Priya', badge: 3, zone: 'Zone 1', status: 'ok', color: ops.ok, floor: 1 },
+  { id: 102, name: 'Marcus', badge: 5, zone: 'Zone 2', status: 'ok', color: ops.ok, floor: 0 },
+  { id: 103, name: 'Dyani', badge: 9, zone: 'Car Park', status: 'caution', color: ops.caution, floor: -1 },
+  { id: 104, name: 'Sam', badge: 2, zone: 'Cloakroom', status: 'ok', color: ops.ok, floor: 0 },
 ];
 
 const BY_ID: Record<number, GuardMember> = Object.fromEntries(GUARD_TEAM.map((g) => [g.id, g]));
@@ -31,6 +33,14 @@ const BY_ID: Record<number, GuardMember> = Object.fromEntries(GUARD_TEAM.map((g)
 /** Guard metadata for a friend id, or undefined for an unknown (real BLE) peer. */
 export function guardFor(id: number): GuardMember | undefined {
   return BY_ID[id];
+}
+
+/**
+ * A friend's current floor: the packet's floor when present (real BLE / stamped),
+ * otherwise the demo floor for the sim, otherwise ground.
+ */
+export function friendFloor(f: { id: number; lastPacket?: { floor?: number } }): number {
+  return f.lastPacket?.floor ?? guardFor(f.id)?.floor ?? 0;
 }
 
 /**

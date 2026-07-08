@@ -5,12 +5,12 @@ import { View, Text, Pressable, StyleSheet } from 'react-native';
 import { LinearGradient } from 'expo-linear-gradient';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { Users, ShieldAlert } from 'lucide-react-native';
-import { getMeshService, haptics } from '@loc8/engine';
+import { getMeshService, haptics, useCrewStore, floorLabel } from '@loc8/engine';
 import { ops, fonts, opsGradients, tint } from '../../src/ui/opsTheme';
 import { OpsBackground } from '../../src/ui/OpsBackground';
 import { HoldButton } from '../../src/ui/HoldButton';
 import { useGuardStore } from '../../src/state/guardStore';
-import { GUARD_TEAM } from '../../src/state/guardTeam';
+import { GUARD_TEAM, friendFloor } from '../../src/state/guardTeam';
 
 // Demo: this many teammates have already reached the assembly point.
 const SAFE_BASELINE = GUARD_TEAM.length - 1;
@@ -23,9 +23,21 @@ export default function Muster() {
   const endMuster = useGuardStore((s) => s.endMuster);
   const markSafe = useGuardStore((s) => s.markSafe);
 
+  const myFloor = useCrewStore((s) => s.myFloor);
+  const friends = useCrewStore((s) => s.friends);
+
   const total = GUARD_TEAM.length + 1; // team + you
   const accounted = SAFE_BASELINE + (mustered ? 1 : 0);
   const pct = Math.round((accounted / total) * 100);
+
+  // Head-count per floor (control needs to know who's still where).
+  const byFloor: Record<number, number> = {};
+  for (const m of GUARD_TEAM) {
+    const fl = friendFloor(friends[m.id] ?? { id: m.id });
+    byFloor[fl] = (byFloor[fl] ?? 0) + 1;
+  }
+  byFloor[myFloor] = (byFloor[myFloor] ?? 0) + 1;
+  const floorRows = Object.keys(byFloor).map(Number).sort((a, b) => b - a);
 
   const declare = () => {
     haptics.warning();
@@ -81,6 +93,14 @@ export default function Muster() {
         <Text style={st.cn}><Text style={{ color: ops.ok }}>{accounted}</Text> / {total} accounted for</Text>
         <View style={st.bar}><View style={[st.barFill, { width: `${pct}%` }]} /></View>
         <Text style={st.sub}>{total - accounted} not yet at muster point</Text>
+        <View style={st.floors}>
+          {floorRows.map((fl) => (
+            <View key={fl} style={st.floorTag}>
+              <Text style={st.floorTagName}>{floorLabel(fl)}</Text>
+              <Text style={st.floorTagCount}>{byFloor[fl]}</Text>
+            </View>
+          ))}
+        </View>
       </View>
 
       <Pressable style={st.end} onPress={() => { haptics.tap(); endMuster(); }}>
@@ -118,6 +138,14 @@ const st = StyleSheet.create({
   bar: { height: 10, borderRadius: 6, backgroundColor: 'rgba(255,255,255,0.08)', marginTop: 8, overflow: 'hidden' },
   barFill: { height: '100%', borderRadius: 6, backgroundColor: ops.ok },
   sub: { fontFamily: fonts.mono, fontSize: 10, color: ops.muted, marginTop: 6 },
+  floors: { flexDirection: 'row', flexWrap: 'wrap', gap: 6, marginTop: 12 },
+  floorTag: {
+    flexDirection: 'row', alignItems: 'center', gap: 6,
+    backgroundColor: ops.panel, borderWidth: 1, borderColor: ops.line, borderRadius: 9,
+    paddingHorizontal: 9, paddingVertical: 5,
+  },
+  floorTagName: { fontFamily: fonts.mono, fontSize: 10, color: ops.muted },
+  floorTagCount: { fontFamily: fonts.monoBold, fontSize: 11, color: ops.ink },
   end: { marginTop: 'auto', paddingVertical: 12 },
   endTxt: { color: ops.muted, fontFamily: fonts.bodySemi, fontSize: 13 },
 });

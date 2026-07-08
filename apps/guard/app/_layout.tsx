@@ -52,6 +52,7 @@ export default function GuardRootLayout() {
         <Stack.Screen name="sos" options={{ presentation: 'fullScreenModal', animation: 'fade' }} />
         <Stack.Screen name="dispatch" options={{ presentation: 'card' }} />
         <Stack.Screen name="lone" options={{ presentation: 'modal' }} />
+        <Stack.Screen name="floor" options={{ presentation: 'modal' }} />
       </Stack>
     </>
   );

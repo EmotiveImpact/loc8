@@ -15,6 +15,10 @@ export interface Packet {
   batteryPct: number;  // 0–100
   timestampSec: number; // unix seconds
   accuracyM: number;   // 0–255 (GPS reported accuracy, meters)
+  // Floor / level relative to the venue baseline (0 = ground, +up / -down).
+  // Bit-packed alongside heading on the wire, so it costs no extra bytes.
+  // Optional + defaults to 0, so older/other-app packets read as ground.
+  floor?: number;      // signed, roughly -64..+63
   quickReplyCode?: number; // 0–255, only present on 'quickReply' packets
   // Fragmentation fields, shared by 'text' (free-text chat) and 'profile' (a
   // crew member's display name). One such packet = one fragment.

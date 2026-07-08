@@ -5,17 +5,18 @@
 import { View, Text, Pressable, StyleSheet } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useRouter } from 'expo-router';
-import { Navigation, X } from 'lucide-react-native';
+import { Navigation, X, ChevronsUp, ChevronsDown } from 'lucide-react-native';
 import {
   useCrewStore,
   getMeshService,
   getHaversineDistance,
   getAbsoluteBearing,
   haptics,
+  floorLabel,
   STATUS_REPLIES,
   STATUS_EN_ROUTE,
 } from '@loc8/engine';
-import { ops, fonts } from '../src/ui/opsTheme';
+import { ops, fonts, tint } from '../src/ui/opsTheme';
 import { OpsBackground } from '../src/ui/OpsBackground';
 import { useGuardStore } from '../src/state/guardStore';
 import { useNowSec } from '../src/hooks/useNowSec';
@@ -25,6 +26,7 @@ export default function Dispatch() {
   const router = useRouter();
   const me = useCrewStore((s) => s.myLocation);
   const rallyPin = useCrewStore((s) => s.rallyPin);
+  const myFloor = useCrewStore((s) => s.myFloor);
   const label = useGuardStore((s) => s.dispatchLabel);
   useNowSec(); // re-render each second so distance/bearing track movement
 
@@ -49,6 +51,8 @@ export default function Dispatch() {
 
   const dist = Math.round(getHaversineDistance(me, rallyPin));
   const bearing = getAbsoluteBearing(me, rallyPin);
+  const targetFloor = rallyPin.floor ?? 0;
+  const floorDelta = targetFloor - myFloor;
 
   return (
     <View style={[st.wrap, { paddingTop: insets.top + 12, paddingBottom: insets.bottom + 20 }]}>
@@ -61,6 +65,15 @@ export default function Dispatch() {
       <View style={st.hdr}>
         <Text style={st.tag}>◈ DISPATCHED TO</Text>
         <Text style={st.title}>{label ?? 'Incident'}</Text>
+        <View style={[st.floorChip, floorDelta !== 0 && { borderColor: tint(ops.caution, 0.5), backgroundColor: tint(ops.caution, 0.14) }]}>
+          {floorDelta > 0 && <ChevronsUp size={15} color={ops.caution} strokeWidth={2.4} />}
+          {floorDelta < 0 && <ChevronsDown size={15} color={ops.caution} strokeWidth={2.4} />}
+          <Text style={[st.floorChipTxt, floorDelta !== 0 && { color: ops.caution }]}>
+            {floorDelta === 0
+              ? `Same floor · ${floorLabel(targetFloor)}`
+              : `${floorLabel(targetFloor)} · ${Math.abs(floorDelta)} floor${Math.abs(floorDelta) > 1 ? 's' : ''} ${floorDelta > 0 ? 'up' : 'down'}`}
+          </Text>
+        </View>
       </View>
 
       <View style={st.arrowWrap}>
@@ -99,6 +112,12 @@ const st = StyleSheet.create({
   hdr: { alignItems: 'center', marginTop: 40 },
   tag: { fontFamily: fonts.monoBold, fontSize: 10, letterSpacing: 2, color: ops.alert },
   title: { fontFamily: fonts.displaySemi, fontSize: 22, color: ops.ink, marginTop: 4, textAlign: 'center' },
+  floorChip: {
+    flexDirection: 'row', alignItems: 'center', gap: 5, marginTop: 10,
+    backgroundColor: ops.panel, borderWidth: 1, borderColor: ops.line, borderRadius: 10,
+    paddingHorizontal: 10, paddingVertical: 5,
+  },
+  floorChipTxt: { color: ops.ink, fontFamily: fonts.monoBold, fontSize: 11 },
   arrowWrap: { flex: 1, alignItems: 'center', justifyContent: 'center', width: '100%' },
   glow: {
     position: 'absolute', width: 180, height: 180, borderRadius: 90,
