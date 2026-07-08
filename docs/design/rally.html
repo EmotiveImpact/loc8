@@ -1,0 +1,202 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Loc8 — Rally</title>
+<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Unbounded:wght@400;600;800&family=Sora:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+<style>
+  *{box-sizing:border-box;margin:0;padding:0}
+  :root{--ink:#fff;--muted:rgba(255,255,255,.56);--faint:rgba(255,255,255,.32);--glass:rgba(255,255,255,.045);--line:rgba(255,255,255,.09);
+    --signal:#5ef2c8;--signal2:#7aa2ff;--gold:#ffce4d;--amber:#ffb038;--rose:#ff4d7d;
+    --sunset:linear-gradient(135deg,#ff4d7d,#ff7a45,#ffb038);--rally:linear-gradient(135deg,#ffce4d,#ff9a3c);
+    --disp:'Unbounded',sans-serif;--body:'Sora',sans-serif}
+  body{font-family:var(--body);color:var(--ink);min-height:100vh;
+    background:radial-gradient(720px 520px at 78% -8%,rgba(255,77,125,.16),transparent 60%),radial-gradient(680px 560px at 12% 8%,rgba(122,162,255,.12),transparent 60%),radial-gradient(900px 700px at 50% 118%,rgba(255,206,77,.10),transparent 55%),linear-gradient(180deg,#0b0917,#08070d 70%);
+    padding:32px 16px 60px;-webkit-font-smoothing:antialiased}
+  body::after{content:'';position:fixed;inset:0;pointer-events:none;opacity:.045;z-index:999;mix-blend-mode:overlay;background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='120' height='120'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.9'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E")}
+  .head{max-width:1080px;margin:0 auto 24px;text-align:center}
+  .kicker{font-size:11px;letter-spacing:3px;text-transform:uppercase;color:var(--gold);font-weight:700}
+  h1{font-family:var(--disp);font-size:28px;font-weight:800;margin-top:8px}h1 b{background:var(--rally);-webkit-background-clip:text;background-clip:text;color:transparent}
+  .head p{color:var(--muted);font-size:13px;margin-top:10px;max-width:560px;margin-inline:auto;line-height:1.6}
+  .rail{max-width:1080px;margin:0 auto;display:flex;gap:26px;flex-wrap:wrap;justify-content:center;align-items:flex-start}
+  .col{width:300px}.cap{margin-top:13px;text-align:center}.cap h3{font-family:var(--disp);font-size:14px;font-weight:600}.cap p{color:var(--muted);font-size:12px;margin-top:4px;line-height:1.5}
+  .phone{width:300px;height:640px;border-radius:44px;padding:9px;position:relative;background:linear-gradient(160deg,rgba(255,255,255,.14),rgba(255,255,255,.02));box-shadow:0 40px 90px rgba(0,0,0,.6)}
+  .screen{width:100%;height:100%;border-radius:36px;overflow:hidden;position:relative;background:radial-gradient(120% 80% at 50% 0%,#16112a 0%,#0a0813 62%)}
+  .notch{position:absolute;top:14px;left:50%;transform:translateX(-50%);width:98px;height:22px;background:#000;border-radius:14px;z-index:40}
+  .sb{position:absolute;top:0;left:0;right:0;height:44px;display:flex;align-items:center;justify-content:space-between;padding:0 22px;font-size:12px;font-weight:600;z-index:30;color:rgba(255,255,255,.85)}
+  .brand{font-family:var(--disp);font-weight:800;font-size:19px}.brand b{background:var(--sunset);-webkit-background-clip:text;background-clip:text;color:transparent}
+  .icn{width:19px;height:19px;stroke:currentColor;stroke-width:2;fill:none;stroke-linecap:round;stroke-linejoin:round}
+  .top{position:absolute;top:52px;left:0;right:0;display:flex;align-items:center;justify-content:space-between;padding:0 22px;z-index:20}
+  .mesh{display:inline-flex;align-items:center;gap:6px;font-size:11px;font-weight:600;color:var(--signal);background:rgba(94,242,200,.09);border:1px solid rgba(94,242,200,.22);padding:5px 10px;border-radius:22px}
+  .mdot{width:6px;height:6px;border-radius:50%;background:var(--signal);box-shadow:0 0 9px var(--signal)}
+
+  /* rally strip on radar */
+  .rstrip{position:absolute;top:90px;left:14px;right:14px;background:rgba(255,206,77,.1);border:1px solid rgba(255,206,77,.3);border-radius:14px;
+    padding:10px 13px;display:flex;align-items:center;gap:10px;z-index:15;backdrop-filter:blur(8px)}
+  .rstrip .rf{width:30px;height:30px;border-radius:9px;background:var(--rally);display:flex;align-items:center;justify-content:center}
+  .rstrip .rt{flex:1;font-size:12px;font-weight:600}.rstrip .rt small{display:block;font-size:10px;color:var(--muted);margin-top:1px}
+
+  /* mini radar */
+  .radar{position:absolute;top:46%;left:50%;transform:translate(-50%,-50%);width:230px;height:230px}
+  .ring{position:absolute;inset:0;margin:auto;border-radius:50%;border:1px solid rgba(255,255,255,.06)}
+  .r1{width:78px;height:78px}.r2{width:154px;height:154px}.r3{width:230px;height:230px}
+  .me{position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);width:18px;height:18px;border-radius:50%;background:var(--sunset);box-shadow:0 0 16px rgba(255,90,90,.6);z-index:5}
+  .blip{position:absolute;transform:translate(-50%,-50%);width:30px;height:30px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-family:var(--disp);font-weight:700;font-size:12px;color:#0a0813;box-shadow:0 0 0 3px #0d0a17}
+  .rpin{position:absolute;transform:translate(-50%,-100%);display:flex;flex-direction:column;align-items:center;z-index:8}
+  .rpin .flag{width:36px;height:36px;border-radius:50% 50% 50% 4px;background:var(--rally);display:flex;align-items:center;justify-content:center;transform:rotate(0);box-shadow:0 0 22px rgba(255,206,77,.55)}
+  .rpin .glow{position:absolute;top:0;width:36px;height:36px;border-radius:50%;box-shadow:0 0 0 2px rgba(255,206,77,.5);animation:pg 2.2s ease-out infinite}
+  @keyframes pg{0%{width:36px;height:36px;opacity:.8}100%{width:96px;height:96px;opacity:0}}
+  .rpin .lab{margin-top:5px;font-size:9px;font-weight:700;color:var(--gold);background:rgba(0,0,0,.6);padding:2px 7px;border-radius:9px;white-space:nowrap}
+
+  /* bottom nav base */
+  .nav{position:absolute;left:14px;right:14px;bottom:14px;height:64px;border-radius:24px;z-index:50;background:rgba(16,12,28,.76);backdrop-filter:blur(22px);border:1px solid var(--line);display:flex;align-items:center;justify-content:space-around;padding:0 6px}
+  .nb{display:flex;flex-direction:column;align-items:center;gap:3px;color:var(--faint);flex:1;position:relative}
+  .nb .icn{width:21px;height:21px}.nb span{font-size:10px;font-weight:600}
+  .nb.on{color:#fff}.nb.on span{background:var(--sunset);-webkit-background-clip:text;background-clip:text;color:transparent}
+  .nb.on .iw{background:var(--sunset)}.nb.on .iw .icn{stroke:#1a0a10}
+  .iw{width:40px;height:30px;border-radius:11px;display:flex;align-items:center;justify-content:center}
+  /* rally flat-tab */
+  .nb.rallytab{color:var(--gold)}.nb.rallytab .icn{stroke:var(--gold)}.nb.rallytab span{color:var(--gold)}
+  .nb.rallytab .livedot{position:absolute;top:-1px;right:calc(50% - 16px);width:7px;height:7px;border-radius:50%;background:var(--gold);box-shadow:0 0 8px var(--gold)}
+  /* raised center */
+  .raised{position:absolute;left:50%;top:-20px;transform:translateX(-50%);width:58px;height:58px;border-radius:50%;background:var(--rally);display:flex;align-items:center;justify-content:center;box-shadow:0 10px 26px rgba(255,154,60,.5);border:4px solid #0d0a17}
+  .raised .icn{width:24px;height:24px;stroke:#1a0a10;stroke-width:2.2}
+
+  /* rally full screen */
+  .rally-scr{position:absolute;inset:0;padding:70px 20px 24px;display:flex;flex-direction:column}
+  .rhero{text-align:center;margin-top:4px}
+  .rhero .flagbig{width:64px;height:64px;margin:0 auto;border-radius:50% 50% 50% 8px;background:var(--rally);display:flex;align-items:center;justify-content:center;box-shadow:0 0 40px rgba(255,206,77,.5)}
+  .rhero h2{font-family:var(--disp);font-size:22px;font-weight:600;margin-top:16px}
+  .rhero .drop{font-size:12px;color:var(--muted);margin-top:4px}.rhero .drop b{color:var(--gold)}
+  .rstats{display:flex;gap:10px;margin-top:22px}
+  .rstat{flex:1;background:var(--glass);border:1px solid var(--line);border-radius:16px;padding:14px;text-align:center}
+  .rstat .n{font-family:var(--disp);font-size:26px;font-weight:800}.rstat .n small{font-family:var(--body);font-size:14px;color:var(--muted);font-weight:400}
+  .rstat .l{font-size:10px;color:var(--muted);margin-top:2px}
+  .arrivals{margin-top:20px;flex:1}
+  .arrivals .t{font-size:11px;letter-spacing:1.5px;text-transform:uppercase;color:var(--faint);font-weight:600;margin-bottom:10px}
+  .arow{display:flex;align-items:center;gap:11px;padding:9px 4px}
+  .aav{width:32px;height:32px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-family:var(--disp);font-weight:700;font-size:12px;color:#0a0813}
+  .an{flex:1;font-size:13px;font-weight:600}.an small{display:block;font-size:11px;color:var(--muted);font-weight:400}
+  .astatus{font-size:11px;font-weight:700}.arrived{color:var(--signal)}.walking{color:var(--gold)}
+  .navbtn{padding:16px;border-radius:18px;background:var(--rally);color:#1a0a10;font-family:var(--disp);font-weight:700;font-size:15px;text-align:center;display:flex;align-items:center;justify-content:center;gap:9px;box-shadow:0 12px 30px rgba(255,154,60,.35)}
+  .rsecondary{display:flex;gap:10px;margin-top:10px}
+  .rsecondary div{flex:1;text-align:center;padding:12px;border-radius:14px;background:var(--glass);border:1px solid var(--line);font-size:12px;font-weight:600;color:var(--muted)}
+
+  /* drop state */
+  .drop-scr{position:absolute;inset:0;padding:70px 24px 24px;display:flex;flex-direction:column;align-items:center;text-align:center}
+  .dropglow{position:absolute;top:150px;left:50%;transform:translateX(-50%);width:180px;height:180px;border-radius:50%;background:var(--rally);filter:blur(50px);opacity:.35}
+  .dropicon{width:80px;height:80px;border-radius:50% 50% 50% 10px;background:var(--rally);display:flex;align-items:center;justify-content:center;margin-top:40px;position:relative;box-shadow:0 0 44px rgba(255,206,77,.4)}
+  .drop-scr h2{font-family:var(--disp);font-size:24px;font-weight:600;margin-top:24px;position:relative}
+  .drop-scr p{color:var(--muted);font-size:13px;margin-top:10px;line-height:1.6;position:relative;max-width:230px}
+  .drop-scr .spacer{flex:1}
+  .dropbtn{width:100%;padding:17px;border-radius:18px;background:var(--rally);color:#1a0a10;font-family:var(--disp);font-weight:700;font-size:15px;display:flex;align-items:center;justify-content:center;gap:9px;box-shadow:0 14px 34px rgba(255,154,60,.35)}
+</style>
+</head>
+<body>
+  <div class="head">
+    <div class="kicker">Rally · the crew beacon</div>
+    <h1>Where should everyone <b>go?</b></h1>
+    <p>Radar shows where everyone <i>is</i>. Rally sets where everyone should <i>meet</i> — a shared, offline "meet here" pin the whole crew can navigate to. Here's how it earns a place in the app.</p>
+  </div>
+
+  <div class="rail">
+
+    <!-- 1 nav variant A: flat tab -->
+    <div class="col">
+      <div class="phone"><div class="screen">
+        <div class="notch"></div><div class="sb"><span>9:41</span><span>􀙇 􀛨 􀋲</span></div>
+        <div class="top"><div class="brand">Loc<b>8</b></div><div class="mesh"><span class="mdot"></span> MESH · 4</div></div>
+        <div class="rstrip">
+          <div class="rf"><svg class="icn" style="width:16px;height:16px;stroke:#1a0a10" viewBox="0 0 24 24"><path d="M4 15s1-1 4-1 5 2 8 2 4-1 4-1V3s-1 1-4 1-5-2-8-2-4 1-4 1zM4 22v-7"/></svg></div>
+          <div class="rt">Rally active · Meet here<small>160m · 2 min walk · whole crew</small></div>
+          <svg class="icn" style="stroke:var(--gold)" viewBox="0 0 24 24"><path d="M9 6l6 6-6 6"/></svg>
+        </div>
+        <div class="radar">
+          <div class="ring r3"></div><div class="ring r2"></div><div class="ring r1"></div>
+          <div class="me"></div>
+          <div class="blip" style="top:30%;left:64%;background:linear-gradient(135deg,#5ef2c8,#39c9a5)">M</div>
+          <div class="blip" style="top:68%;left:38%;background:linear-gradient(135deg,#7aa2ff,#5a78e0)">J</div>
+          <div class="rpin" style="top:24%;left:42%"><div class="glow"></div><div class="flag"><svg class="icn" style="width:18px;height:18px;stroke:#1a0a10" viewBox="0 0 24 24"><path d="M4 15s1-1 4-1 5 2 8 2 4-1 4-1V3s-1 1-4 1-5-2-8-2-4 1-4 1zM4 22v-7"/></svg></div><div class="lab">MEET HERE · 160m</div></div>
+        </div>
+        <div class="nav">
+          <div class="nb on"><div class="iw"><svg class="icn" viewBox="0 0 24 24"><path d="M22 12A10 10 0 1112 2M12 12l6-3"/></svg></div><span>Radar</span></div>
+          <div class="nb rallytab"><span class="livedot"></span><div class="iw"><svg class="icn" viewBox="0 0 24 24"><path d="M4 15s1-1 4-1 5 2 8 2 4-1 4-1V3s-1 1-4 1-5-2-8-2-4 1-4 1zM4 22v-7"/></svg></div><span>Rally</span></div>
+          <div class="nb"><div class="iw"><svg class="icn" viewBox="0 0 24 24"><path d="M17 21v-2a4 4 0 00-4-4H5a4 4 0 00-4 4v2M9 11a4 4 0 100-8 4 4 0 000 8M23 21v-2a4 4 0 00-3-3.87"/></svg></div><span>Crew</span></div>
+          <div class="nb"><div class="iw"><svg class="icn" viewBox="0 0 24 24"><path d="M20 21a8 8 0 00-16 0M12 11a4 4 0 100-8 4 4 0 000 8"/></svg></div><span>Me</span></div>
+        </div>
+      </div></div>
+      <div class="cap"><h3>Option A · 4th tab</h3><p>Radar / <b>Rally</b> / Crew / Me. Rally tab glows gold + a live dot when a pin is active. Simple, clear home.</p></div>
+    </div>
+
+    <!-- 2 nav variant B: raised center -->
+    <div class="col">
+      <div class="phone"><div class="screen">
+        <div class="notch"></div><div class="sb"><span>9:41</span><span>􀙇 􀛨 􀋲</span></div>
+        <div class="top"><div class="brand">Loc<b>8</b></div><div class="mesh"><span class="mdot"></span> MESH · 4</div></div>
+        <div class="radar">
+          <div class="ring r3"></div><div class="ring r2"></div><div class="ring r1"></div>
+          <div class="me"></div>
+          <div class="blip" style="top:32%;left:66%;background:linear-gradient(135deg,#5ef2c8,#39c9a5)">M</div>
+          <div class="blip" style="top:66%;left:34%;background:linear-gradient(135deg,#7aa2ff,#5a78e0)">J</div>
+          <div class="blip" style="top:52%;left:22%;background:linear-gradient(135deg,#ffb038,#ff7a45)">S</div>
+        </div>
+        <div class="nav">
+          <div class="nb on"><div class="iw"><svg class="icn" viewBox="0 0 24 24"><path d="M22 12A10 10 0 1112 2M12 12l6-3"/></svg></div><span>Radar</span></div>
+          <div class="nb"><div class="iw"><svg class="icn" viewBox="0 0 24 24"><path d="M17 21v-2a4 4 0 00-4-4H5a4 4 0 00-4 4v2M9 11a4 4 0 100-8 4 4 0 000 8"/></svg></div><span>Crew</span></div>
+          <div class="raised"><svg class="icn" viewBox="0 0 24 24"><path d="M4 15s1-1 4-1 5 2 8 2 4-1 4-1V3s-1 1-4 1-5-2-8-2-4 1-4 1zM4 22v-7"/></svg></div>
+          <div class="nb" style="opacity:0;pointer-events:none"><div class="iw"></div><span>·</span></div>
+          <div class="nb"><div class="iw"><svg class="icn" viewBox="0 0 24 24"><path d="M20 21a8 8 0 00-16 0M12 11a4 4 0 100-8 4 4 0 000 8"/></svg></div><span>Me</span></div>
+        </div>
+      </div></div>
+      <div class="cap"><h3>Option B · raised button</h3><p>Radar / Crew · <b>[Rally]</b> · Me. A hero gold button dead-centre — "this is the thing you do." My pick.</p></div>
+    </div>
+
+    <!-- 3 Rally screen active -->
+    <div class="col">
+      <div class="phone"><div class="screen">
+        <div class="notch"></div><div class="sb"><span>9:41</span><span>􀙇 􀛨 􀋲</span></div>
+        <div class="rally-scr">
+          <div class="rhero">
+            <div class="flagbig"><svg class="icn" style="width:30px;height:30px;stroke:#1a0a10;stroke-width:2.2" viewBox="0 0 24 24"><path d="M4 15s1-1 4-1 5 2 8 2 4-1 4-1V3s-1 1-4 1-5-2-8-2-4 1-4 1zM4 22v-7"/></svg></div>
+            <h2>Everyone meet here</h2>
+            <div class="drop">Dropped by <b>You</b> · 4 min ago</div>
+          </div>
+          <div class="rstats">
+            <div class="rstat"><div class="n">160<small>m</small></div><div class="l">away</div></div>
+            <div class="rstat"><div class="n">2<small>min</small></div><div class="l">walk</div></div>
+            <div class="rstat"><div class="n" style="color:var(--signal)">1/3</div><div class="l">arrived</div></div>
+          </div>
+          <div class="arrivals">
+            <div class="t">Your crew</div>
+            <div class="arow"><div class="aav" style="background:linear-gradient(135deg,#5ef2c8,#39c9a5)">M</div><div class="an">Maya<small>at the pin</small></div><div class="astatus arrived">✓ Arrived</div></div>
+            <div class="arow"><div class="aav" style="background:linear-gradient(135deg,#7aa2ff,#5a78e0)">J</div><div class="an">Jules<small>90m · heading over</small></div><div class="astatus walking">Walking</div></div>
+            <div class="arow"><div class="aav" style="background:linear-gradient(135deg,#ffb038,#ff7a45)">S</div><div class="an">Sam<small>210m · via Maya</small></div><div class="astatus walking">Walking</div></div>
+          </div>
+          <div class="navbtn"><svg class="icn" style="stroke:#1a0a10" viewBox="0 0 24 24"><path d="M12 2l7 19-7-5-7 5 7-19z"/></svg> Navigate to pin</div>
+          <div class="rsecondary"><div>Move pin</div><div>Clear rally</div></div>
+        </div>
+      </div></div>
+      <div class="cap"><h3>Rally screen · active</h3><p>The beacon as a real place: distance, walk time, who's arrived vs walking, one-tap Navigate.</p></div>
+    </div>
+
+    <!-- 4 Rally drop state -->
+    <div class="col">
+      <div class="phone"><div class="screen">
+        <div class="notch"></div><div class="sb"><span>9:41</span><span>􀙇 􀛨 􀋲</span></div>
+        <div class="drop-scr">
+          <div class="dropglow"></div>
+          <div class="dropicon"><svg class="icn" style="width:36px;height:36px;stroke:#1a0a10;stroke-width:2.2" viewBox="0 0 24 24"><path d="M4 15s1-1 4-1 5 2 8 2 4-1 4-1V3s-1 1-4 1-5-2-8-2-4 1-4 1zM4 22v-7"/></svg></div>
+          <h2>Set a meet-up point</h2>
+          <p>Drop a Rally pin where you want everyone to gather. Your whole crew sees it and can navigate — even with no signal.</p>
+          <div class="spacer"></div>
+          <div class="dropbtn"><svg class="icn" style="stroke:#1a0a10" viewBox="0 0 24 24"><path d="M12 22s8-4 8-10a8 8 0 10-16 0c0 6 8 10 8 10z"/><circle cx="12" cy="12" r="3"/></svg> Drop rally here</div>
+        </div>
+      </div></div>
+      <div class="cap"><h3>Rally screen · empty</h3><p>When no pin is set — one clear action + the plain-English "what is this".</p></div>
+    </div>
+
+  </div>
+</body>
+</html>
