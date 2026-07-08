@@ -69,6 +69,10 @@
     "setupFiles": [
       "./jest.setup.js"
     ],
+    "moduleNameMapper": {
+      "^@loc8/engine$": "<rootDir>/packages/engine/src/index.ts",
+      "^@loc8/engine/(.*)$": "<rootDir>/packages/engine/src/$1"
+    },
     "transformIgnorePatterns": [
       "node_modules/(?!((jest-)?react-native|@react-native(-community)?)|expo(nent)?|@expo(nent)?/.*|expo-modules-core|react-navigation|@react-navigation/.*|react-native-svg|react-native-reanimated|react-native-worklets|zustand)"
     ]

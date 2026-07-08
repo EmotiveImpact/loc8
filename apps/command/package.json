@@ -1,0 +1,26 @@
+{
+  "name": "@loc8/command",
+  "version": "1.0.0",
+  "private": true,
+  "type": "module",
+  "description": "Loc8 Command — control-room console on @loc8/engine (web, large-screen).",
+  "scripts": {
+    "dev": "vite",
+    "build": "tsc --noEmit && vite build",
+    "preview": "vite preview",
+    "typecheck": "tsc --noEmit"
+  },
+  "dependencies": {
+    "@loc8/engine": "*",
+    "react": "19.2.3",
+    "react-dom": "19.2.3",
+    "zustand": "^5.0.14"
+  },
+  "devDependencies": {
+    "@types/react": "~19.2.2",
+    "@types/react-dom": "~19.2.2",
+    "@vitejs/plugin-react": "^4.3.4",
+    "typescript": "~6.0.3",
+    "vite": "^7.0.0"
+  }
+}
