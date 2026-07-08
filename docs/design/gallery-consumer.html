@@ -12,6 +12,7 @@
   --sunset:linear-gradient(135deg,#ff4d7d,#ff7a45,#ffb038);
   --signal:#5ef2c8; --signal2:#7aa2ff; --amber:#ffb038;
   --pink:#ff4d7d;
+  --rally:linear-gradient(135deg,#ffce4d,#ff9a3c);
   --muted:rgba(255,255,255,.56); --faint:rgba(255,255,255,.32);
   --glass:rgba(255,255,255,.045); --glass-b:rgba(255,255,255,.09);
   --aurora:
@@ -101,6 +102,19 @@ svg.i{fill:none; stroke:currentColor; stroke-width:2; stroke-linecap:round; stro
 .nav a.on{color:#fff}
 .nav a.on.sun{ -webkit-background-clip:text; background-clip:text; }
 .nav a.on svg{stroke:url(#navgrad)}
+
+/* final 5-slot nav */
+.nav5{position:absolute;left:14px;right:14px;bottom:14px;height:62px;border-radius:24px;z-index:50;background:rgba(16,12,28,.8);backdrop-filter:blur(22px);border:1px solid rgba(255,255,255,.09);display:flex;align-items:flex-end;justify-content:space-around;padding:9px 6px}
+.n5{display:flex;flex-direction:column;align-items:center;gap:3px;color:rgba(255,255,255,.34);flex:1;position:relative}
+.n5 svg{width:21px;height:21px;stroke:currentColor;stroke-width:2;fill:none;stroke-linecap:round;stroke-linejoin:round}
+.n5 span{font-size:9.5px;font-weight:600}
+.n5.on{color:#fff}
+.n5.on span{background:var(--sunset);-webkit-background-clip:text;background-clip:text;color:transparent}
+.n5.on svg{stroke:#ff7a45}
+.n5.rally{justify-content:flex-end}
+.rbtn{position:absolute;left:50%;top:-24px;transform:translateX(-50%);width:56px;height:56px;border-radius:50%;background:var(--rally);display:flex;align-items:center;justify-content:center;box-shadow:0 10px 26px rgba(255,154,60,.5);border:4px solid #0d0a17}
+.rbtn svg{width:24px;height:24px;stroke:#1a0a10;stroke-width:2.2}
+.rlab{font-size:9.5px;font-weight:700;color:#ffce4d}
 
 .title-lg{font-family:'Unbounded'; font-weight:800; letter-spacing:-.02em}
 
@@ -197,7 +211,7 @@ svg.i{fill:none; stroke:currentColor; stroke-width:2; stroke-linecap:round; stro
   <header class="head">
     <div class="kicker"><b>Loc8</b> · consumer app</div>
     <h1 class="title">Find your crew when<br>the signal's gone<span class="eight">.</span></h1>
-    <p class="subline">A mesh-powered festival friend-finder. No towers, no internet — just a radar, a compass, and the people you came with. Fifteen consumer screens, one cohesive system.</p>
+    <p class="subline">A mesh-powered festival friend-finder. No towers, no internet — just a radar, a compass, and the people you came with. Sixteen consumer screens, one cohesive system.</p>
   </header>
 
   <div class="rail" id="rail">
@@ -329,7 +343,7 @@ svg.i{fill:none; stroke:currentColor; stroke-width:2; stroke-linecap:round; stro
               <div class="blip b-peri" style="left:30%; top:60%">J<span class="tag">Jae · 112m</span></div>
               <div class="blip b-amber" style="left:70%; top:66%">R<span class="tag">Rin · 41m</span></div>
             </div>
-            <div class="peek">
+            <div class="peek" style="bottom:88px">
               <div class="stack">
                 <div class="av b-mint">M</div><div class="av b-peri">J</div><div class="av b-amber">R</div>
               </div>
@@ -338,10 +352,12 @@ svg.i{fill:none; stroke:currentColor; stroke-width:2; stroke-linecap:round; stro
             </div>
           </div>
         </div>
-        <div class="nav">
-          <a class="on"><svg class="i" viewBox="0 0 24 24" stroke="url(#navgrad)"><path d="M4 12a8 8 0 0 1 16 0M7.5 12a4.5 4.5 0 0 1 9 0"/><circle cx="12" cy="12" r="1.5" fill="url(#navgrad)" stroke="none"/></svg><span style="background:var(--sunset);-webkit-background-clip:text;background-clip:text;color:transparent">Radar</span></a>
-          <a><svg class="i" viewBox="0 0 24 24"><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M22 21v-2a4 4 0 0 0-3-3.9"/></svg><span>Crew</span></a>
-          <a><svg class="i" viewBox="0 0 24 24"><circle cx="12" cy="8" r="4"/><path d="M4 21v-1a6 6 0 0 1 12 0v1"/></svg><span>Me</span></a>
+        <div class="nav5">
+          <div class="n5 on"><svg viewBox="0 0 24 24"><path d="M22 12A10 10 0 1112 2M12 12l6-3"/></svg><span>Radar</span></div>
+          <div class="n5"><svg viewBox="0 0 24 24"><path d="M6 8a6 6 0 1112 0c0 7 3 9 3 9H3s3-2 3-9"/><path d="M10.3 21a1.94 1.94 0 003.4 0"/></svg><span>Activity</span></div>
+          <div class="n5 rally"><div class="rbtn"><svg viewBox="0 0 24 24"><path d="M4 15s1-1 4-1 5 2 8 2 4-1 4-1V3s-1 1-4 1-5-2-8-2-4 1-4 1zM4 22v-7"/></svg></div><span class="rlab">Rally</span></div>
+          <div class="n5"><svg viewBox="0 0 24 24"><path d="M17 21v-2a4 4 0 00-4-4H5a4 4 0 00-4 4v2M9 11a4 4 0 100-8 4 4 0 000 8M23 21v-2a4 4 0 00-3-3.87"/></svg><span>Crew</span></div>
+          <div class="n5"><svg viewBox="0 0 24 24"><path d="M20 21a8 8 0 00-16 0M12 11a4 4 0 100-8 4 4 0 000 8"/></svg><span>Me</span></div>
         </div>
       </div></div>
       <div class="cap"><h3>Radar home</h3><p>You at center, crew on bearings. The hero.</p></div>
@@ -432,7 +448,7 @@ svg.i{fill:none; stroke:currentColor; stroke-width:2; stroke-linecap:round; stro
       <div class="phone"><div class="screen">
         <div class="notch"></div>
         <div class="sb"><span>9:41</span><div class="r"><svg class="i" viewBox="0 0 24 24"><path d="M2 20h.01M7 20v-4M12 20v-8M17 20V8M22 20V4"/></svg><span style="font-size:11px">72%</span></div></div>
-        <div class="body px" style="padding-top:6px">
+        <div class="body px" style="padding-top:6px; padding-bottom:92px">
           <div style="display:flex; align-items:center; justify-content:space-between; margin-bottom:16px">
             <div class="title-lg" style="font-size:24px">Your crew</div>
             <span class="chip" style="color:var(--signal)"><svg class="i" viewBox="0 0 24 24" width="13" height="13"><path d="M12 5v14M5 12h14"/></svg>Add</span>
@@ -463,10 +479,12 @@ svg.i{fill:none; stroke:currentColor; stroke-width:2; stroke-linecap:round; stro
             <span class="badge b-dark">DARK</span>
           </div>
         </div>
-        <div class="nav">
-          <a><svg class="i" viewBox="0 0 24 24"><path d="M4 12a8 8 0 0 1 16 0M7.5 12a4.5 4.5 0 0 1 9 0"/><circle cx="12" cy="12" r="1.5"/></svg><span>Radar</span></a>
-          <a class="on"><svg class="i" viewBox="0 0 24 24" stroke="url(#navgrad)"><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M22 21v-2a4 4 0 0 0-3-3.9"/></svg><span style="background:var(--sunset);-webkit-background-clip:text;background-clip:text;color:transparent">Crew</span></a>
-          <a><svg class="i" viewBox="0 0 24 24"><circle cx="12" cy="8" r="4"/><path d="M4 21v-1a6 6 0 0 1 12 0v1"/></svg><span>Me</span></a>
+        <div class="nav5">
+          <div class="n5"><svg viewBox="0 0 24 24"><path d="M22 12A10 10 0 1112 2M12 12l6-3"/></svg><span>Radar</span></div>
+          <div class="n5"><svg viewBox="0 0 24 24"><path d="M6 8a6 6 0 1112 0c0 7 3 9 3 9H3s3-2 3-9"/><path d="M10.3 21a1.94 1.94 0 003.4 0"/></svg><span>Activity</span></div>
+          <div class="n5 rally"><div class="rbtn"><svg viewBox="0 0 24 24"><path d="M4 15s1-1 4-1 5 2 8 2 4-1 4-1V3s-1 1-4 1-5-2-8-2-4 1-4 1zM4 22v-7"/></svg></div><span class="rlab">Rally</span></div>
+          <div class="n5 on"><svg viewBox="0 0 24 24"><path d="M17 21v-2a4 4 0 00-4-4H5a4 4 0 00-4 4v2M9 11a4 4 0 100-8 4 4 0 000 8M23 21v-2a4 4 0 00-3-3.87"/></svg><span>Crew</span></div>
+          <div class="n5"><svg viewBox="0 0 24 24"><path d="M20 21a8 8 0 00-16 0M12 11a4 4 0 100-8 4 4 0 000 8"/></svg><span>Me</span></div>
         </div>
       </div></div>
       <div class="cap"><h3>Crew tab</h3><p>Roster, LIVE/DARK, session timer.</p></div>
@@ -503,7 +521,7 @@ svg.i{fill:none; stroke:currentColor; stroke-width:2; stroke-linecap:round; stro
       <div class="phone"><div class="screen">
         <div class="notch"></div>
         <div class="sb"><span>9:41</span><div class="r"><svg class="i" viewBox="0 0 24 24"><path d="M2 20h.01M7 20v-4M12 20v-8M17 20V8M22 20V4"/></svg><span style="font-size:11px">72%</span></div></div>
-        <div class="body px" style="padding-top:6px">
+        <div class="body px" style="padding-top:6px; padding-bottom:92px">
           <div style="display:flex; flex-direction:column; align-items:center; margin-bottom:22px">
             <div style="width:70px; height:70px; border-radius:50%; background:var(--sunset); display:flex; align-items:center; justify-content:center; font-family:'Unbounded'; font-weight:800; font-size:28px; color:#160a06; margin-bottom:12px; box-shadow:0 10px 30px rgba(255,90,90,.3)">A</div>
             <div style="font-size:17px; font-weight:600">Augustus</div>
@@ -529,13 +547,83 @@ svg.i{fill:none; stroke:currentColor; stroke-width:2; stroke-linecap:round; stro
             <svg class="i" viewBox="0 0 24 24" width="16" height="16" style="color:var(--faint)"><path d="m9 18 6-6-6-6"/></svg>
           </div>
         </div>
-        <div class="nav">
-          <a><svg class="i" viewBox="0 0 24 24"><path d="M4 12a8 8 0 0 1 16 0M7.5 12a4.5 4.5 0 0 1 9 0"/><circle cx="12" cy="12" r="1.5"/></svg><span>Radar</span></a>
-          <a><svg class="i" viewBox="0 0 24 24"><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M22 21v-2a4 4 0 0 0-3-3.9"/></svg><span>Crew</span></a>
-          <a class="on"><svg class="i" viewBox="0 0 24 24" stroke="url(#navgrad)"><circle cx="12" cy="8" r="4"/><path d="M4 21v-1a6 6 0 0 1 12 0v1"/></svg><span style="background:var(--sunset);-webkit-background-clip:text;background-clip:text;color:transparent">Me</span></a>
+        <div class="nav5">
+          <div class="n5"><svg viewBox="0 0 24 24"><path d="M22 12A10 10 0 1112 2M12 12l6-3"/></svg><span>Radar</span></div>
+          <div class="n5"><svg viewBox="0 0 24 24"><path d="M6 8a6 6 0 1112 0c0 7 3 9 3 9H3s3-2 3-9"/><path d="M10.3 21a1.94 1.94 0 003.4 0"/></svg><span>Activity</span></div>
+          <div class="n5 rally"><div class="rbtn"><svg viewBox="0 0 24 24"><path d="M4 15s1-1 4-1 5 2 8 2 4-1 4-1V3s-1 1-4 1-5-2-8-2-4 1-4 1zM4 22v-7"/></svg></div><span class="rlab">Rally</span></div>
+          <div class="n5"><svg viewBox="0 0 24 24"><path d="M17 21v-2a4 4 0 00-4-4H5a4 4 0 00-4 4v2M9 11a4 4 0 100-8 4 4 0 000 8M23 21v-2a4 4 0 00-3-3.87"/></svg><span>Crew</span></div>
+          <div class="n5 on"><svg viewBox="0 0 24 24"><path d="M20 21a8 8 0 00-16 0M12 11a4 4 0 100-8 4 4 0 000 8"/></svg><span>Me</span></div>
         </div>
       </div></div>
       <div class="cap"><h3>Privacy · Me</h3><p>Live / Only open / Invisible + Go dark.</p></div>
+    </div>
+
+    <!-- ============ ACTIVITY (5th tab) ============ -->
+    <div class="col">
+      <div class="phone"><div class="screen">
+        <div class="notch"></div>
+        <div class="sb"><span>9:41</span><div class="r"><svg class="i" viewBox="0 0 24 24"><path d="M2 20h.01M7 20v-4M12 20v-8M17 20V8M22 20V4"/></svg><span style="font-size:11px">72%</span></div></div>
+        <div class="body px" style="padding-top:8px; padding-bottom:92px; overflow-y:auto">
+          <div style="display:flex; align-items:center; justify-content:space-between; margin-bottom:16px">
+            <div class="title-lg" style="font-size:24px">Activity</div>
+            <div class="chip mesh-badge"><svg class="i" viewBox="0 0 24 24" width="12" height="12"><path d="M4 12a8 8 0 0 1 16 0M7.5 12a4.5 4.5 0 0 1 9 0M12 12h.01"/></svg>MESH · 4</div>
+          </div>
+
+          <!-- ping · tappable -->
+          <div style="border-radius:16px; background:rgba(255,77,125,.1); border:1px solid rgba(255,120,90,.3); padding:13px 14px; display:flex; align-items:center; gap:12px; margin-bottom:11px">
+            <div style="width:36px; height:36px; border-radius:50%; background:rgba(255,120,90,.16); display:flex; align-items:center; justify-content:center; flex:0 0 36px">
+              <svg class="i" viewBox="0 0 24 24" width="18" height="18" style="color:var(--pink)"><path d="M12 21s7-6.3 7-11a7 7 0 1 0-14 0c0 4.7 7 11 7 11z"/><circle cx="12" cy="10" r="2.5"/></svg>
+            </div>
+            <div style="flex:1"><div style="font-size:13px; font-weight:600">Maya asked where you are</div><div style="font-size:10.5px; color:var(--muted)">tap to share your spot</div></div>
+            <svg class="i" viewBox="0 0 24 24" width="16" height="16" style="color:var(--pink)"><path d="m9 18 6-6-6-6"/></svg>
+            <span style="font-size:10px; color:var(--faint); font-weight:600; flex:0 0 auto; margin-left:2px">2m</span>
+          </div>
+
+          <!-- rally pin -->
+          <div style="border-radius:16px; background:var(--glass); border:1px solid var(--glass-b); padding:13px 14px; display:flex; align-items:center; gap:12px; margin-bottom:11px">
+            <div style="width:36px; height:36px; border-radius:50%; background:rgba(255,176,56,.16); display:flex; align-items:center; justify-content:center; flex:0 0 36px">
+              <svg class="i" viewBox="0 0 24 24" width="18" height="18" style="color:#ffce4d"><path d="M4 15s1-1 4-1 5 2 8 2 4-1 4-1V3s-1 1-4 1-5-2-8-2-4 1-4 1zM4 22v-7"/></svg>
+            </div>
+            <div style="flex:1"><div style="font-size:13px; font-weight:600">Jules dropped a Rally pin</div><div style="font-size:10.5px; color:var(--muted)">east gate, by the flag</div></div>
+            <span style="font-size:10px; color:var(--faint); font-weight:600; flex:0 0 auto">8m</span>
+          </div>
+
+          <!-- found moment -->
+          <div style="border-radius:16px; background:var(--glass); border:1px solid var(--glass-b); padding:13px 14px; display:flex; align-items:center; gap:12px; margin-bottom:11px">
+            <div style="width:36px; height:36px; border-radius:50%; background:rgba(94,242,200,.16); display:flex; align-items:center; justify-content:center; flex:0 0 36px">
+              <svg class="i" viewBox="0 0 24 24" width="18" height="18" style="color:var(--signal); stroke-width:2.4"><path d="M20 6 9 17l-5-5"/></svg>
+            </div>
+            <div style="flex:1"><div style="font-size:13px; font-weight:600">You found Sam <span style="color:var(--signal)">🎉</span></div><div style="font-size:10.5px; color:var(--muted)">reunited at north stage</div></div>
+            <span style="font-size:10px; color:var(--faint); font-weight:600; flex:0 0 auto">15m</span>
+          </div>
+
+          <!-- went dark -->
+          <div style="border-radius:16px; background:var(--glass); border:1px solid var(--glass-b); padding:13px 14px; display:flex; align-items:center; gap:12px; margin-bottom:11px">
+            <div style="width:36px; height:36px; border-radius:50%; background:rgba(255,255,255,.06); display:flex; align-items:center; justify-content:center; flex:0 0 36px">
+              <svg class="i" viewBox="0 0 24 24" width="18" height="18" style="color:var(--muted)"><path d="M17.94 17.94A10 10 0 0 1 12 20c-7 0-11-8-11-8a18 18 0 0 1 5.06-5.94M9.9 4.24A9 9 0 0 1 12 4c7 0 11 8 11 8a18 18 0 0 1-2.16 3.19M1 1l22 22"/></svg>
+            </div>
+            <div style="flex:1"><div style="font-size:13px; font-weight:600; color:var(--muted)">Rae went dark</div><div style="font-size:10.5px; color:var(--faint)">hidden from every radar</div></div>
+            <span style="font-size:10px; color:var(--faint); font-weight:600; flex:0 0 auto">22m</span>
+          </div>
+
+          <!-- session event -->
+          <div style="border-radius:16px; background:var(--glass); border:1px solid var(--glass-b); padding:13px 14px; display:flex; align-items:center; gap:12px">
+            <div style="width:36px; height:36px; border-radius:50%; background:rgba(122,162,255,.16); display:flex; align-items:center; justify-content:center; flex:0 0 36px">
+              <svg class="i" viewBox="0 0 24 24" width="18" height="18" style="color:var(--signal2)"><circle cx="12" cy="12" r="9"/><path d="M12 8v4l3 2"/></svg>
+            </div>
+            <div style="flex:1"><div style="font-size:13px; font-weight:600">Session started · 6h</div><div style="font-size:10.5px; color:var(--muted)">you're findable until 3:41 AM</div></div>
+            <span style="font-size:10px; color:var(--faint); font-weight:600; flex:0 0 auto">1h</span>
+          </div>
+        </div>
+        <div class="nav5">
+          <div class="n5"><svg viewBox="0 0 24 24"><path d="M22 12A10 10 0 1112 2M12 12l6-3"/></svg><span>Radar</span></div>
+          <div class="n5 on"><svg viewBox="0 0 24 24"><path d="M6 8a6 6 0 1112 0c0 7 3 9 3 9H3s3-2 3-9"/><path d="M10.3 21a1.94 1.94 0 003.4 0"/></svg><span>Activity</span></div>
+          <div class="n5 rally"><div class="rbtn"><svg viewBox="0 0 24 24"><path d="M4 15s1-1 4-1 5 2 8 2 4-1 4-1V3s-1 1-4 1-5-2-8-2-4 1-4 1zM4 22v-7"/></svg></div><span class="rlab">Rally</span></div>
+          <div class="n5"><svg viewBox="0 0 24 24"><path d="M17 21v-2a4 4 0 00-4-4H5a4 4 0 00-4 4v2M9 11a4 4 0 100-8 4 4 0 000 8M23 21v-2a4 4 0 00-3-3.87"/></svg><span>Crew</span></div>
+          <div class="n5"><svg viewBox="0 0 24 24"><path d="M20 21a8 8 0 00-16 0M12 11a4 4 0 100-8 4 4 0 000 8"/></svg><span>Me</span></div>
+        </div>
+      </div></div>
+      <div class="cap"><h3>Activity · the 5th tab</h3><p>Home for pings, rally alerts, found moments & session events — the stuff that used to flash by and vanish.</p></div>
     </div>
 
     <!-- ============ 12 PING RECEIVED ============ -->
@@ -571,10 +659,12 @@ svg.i{fill:none; stroke:currentColor; stroke-width:2; stroke-linecap:round; stro
             </div>
           </div>
         </div>
-        <div class="nav">
-          <a class="on"><svg class="i" viewBox="0 0 24 24" stroke="url(#navgrad)"><path d="M4 12a8 8 0 0 1 16 0M7.5 12a4.5 4.5 0 0 1 9 0"/><circle cx="12" cy="12" r="1.5" fill="url(#navgrad)" stroke="none"/></svg><span style="background:var(--sunset);-webkit-background-clip:text;background-clip:text;color:transparent">Radar</span></a>
-          <a><svg class="i" viewBox="0 0 24 24"><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M22 21v-2a4 4 0 0 0-3-3.9"/></svg><span>Crew</span></a>
-          <a><svg class="i" viewBox="0 0 24 24"><circle cx="12" cy="8" r="4"/><path d="M4 21v-1a6 6 0 0 1 12 0v1"/></svg><span>Me</span></a>
+        <div class="nav5">
+          <div class="n5 on"><svg viewBox="0 0 24 24"><path d="M22 12A10 10 0 1112 2M12 12l6-3"/></svg><span>Radar</span></div>
+          <div class="n5"><svg viewBox="0 0 24 24"><path d="M6 8a6 6 0 1112 0c0 7 3 9 3 9H3s3-2 3-9"/><path d="M10.3 21a1.94 1.94 0 003.4 0"/></svg><span>Activity</span></div>
+          <div class="n5 rally"><div class="rbtn"><svg viewBox="0 0 24 24"><path d="M4 15s1-1 4-1 5 2 8 2 4-1 4-1V3s-1 1-4 1-5-2-8-2-4 1-4 1zM4 22v-7"/></svg></div><span class="rlab">Rally</span></div>
+          <div class="n5"><svg viewBox="0 0 24 24"><path d="M17 21v-2a4 4 0 00-4-4H5a4 4 0 00-4 4v2M9 11a4 4 0 100-8 4 4 0 000 8M23 21v-2a4 4 0 00-3-3.87"/></svg><span>Crew</span></div>
+          <div class="n5"><svg viewBox="0 0 24 24"><path d="M20 21a8 8 0 00-16 0M12 11a4 4 0 100-8 4 4 0 000 8"/></svg><span>Me</span></div>
         </div>
       </div></div>
       <div class="cap"><h3>Ping received</h3><p>"Maya asks where you are →" banner.</p></div>
@@ -651,7 +741,7 @@ svg.i{fill:none; stroke:currentColor; stroke-width:2; stroke-linecap:round; stro
       <div class="phone"><div class="screen">
         <div class="notch"></div>
         <div class="sb"><span>9:41</span><div class="r"><svg class="i" viewBox="0 0 24 24"><path d="M2 20h.01M7 20v-4M12 20v-8M17 20V8M22 20V4"/></svg><span style="font-size:11px">72%</span></div></div>
-        <div class="body px" style="text-align:center; justify-content:center">
+        <div class="body px" style="text-align:center; justify-content:center; padding-bottom:88px">
           <div style="flex:1; display:flex; align-items:center; justify-content:center; position:relative">
             <div style="position:absolute; width:170px; height:170px; border:1px dashed rgba(255,255,255,.14); border-radius:50%"></div>
             <div style="position:absolute; width:100px; height:100px; border:1px dashed rgba(255,255,255,.1); border-radius:50%"></div>
@@ -668,10 +758,12 @@ svg.i{fill:none; stroke:currentColor; stroke-width:2; stroke-linecap:round; stro
             <button class="btn btn-ghost">Show my QR code</button>
           </div>
         </div>
-        <div class="nav">
-          <a><svg class="i" viewBox="0 0 24 24"><path d="M4 12a8 8 0 0 1 16 0M7.5 12a4.5 4.5 0 0 1 9 0"/><circle cx="12" cy="12" r="1.5"/></svg><span>Radar</span></a>
-          <a class="on"><svg class="i" viewBox="0 0 24 24" stroke="url(#navgrad)"><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M22 21v-2a4 4 0 0 0-3-3.9"/></svg><span style="background:var(--sunset);-webkit-background-clip:text;background-clip:text;color:transparent">Crew</span></a>
-          <a><svg class="i" viewBox="0 0 24 24"><circle cx="12" cy="8" r="4"/><path d="M4 21v-1a6 6 0 0 1 12 0v1"/></svg><span>Me</span></a>
+        <div class="nav5">
+          <div class="n5"><svg viewBox="0 0 24 24"><path d="M22 12A10 10 0 1112 2M12 12l6-3"/></svg><span>Radar</span></div>
+          <div class="n5"><svg viewBox="0 0 24 24"><path d="M6 8a6 6 0 1112 0c0 7 3 9 3 9H3s3-2 3-9"/><path d="M10.3 21a1.94 1.94 0 003.4 0"/></svg><span>Activity</span></div>
+          <div class="n5 rally"><div class="rbtn"><svg viewBox="0 0 24 24"><path d="M4 15s1-1 4-1 5 2 8 2 4-1 4-1V3s-1 1-4 1-5-2-8-2-4 1-4 1zM4 22v-7"/></svg></div><span class="rlab">Rally</span></div>
+          <div class="n5 on"><svg viewBox="0 0 24 24"><path d="M17 21v-2a4 4 0 00-4-4H5a4 4 0 00-4 4v2M9 11a4 4 0 100-8 4 4 0 000 8M23 21v-2a4 4 0 00-3-3.87"/></svg><span>Crew</span></div>
+          <div class="n5"><svg viewBox="0 0 24 24"><path d="M20 21a8 8 0 00-16 0M12 11a4 4 0 100-8 4 4 0 000 8"/></svg><span>Me</span></div>
         </div>
       </div></div>
       <div class="cap"><h3>Empty state</h3><p>Add people before signal dies.</p></div>
@@ -679,7 +771,7 @@ svg.i{fill:none; stroke:currentColor; stroke-width:2; stroke-linecap:round; stro
 
   </div>
 
-  <div class="foot">Loc8 · consumer app gallery · 15 screens · plum-black aurora + sunset</div>
+  <div class="foot">Loc8 · consumer app gallery · 16 screens · plum-black aurora + sunset</div>
 </div>
 
 <script>
