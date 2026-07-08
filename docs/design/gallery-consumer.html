@@ -1,0 +1,727 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Loc8 · Consumer App Gallery</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Unbounded:wght@400;600;800&family=Sora:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+<style>
+:root{
+  --sunset:linear-gradient(135deg,#ff4d7d,#ff7a45,#ffb038);
+  --signal:#5ef2c8; --signal2:#7aa2ff; --amber:#ffb038;
+  --pink:#ff4d7d;
+  --muted:rgba(255,255,255,.56); --faint:rgba(255,255,255,.32);
+  --glass:rgba(255,255,255,.045); --glass-b:rgba(255,255,255,.09);
+  --aurora:
+    radial-gradient(720px 520px at 78% -8%, rgba(255,77,125,.16), transparent 60%),
+    radial-gradient(680px 560px at 12% 8%, rgba(122,162,255,.12), transparent 60%),
+    radial-gradient(900px 700px at 50% 118%, rgba(94,242,200,.10), transparent 55%),
+    linear-gradient(180deg,#0b0917,#08070d 70%);
+}
+*{box-sizing:border-box}
+html,body{margin:0;padding:0}
+body{
+  font-family:'Sora',system-ui,sans-serif; color:#fff;
+  background:var(--aurora); background-attachment:fixed;
+  min-height:100vh; overflow-x:hidden;
+  -webkit-font-smoothing:antialiased;
+}
+body::after{
+  content:""; position:fixed; inset:0; pointer-events:none; z-index:9999;
+  opacity:.045; mix-blend-mode:overlay;
+  background:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='160' height='160'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='2' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+}
+
+/* ===== Header ===== */
+.page{max-width:1360px; margin:0 auto; padding:64px 28px 120px}
+.head{text-align:center; margin-bottom:56px}
+.kicker{
+  font-family:'Sora'; font-weight:600; font-size:11px; letter-spacing:.28em;
+  text-transform:uppercase; color:var(--faint); margin-bottom:20px;
+}
+.kicker b{color:var(--signal); font-weight:600}
+h1.title{
+  font-family:'Unbounded'; font-weight:800; font-size:clamp(34px,6vw,64px);
+  line-height:1.02; letter-spacing:-.02em; margin:0 0 18px;
+}
+.title .eight{ -webkit-background-clip:text; background-clip:text; color:transparent; background-image:var(--sunset); }
+.subline{color:var(--muted); font-size:15px; font-weight:300; max-width:560px; margin:0 auto; line-height:1.55}
+
+.divider{
+  display:flex; align-items:center; gap:18px; max-width:1100px; margin:64px auto 40px;
+  color:var(--faint); font-size:11px; letter-spacing:.24em; text-transform:uppercase; font-weight:600;
+}
+.divider::before,.divider::after{content:""; flex:1; height:1px; background:linear-gradient(90deg,transparent,rgba(255,255,255,.14),transparent)}
+
+/* ===== Rail / columns ===== */
+.rail{display:flex; flex-wrap:wrap; gap:28px 24px; justify-content:center}
+.col{width:300px; opacity:0; transform:translateY(26px); animation:rise .7s cubic-bezier(.2,.7,.2,1) forwards}
+@keyframes rise{to{opacity:1; transform:none}}
+.cap{padding:16px 4px 0}
+.cap h3{font-family:'Unbounded'; font-weight:600; font-size:15px; margin:0 0 5px; letter-spacing:-.01em}
+.cap p{color:var(--muted); font-size:12px; margin:0; font-weight:300; line-height:1.4}
+
+/* ===== Phone frame ===== */
+.phone{
+  width:300px; height:640px; border-radius:44px; padding:9px; position:relative;
+  background:linear-gradient(160deg,rgba(255,255,255,.14),rgba(255,255,255,.02));
+  box-shadow:0 40px 90px rgba(0,0,0,.6), inset 0 1px 1px rgba(255,255,255,.12);
+}
+.screen{
+  width:100%; height:100%; border-radius:36px; overflow:hidden; position:relative;
+  background:radial-gradient(120% 80% at 50% 0%, #16112a 0%, #0a0813 62%);
+  display:flex; flex-direction:column;
+}
+.notch{position:absolute; top:14px; left:50%; transform:translateX(-50%); width:98px; height:22px; background:#000; border-radius:14px; z-index:40}
+.sb{height:44px; flex:0 0 44px; display:flex; align-items:center; justify-content:space-between; padding:0 22px; color:rgba(255,255,255,.85); font-size:12px; font-weight:600; position:relative; z-index:30}
+.sb .r{display:flex; align-items:center; gap:6px}
+.sb svg{width:15px; height:15px}
+.body{flex:1; position:relative; overflow:hidden; display:flex; flex-direction:column}
+
+/* wordmark */
+.wm{font-family:'Unbounded'; font-weight:800; letter-spacing:-.02em}
+.wm .e{ -webkit-background-clip:text; background-clip:text; color:transparent; background-image:var(--sunset); }
+
+/* generic bits */
+.px{padding-left:20px; padding-right:20px}
+.btn{border:none; cursor:pointer; font-family:'Sora'; font-weight:600; border-radius:16px; width:100%; padding:15px; font-size:14px; display:flex; align-items:center; justify-content:center; gap:9px; color:#fff}
+.btn-sun{background:var(--sunset); color:#160a06; font-weight:700; box-shadow:0 10px 30px rgba(255,90,90,.28)}
+.btn-ghost{background:transparent; border:1px solid var(--glass-b); color:#fff}
+.btn-glass{background:var(--glass); border:1px solid var(--glass-b); backdrop-filter:blur(20px)}
+.chip{display:inline-flex; align-items:center; gap:6px; font-size:11px; font-weight:600; padding:6px 11px; border-radius:999px; background:var(--glass); border:1px solid var(--glass-b)}
+.mesh-badge{color:var(--signal); border-color:rgba(94,242,200,.32); background:rgba(94,242,200,.08)}
+svg.i{fill:none; stroke:currentColor; stroke-width:2; stroke-linecap:round; stroke-linejoin:round}
+
+/* bottom nav */
+.nav{flex:0 0 66px; display:flex; align-items:center; justify-content:space-around; padding:0 14px 6px; border-top:1px solid rgba(255,255,255,.07); background:rgba(10,8,19,.5); backdrop-filter:blur(18px)}
+.nav a{display:flex; flex-direction:column; align-items:center; gap:4px; color:var(--faint); font-size:9.5px; font-weight:600; text-decoration:none; letter-spacing:.02em}
+.nav a svg{width:22px; height:22px}
+.nav a.on{color:#fff}
+.nav a.on.sun{ -webkit-background-clip:text; background-clip:text; }
+.nav a.on svg{stroke:url(#navgrad)}
+
+.title-lg{font-family:'Unbounded'; font-weight:800; letter-spacing:-.02em}
+
+/* radar */
+.radar{position:absolute; inset:0}
+.ring{position:absolute; border-radius:50%; border:1px solid rgba(255,255,255,.08); left:50%; top:50%; transform:translate(-50%,-50%)}
+.sweep{position:absolute; left:50%; top:50%; width:100%; height:100%; transform:translate(-50%,-50%); border-radius:50%;
+  background:conic-gradient(from 0deg, rgba(94,242,200,.22), transparent 32%, transparent 100%); mask:radial-gradient(circle, #000 62%, transparent 63%); -webkit-mask:radial-gradient(circle,#000 62%,transparent 63%);
+  animation:spin 5.5s linear infinite; mix-blend-mode:screen}
+@keyframes spin{to{transform:translate(-50%,-50%) rotate(360deg)}}
+.you-beacon{position:absolute; left:50%; top:50%; transform:translate(-50%,-50%); width:26px; height:26px; border-radius:50%; background:var(--sunset); box-shadow:0 0 0 6px rgba(255,120,90,.18), 0 0 30px rgba(255,120,90,.6); z-index:5}
+.you-beacon::after{content:""; position:absolute; inset:-6px; border-radius:50%; background:var(--sunset); opacity:.4; animation:pulse 2.4s ease-out infinite}
+@keyframes pulse{0%{transform:scale(1); opacity:.5}70%{transform:scale(2.6); opacity:0}100%{opacity:0}}
+.blip{position:absolute; width:34px; height:34px; border-radius:50%; display:flex; align-items:center; justify-content:center; font-size:12px; font-weight:700; color:#0a0813; box-shadow:0 6px 18px rgba(0,0,0,.4); z-index:6}
+.blip .tag{position:absolute; top:38px; white-space:nowrap; font-size:9.5px; font-weight:600; color:rgba(255,255,255,.82); background:rgba(10,8,19,.7); padding:3px 7px; border-radius:8px; border:1px solid rgba(255,255,255,.08); backdrop-filter:blur(6px)}
+.b-mint{background:linear-gradient(135deg,#5ef2c8,#3fd4b0)}
+.b-peri{background:linear-gradient(135deg,#7aa2ff,#5c7fe0)}
+.b-amber{background:linear-gradient(135deg,#ffb038,#ff8a3d)}
+.radial-glow{position:absolute; left:50%; top:50%; width:220px; height:220px; transform:translate(-50%,-50%); border-radius:50%; background:radial-gradient(circle, rgba(94,242,200,.16), transparent 70%); z-index:1}
+.ring-lbl{position:absolute; left:50%; font-size:8.5px; color:var(--faint); font-weight:600; transform:translateX(-50%)}
+
+/* avatar stack */
+.stack{display:flex}
+.stack .av{width:28px; height:28px; border-radius:50%; border:2px solid #0a0813; margin-left:-9px; display:flex; align-items:center; justify-content:center; font-size:10px; font-weight:700; color:#0a0813}
+.stack .av:first-child{margin-left:0}
+
+.peek{position:absolute; left:16px; right:16px; bottom:14px; z-index:8; display:flex; align-items:center; gap:12px; padding:12px 14px; border-radius:18px; background:var(--glass); border:1px solid var(--glass-b); backdrop-filter:blur(20px)}
+
+/* list rows */
+.row{display:flex; align-items:center; gap:12px; padding:13px 0; border-bottom:1px solid rgba(255,255,255,.06)}
+.av-c{width:38px; height:38px; border-radius:50%; display:flex; align-items:center; justify-content:center; font-weight:700; font-size:14px; color:#0a0813; flex:0 0 38px}
+.badge{font-size:9px; font-weight:700; padding:3px 8px; border-radius:999px; letter-spacing:.04em}
+.b-live{color:#0a0813; background:var(--signal)}
+.b-dark{color:var(--muted); background:rgba(255,255,255,.08)}
+
+/* segmented */
+.seg{display:flex; background:rgba(255,255,255,.05); border:1px solid var(--glass-b); border-radius:14px; padding:4px; gap:4px}
+.seg button{flex:1; border:none; background:transparent; color:var(--muted); font-family:'Sora'; font-weight:600; font-size:11px; padding:9px 4px; border-radius:10px; cursor:pointer}
+.seg button.on{background:var(--sunset); color:#160a06}
+
+/* toggle */
+.tgl{width:44px; height:26px; border-radius:999px; background:rgba(255,255,255,.12); position:relative; flex:0 0 44px}
+.tgl.on{background:var(--signal)}
+.tgl::after{content:""; position:absolute; top:3px; left:3px; width:20px; height:20px; border-radius:50%; background:#fff; transition:.2s}
+.tgl.on::after{left:21px}
+
+/* field */
+.field{width:100%; background:rgba(255,255,255,.05); border:1px solid var(--glass-b); border-radius:14px; padding:15px 16px; color:#fff; font-family:'Sora'; font-size:14px; font-weight:400}
+.label{font-size:11px; color:var(--muted); font-weight:600; letter-spacing:.02em; margin-bottom:9px; text-transform:uppercase}
+
+/* swatch */
+.sw{width:34px; height:34px; border-radius:50%; cursor:pointer; border:2px solid transparent}
+.sw.on{border-color:#fff; box-shadow:0 0 0 3px rgba(255,255,255,.12)}
+
+/* compass big */
+.dist-big{font-family:'Unbounded'; font-weight:800; font-size:60px; letter-spacing:-.03em; line-height:1}
+.warm{display:inline-flex; align-items:center; gap:7px; padding:8px 14px; border-radius:999px; background:rgba(255,176,56,.12); border:1px solid rgba(255,176,56,.3); color:var(--amber); font-size:12px; font-weight:600}
+
+/* found disc */
+.found-disc{width:120px; height:120px; border-radius:50%; background:var(--sunset); display:flex; align-items:center; justify-content:center; box-shadow:0 0 60px rgba(255,120,90,.5); position:relative}
+.ripple{position:absolute; border-radius:50%; border:2px solid rgba(255,120,90,.5); animation:rip 2.6s ease-out infinite}
+@keyframes rip{0%{width:120px;height:120px;opacity:.8}100%{width:280px;height:280px;opacity:0}}
+.confetti{position:absolute; width:7px; height:12px; border-radius:2px; opacity:0; animation:conf 2.4s ease-out infinite}
+@keyframes conf{0%{opacity:0; transform:translateY(0) rotate(0)}12%{opacity:1}100%{opacity:0; transform:translateY(120px) rotate(300deg)}}
+
+/* qr */
+.qr{width:150px; height:150px; border-radius:20px; background:#fff; padding:14px; margin:0 auto; display:grid; grid-template-columns:repeat(9,1fr); grid-template-rows:repeat(9,1fr); gap:2px}
+.qr i{background:#0a0813; border-radius:1px}
+.qr i.o{background:transparent}
+
+/* sheet */
+.sheet{position:absolute; left:0; right:0; bottom:0; background:rgba(18,14,30,.82); backdrop-filter:blur(24px); border-top:1px solid var(--glass-b); border-radius:28px 28px 36px 36px; padding:20px 20px 26px; z-index:20}
+.grab{width:38px; height:4px; border-radius:999px; background:rgba(255,255,255,.2); margin:0 auto 18px}
+.dur{display:flex; align-items:center; justify-content:space-between; padding:14px 16px; border-radius:14px; background:rgba(255,255,255,.04); border:1px solid var(--glass-b); margin-bottom:10px; cursor:pointer}
+.dur.on{border-color:rgba(94,242,200,.4); background:rgba(94,242,200,.07)}
+
+.mini-map{position:absolute; inset:0; background:
+  radial-gradient(circle at 30% 40%, rgba(122,162,255,.12), transparent 40%),
+  linear-gradient(180deg,#12102400,#0a0813);
+  opacity:.5}
+.plus-code{font-family:'Unbounded'; font-weight:600; font-size:22px; letter-spacing:.02em}
+
+.foot{text-align:center; color:var(--faint); font-size:11px; margin-top:80px; letter-spacing:.04em}
+</style>
+</head>
+<body>
+<svg width="0" height="0" style="position:absolute"><defs>
+  <linearGradient id="navgrad" x1="0" y1="0" x2="1" y2="1">
+    <stop offset="0" stop-color="#ff4d7d"/><stop offset=".5" stop-color="#ff7a45"/><stop offset="1" stop-color="#ffb038"/>
+  </linearGradient>
+</defs></svg>
+
+<div class="page">
+  <header class="head">
+    <div class="kicker"><b>Loc8</b> · consumer app</div>
+    <h1 class="title">Find your crew when<br>the signal's gone<span class="eight">.</span></h1>
+    <p class="subline">A mesh-powered festival friend-finder. No towers, no internet — just a radar, a compass, and the people you came with. Fifteen consumer screens, one cohesive system.</p>
+  </header>
+
+  <div class="rail" id="rail">
+    <!-- ============ 1 SPLASH ============ -->
+    <div class="col">
+      <div class="phone"><div class="screen">
+        <div class="notch"></div>
+        <div class="sb"><span>9:41</span><div class="r">
+          <svg class="i" viewBox="0 0 24 24"><path d="M2 20h.01M7 20v-4M12 20v-8M17 20V8M22 20V4"/></svg>
+          <svg class="i" viewBox="0 0 24 24"><path d="M5 13a10 10 0 0 1 14 0M8.5 16.5a5 5 0 0 1 7 0M12 20h.01"/></svg>
+          <svg class="i" viewBox="0 0 24 24"><rect x="2" y="7" width="18" height="10" rx="2"/><path d="M22 11v2"/><rect x="4" y="9" width="12" height="6" rx="1" fill="currentColor" stroke="none"/></svg>
+        </div></div>
+        <div class="body" style="align-items:center; justify-content:center; text-align:center; position:relative">
+          <div style="position:absolute; width:260px; height:260px; border-radius:50%; background:var(--sunset); filter:blur(56px); opacity:.4; animation:pulse 4s ease-in-out infinite"></div>
+          <div style="position:relative; z-index:2; padding:0 26px">
+            <div class="wm" style="font-size:52px; margin-bottom:8px">Loc<span class="e">8</span></div>
+            <p style="color:var(--muted); font-size:13px; font-weight:300; margin:0 0 44px; line-height:1.5">Find your crew<br>when the signal's gone</p>
+            <button class="btn btn-sun" style="margin-bottom:12px">
+              <svg class="i" viewBox="0 0 24 24" width="18" height="18"><path d="M12 2 3 21l9-4 9 4z"/></svg>
+              Create your crew</button>
+            <button class="btn btn-ghost">I have an invite</button>
+          </div>
+        </div>
+      </div></div>
+      <div class="cap"><h3>Splash</h3><p>Breathing sunset bloom + the promise.</p></div>
+    </div>
+
+    <!-- ============ 2 LOGIN ============ -->
+    <div class="col">
+      <div class="phone"><div class="screen">
+        <div class="notch"></div>
+        <div class="sb"><span>9:41</span><div class="r"><svg class="i" viewBox="0 0 24 24"><path d="M2 20h.01M7 20v-4M12 20v-8M17 20V8M22 20V4"/></svg><span style="font-size:11px">86%</span></div></div>
+        <div class="body px" style="justify-content:center; text-align:center">
+          <div class="wm" style="font-size:30px; margin-bottom:6px">Loc<span class="e">8</span></div>
+          <p style="color:var(--muted); font-size:13px; font-weight:300; margin:0 0 40px">Sign in once. Works offline after.</p>
+          <button class="btn" style="background:#fff; color:#000; margin-bottom:12px">
+            <svg viewBox="0 0 24 24" width="17" height="17" fill="currentColor"><path d="M16.4 12.9c0-2.2 1.8-3.3 1.9-3.4-1-1.5-2.6-1.7-3.2-1.7-1.4-.1-2.6.8-3.3.8s-1.7-.8-2.9-.8c-1.5 0-2.9.9-3.6 2.2-1.6 2.7-.4 6.7 1.1 8.9.7 1.1 1.6 2.3 2.7 2.2 1.1 0 1.5-.7 2.8-.7s1.7.7 2.9.7 2-1.1 2.7-2.1c.8-1.2 1.2-2.3 1.2-2.4-.1 0-2.3-.9-2.3-3.5zM14.2 6.3c.6-.7 1-1.7.9-2.7-.9 0-1.9.6-2.5 1.3-.5.6-1 1.6-.9 2.6 1 .1 1.9-.5 2.5-1.2z"/></svg>
+            Continue with Apple</button>
+          <button class="btn" style="background:#fff; color:#1f1f1f; margin-bottom:24px">
+            <svg viewBox="0 0 24 24" width="17" height="17"><path fill="#4285F4" d="M22 12c0-.7-.1-1.4-.2-2H12v3.9h5.6c-.2 1.3-1 2.4-2 3.1v2.6h3.3C20.8 17.7 22 15.1 22 12z"/><path fill="#34A853" d="M12 22c2.7 0 5-.9 6.6-2.4l-3.3-2.6c-.9.6-2 1-3.3 1-2.6 0-4.7-1.7-5.5-4.1H3.1v2.6C4.8 19.8 8.1 22 12 22z"/><path fill="#FBBC05" d="M6.5 13.9c-.2-.6-.3-1.2-.3-1.9s.1-1.3.3-1.9V7.5H3.1C2.4 8.9 2 10.4 2 12s.4 3.1 1.1 4.5l3.4-2.6z"/><path fill="#EA4335" d="M12 6c1.5 0 2.8.5 3.8 1.5l2.9-2.9C16.9 2.9 14.7 2 12 2 8.1 2 4.8 4.2 3.1 7.5l3.4 2.6C7.3 7.7 9.4 6 12 6z"/></svg>
+            Continue with Google</button>
+          <div class="btn-glass" style="border-radius:14px; padding:13px 15px; text-align:left; display:flex; gap:11px; align-items:flex-start">
+            <svg class="i" viewBox="0 0 24 24" width="17" height="17" style="color:var(--signal); flex:0 0 17px; margin-top:1px"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
+            <p style="margin:0; font-size:11px; color:var(--muted); line-height:1.5; font-weight:300">Why an account? A one-time handshake so friends can verify it's really you. Everything after runs offline, device-to-device.</p>
+          </div>
+        </div>
+      </div></div>
+      <div class="cap"><h3>Sign in</h3><p>Apple / Google, then it's offline-first.</p></div>
+    </div>
+
+    <!-- ============ 3 CREATE PROFILE ============ -->
+    <div class="col">
+      <div class="phone"><div class="screen">
+        <div class="notch"></div>
+        <div class="sb"><span>9:41</span><div class="r"><svg class="i" viewBox="0 0 24 24"><path d="M2 20h.01M7 20v-4M12 20v-8M17 20V8M22 20V4"/></svg><span style="font-size:11px">86%</span></div></div>
+        <div class="body px" style="padding-top:14px">
+          <div style="color:var(--faint); font-size:11px; font-weight:600; letter-spacing:.2em; text-transform:uppercase; margin-bottom:10px">Step 1 of 3</div>
+          <div class="title-lg" style="font-size:24px; margin-bottom:6px">Who are you<br>at the fest?</div>
+          <p style="color:var(--muted); font-size:12.5px; font-weight:300; margin:0 0 28px">Your crew sees this name and color.</p>
+          <div style="display:flex; justify-content:center; margin-bottom:26px">
+            <div style="width:78px; height:78px; border-radius:50%; background:var(--sunset); display:flex; align-items:center; justify-content:center; font-family:'Unbounded'; font-weight:800; font-size:30px; color:#160a06; box-shadow:0 12px 34px rgba(255,90,90,.34)">A</div>
+          </div>
+          <div class="label">Display name</div>
+          <div class="field" style="margin-bottom:24px">Augustus</div>
+          <div class="label">Your color</div>
+          <div style="display:flex; gap:12px; justify-content:space-between; margin-bottom:auto">
+            <div class="sw on" style="background:linear-gradient(135deg,#ff4d7d,#ff7a45)"></div>
+            <div class="sw" style="background:#5ef2c8"></div>
+            <div class="sw" style="background:#7aa2ff"></div>
+            <div class="sw" style="background:#ffb038"></div>
+            <div class="sw" style="background:#c77dff"></div>
+            <div class="sw" style="background:#ff6b9d"></div>
+          </div>
+          <button class="btn btn-sun" style="margin:24px 0 20px">Continue
+            <svg class="i" viewBox="0 0 24 24" width="17" height="17"><path d="m9 18 6-6-6-6"/></svg></button>
+        </div>
+      </div></div>
+      <div class="cap"><h3>Create profile</h3><p>Name + your signature avatar color.</p></div>
+    </div>
+
+    <!-- ============ 4 PERMISSION PRIMING ============ -->
+    <div class="col">
+      <div class="phone"><div class="screen">
+        <div class="notch"></div>
+        <div class="sb"><span>9:41</span><div class="r"><svg class="i" viewBox="0 0 24 24"><path d="M2 20h.01M7 20v-4M12 20v-8M17 20V8M22 20V4"/></svg><span style="font-size:11px">86%</span></div></div>
+        <div class="body px" style="text-align:center; padding-top:10px">
+          <div style="flex:1; display:flex; align-items:center; justify-content:center; position:relative">
+            <div style="position:absolute; width:150px; height:150px; border-radius:50%; background:radial-gradient(circle,rgba(122,162,255,.28),transparent 70%); filter:blur(12px)"></div>
+            <div style="position:relative; width:96px; height:96px; border-radius:28px; background:var(--glass); border:1px solid var(--glass-b); backdrop-filter:blur(20px); display:flex; align-items:center; justify-content:center">
+              <svg class="i" viewBox="0 0 24 24" width="42" height="42" style="color:var(--signal2)"><path d="M12 21s7-6.3 7-11a7 7 0 1 0-14 0c0 4.7 7 11 7 11z"/><circle cx="12" cy="10" r="2.5"/></svg>
+              <div style="position:absolute; inset:-8px; border-radius:34px; border:1px solid rgba(122,162,255,.3); animation:pulse 3s ease-out infinite"></div>
+            </div>
+          </div>
+          <div class="title-lg" style="font-size:23px; margin-bottom:12px; line-height:1.15">We need your<br>location to find theirs</div>
+          <p style="color:var(--muted); font-size:12.5px; font-weight:300; margin:0 0 20px; line-height:1.6; padding:0 6px">Loc8 measures the distance between you and your crew — nothing leaves your device unencrypted, and nobody outside your crew ever sees you.</p>
+          <div class="chip mesh-badge" style="margin-bottom:20px">
+            <svg class="i" viewBox="0 0 24 24" width="13" height="13"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
+            End-to-end encrypted</div>
+          <button class="btn btn-sun" style="margin-bottom:12px">Enable location</button>
+          <button class="btn btn-ghost" style="margin-bottom:18px">Not now</button>
+        </div>
+      </div></div>
+      <div class="cap"><h3>Location priming</h3><p>The friendly "why" before the OS prompt.</p></div>
+    </div>
+
+    <!-- ============ 5 RADAR HOME (HERO) ============ -->
+    <div class="col">
+      <div class="phone"><div class="screen">
+        <div class="notch"></div>
+        <div class="sb"><span>9:41</span><div class="r"><svg class="i" viewBox="0 0 24 24"><path d="M2 20h.01M7 20v-4M12 20v-8M17 20V8M22 20V4"/></svg><span style="font-size:11px">72%</span></div></div>
+        <div class="body">
+          <div class="px" style="display:flex; align-items:center; justify-content:space-between; padding-top:4px; padding-bottom:10px; z-index:10; position:relative">
+            <div class="wm" style="font-size:20px">Loc<span class="e">8</span></div>
+            <div class="chip mesh-badge">
+              <svg class="i" viewBox="0 0 24 24" width="12" height="12"><path d="M4 12a8 8 0 0 1 16 0M7.5 12a4.5 4.5 0 0 1 9 0M12 12h.01"/></svg>
+              MESH · 4</div>
+          </div>
+          <div style="position:relative; flex:1">
+            <div class="radar">
+              <div class="radial-glow"></div>
+              <div class="sweep"></div>
+              <div class="ring" style="width:250px;height:250px"></div>
+              <div class="ring" style="width:170px;height:170px"></div>
+              <div class="ring" style="width:90px;height:90px"></div>
+              <div class="ring-lbl" style="top:calc(50% - 125px)">150m</div>
+              <div class="ring-lbl" style="top:calc(50% - 85px)">75m</div>
+              <div class="you-beacon"></div>
+              <div class="blip b-mint" style="left:64%; top:30%">M<span class="tag">Maya · 68m</span></div>
+              <div class="blip b-peri" style="left:30%; top:60%">J<span class="tag">Jae · 112m</span></div>
+              <div class="blip b-amber" style="left:70%; top:66%">R<span class="tag">Rin · 41m</span></div>
+            </div>
+            <div class="peek">
+              <div class="stack">
+                <div class="av b-mint">M</div><div class="av b-peri">J</div><div class="av b-amber">R</div>
+              </div>
+              <div style="flex:1"><div style="font-size:12px; font-weight:600">3 nearby</div><div style="font-size:10px; color:var(--muted)">closest 41m · tap to follow</div></div>
+              <svg class="i" viewBox="0 0 24 24" width="18" height="18" style="color:var(--faint)"><path d="m9 18 6-6-6-6"/></svg>
+            </div>
+          </div>
+        </div>
+        <div class="nav">
+          <a class="on"><svg class="i" viewBox="0 0 24 24" stroke="url(#navgrad)"><path d="M4 12a8 8 0 0 1 16 0M7.5 12a4.5 4.5 0 0 1 9 0"/><circle cx="12" cy="12" r="1.5" fill="url(#navgrad)" stroke="none"/></svg><span style="background:var(--sunset);-webkit-background-clip:text;background-clip:text;color:transparent">Radar</span></a>
+          <a><svg class="i" viewBox="0 0 24 24"><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M22 21v-2a4 4 0 0 0-3-3.9"/></svg><span>Crew</span></a>
+          <a><svg class="i" viewBox="0 0 24 24"><circle cx="12" cy="8" r="4"/><path d="M4 21v-1a6 6 0 0 1 12 0v1"/></svg><span>Me</span></a>
+        </div>
+      </div></div>
+      <div class="cap"><h3>Radar home</h3><p>You at center, crew on bearings. The hero.</p></div>
+    </div>
+
+    <!-- ============ 6 COMPASS / FOLLOW ============ -->
+    <div class="col">
+      <div class="phone"><div class="screen">
+        <div class="notch"></div>
+        <div class="sb"><span>9:41</span><div class="r"><svg class="i" viewBox="0 0 24 24"><path d="M2 20h.01M7 20v-4M12 20v-8M17 20V8M22 20V4"/></svg><span style="font-size:11px">72%</span></div></div>
+        <div class="body px" style="padding-top:8px; text-align:center">
+          <div style="display:flex; align-items:center; gap:10px">
+            <span class="chip"><svg class="i" viewBox="0 0 24 24" width="13" height="13"><path d="m15 18-6-6 6-6"/></svg>Back</span>
+            <div style="flex:1"></div>
+            <span class="chip"><svg class="i" viewBox="0 0 24 24" width="13" height="13"><path d="M4 12v8a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-8M16 6l-4-4-4 4M12 2v13"/></svg>Share</span>
+          </div>
+          <div style="flex:1; display:flex; flex-direction:column; align-items:center; justify-content:center; position:relative">
+            <div style="position:absolute; width:200px; height:200px; border-radius:50%; background:radial-gradient(circle,rgba(94,242,200,.2),transparent 68%); filter:blur(10px)"></div>
+            <div style="position:relative; width:130px; height:130px; display:flex; align-items:center; justify-content:center; margin-bottom:30px">
+              <div style="position:absolute; inset:0; border-radius:50%; border:1px solid rgba(94,242,200,.25); animation:pulse 3s ease-out infinite"></div>
+              <div style="width:88px; height:88px; border-radius:50%; background:linear-gradient(135deg,#5ef2c8,#3fd4b0); display:flex; align-items:center; justify-content:center; box-shadow:0 0 46px rgba(94,242,200,.5); transform:rotate(-24deg)">
+                <svg class="i" viewBox="0 0 24 24" width="42" height="42" style="color:#08120f"><path d="M12 2 3 21l9-4 9 4z"/></svg>
+              </div>
+            </div>
+            <div class="dist-big" style="color:var(--signal)">68<span style="font-size:26px; color:var(--muted)">m</span></div>
+            <p style="color:#fff; font-size:15px; font-weight:600; margin:14px 0 4px">Maya · this way</p>
+            <p style="color:var(--muted); font-size:12px; font-weight:300; margin:0 0 20px">keep walking — hold your phone flat</p>
+            <div class="warm">
+              <svg class="i" viewBox="0 0 24 24" width="15" height="15"><path d="M12 2s4 3 4 7a4 4 0 0 1-8 0c0-1 .5-2 1-3M12 22a6 6 0 0 0 6-6c0-3-2-4-2-4"/></svg>
+              getting warmer</div>
+          </div>
+        </div>
+      </div></div>
+      <div class="cap"><h3>Follow compass</h3><p>One beacon, live distance, warmth cue.</p></div>
+    </div>
+
+    <!-- ============ 7 PROXIMITY ============ -->
+    <div class="col">
+      <div class="phone"><div class="screen">
+        <div class="notch"></div>
+        <div class="sb"><span>9:41</span><div class="r"><svg class="i" viewBox="0 0 24 24"><path d="M2 20h.01M7 20v-4M12 20v-8M17 20V8M22 20V4"/></svg><span style="font-size:11px">71%</span></div></div>
+        <div class="body px" style="text-align:center; justify-content:center; position:relative">
+          <div style="flex:1; display:flex; align-items:center; justify-content:center; position:relative">
+            <div class="ripple" style="animation-delay:0s"></div>
+            <div class="ripple" style="animation-delay:.9s"></div>
+            <div class="ripple" style="animation-delay:1.8s"></div>
+            <div style="width:100px; height:100px; border-radius:50%; background:linear-gradient(135deg,#5ef2c8,#3fd4b0); display:flex; align-items:center; justify-content:center; box-shadow:0 0 60px rgba(94,242,200,.55); z-index:2">
+              <svg class="i" viewBox="0 0 24 24" width="40" height="40" style="color:#08120f"><circle cx="12" cy="12" r="3"/><path d="M12 2v3M12 19v3M2 12h3M19 12h3"/></svg>
+            </div>
+          </div>
+          <div style="padding-bottom:20px">
+            <div class="title-lg" style="font-size:22px; margin-bottom:12px; line-height:1.2">You're basically<br>there — look around</div>
+            <p style="color:var(--muted); font-size:12.5px; font-weight:300; margin:0 0 20px; line-height:1.55; padding:0 10px">Maya is within a few steps. GPS can't do better than ~15m in a crowd this dense.</p>
+            <div class="chip" style="color:var(--amber); border-color:rgba(255,176,56,.28)">
+              <svg class="i" viewBox="0 0 24 24" width="13" height="13"><circle cx="12" cy="12" r="10"/><path d="M12 8v4l2 2"/></svg>
+              GPS floor ~15m here</div>
+          </div>
+        </div>
+      </div></div>
+      <div class="cap"><h3>Look around</h3><p>Below 25m: honest about GPS limits.</p></div>
+    </div>
+
+    <!-- ============ 8 FOUND ============ -->
+    <div class="col">
+      <div class="phone"><div class="screen">
+        <div class="notch"></div>
+        <div class="sb"><span>9:41</span><div class="r"><svg class="i" viewBox="0 0 24 24"><path d="M2 20h.01M7 20v-4M12 20v-8M17 20V8M22 20V4"/></svg><span style="font-size:11px">71%</span></div></div>
+        <div class="body px" style="text-align:center; justify-content:center; overflow:hidden" id="foundBody">
+          <div style="flex:1; display:flex; align-items:center; justify-content:center; position:relative">
+            <div class="ripple"></div>
+            <div class="ripple" style="animation-delay:1.3s"></div>
+            <div class="found-disc">
+              <svg class="i" viewBox="0 0 24 24" width="52" height="52" style="color:#160a06; stroke-width:2.6"><path d="M20 6 9 17l-5-5"/></svg>
+            </div>
+          </div>
+          <div style="padding-bottom:26px">
+            <div class="title-lg" style="font-size:26px; margin-bottom:10px">You found<br>each other<span class="eight" style="-webkit-background-clip:text;background-clip:text;color:transparent;background-image:var(--sunset)">!</span></div>
+            <p style="color:var(--muted); font-size:13px; font-weight:300; margin:0 0 26px">Maya is right here.</p>
+            <button class="btn btn-glass">Back to radar</button>
+          </div>
+        </div>
+      </div></div>
+      <div class="cap"><h3>Found</h3><p>The payoff — confetti + a check.</p></div>
+    </div>
+
+    <!-- ============ 9 CREW TAB ============ -->
+    <div class="col">
+      <div class="phone"><div class="screen">
+        <div class="notch"></div>
+        <div class="sb"><span>9:41</span><div class="r"><svg class="i" viewBox="0 0 24 24"><path d="M2 20h.01M7 20v-4M12 20v-8M17 20V8M22 20V4"/></svg><span style="font-size:11px">72%</span></div></div>
+        <div class="body px" style="padding-top:6px">
+          <div style="display:flex; align-items:center; justify-content:space-between; margin-bottom:16px">
+            <div class="title-lg" style="font-size:24px">Your crew</div>
+            <span class="chip" style="color:var(--signal)"><svg class="i" viewBox="0 0 24 24" width="13" height="13"><path d="M12 5v14M5 12h14"/></svg>Add</span>
+          </div>
+          <div class="btn-glass" style="border-radius:16px; padding:14px 16px; margin-bottom:18px; display:flex; align-items:center; gap:12px">
+            <svg class="i" viewBox="0 0 24 24" width="24" height="24" style="color:var(--signal)"><circle cx="12" cy="12" r="10"/><path d="M12 6v6l4 2"/></svg>
+            <div style="flex:1"><div style="font-size:14px; font-weight:600">5h 12m left</div><div style="font-size:10.5px; color:var(--muted)">you're findable · session ends 2:14 AM</div></div>
+            <div class="tgl on"></div>
+          </div>
+          <div class="row">
+            <div class="av-c b-mint">M</div>
+            <div style="flex:1"><div style="font-size:14px; font-weight:600">Maya</div><div style="font-size:10.5px; color:var(--muted)">68m · north stage</div></div>
+            <span class="badge b-live">LIVE</span>
+          </div>
+          <div class="row">
+            <div class="av-c b-amber">R</div>
+            <div style="flex:1"><div style="font-size:14px; font-weight:600">Rin</div><div style="font-size:10.5px; color:var(--muted)">41m · food court</div></div>
+            <span class="badge b-live">LIVE</span>
+          </div>
+          <div class="row">
+            <div class="av-c b-peri">J</div>
+            <div style="flex:1"><div style="font-size:14px; font-weight:600">Jae</div><div style="font-size:10.5px; color:var(--muted)">112m · drifting in & out</div></div>
+            <span class="badge b-live">LIVE</span>
+          </div>
+          <div class="row" style="border-bottom:none">
+            <div class="av-c" style="background:rgba(255,255,255,.1); color:var(--muted)">T</div>
+            <div style="flex:1"><div style="font-size:14px; font-weight:600; color:var(--muted)">Theo</div><div style="font-size:10.5px; color:var(--faint)">went dark · 22m ago</div></div>
+            <span class="badge b-dark">DARK</span>
+          </div>
+        </div>
+        <div class="nav">
+          <a><svg class="i" viewBox="0 0 24 24"><path d="M4 12a8 8 0 0 1 16 0M7.5 12a4.5 4.5 0 0 1 9 0"/><circle cx="12" cy="12" r="1.5"/></svg><span>Radar</span></a>
+          <a class="on"><svg class="i" viewBox="0 0 24 24" stroke="url(#navgrad)"><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M22 21v-2a4 4 0 0 0-3-3.9"/></svg><span style="background:var(--sunset);-webkit-background-clip:text;background-clip:text;color:transparent">Crew</span></a>
+          <a><svg class="i" viewBox="0 0 24 24"><circle cx="12" cy="8" r="4"/><path d="M4 21v-1a6 6 0 0 1 12 0v1"/></svg><span>Me</span></a>
+        </div>
+      </div></div>
+      <div class="cap"><h3>Crew tab</h3><p>Roster, LIVE/DARK, session timer.</p></div>
+    </div>
+
+    <!-- ============ 10 ADD FRIEND (QR) ============ -->
+    <div class="col">
+      <div class="phone"><div class="screen">
+        <div class="notch"></div>
+        <div class="sb"><span>9:41</span><div class="r"><svg class="i" viewBox="0 0 24 24"><path d="M2 20h.01M7 20v-4M12 20v-8M17 20V8M22 20V4"/></svg><span style="font-size:11px">72%</span></div></div>
+        <div class="body px" style="text-align:center; padding-top:8px">
+          <div style="display:flex; align-items:center; gap:10px; margin-bottom:26px">
+            <span class="chip"><svg class="i" viewBox="0 0 24 24" width="13" height="13"><path d="m15 18-6-6 6-6"/></svg></span>
+            <div class="title-lg" style="font-size:19px; flex:1; text-align:left">Add a friend</div>
+          </div>
+          <div style="flex:1; display:flex; flex-direction:column; align-items:center; justify-content:center">
+            <div style="position:relative; margin-bottom:26px">
+              <div style="position:absolute; inset:-14px; border-radius:32px; background:var(--sunset); filter:blur(30px); opacity:.35"></div>
+              <div class="qr" style="position:relative" id="qr10"></div>
+            </div>
+            <div class="title-lg" style="font-size:17px; margin-bottom:8px">@augustus</div>
+            <p style="color:var(--muted); font-size:12.5px; font-weight:300; margin:0 0 26px; line-height:1.55; padding:0 14px">Have them scan this — you'll pair over Bluetooth. No internet needed.</p>
+            <button class="btn btn-glass">
+              <svg class="i" viewBox="0 0 24 24" width="17" height="17"><rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/><path d="M14 14h3v3M20 20h.01M17 20h.01M20 17h.01"/></svg>
+              Scan instead</button>
+          </div>
+        </div>
+      </div></div>
+      <div class="cap"><h3>Add friend</h3><p>QR pairs over Bluetooth, offline.</p></div>
+    </div>
+
+    <!-- ============ 11 PRIVACY / ME ============ -->
+    <div class="col">
+      <div class="phone"><div class="screen">
+        <div class="notch"></div>
+        <div class="sb"><span>9:41</span><div class="r"><svg class="i" viewBox="0 0 24 24"><path d="M2 20h.01M7 20v-4M12 20v-8M17 20V8M22 20V4"/></svg><span style="font-size:11px">72%</span></div></div>
+        <div class="body px" style="padding-top:6px">
+          <div style="display:flex; flex-direction:column; align-items:center; margin-bottom:22px">
+            <div style="width:70px; height:70px; border-radius:50%; background:var(--sunset); display:flex; align-items:center; justify-content:center; font-family:'Unbounded'; font-weight:800; font-size:28px; color:#160a06; margin-bottom:12px; box-shadow:0 10px 30px rgba(255,90,90,.3)">A</div>
+            <div style="font-size:17px; font-weight:600">Augustus</div>
+            <div style="font-size:12px; color:var(--muted)">@augustus</div>
+          </div>
+          <div class="label">Who can find you</div>
+          <div class="seg" style="margin-bottom:20px">
+            <button class="on">Live</button><button>Only open</button><button>Invisible</button>
+          </div>
+          <div class="btn-glass" style="border-radius:14px; padding:14px 16px; display:flex; align-items:center; gap:12px; margin-bottom:16px">
+            <svg class="i" viewBox="0 0 24 24" width="20" height="20" style="color:var(--muted)"><path d="M17.94 17.94A10 10 0 0 1 12 20c-7 0-11-8-11-8a18 18 0 0 1 5.06-5.94M9.9 4.24A9 9 0 0 1 12 4c7 0 11 8 11 8a18 18 0 0 1-2.16 3.19M1 1l22 22"/></svg>
+            <div style="flex:1"><div style="font-size:13.5px; font-weight:600">Go dark</div><div style="font-size:10.5px; color:var(--muted)">instantly vanish from every radar</div></div>
+            <div class="tgl"></div>
+          </div>
+          <div class="row" style="cursor:pointer">
+            <svg class="i" viewBox="0 0 24 24" width="20" height="20" style="color:var(--signal)"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
+            <div style="flex:1; font-size:13.5px; font-weight:500">Privacy</div>
+            <svg class="i" viewBox="0 0 24 24" width="16" height="16" style="color:var(--faint)"><path d="m9 18 6-6-6-6"/></svg>
+          </div>
+          <div class="row" style="border-bottom:none; cursor:pointer">
+            <svg class="i" viewBox="0 0 24 24" width="20" height="20" style="color:var(--muted)"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 1 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 1 1-2.83-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 1 1 2.83-2.83l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 1 1 2.83 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg>
+            <div style="flex:1; font-size:13.5px; font-weight:500">Settings</div>
+            <svg class="i" viewBox="0 0 24 24" width="16" height="16" style="color:var(--faint)"><path d="m9 18 6-6-6-6"/></svg>
+          </div>
+        </div>
+        <div class="nav">
+          <a><svg class="i" viewBox="0 0 24 24"><path d="M4 12a8 8 0 0 1 16 0M7.5 12a4.5 4.5 0 0 1 9 0"/><circle cx="12" cy="12" r="1.5"/></svg><span>Radar</span></a>
+          <a><svg class="i" viewBox="0 0 24 24"><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M22 21v-2a4 4 0 0 0-3-3.9"/></svg><span>Crew</span></a>
+          <a class="on"><svg class="i" viewBox="0 0 24 24" stroke="url(#navgrad)"><circle cx="12" cy="8" r="4"/><path d="M4 21v-1a6 6 0 0 1 12 0v1"/></svg><span style="background:var(--sunset);-webkit-background-clip:text;background-clip:text;color:transparent">Me</span></a>
+        </div>
+      </div></div>
+      <div class="cap"><h3>Privacy · Me</h3><p>Live / Only open / Invisible + Go dark.</p></div>
+    </div>
+
+    <!-- ============ 12 PING RECEIVED ============ -->
+    <div class="col">
+      <div class="phone"><div class="screen">
+        <div class="notch"></div>
+        <div class="sb"><span>9:41</span><div class="r"><svg class="i" viewBox="0 0 24 24"><path d="M2 20h.01M7 20v-4M12 20v-8M17 20V8M22 20V4"/></svg><span style="font-size:11px">70%</span></div></div>
+        <div class="body">
+          <div class="px" style="display:flex; align-items:center; justify-content:space-between; padding-top:4px; padding-bottom:8px; z-index:10; position:relative">
+            <div class="wm" style="font-size:20px">Loc<span class="e">8</span></div>
+            <div class="chip mesh-badge"><svg class="i" viewBox="0 0 24 24" width="12" height="12"><path d="M4 12a8 8 0 0 1 16 0M7.5 12a4.5 4.5 0 0 1 9 0M12 12h.01"/></svg>MESH · 4</div>
+          </div>
+          <!-- notification card -->
+          <div class="px" style="z-index:15; position:relative">
+            <div style="border-radius:18px; background:rgba(255,77,125,.1); border:1px solid rgba(255,120,90,.34); padding:14px 15px; display:flex; align-items:center; gap:12px; backdrop-filter:blur(20px); box-shadow:0 14px 34px rgba(0,0,0,.4); animation:rise .6s .2s both">
+              <div style="width:42px; height:42px; border-radius:50%; background:var(--sunset); display:flex; align-items:center; justify-content:center; flex:0 0 42px">
+                <svg class="i" viewBox="0 0 24 24" width="20" height="20" style="color:#160a06"><path d="M12 21s7-6.3 7-11a7 7 0 1 0-14 0c0 4.7 7 11 7 11z"/><circle cx="12" cy="10" r="2.5"/></svg>
+              </div>
+              <div style="flex:1"><div style="font-size:13.5px; font-weight:600">Maya asks where you are</div><div style="font-size:10.5px; color:var(--muted)">tap to share your live spot →</div></div>
+              <svg class="i" viewBox="0 0 24 24" width="18" height="18" style="color:var(--pink)"><path d="m9 18 6-6-6-6"/></svg>
+            </div>
+          </div>
+          <div style="position:relative; flex:1">
+            <div class="radar">
+              <div class="radial-glow"></div>
+              <div class="sweep"></div>
+              <div class="ring" style="width:240px;height:240px"></div>
+              <div class="ring" style="width:160px;height:160px"></div>
+              <div class="ring" style="width:84px;height:84px"></div>
+              <div class="you-beacon"></div>
+              <div class="blip b-mint" style="left:66%; top:34%">M<span class="tag">Maya · 68m</span></div>
+              <div class="blip b-amber" style="left:34%; top:64%">R<span class="tag">Rin · 41m</span></div>
+            </div>
+          </div>
+        </div>
+        <div class="nav">
+          <a class="on"><svg class="i" viewBox="0 0 24 24" stroke="url(#navgrad)"><path d="M4 12a8 8 0 0 1 16 0M7.5 12a4.5 4.5 0 0 1 9 0"/><circle cx="12" cy="12" r="1.5" fill="url(#navgrad)" stroke="none"/></svg><span style="background:var(--sunset);-webkit-background-clip:text;background-clip:text;color:transparent">Radar</span></a>
+          <a><svg class="i" viewBox="0 0 24 24"><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M22 21v-2a4 4 0 0 0-3-3.9"/></svg><span>Crew</span></a>
+          <a><svg class="i" viewBox="0 0 24 24"><circle cx="12" cy="8" r="4"/><path d="M4 21v-1a6 6 0 0 1 12 0v1"/></svg><span>Me</span></a>
+        </div>
+      </div></div>
+      <div class="cap"><h3>Ping received</h3><p>"Maya asks where you are →" banner.</p></div>
+    </div>
+
+    <!-- ============ 13 RALLY PIN / SHARE ============ -->
+    <div class="col">
+      <div class="phone"><div class="screen">
+        <div class="notch"></div>
+        <div class="sb"><span>9:41</span><div class="r"><svg class="i" viewBox="0 0 24 24"><path d="M2 20h.01M7 20v-4M12 20v-8M17 20V8M22 20V4"/></svg><span style="font-size:11px">70%</span></div></div>
+        <div class="body" style="position:relative">
+          <div class="mini-map"></div>
+          <div class="px" style="position:relative; z-index:2; padding-top:8px">
+            <div class="title-lg" style="font-size:19px">Drop a rally pin</div>
+          </div>
+          <div style="flex:1"></div>
+          <div class="sheet" style="position:relative">
+            <div class="grab"></div>
+            <div style="display:flex; align-items:center; gap:10px; margin-bottom:16px">
+              <svg class="i" viewBox="0 0 24 24" width="20" height="20" style="color:var(--pink)"><path d="M12 21s7-6.3 7-11a7 7 0 1 0-14 0c0 4.7 7 11 7 11z"/><circle cx="12" cy="10" r="2.5"/></svg>
+              <div style="font-size:13px; font-weight:600">Meet-here code</div>
+            </div>
+            <div style="border-radius:16px; background:rgba(255,255,255,.05); border:1px solid var(--glass-b); padding:18px; text-align:center; margin-bottom:14px">
+              <div class="plus-code" id="pluscode">849VCWC8+R9</div>
+              <div style="font-size:10.5px; color:var(--muted); margin-top:6px">Plus Code · east gate, by the flag</div>
+            </div>
+            <div style="display:flex; gap:10px; margin-bottom:16px">
+              <button class="btn btn-glass" id="copyBtn" onclick="doCopy()" style="flex:1">
+                <svg class="i" viewBox="0 0 24 24" width="16" height="16"><rect x="9" y="9" width="11" height="11" rx="2"/><path d="M5 15V5a2 2 0 0 1 2-2h10"/></svg>
+                <span id="copyTxt">Copy</span></button>
+              <button class="btn btn-sun" style="flex:1">
+                <svg class="i" viewBox="0 0 24 24" width="16" height="16" style="color:#160a06"><path d="M4 4h16v12H5.2L4 17.2z"/></svg>
+                Text it</button>
+            </div>
+            <div style="display:flex; align-items:center; justify-content:center; gap:7px; color:var(--muted); font-size:11px; font-weight:300">
+              <svg class="i" viewBox="0 0 24 24" width="13" height="13"><path d="M4 12a8 8 0 0 1 16 0"/><path d="M8 12a4 4 0 0 1 8 0"/></svg>
+              works offline · shout it or text it</div>
+          </div>
+        </div>
+      </div></div>
+      <div class="cap"><h3>Rally pin</h3><p>An offline Plus Code you can shout.</p></div>
+    </div>
+
+    <!-- ============ 14 START SESSION ============ -->
+    <div class="col">
+      <div class="phone"><div class="screen">
+        <div class="notch"></div>
+        <div class="sb"><span>9:41</span><div class="r"><svg class="i" viewBox="0 0 24 24"><path d="M2 20h.01M7 20v-4M12 20v-8M17 20V8M22 20V4"/></svg><span style="font-size:11px">72%</span></div></div>
+        <div class="body" style="position:relative">
+          <div style="position:absolute; inset:0; background:radial-gradient(circle at 50% 30%, rgba(255,120,90,.14), transparent 55%)"></div>
+          <div class="px" style="position:relative; z-index:2; padding-top:10px; text-align:center">
+            <div class="title-lg" style="font-size:22px; margin-bottom:4px">Become findable</div>
+            <p style="color:var(--muted); font-size:12px; font-weight:300; margin:0">How long is your crew out tonight?</p>
+          </div>
+          <div style="flex:1"></div>
+          <div class="sheet" style="position:relative">
+            <div class="grab"></div>
+            <div class="label" style="margin-bottom:12px">Session length</div>
+            <div class="dur"><div style="display:flex; align-items:center; gap:11px"><svg class="i" viewBox="0 0 24 24" width="17" height="17" style="color:var(--muted)"><circle cx="12" cy="12" r="9"/><path d="M12 8v4l3 2"/></svg><span style="font-size:14px; font-weight:600">4 hours</span></div><span style="font-size:11px; color:var(--muted)">until 1:41 AM</span></div>
+            <div class="dur on"><div style="display:flex; align-items:center; gap:11px"><svg class="i" viewBox="0 0 24 24" width="17" height="17" style="color:var(--signal)"><circle cx="12" cy="12" r="9"/><path d="M12 8v4l3 2"/></svg><span style="font-size:14px; font-weight:600">6 hours</span></div><span style="font-size:11px; color:var(--signal)">until 3:41 AM ✓</span></div>
+            <div class="dur"><div style="display:flex; align-items:center; gap:11px"><svg class="i" viewBox="0 0 24 24" width="17" height="17" style="color:var(--muted)"><circle cx="12" cy="12" r="9"/><path d="M12 8v4l3 2"/></svg><span style="font-size:14px; font-weight:600">12 hours</span></div><span style="font-size:11px; color:var(--muted)">until noon</span></div>
+            <div class="dur" style="margin-bottom:18px"><div style="display:flex; align-items:center; gap:11px"><svg class="i" viewBox="0 0 24 24" width="17" height="17" style="color:var(--muted)"><rect x="3" y="4" width="18" height="18" rx="2"/><path d="M16 2v4M8 2v4M3 10h18"/></svg><span style="font-size:14px; font-weight:600">All weekend</span></div><span style="font-size:11px; color:var(--muted)">3 days</span></div>
+            <button class="btn btn-sun">
+              <svg viewBox="0 0 24 24" width="16" height="16" fill="#160a06"><path d="M6 4l14 8-14 8z"/></svg>
+              Become findable</button>
+          </div>
+        </div>
+      </div></div>
+      <div class="cap"><h3>Start session</h3><p>Pick a duration, then go findable.</p></div>
+    </div>
+
+    <!-- ============ 15 EMPTY STATE ============ -->
+    <div class="col">
+      <div class="phone"><div class="screen">
+        <div class="notch"></div>
+        <div class="sb"><span>9:41</span><div class="r"><svg class="i" viewBox="0 0 24 24"><path d="M2 20h.01M7 20v-4M12 20v-8M17 20V8M22 20V4"/></svg><span style="font-size:11px">72%</span></div></div>
+        <div class="body px" style="text-align:center; justify-content:center">
+          <div style="flex:1; display:flex; align-items:center; justify-content:center; position:relative">
+            <div style="position:absolute; width:170px; height:170px; border:1px dashed rgba(255,255,255,.14); border-radius:50%"></div>
+            <div style="position:absolute; width:100px; height:100px; border:1px dashed rgba(255,255,255,.1); border-radius:50%"></div>
+            <div style="width:66px; height:66px; border-radius:50%; background:var(--glass); border:1px solid var(--glass-b); display:flex; align-items:center; justify-content:center; backdrop-filter:blur(20px)">
+              <svg class="i" viewBox="0 0 24 24" width="30" height="30" style="color:var(--muted)"><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M19 8v6M22 11h-6"/></svg>
+            </div>
+          </div>
+          <div style="padding-bottom:24px">
+            <div class="title-lg" style="font-size:21px; margin-bottom:12px; line-height:1.2">No crew yet</div>
+            <p style="color:var(--muted); font-size:12.5px; font-weight:300; margin:0 0 24px; line-height:1.55; padding:0 12px">Add your people <b style="color:#fff; font-weight:600">before</b> you lose signal — Loc8 can't find someone who isn't in your crew.</p>
+            <button class="btn btn-sun" style="margin-bottom:12px">
+              <svg class="i" viewBox="0 0 24 24" width="17" height="17" style="color:#160a06"><path d="M12 5v14M5 12h14"/></svg>
+              Add a friend</button>
+            <button class="btn btn-ghost">Show my QR code</button>
+          </div>
+        </div>
+        <div class="nav">
+          <a><svg class="i" viewBox="0 0 24 24"><path d="M4 12a8 8 0 0 1 16 0M7.5 12a4.5 4.5 0 0 1 9 0"/><circle cx="12" cy="12" r="1.5"/></svg><span>Radar</span></a>
+          <a class="on"><svg class="i" viewBox="0 0 24 24" stroke="url(#navgrad)"><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M22 21v-2a4 4 0 0 0-3-3.9"/></svg><span style="background:var(--sunset);-webkit-background-clip:text;background-clip:text;color:transparent">Crew</span></a>
+          <a><svg class="i" viewBox="0 0 24 24"><circle cx="12" cy="8" r="4"/><path d="M4 21v-1a6 6 0 0 1 12 0v1"/></svg><span>Me</span></a>
+        </div>
+      </div></div>
+      <div class="cap"><h3>Empty state</h3><p>Add people before signal dies.</p></div>
+    </div>
+
+  </div>
+
+  <div class="foot">Loc8 · consumer app gallery · 15 screens · plum-black aurora + sunset</div>
+</div>
+
+<script>
+// staggered load-in
+document.querySelectorAll('.col').forEach((c,i)=>{ c.style.animationDelay=(i*0.06)+'s'; });
+
+// QR pattern (deterministic pseudo-random)
+(function(){
+  var q=document.getElementById('qr10'); if(!q) return;
+  var seed=7; function r(){seed=(seed*1103515245+12345)&0x7fffffff; return seed/0x7fffffff;}
+  // 9x9 = 81 cells; force finder-ish corners
+  var corners={0:1,1:1,2:1,9:1,11:1,18:1,19:1,20:1, 6:1,7:1,8:1,15:1,17:1,24:1,25:1,26:1, 54:1,55:1,56:1,63:1,65:1,72:1,73:1,74:1};
+  for(var k=0;k<81;k++){
+    var i=document.createElement('i');
+    var on = corners[k]!==undefined ? true : (r()>.5);
+    if(!on) i.className='o';
+    q.appendChild(i);
+  }
+})();
+
+// copy button
+function doCopy(){
+  var code='849VCWC8+R9';
+  try{ navigator.clipboard && navigator.clipboard.writeText(code); }catch(e){}
+  var t=document.getElementById('copyTxt'), b=document.getElementById('copyBtn');
+  t.textContent='Copied'; b.querySelector('svg').innerHTML='<path d="M20 6 9 17l-5-5"/>';
+  setTimeout(function(){ t.textContent='Copy'; b.querySelector('svg').innerHTML='<rect x="9" y="9" width="11" height="11" rx="2"/><path d="M5 15V5a2 2 0 0 1 2-2h10"/>'; },1600);
+}
+
+// confetti on Found screen
+(function(){
+  var body=document.getElementById('foundBody'); if(!body) return;
+  var cols=['#ff4d7d','#ff7a45','#ffb038','#5ef2c8','#7aa2ff'];
+  for(var i=0;i<16;i++){
+    var c=document.createElement('div'); c.className='confetti';
+    c.style.background=cols[i%cols.length];
+    c.style.left=(10+Math.random()*80)+'%';
+    c.style.top=(18+Math.random()*30)+'%';
+    c.style.animationDelay=(Math.random()*2)+'s';
+    body.appendChild(c);
+  }
+})();
+</script>
+</body>
+</html>
