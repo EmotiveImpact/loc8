@@ -1,6 +1,7 @@
 // src/core/__tests__/packetCodec.test.ts
 import { encodePacket, decodePacket, PACKET_SIZE } from '../packetCodec';
 import type { Packet } from '../types';
+import { quickReplyLabel, QUICK_REPLIES } from '../types';
 
 const sample: Packet = {
   type: 'position', senderId: 42, targetId: 0,
@@ -55,8 +56,33 @@ describe('PacketCodec', () => {
     expect(wrap.headingDeg).toBeLessThanOrEqual(359);
   });
   it('round-trips every packet type', () => {
-    (['position', 'pingWhere', 'pingComeFind', 'rally'] as const).forEach((type) => {
+    (['position', 'pingWhere', 'pingComeFind', 'rally', 'quickReply'] as const).forEach((type) => {
       expect(decodePacket(encodePacket({ ...sample, type })).type).toBe(type);
     });
+  });
+  it('round-trips a quickReply packet losslessly (code + type preserved)', () => {
+    const reply: Packet = {
+      type: 'quickReply', senderId: 7, targetId: 42,
+      latitude: 0, longitude: 0, headingDeg: 0, batteryPct: 55,
+      timestampSec: 1783300000, accuracyM: 3, quickReplyCode: 5,
+    };
+    const d = decodePacket(encodePacket(reply));
+    expect(d.type).toBe('quickReply');
+    expect(d.senderId).toBe(7);
+    expect(d.targetId).toBe(42);
+    expect(d.quickReplyCode).toBe(5);
+    expect(d.timestampSec).toBe(1783300000);
+  });
+});
+
+describe('quickReplyLabel', () => {
+  it('resolves known codes to their labels', () => {
+    expect(quickReplyLabel(1)).toBe('On my way');
+    expect(quickReplyLabel(QUICK_REPLIES[QUICK_REPLIES.length - 1].code))
+      .toBe(QUICK_REPLIES[QUICK_REPLIES.length - 1].label);
+  });
+  it('falls back to … for unknown codes', () => {
+    expect(quickReplyLabel(999)).toBe('…');
+    expect(quickReplyLabel(0)).toBe('…');
   });
 });

@@ -1,6 +1,7 @@
 import { create } from 'zustand';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import type { Coordinate, Packet } from '../core/types';
+import { quickReplyLabel } from '../core/types';
 import { FRIEND_COLORS } from '../ui/theme';
 
 const PROFILE_KEY = 'loc8.profile.v1';
@@ -48,7 +49,11 @@ export interface FriendState {
 }
 export interface RallyPin { latitude: number; longitude: number; droppedById: number; atSec: number; }
 
-export type ActivityKind = 'ping' | 'rally' | 'found' | 'dark' | 'session';
+/** Top banner. `kind` lets the UI decide what to render (e.g. reply chips for an incoming ping). */
+export type BannerKind = 'ping' | 'reply' | 'rally' | 'info';
+export interface Banner { text: string; friendId?: number; kind?: BannerKind; }
+
+export type ActivityKind = 'ping' | 'reply' | 'rally' | 'found' | 'dark' | 'session';
 export interface ActivityEvent {
   id: number;
   kind: ActivityKind;
@@ -83,7 +88,7 @@ interface CrewState {
   myLocation: Coordinate | null;
   meshNearby: number;
   beaconMode: boolean;
-  banner: { text: string; friendId?: number } | null;
+  banner: Banner | null;
   celebrated: Record<number, boolean>;
   activityLog: ActivityEvent[];
 
@@ -107,7 +112,7 @@ interface CrewState {
   setMyLocation(c: Coordinate): void;
   setMeshNearby(n: number): void;
   setBeacon(on: boolean): void;
-  setBanner(b: { text: string; friendId?: number } | null): void;
+  setBanner(b: Banner | null): void;
   markCelebrated(friendId: number): void;
   clearCelebrated(friendId: number): void;
   dropLocalPin(pin: RallyPin): void;
@@ -273,7 +278,7 @@ export const useCrewStore = create<CrewState>((set, get) => ({
             latitude: p.latitude, longitude: p.longitude,
             droppedById: p.senderId, atSec: p.timestampSec,
           },
-          banner: { text: `${name} dropped a rally pin` },
+          banner: { text: `${name} dropped a rally pin`, kind: 'rally' },
         });
         get().pushActivity({ kind: 'rally', text: `${name} dropped a rally pin`, atSec: p.timestampSec, friendId: p.senderId });
       }
@@ -281,8 +286,17 @@ export const useCrewStore = create<CrewState>((set, get) => ({
       ensureFriend(p.senderId);
       const name = get().friends[p.senderId]?.name ?? 'Someone';
       const text = p.type === 'pingWhere' ? `${name} asked: where are you?` : `${name}: come find me!`;
-      set({ banner: { text, friendId: p.senderId } });
+      set({ banner: { text, friendId: p.senderId, kind: 'ping' } });
       get().pushActivity({ kind: 'ping', text, atSec: p.timestampSec, friendId: p.senderId });
+    } else if (p.type === 'quickReply') {
+      // Replies are directed (by targetId), like pings — NOT crew-tag-filtered.
+      // Only surface a reply addressed to me.
+      if (p.targetId !== get().profile?.id) return;
+      ensureFriend(p.senderId);
+      const name = get().friends[p.senderId]?.name ?? 'Someone';
+      const text = `${name}: ${quickReplyLabel(p.quickReplyCode ?? 0)}`;
+      set({ banner: { text, friendId: p.senderId, kind: 'reply' } });
+      get().pushActivity({ kind: 'reply', text, atSec: p.timestampSec, friendId: p.senderId });
     }
   },
 

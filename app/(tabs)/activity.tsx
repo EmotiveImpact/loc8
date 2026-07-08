@@ -6,10 +6,11 @@ import { useCrewStore, type ActivityKind } from '../../src/state/crewStore';
 import { useNowSec } from '../../src/hooks/useNowSec';
 import { AuroraBackground } from '../../src/ui/AuroraBackground';
 import { colors, fonts } from '../../src/ui/theme';
-import { Bell, Flag, PartyPopper, Moon, Clock, ChevronRight, type LucideIcon } from 'lucide-react-native';
+import { Bell, MessageCircle, Flag, PartyPopper, Moon, Clock, ChevronRight, type LucideIcon } from 'lucide-react-native';
 
 const KIND: Record<ActivityKind, { Icon: LucideIcon; color: string }> = {
   ping: { Icon: Bell, color: colors.coral },
+  reply: { Icon: MessageCircle, color: colors.teal },
   rally: { Icon: Flag, color: colors.gold },
   found: { Icon: PartyPopper, color: colors.teal },
   dark: { Icon: Moon, color: colors.faint },
@@ -44,7 +45,7 @@ export default function ActivityScreen() {
         <ScrollView contentContainerStyle={st.list}>
           {log.map((e) => {
             const meta = KIND[e.kind];
-            const tappable = e.kind === 'ping' && e.friendId != null;
+            const tappable = (e.kind === 'ping' || e.kind === 'reply') && e.friendId != null;
             return (
               <Pressable
                 key={e.id}

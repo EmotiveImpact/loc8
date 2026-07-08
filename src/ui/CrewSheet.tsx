@@ -1,9 +1,11 @@
 // src/ui/CrewSheet.tsx
-import { View, Text, Pressable, StyleSheet, Alert } from 'react-native';
+import { useState } from 'react';
+import { View, Text, Pressable, StyleSheet, Modal } from 'react-native';
 import { BlurView } from 'expo-blur';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useRouter, type Href } from 'expo-router';
 import { useCrewStore, freshnessSec, GHOST_SEC } from '../state/crewStore';
+import { QUICK_REPLIES } from '../core/types';
 import { getMeshService } from '../services/appServices';
 import { haptics } from '../services/haptics';
 import { getHaversineDistance } from '../core/geoMath';
@@ -20,12 +22,10 @@ export function CrewSheet() {
   const insets = useSafeAreaInsets();
   const meshOn = meshNearby > 0;
 
-  const ping = (id: number, name: string) =>
-    Alert.alert(`Ping ${name}`, undefined, [
-      { text: 'Where are you?', onPress: () => { haptics.pingSent(); getMeshService().pingFriend(id, 'pingWhere'); } },
-      { text: 'Come find me', onPress: () => { haptics.pingSent(); getMeshService().pingFriend(id, 'pingComeFind'); } },
-      { text: 'Cancel', style: 'cancel' },
-    ]);
+  // The friend currently targeted by the send-chooser modal (null = closed).
+  const [chooser, setChooser] = useState<{ id: number; name: string } | null>(null);
+
+  const ping = (id: number, name: string) => setChooser({ id, name });
 
   const online = Object.values(friends).filter(
     (f) => f.lastPacket && (freshnessSec(f, now) ?? Infinity) <= GHOST_SEC,
@@ -79,6 +79,54 @@ export function CrewSheet() {
           </View>
         );
       })}
+
+      <Modal
+        visible={chooser !== null}
+        transparent
+        animationType="fade"
+        onRequestClose={() => setChooser(null)}
+      >
+        <Pressable style={st.backdrop} onPress={() => setChooser(null)}>
+          <Pressable style={st.chooser} onPress={() => {}}>
+            <Text style={st.chooserTitle}>Send to {chooser?.name}</Text>
+            <View style={st.options}>
+              <Pressable
+                style={st.option}
+                onPress={() => {
+                  if (chooser) { haptics.pingSent(); getMeshService().pingFriend(chooser.id, 'pingWhere'); }
+                  setChooser(null);
+                }}
+              >
+                <Text style={st.optionText}>Where are you?</Text>
+              </Pressable>
+              <Pressable
+                style={st.option}
+                onPress={() => {
+                  if (chooser) { haptics.pingSent(); getMeshService().pingFriend(chooser.id, 'pingComeFind'); }
+                  setChooser(null);
+                }}
+              >
+                <Text style={st.optionText}>Come find me</Text>
+              </Pressable>
+              {QUICK_REPLIES.map((q) => (
+                <Pressable
+                  key={q.code}
+                  style={st.option}
+                  onPress={() => {
+                    if (chooser) { haptics.pingSent(); getMeshService().sendQuickReply(chooser.id, q.code); }
+                    setChooser(null);
+                  }}
+                >
+                  <Text style={st.optionText}>{q.label}</Text>
+                </Pressable>
+              ))}
+            </View>
+            <Pressable style={st.cancel} onPress={() => setChooser(null)}>
+              <Text style={st.cancelText}>Cancel</Text>
+            </Pressable>
+          </Pressable>
+        </Pressable>
+      </Modal>
     </BlurView>
   );
 }
@@ -107,4 +155,18 @@ const st = StyleSheet.create({
   pingText: { color: colors.text, fontSize: 12, fontWeight: '700' },
   findBtn: { flexDirection: 'row', alignItems: 'center', gap: 2, backgroundColor: colors.pink, paddingHorizontal: 14, paddingVertical: 7, borderRadius: 16 },
   findText: { color: '#fff', fontSize: 12, fontFamily: fonts.bodySemi },
+  backdrop: { flex: 1, backgroundColor: 'rgba(0,0,0,0.55)', justifyContent: 'flex-end' },
+  chooser: {
+    backgroundColor: colors.card, borderTopLeftRadius: 24, borderTopRightRadius: 24,
+    borderTopWidth: 1, borderColor: colors.cardBorder, padding: 20, paddingBottom: 36,
+  },
+  chooserTitle: { color: colors.text, fontSize: 15, fontFamily: fonts.bodyBold, marginBottom: 14, textAlign: 'center' },
+  options: { flexDirection: 'row', flexWrap: 'wrap', gap: 10, justifyContent: 'center' },
+  option: {
+    paddingHorizontal: 14, paddingVertical: 10, borderRadius: 18,
+    backgroundColor: colors.pink + '22', borderWidth: 1, borderColor: colors.pink + '55',
+  },
+  optionText: { color: colors.text, fontSize: 13, fontFamily: fonts.bodySemi },
+  cancel: { marginTop: 18, alignSelf: 'center', paddingHorizontal: 20, paddingVertical: 8 },
+  cancelText: { color: colors.textDim, fontSize: 13, fontFamily: fonts.bodySemi },
 });

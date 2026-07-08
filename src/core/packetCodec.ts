@@ -4,9 +4,9 @@ import type { Packet, PacketType } from './types';
 export const PACKET_SIZE = 25;
 
 const TYPE_TO_CODE: Record<PacketType, number> = {
-  position: 0, pingWhere: 1, pingComeFind: 2, rally: 3,
+  position: 0, pingWhere: 1, pingComeFind: 2, rally: 3, quickReply: 4,
 };
-const CODE_TO_TYPE: PacketType[] = ['position', 'pingWhere', 'pingComeFind', 'rally'];
+const CODE_TO_TYPE: PacketType[] = ['position', 'pingWhere', 'pingComeFind', 'rally', 'quickReply'];
 
 export function encodePacket(p: Packet): ArrayBuffer {
   const buf = new ArrayBuffer(PACKET_SIZE);
@@ -14,9 +14,18 @@ export function encodePacket(p: Packet): ArrayBuffer {
   v.setUint8(0, TYPE_TO_CODE[p.type]);
   v.setUint32(1, p.senderId);
   v.setUint32(5, p.targetId);
-  v.setInt32(9, Math.round(p.latitude * 1e7));
-  v.setInt32(13, Math.round(p.longitude * 1e7));
-  v.setUint16(17, ((Math.round(p.headingDeg) % 360) + 360) % 360);
+  if (p.type === 'quickReply') {
+    // Replies carry no geo/heading — zero the position region and stash the
+    // canned-reply code (uint8) at byte 17, reusing the heading slot.
+    v.setInt32(9, 0);
+    v.setInt32(13, 0);
+    v.setUint8(17, Math.min(255, Math.max(0, Math.round(p.quickReplyCode ?? 0))));
+    v.setUint8(18, 0);
+  } else {
+    v.setInt32(9, Math.round(p.latitude * 1e7));
+    v.setInt32(13, Math.round(p.longitude * 1e7));
+    v.setUint16(17, ((Math.round(p.headingDeg) % 360) + 360) % 360);
+  }
   v.setUint8(19, Math.min(100, Math.max(0, Math.round(p.batteryPct))));
   v.setUint32(20, p.timestampSec);
   v.setUint8(24, Math.min(255, Math.max(0, Math.round(p.accuracyM))));
@@ -31,7 +40,7 @@ export function decodePacket(buf: ArrayBuffer): Packet {
   const typeCode = v.getUint8(0);
   const type = CODE_TO_TYPE[typeCode];
   if (!type) throw new Error(`Unknown packet type code: ${typeCode}`);
-  return {
+  const packet: Packet = {
     type,
     senderId: v.getUint32(1),
     targetId: v.getUint32(5),
@@ -42,4 +51,6 @@ export function decodePacket(buf: ArrayBuffer): Packet {
     timestampSec: v.getUint32(20),
     accuracyM: v.getUint8(24),
   };
+  if (type === 'quickReply') packet.quickReplyCode = v.getUint8(17);
+  return packet;
 }

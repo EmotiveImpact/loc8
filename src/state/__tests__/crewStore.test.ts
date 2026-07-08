@@ -105,6 +105,30 @@ describe('crewStore', () => {
     expect(log[0].friendId).toBe(101);
   });
 
+  it('quickReply addressed to me sets a reply banner + activity (not crew-filtered)', () => {
+    useCrewStore.getState().setProfile({ id: 555, name: 'You', color: '#fff' });
+    useCrewStore.getState().applyPacket({
+      ...posPacket(101, 3000), type: 'quickReply', targetId: 555, quickReplyCode: 1,
+    });
+    const banner = useCrewStore.getState().banner;
+    expect(banner?.kind).toBe('reply');
+    expect(banner?.friendId).toBe(101);
+    expect(banner?.text).toMatch(/Maya/);
+    expect(banner?.text).toMatch(/On my way/);
+    const log = useCrewStore.getState().activityLog;
+    expect(log[0].kind).toBe('reply');
+    expect(log[0].friendId).toBe(101);
+  });
+
+  it('quickReply NOT addressed to me is ignored (no banner, no activity)', () => {
+    useCrewStore.getState().setProfile({ id: 555, name: 'You', color: '#fff' });
+    useCrewStore.getState().applyPacket({
+      ...posPacket(101, 3000), type: 'quickReply', targetId: 999, quickReplyCode: 1,
+    });
+    expect(useCrewStore.getState().banner).toBeNull();
+    expect(useCrewStore.getState().activityLog.length).toBe(0);
+  });
+
   it('createCrew sets a crew, returns a code, and hashes to a nonzero tag', () => {
     const code = useCrewStore.getState().createCrew();
     expect(typeof code).toBe('string');

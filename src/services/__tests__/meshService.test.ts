@@ -81,6 +81,18 @@ describe('meshService', () => {
     expect(ping?.targetId).toBe(101);
   });
 
+  it('sendQuickReply sends a targeted quickReply packet carrying the code', () => {
+    const svc = createMeshService(transport, new TrustLayer(600, nowSec), nowSec);
+    svc.start();
+    useCrewStore.getState().startSession(6, clock);
+    svc.sendQuickReply(101, 3);
+    const reply = transport.sent.find((p) => p.type === 'quickReply');
+    expect(reply).toBeDefined();
+    expect(reply?.targetId).toBe(101);
+    expect(reply?.senderId).toBe(1);
+    expect(reply?.quickReplyCode).toBe(3);
+  });
+
   it('dropRally broadcasts a rally packet at my location and pins locally', () => {
     const svc = createMeshService(transport, new TrustLayer(600, nowSec), nowSec);
     svc.start();

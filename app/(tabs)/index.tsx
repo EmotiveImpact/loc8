@@ -2,6 +2,7 @@
 import { useEffect, useState } from 'react';
 import { View, Text, StyleSheet, Pressable } from 'react-native';
 import { useCrewStore } from '../../src/state/crewStore';
+import { QUICK_REPLIES } from '../../src/core/types';
 import { getMeshService, bootCrew } from '../../src/services/appServices';
 import { useMyLocation } from '../../src/hooks/useMyLocation';
 import { useBatteryGuard } from '../../src/hooks/useBatteryGuard';
@@ -72,18 +73,35 @@ export default function RadarHome() {
       </View>
 
       {banner && (
-        <Pressable
-          style={st.banner}
-          onPress={() => {
-            if (banner.friendId) router.push(`/compass/${banner.friendId}` as Href);
-            setBanner(null);
-          }}
-        >
-          <View style={st.bannerRow}>
+        <View style={st.banner}>
+          <Pressable
+            style={st.bannerRow}
+            onPress={() => {
+              if (banner.friendId) router.push(`/compass/${banner.friendId}` as Href);
+              setBanner(null);
+            }}
+          >
             <Text style={st.bannerText}>{banner.text}</Text>
             {banner.friendId ? <ChevronRight size={16} color={colors.text} strokeWidth={2} /> : null}
-          </View>
-        </Pressable>
+          </Pressable>
+          {banner.kind === 'ping' && banner.friendId != null && (
+            <View style={st.chips}>
+              {QUICK_REPLIES.map((q) => (
+                <Pressable
+                  key={q.code}
+                  style={st.chip}
+                  onPress={() => {
+                    getMeshService().sendQuickReply(banner.friendId!, q.code);
+                    haptics.pingSent();
+                    setBanner({ text: `Sent “${q.label}”`, kind: 'info' });
+                  }}
+                >
+                  <Text style={st.chipText}>{q.label}</Text>
+                </Pressable>
+              ))}
+            </View>
+          )}
+        </View>
       )}
 
       {sessionEndsAtSec === null && (
@@ -140,6 +158,12 @@ const st = StyleSheet.create({
   },
   bannerRow: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', gap: 8 },
   bannerText: { color: colors.text, fontSize: 13, fontFamily: fonts.bodySemi, flex: 1 },
+  chips: { flexDirection: 'row', flexWrap: 'wrap', gap: 8, marginTop: 10 },
+  chip: {
+    paddingHorizontal: 12, paddingVertical: 7, borderRadius: 16,
+    backgroundColor: colors.pink + '22', borderWidth: 1, borderColor: colors.pink + '55',
+  },
+  chipText: { color: colors.text, fontSize: 12, fontFamily: fonts.bodySemi },
   sessionCta: {
     flexDirection: 'row', alignItems: 'center', justifyContent: 'center', gap: 8,
     marginHorizontal: 20, marginTop: 10, backgroundColor: colors.pink, borderRadius: 12, padding: 14,

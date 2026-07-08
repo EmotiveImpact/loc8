@@ -14,6 +14,8 @@ export interface MeshService {
   /** One broadcast heartbeat. Called on an interval in the app; directly in tests. */
   broadcastTick(): void;
   pingFriend(friendId: number, kind: Extract<PacketType, 'pingWhere' | 'pingComeFind'>): void;
+  /** Fire a canned quick reply back to `targetId` (closes the ping loop). */
+  sendQuickReply(targetId: number, code: number): void;
   dropRally(): void;
 }
 
@@ -102,6 +104,12 @@ export function createMeshService(
     pingFriend(friendId, kind) {
       const p = myPacket(kind, friendId);
       if (p) transport.broadcast(p);
+    },
+
+    sendQuickReply(targetId, code) {
+      const p = myPacket('quickReply', targetId);
+      if (!p) return;
+      transport.broadcast({ ...p, quickReplyCode: code });
     },
 
     dropRally() {
