@@ -7,7 +7,7 @@ All notable work, mapped against the plans and specs it was built from. Newest f
 - Plan: [`docs/superpowers/plans/2026-07-06-loc8-v1-prototype.md`](docs/superpowers/plans/2026-07-06-loc8-v1-prototype.md) (Tasks 1–18)
 - Spec: [`docs/superpowers/specs/2026-07-07-v2-mesh-spike-brief.md`](docs/superpowers/specs/2026-07-07-v2-mesh-spike-brief.md)
 
-**Current state:** Expo SDK 57 · RN 0.86 · React 19 · app version `1.0.0` · **95 jest tests green (9 suites)** · app code `tsc --noEmit` clean · `npx expo export -p ios` bundles clean. Runs in the iOS simulator in **sim mode** (simulated transport); real BLE mesh (v2) runs only on hardware via `EXPO_PUBLIC_TRANSPORT=ble`.
+**Current state:** Expo SDK 57 · RN 0.86 · React 19 · app version `1.0.0` · **101 jest tests green (9 suites)** · app code `tsc --noEmit` clean · `npx expo export -p ios` bundles clean. Runs in the iOS simulator in **sim mode** (simulated transport); real BLE mesh (v2) runs only on hardware via `EXPO_PUBLIC_TRANSPORT=ble`.
 
 Legend: ✅ done & verified · 🟡 built, needs hardware/user to finish · ⏳ deferred/not started
 
@@ -49,6 +49,13 @@ The "Signal in the dark" design ported into the app, plus real (backend-free) cr
 - ✅ **Signature moments** — the compass **proximity heartbeat** (pulse strength *and* rhythm escalate as you close in) and the **found-each-other burst** — `3fb7324`
 - ✅ **Accessibility toggle** in Settings; documented vocabulary + escalation math in [`docs/design/haptics.md`](docs/design/haptics.md) — `3fb7324`
 - Note: haptics are feelable only on a **real device** (not the simulator) — they light up on the phone build.
+
+### Communication — two-way (phase 1: quick replies)
+- ✅ **Closed the ping loop** — an incoming "Where are you?" now shows **tap-back reply chips** (On my way / Stay there / Come to me / 5 min / At the flag / 👍 / 🎉); one tap sends a `quickReply` packet back and buzzes the asker — `c19346a`
+- ✅ **Protocol** — `quickReply` packet type + `quickReplyCode` (uint8 reusing the heading slot; frame stays 25 bytes, lossless) — `c19346a`
+- ✅ **Proactive too** — the roster Ping button became a full "say something" chooser (both pings + all quick replies) — `c19346a`
+- ✅ **Activity = the crew timeline** — pings, replies, rallies, found-moments flow into one feed; replies render + are tappable — `c19346a`
+- 🟡 **Phase 2 (in progress):** short free-text notes, fragmented across mesh packets + reassembled — real text when a canned reply won't do.
 
 ### Strategy & product docs (folded in earlier this phase)
 - ✅ Product architecture ("one engine, four doors"), business model, security vertical, identity/privacy/login, mapping/terrain, anchors/hardware (`docs/strategy/`) — `eb46c1f`, `0a68998`, `4fb0ce0`
