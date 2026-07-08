@@ -64,6 +64,17 @@
   .raised{position:absolute;left:50%;top:-20px;transform:translateX(-50%);width:58px;height:58px;border-radius:50%;background:var(--rally);display:flex;align-items:center;justify-content:center;box-shadow:0 10px 26px rgba(255,154,60,.5);border:4px solid #0d0a17}
   .raised .icn{width:24px;height:24px;stroke:#1a0a10;stroke-width:2.2}
 
+  /* FINAL 5-slot nav — raised centre */
+  .nav5{position:absolute;left:14px;right:14px;bottom:14px;height:62px;border-radius:24px;z-index:50;background:rgba(16,12,28,.8);backdrop-filter:blur(22px);border:1px solid rgba(255,255,255,.09);display:flex;align-items:flex-end;justify-content:space-around;padding:9px 6px}
+  .n5{display:flex;flex-direction:column;align-items:center;gap:3px;color:rgba(255,255,255,.34);flex:1;position:relative}
+  .n5 svg{width:21px;height:21px;stroke:currentColor;stroke-width:2;fill:none;stroke-linecap:round;stroke-linejoin:round}
+  .n5 span{font-size:9.5px;font-weight:600}
+  .n5.on{color:#fff}.n5.on span{background:var(--sunset);-webkit-background-clip:text;background-clip:text;color:transparent}.n5.on svg{stroke:#ff7a45}
+  .n5.rally{justify-content:flex-end}
+  .rbtn{position:absolute;left:50%;top:-24px;transform:translateX(-50%);width:56px;height:56px;border-radius:50%;background:var(--rally);display:flex;align-items:center;justify-content:center;box-shadow:0 10px 26px rgba(255,154,60,.5);border:4px solid #0d0a17}
+  .rbtn svg{width:24px;height:24px;stroke:#1a0a10;stroke-width:2.2}
+  .rlab{font-size:9.5px;font-weight:700;color:#ffce4d}
+
   /* rally full screen */
   .rally-scr{position:absolute;inset:0;padding:70px 20px 24px;display:flex;flex-direction:column}
   .rhero{text-align:center;margin-top:4px}
@@ -98,7 +109,7 @@
   <div class="head">
     <div class="kicker">Rally · the crew beacon</div>
     <h1>Where should everyone <b>go?</b></h1>
-    <p>Radar shows where everyone <i>is</i>. Rally sets where everyone should <i>meet</i> — a shared, offline "meet here" pin the whole crew can navigate to. Here's how it earns a place in the app.</p>
+    <p>Radar shows where everyone <i>is</i>. Rally sets where everyone should <i>meet</i> — a shared, offline "meet here" pin the whole crew can navigate to. Nav is <b>decided</b>: a 5-slot bar with Rally as a raised gold button dead-centre — Radar · Activity · <b>[Rally]</b> · Crew · Me.</p>
   </div>
 
   <div class="rail">
@@ -120,14 +131,15 @@
           <div class="blip" style="top:68%;left:38%;background:linear-gradient(135deg,#7aa2ff,#5a78e0)">J</div>
           <div class="rpin" style="top:24%;left:42%"><div class="glow"></div><div class="flag"><svg class="icn" style="width:18px;height:18px;stroke:#1a0a10" viewBox="0 0 24 24"><path d="M4 15s1-1 4-1 5 2 8 2 4-1 4-1V3s-1 1-4 1-5-2-8-2-4 1-4 1zM4 22v-7"/></svg></div><div class="lab">MEET HERE · 160m</div></div>
         </div>
-        <div class="nav">
-          <div class="nb on"><div class="iw"><svg class="icn" viewBox="0 0 24 24"><path d="M22 12A10 10 0 1112 2M12 12l6-3"/></svg></div><span>Radar</span></div>
-          <div class="nb rallytab"><span class="livedot"></span><div class="iw"><svg class="icn" viewBox="0 0 24 24"><path d="M4 15s1-1 4-1 5 2 8 2 4-1 4-1V3s-1 1-4 1-5-2-8-2-4 1-4 1zM4 22v-7"/></svg></div><span>Rally</span></div>
-          <div class="nb"><div class="iw"><svg class="icn" viewBox="0 0 24 24"><path d="M17 21v-2a4 4 0 00-4-4H5a4 4 0 00-4 4v2M9 11a4 4 0 100-8 4 4 0 000 8M23 21v-2a4 4 0 00-3-3.87"/></svg></div><span>Crew</span></div>
-          <div class="nb"><div class="iw"><svg class="icn" viewBox="0 0 24 24"><path d="M20 21a8 8 0 00-16 0M12 11a4 4 0 100-8 4 4 0 000 8"/></svg></div><span>Me</span></div>
+        <div class="nav5">
+          <div class="n5 on"><svg viewBox="0 0 24 24"><path d="M22 12A10 10 0 1112 2M12 12l6-3"/></svg><span>Radar</span></div>
+          <div class="n5"><svg viewBox="0 0 24 24"><path d="M6 8a6 6 0 1112 0c0 7 3 9 3 9H3s3-2 3-9"/><path d="M10.3 21a1.94 1.94 0 003.4 0"/></svg><span>Activity</span></div>
+          <div class="n5 rally"><div class="rbtn"><svg viewBox="0 0 24 24"><path d="M4 15s1-1 4-1 5 2 8 2 4-1 4-1V3s-1 1-4 1-5-2-8-2-4 1-4 1zM4 22v-7"/></svg></div><span class="rlab">Rally</span></div>
+          <div class="n5"><svg viewBox="0 0 24 24"><path d="M17 21v-2a4 4 0 00-4-4H5a4 4 0 00-4 4v2M9 11a4 4 0 100-8 4 4 0 000 8M23 21v-2a4 4 0 00-3-3.87"/></svg><span>Crew</span></div>
+          <div class="n5"><svg viewBox="0 0 24 24"><path d="M20 21a8 8 0 00-16 0M12 11a4 4 0 100-8 4 4 0 000 8"/></svg><span>Me</span></div>
         </div>
       </div></div>
-      <div class="cap"><h3>Option A · 4th tab</h3><p>Radar / <b>Rally</b> / Crew / Me. Rally tab glows gold + a live dot when a pin is active. Simple, clear home.</p></div>
+      <div class="cap"><h3>Radar · with Rally active</h3><p>The 5-slot nav — Radar · Activity · <b>[Rally]</b> · Crew · Me. Here Radar is home with a live pin dropped + the gold "Rally active" strip up top.</p></div>
     </div>
 
     <!-- 2 nav variant B: raised center -->
@@ -142,15 +154,15 @@
           <div class="blip" style="top:66%;left:34%;background:linear-gradient(135deg,#7aa2ff,#5a78e0)">J</div>
           <div class="blip" style="top:52%;left:22%;background:linear-gradient(135deg,#ffb038,#ff7a45)">S</div>
         </div>
-        <div class="nav">
-          <div class="nb on"><div class="iw"><svg class="icn" viewBox="0 0 24 24"><path d="M22 12A10 10 0 1112 2M12 12l6-3"/></svg></div><span>Radar</span></div>
-          <div class="nb"><div class="iw"><svg class="icn" viewBox="0 0 24 24"><path d="M17 21v-2a4 4 0 00-4-4H5a4 4 0 00-4 4v2M9 11a4 4 0 100-8 4 4 0 000 8"/></svg></div><span>Crew</span></div>
-          <div class="raised"><svg class="icn" viewBox="0 0 24 24"><path d="M4 15s1-1 4-1 5 2 8 2 4-1 4-1V3s-1 1-4 1-5-2-8-2-4 1-4 1zM4 22v-7"/></svg></div>
-          <div class="nb" style="opacity:0;pointer-events:none"><div class="iw"></div><span>·</span></div>
-          <div class="nb"><div class="iw"><svg class="icn" viewBox="0 0 24 24"><path d="M20 21a8 8 0 00-16 0M12 11a4 4 0 100-8 4 4 0 000 8"/></svg></div><span>Me</span></div>
+        <div class="nav5">
+          <div class="n5 on"><svg viewBox="0 0 24 24"><path d="M22 12A10 10 0 1112 2M12 12l6-3"/></svg><span>Radar</span></div>
+          <div class="n5"><svg viewBox="0 0 24 24"><path d="M6 8a6 6 0 1112 0c0 7 3 9 3 9H3s3-2 3-9"/><path d="M10.3 21a1.94 1.94 0 003.4 0"/></svg><span>Activity</span></div>
+          <div class="n5 rally"><div class="rbtn"><svg viewBox="0 0 24 24"><path d="M4 15s1-1 4-1 5 2 8 2 4-1 4-1V3s-1 1-4 1-5-2-8-2-4 1-4 1zM4 22v-7"/></svg></div><span class="rlab">Rally</span></div>
+          <div class="n5"><svg viewBox="0 0 24 24"><path d="M17 21v-2a4 4 0 00-4-4H5a4 4 0 00-4 4v2M9 11a4 4 0 100-8 4 4 0 000 8M23 21v-2a4 4 0 00-3-3.87"/></svg><span>Crew</span></div>
+          <div class="n5"><svg viewBox="0 0 24 24"><path d="M20 21a8 8 0 00-16 0M12 11a4 4 0 100-8 4 4 0 000 8"/></svg><span>Me</span></div>
         </div>
       </div></div>
-      <div class="cap"><h3>Option B · raised button</h3><p>Radar / Crew · <b>[Rally]</b> · Me. A hero gold button dead-centre — "this is the thing you do." My pick.</p></div>
+      <div class="cap"><h3>The final nav</h3><p>Radar · Activity · <b>[Rally]</b> · Crew · Me. The hero gold button sits dead-centre, raised — "this is the thing you do." Decided.</p></div>
     </div>
 
     <!-- 3 Rally screen active -->

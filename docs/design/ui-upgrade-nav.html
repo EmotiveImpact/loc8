@@ -14,6 +14,7 @@
     --glass:rgba(255,255,255,.045);--line:rgba(255,255,255,.09);
     --signal:#5ef2c8;--signal2:#7aa2ff;--amber:#ffb038;--coral:#ff7a45;--rose:#ff4d7d;
     --sunset:linear-gradient(135deg,#ff4d7d 0%,#ff7a45 55%,#ffb038 100%);
+    --rally:linear-gradient(135deg,#ffce4d,#ff9a3c);
     --disp:'Unbounded',sans-serif;--body:'Sora',-apple-system,sans-serif;
   }
   body{font-family:var(--body);color:var(--ink);min-height:100vh;
@@ -70,8 +71,19 @@
   .nb.on .iconwrap .icn{stroke:#1a0a10}
   .nb.on span{background:var(--sunset);-webkit-background-clip:text;background-clip:text;color:transparent}
 
-  /* content area padded above nav */
-  .body{position:absolute;top:44px;left:0;right:0;bottom:92px;overflow:hidden}
+  /* ===== FINAL 5-SLOT NAV ===== */
+  .nav5{position:absolute;left:14px;right:14px;bottom:14px;height:62px;border-radius:24px;z-index:50;background:rgba(16,12,28,.8);backdrop-filter:blur(22px);border:1px solid rgba(255,255,255,.09);display:flex;align-items:flex-end;justify-content:space-around;padding:9px 6px}
+  .n5{display:flex;flex-direction:column;align-items:center;gap:3px;color:rgba(255,255,255,.34);flex:1;position:relative}
+  .n5 svg{width:21px;height:21px;stroke:currentColor;stroke-width:2;fill:none;stroke-linecap:round;stroke-linejoin:round}
+  .n5 span{font-size:9.5px;font-weight:600}
+  .n5.on{color:#fff}.n5.on span{background:var(--sunset);-webkit-background-clip:text;background-clip:text;color:transparent}.n5.on svg{stroke:#ff7a45}
+  .n5.rally{justify-content:flex-end}
+  .rbtn{position:absolute;left:50%;top:-24px;transform:translateX(-50%);width:56px;height:56px;border-radius:50%;background:var(--rally);display:flex;align-items:center;justify-content:center;box-shadow:0 10px 26px rgba(255,154,60,.5);border:4px solid #0d0a17}
+  .rbtn svg{width:24px;height:24px;stroke:#1a0a10;stroke-width:2.2}
+  .rlab{font-size:9.5px;font-weight:700;color:#ffce4d}
+
+  /* content area padded above nav (clears raised Rally button) */
+  .body{position:absolute;top:44px;left:0;right:0;bottom:104px;overflow:hidden}
 
   /* radar mini */
   .radar-stage{position:absolute;top:40%;left:50%;transform:translate(-50%,-50%);width:250px;height:250px}
@@ -131,16 +143,18 @@
 <body>
   <div class="head">
     <div class="kicker">Loc8 · adding a bottom menu</div>
-    <h1>Three tabs, <b>one focus</b></h1>
-    <p>Radar stays the hero. Crew and Me get real homes (roster, sessions, profile, privacy, login). The active tab lights up in sunset.</p>
+    <h1>Five slots, <b>one hero action</b></h1>
+    <p>Radar, Activity, Crew, Me — with the Rally button raised dead-centre. The raised centre is always the one critical action (Rally for the crew, SOS in the Guard app).</p>
   </div>
 
   <div class="navdetail">
     <div class="lab">the bar</div>
-    <div class="nav" style="position:relative;left:0;right:0;bottom:0;margin:0">
-      <div class="nb on"><div class="iconwrap"><svg class="icn" viewBox="0 0 24 24"><path d="M22 12A10 10 0 1112 2M12 12l6-3"/><circle cx="12" cy="12" r="2.4" fill="#1a0a10" stroke="none"/></svg></div><span>Radar</span></div>
-      <div class="nb"><div class="iconwrap"><svg class="icn" viewBox="0 0 24 24"><path d="M17 21v-2a4 4 0 00-4-4H5a4 4 0 00-4 4v2M9 11a4 4 0 100-8 4 4 0 000 8M23 21v-2a4 4 0 00-3-3.87M16 3.13a4 4 0 010 7.75"/></svg></div><span>Crew</span></div>
-      <div class="nb"><div class="iconwrap"><svg class="icn" viewBox="0 0 24 24"><path d="M20 21a8 8 0 00-16 0M12 11a4 4 0 100-8 4 4 0 000 8"/></svg></div><span>Me</span></div>
+    <div class="nav5" style="position:relative;left:0;right:0;bottom:0;margin:24px 0 0">
+      <div class="n5 on"><svg viewBox="0 0 24 24"><path d="M22 12A10 10 0 1112 2M12 12l6-3"/></svg><span>Radar</span></div>
+      <div class="n5"><svg viewBox="0 0 24 24"><path d="M6 8a6 6 0 1112 0c0 7 3 9 3 9H3s3-2 3-9"/><path d="M10.3 21a1.94 1.94 0 003.4 0"/></svg><span>Activity</span></div>
+      <div class="n5 rally"><div class="rbtn"><svg viewBox="0 0 24 24"><path d="M4 15s1-1 4-1 5 2 8 2 4-1 4-1V3s-1 1-4 1-5-2-8-2-4 1-4 1zM4 22v-7"/></svg></div><span class="rlab">Rally</span></div>
+      <div class="n5"><svg viewBox="0 0 24 24"><path d="M17 21v-2a4 4 0 00-4-4H5a4 4 0 00-4 4v2M9 11a4 4 0 100-8 4 4 0 000 8M23 21v-2a4 4 0 00-3-3.87"/></svg><span>Crew</span></div>
+      <div class="n5"><svg viewBox="0 0 24 24"><path d="M20 21a8 8 0 00-16 0M12 11a4 4 0 100-8 4 4 0 000 8"/></svg><span>Me</span></div>
     </div>
   </div>
 
@@ -175,10 +189,12 @@
             <svg class="icn up" style="width:16px;height:16px" viewBox="0 0 24 24"><path d="M18 15l-6-6-6 6"/></svg>
           </div>
         </div>
-        <div class="nav">
-          <div class="nb on"><div class="iconwrap"><svg class="icn" viewBox="0 0 24 24"><path d="M22 12A10 10 0 1112 2M12 12l6-3"/><circle cx="12" cy="12" r="2.4" fill="#1a0a10" stroke="none"/></svg></div><span>Radar</span></div>
-          <div class="nb"><div class="iconwrap"><svg class="icn" viewBox="0 0 24 24"><path d="M17 21v-2a4 4 0 00-4-4H5a4 4 0 00-4 4v2M9 11a4 4 0 100-8 4 4 0 000 8M23 21v-2a4 4 0 00-3-3.87M16 3.13a4 4 0 010 7.75"/></svg></div><span>Crew</span></div>
-          <div class="nb"><div class="iconwrap"><svg class="icn" viewBox="0 0 24 24"><path d="M20 21a8 8 0 00-16 0M12 11a4 4 0 100-8 4 4 0 000 8"/></svg></div><span>Me</span></div>
+        <div class="nav5">
+          <div class="n5 on"><svg viewBox="0 0 24 24"><path d="M22 12A10 10 0 1112 2M12 12l6-3"/></svg><span>Radar</span></div>
+          <div class="n5"><svg viewBox="0 0 24 24"><path d="M6 8a6 6 0 1112 0c0 7 3 9 3 9H3s3-2 3-9"/><path d="M10.3 21a1.94 1.94 0 003.4 0"/></svg><span>Activity</span></div>
+          <div class="n5 rally"><div class="rbtn"><svg viewBox="0 0 24 24"><path d="M4 15s1-1 4-1 5 2 8 2 4-1 4-1V3s-1 1-4 1-5-2-8-2-4 1-4 1zM4 22v-7"/></svg></div><span class="rlab">Rally</span></div>
+          <div class="n5"><svg viewBox="0 0 24 24"><path d="M17 21v-2a4 4 0 00-4-4H5a4 4 0 00-4 4v2M9 11a4 4 0 100-8 4 4 0 000 8M23 21v-2a4 4 0 00-3-3.87"/></svg><span>Crew</span></div>
+          <div class="n5"><svg viewBox="0 0 24 24"><path d="M20 21a8 8 0 00-16 0M12 11a4 4 0 100-8 4 4 0 000 8"/></svg><span>Me</span></div>
         </div>
       </div></div>
       <div class="cap"><h3>Radar tab</h3><p>Crew sheet → a slim <b>peek</b> (tap to expand / go to Crew). Radar finally breathes.</p></div>
@@ -204,10 +220,12 @@
           </div>
           <div class="addbtn"><svg class="icn" style="width:17px;height:17px;stroke:#1a0a10" viewBox="0 0 24 24"><path d="M12 5v14M5 12h14"/></svg> Add friend</div>
         </div>
-        <div class="nav">
-          <div class="nb"><div class="iconwrap"><svg class="icn" viewBox="0 0 24 24"><path d="M22 12A10 10 0 1112 2M12 12l6-3"/></svg></div><span>Radar</span></div>
-          <div class="nb on"><div class="iconwrap"><svg class="icn" viewBox="0 0 24 24"><path d="M17 21v-2a4 4 0 00-4-4H5a4 4 0 00-4 4v2M9 11a4 4 0 100-8 4 4 0 000 8M23 21v-2a4 4 0 00-3-3.87M16 3.13a4 4 0 010 7.75"/></svg></div><span>Crew</span></div>
-          <div class="nb"><div class="iconwrap"><svg class="icn" viewBox="0 0 24 24"><path d="M20 21a8 8 0 00-16 0M12 11a4 4 0 100-8 4 4 0 000 8"/></svg></div><span>Me</span></div>
+        <div class="nav5">
+          <div class="n5"><svg viewBox="0 0 24 24"><path d="M22 12A10 10 0 1112 2M12 12l6-3"/></svg><span>Radar</span></div>
+          <div class="n5"><svg viewBox="0 0 24 24"><path d="M6 8a6 6 0 1112 0c0 7 3 9 3 9H3s3-2 3-9"/><path d="M10.3 21a1.94 1.94 0 003.4 0"/></svg><span>Activity</span></div>
+          <div class="n5 rally"><div class="rbtn"><svg viewBox="0 0 24 24"><path d="M4 15s1-1 4-1 5 2 8 2 4-1 4-1V3s-1 1-4 1-5-2-8-2-4 1-4 1zM4 22v-7"/></svg></div><span class="rlab">Rally</span></div>
+          <div class="n5 on"><svg viewBox="0 0 24 24"><path d="M17 21v-2a4 4 0 00-4-4H5a4 4 0 00-4 4v2M9 11a4 4 0 100-8 4 4 0 000 8M23 21v-2a4 4 0 00-3-3.87"/></svg><span>Crew</span></div>
+          <div class="n5"><svg viewBox="0 0 24 24"><path d="M20 21a8 8 0 00-16 0M12 11a4 4 0 100-8 4 4 0 000 8"/></svg><span>Me</span></div>
         </div>
       </div></div>
       <div class="cap"><h3>Crew tab</h3><p>Full roster, live/dark status, the session timer, and Add-friend — all in one home.</p></div>
