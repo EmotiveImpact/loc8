@@ -84,6 +84,15 @@ The **raised centre slot = the one critical action.** For Consumer that's **Rall
 **Activity** = the feed / history tab: pings, rally alerts, found-moments, and
 notifications in one timeline.
 
+### Radar = act · Crew tab = manage (shipped 2026-07-08)
+
+Two different jobs, two surfaces — don't merge them:
+
+- **Radar (home) = act on people.** A **crew roster pull-up** lives on the radar (peek bar above the tab bar → slides up to the roster with **Ping** / **Find** per person). You act where you're already looking. The sheet **floats *under* the tab bar** — the frosted nav stays visible and tappable (Find My pattern), and only the radar dims behind it. A sheet that *covers* the nav is the wrong pattern for a dip-in/dip-out panel.
+- **Crew tab = manage the crew.** Crew code + QR + join/scan + broadcast sessions + leave. Low-frequency setup, not in-the-moment action.
+
+Rule of thumb: *"find/ping my people" → radar; "set up my crew" → Crew tab.*
+
 ---
 
 ## Mockup index
@@ -93,9 +102,9 @@ All files are in `docs/design/` unless noted. Market-model files live in `docs/s
 | File | What it shows |
 | --- | --- |
 | `ui-upgrade-v1.html` | **"Signal in the dark"** — the 4 hero screens: Onboarding, Radar (the hero), Compass (follow), Found (the payoff). The visual north star. |
-| `ui-upgrade-nav.html` | **"Three tabs, one focus"** — bottom-nav proposal: Radar tab, Crew tab, Me tab. |
+| `ui-upgrade-nav.html` | **Early** bottom-nav proposal (3-tab). **Superseded** by the shipped **5-slot** nav — see "Navigation decision" above. |
 | `rally.html` | **"Where should everyone go?"** — Rally nav options (Option A · 4th tab vs Option B · raised button) plus the Rally screen active + empty states. |
-| `gallery-consumer.html` | **Consumer app gallery — 15 screens:** Splash, Sign in, Create profile, Location priming, Radar home, Follow compass, Look around, Found, Crew tab, Add friend, Privacy · Me, Ping received, Rally pin, Start session, Empty state. |
+| `gallery-consumer.html` | **Consumer app gallery — 16 screens:** Splash, Sign in, Create profile, Location priming, Radar home, Follow compass, Look around, Found, Crew tab, Add friend, Privacy · Me, Ping received, Rally pin, Start session, Empty state, **Activity**. |
 | `gallery-guard.html` | **Guard gallery — 7 screens:** Team map, SOS active, Dispatch → navigate, Lone-worker check-in, Incident log, Muster, Shift / clock-in. |
 | `gallery-command.html` | **Command control-room gallery — 5 dashboards:** Operations overview, Incident detail, Muster / evacuation board, Roster & shift management, Coverage heatmap. |
 | `loc8-ops.html` | **"When the radio isn't enough"** — the Ops (security product) intro mockup; sells the tactical register. |

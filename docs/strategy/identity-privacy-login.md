@@ -6,6 +6,14 @@
 - The mesh already carries a stable `senderId` (uint32) per device. An account/handle maps to a stable key → `senderId`, so the design is **forward-compatible**: architect the account layer now, build it when the consumer product scales, and avoid a painful migration later.
 - **Today (spike):** ephemeral per-device id + pairing (QR/link). Fine for the mesh test; **not** the consumer product.
 
+## Status (2026-07-08) — offline-first crews SHIPPED; cloud accounts DEFERRED
+
+We deliberately built the **offline-first** layer first and deferred the cloud layer:
+
+- **Shipped:** real **crews via a shared code** (e.g. `FIRE-42`) — created on-device, shared by **code + QR + camera scan + `loc8://crew/<code>` deep link**, **no backend, no login**. The code hashes to a uint32 tag carried on each position packet; the mesh accepts only same-crew packets → **private crew, auto-discovery**. Crew persists across relaunch. This replaced the mocked QR/link and is enough for a real 2-phone mesh test.
+- **Deferred (the "later" of the two-layer model above):** cloud **accounts + login (Apple/Google/Supabase) + `@handles` + persistent cross-event friend graph + crew-visible avatars**. Everything below is still the plan for that layer — we just haven't built it, by choice (offline-first unblocks the field test with no external dependencies).
+- **Consequence to remember:** with no cloud, a crew is only as persistent as the code you share, and avatars/photos are **local-only** (a photo can't ride the 25-byte mesh packet). Cross-event stickiness + synced photos arrive with the cloud layer.
+
 ## Two layers (the key mental model)
 
 | Layer | Needs signal? | What happens |

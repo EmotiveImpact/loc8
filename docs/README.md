@@ -6,16 +6,21 @@ This folder is the **dev-ready knowledge base**: everything decided so far, so a
 
 ---
 
-## Where things stand (July 2026)
-- **v1 (consumer prototype) — BUILT & green.** Expo SDK 57 app, simulated transport (fake crew), full UX: Radar → Compass → Proximity → 🎉, pings, rally pins, sessions, privacy modes, Plus-Code sharing. Lucide icons, real per-device identity. Runs in the iOS simulator with an instant edit→reload loop. ~70 tests green.
-- **v2 (real BLE mesh) — spike built, pending on-device test.** Native `loc8-mesh` module (iOS Swift + Android Kotlin), bitchat-style wire protocol, behind the same `LocationTransport` interface (flip `EXPO_PUBLIC_TRANSPORT=ble`). Needs an EAS build on 2 physical phones to validate.
+## Where things stand (2026-07-08 · v0.4.0)
+
+> Full commit-by-commit log: [`CHANGELOG.md`](../CHANGELOG.md) (repo root). **82 tests green · tsc clean · bundles clean.**
+
+- **v1 (consumer prototype) — BUILT & green.** Expo SDK 57 app, simulated transport, full UX: Radar → Compass → Proximity → 🎉, pings, rally pins, sessions, privacy modes, Plus-Code sharing.
+- **UX upgrade — DONE.** "Signal in the dark" theme + fonts, 5-slot nav (Radar · Activity · [Rally] · Crew · Me), rotating radar sweep, glass surfaces, flat-dark background. Editable profile (name/accent/**local** avatar) + real Settings screen. Crew roster pull-up on the radar; Crew tab = management.
+- **Offline real crews — DONE (no backend, no login).** Crews via **shared code + QR + scan + `loc8://crew/<code>` deep link**; private mesh filtering (only your crew shows); persisted. This is the **offline-first** path — cloud accounts are **deferred** (see [identity-privacy-login.md](strategy/identity-privacy-login.md) → "Status 2026-07-08").
+- **v2 (real BLE mesh) — spike built, pending on-device test.** Native `loc8-mesh` module (iOS Swift + Android Kotlin), bitchat-style wire protocol, behind the same `LocationTransport` interface (flip `EXPO_PUBLIC_TRANSPORT=ble`). Needs an EAS build on 2 physical phones to validate. **("Version" here = the transport, not a feature set — all the UX above ships in both.)**
 - **Strategy & design — extensively mapped** (this folder + `design/` mockups). Enterprise (security/ops), verticals, anchors, identity, maps all specced but not yet built.
 
 ---
 
 ## The roadmap (phases)
-1. **Prove the phones** — v1 simulated ✓ → v2 real Bluetooth mesh on 2–3 phones (the make-or-break test). Fallback: Bridgefy.
-2. **Consumer product** — accounts/login (Supabase), persistent crews, Crew Pass + Plus subscription, the UI upgrade.
+1. **Prove the phones** — v1 simulated ✓ → v2 real Bluetooth mesh on 2–3 phones (the make-or-break test). Fallback: Bridgefy. *(Unblocked: offline code/QR crews ✓ + UI upgrade ✓ shipped, so a real 2-phone test needs only the EAS build.)*
+2. **Consumer product** — UI upgrade ✓, **offline-first crews ✓ (shipped)**; **then** cloud accounts/login (Supabase), persistent cross-event crews, Crew Pass + Plus subscription. *(Offline-first came first by choice; cloud is the deferred next step.)*
 3. **Enterprise** — Loc8 Guard (field app) + Loc8 Command (control room), sold to security/guarding firms & venues.
 4. **Anchors (hardware)** — BLE↔LoRa boxes for venue-wide coverage + indoor positioning. Only after the phone protocol is locked.
 5. **Verticals at scale** — cruise, theme parks, ski, stadiums, industrial — same engine, feature modules + SDK.
