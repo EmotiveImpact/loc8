@@ -1,18 +1,17 @@
 // apps/guard/app/sos.tsx — SOS active (gallery screen 2).
 // Your position is broadcasting to the team over the mesh (engine rally pin).
 // Nearest guards show live distance; hold-to-cancel stands the SOS down.
-import { useEffect, useRef, useState } from 'react';
-import { View, Text, Pressable, StyleSheet, Animated, Easing } from 'react-native';
+import { useEffect, useRef } from 'react';
+import { View, Text, StyleSheet, Animated, Easing } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useRouter } from 'expo-router';
 import { Siren } from 'lucide-react-native';
-import { useCrewStore, getHaversineDistance, haptics } from '@loc8/engine';
+import { useCrewStore, getHaversineDistance } from '@loc8/engine';
 import { ops, fonts } from '../src/ui/opsTheme';
+import { HoldButton } from '../src/ui/HoldButton';
 import { useGuardStore, badgeLabel } from '../src/state/guardStore';
-import { GUARD_TEAM, guardFor } from '../src/state/guardTeam';
+import { guardFor } from '../src/state/guardTeam';
 import { standDownSos } from '../src/state/sos';
-
-const HOLD_MS = 1000;
 
 export default function SosActive() {
   const insets = useSafeAreaInsets();
@@ -35,22 +34,6 @@ export default function SosActive() {
   useEffect(() => {
     if (!sosActive) router.back();
   }, [sosActive]);
-
-  const holdTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
-  const [holding, setHolding] = useState(false);
-  const startHold = () => {
-    setHolding(true);
-    haptics.tap();
-    // Just stand down — the sosActive effect above pops this screen once, so we
-    // don't call router.back() here too (a double-back triggers a GO_BACK warning).
-    holdTimer.current = setTimeout(() => {
-      standDownSos();
-    }, HOLD_MS);
-  };
-  const endHold = () => {
-    setHolding(false);
-    if (holdTimer.current) clearTimeout(holdTimer.current);
-  };
 
   // Responders: guards with a known position, nearest first, distance to the SOS.
   const responders = Object.values(friends)
@@ -98,13 +81,19 @@ export default function SosActive() {
         </View>
       </View>
 
-      <Pressable
-        style={[st.cancel, holding && st.cancelHolding]}
-        onPressIn={startHold}
-        onPressOut={endHold}
-      >
-        <Text style={st.cancelTxt}>{holding ? 'Keep holding…' : "Hold to cancel — I'm OK"}</Text>
-      </Pressable>
+      <View style={st.cancelWrap}>
+        <HoldButton
+          label="I'M OK — STAND DOWN"
+          sublabel="HOLD TO CANCEL"
+          holdMs={1200}
+          bg={ops.panel}
+          borderColor={ops.line}
+          textColor={ops.ink}
+          fillColor="rgba(255,255,255,0.14)"
+          height={58}
+          onComplete={standDownSos}
+        />
+      </View>
     </View>
   );
 }
@@ -130,14 +119,5 @@ const st = StyleSheet.create({
   raTxt: { color: '#06070d', fontFamily: fonts.displaySemi, fontSize: 12 },
   rn: { flex: 1, color: ops.ink, fontSize: 13, fontFamily: fonts.bodySemi },
   rd: { fontFamily: fonts.mono, fontSize: 11, color: ops.ok },
-  cancel: {
-    marginTop: 'auto', width: '100%', paddingVertical: 16, borderRadius: 16, alignItems: 'center',
-    backgroundColor: ops.panel, borderWidth: 1, borderColor: ops.line,
-  },
-  cancelHolding: { borderColor: tintWhite(0.4) },
-  cancelTxt: { color: ops.ink, fontSize: 14, fontFamily: fonts.bodySemi },
+  cancelWrap: { marginTop: 'auto', width: '100%' },
 });
-
-function tintWhite(a: number) {
-  return `rgba(255,255,255,${a})`;
-}

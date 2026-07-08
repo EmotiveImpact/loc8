@@ -8,6 +8,7 @@ import { Users, ShieldAlert } from 'lucide-react-native';
 import { getMeshService, haptics } from '@loc8/engine';
 import { ops, fonts, opsGradients, tint } from '../../src/ui/opsTheme';
 import { OpsBackground } from '../../src/ui/OpsBackground';
+import { HoldButton } from '../../src/ui/HoldButton';
 import { useGuardStore } from '../../src/state/guardStore';
 import { GUARD_TEAM } from '../../src/state/guardTeam';
 
@@ -40,10 +41,19 @@ export default function Muster() {
         <View style={st.iconWrap}><Users size={44} color={ops.muted} strokeWidth={2} /></View>
         <Text style={st.idleTtl}>No active muster</Text>
         <Text style={st.idleP}>Declare an evacuation to alert the whole team over the mesh and start accounting for everyone.</Text>
-        <Pressable style={st.declare} onPress={declare}>
-          <ShieldAlert size={20} color="#fff" strokeWidth={2.2} />
-          <Text style={st.declareTxt}>DECLARE MUSTER</Text>
-        </Pressable>
+        <View style={st.declareWrap}>
+          <HoldButton
+            label="DECLARE MUSTER"
+            sublabel="HOLD 2.5s TO CONFIRM"
+            holdMs={2500}
+            bg={ops.alert}
+            textColor="#fff"
+            fillColor="rgba(255,255,255,0.28)"
+            height={64}
+            icon={<ShieldAlert size={20} color="#fff" strokeWidth={2.2} />}
+            onComplete={declare}
+          />
+        </View>
       </View>
     );
   }
@@ -89,11 +99,7 @@ const st = StyleSheet.create({
   },
   idleTtl: { fontFamily: fonts.display, fontSize: 20, color: ops.ink, marginTop: 20 },
   idleP: { color: ops.muted, fontSize: 13, textAlign: 'center', lineHeight: 19, marginTop: 10, fontFamily: fonts.body },
-  declare: {
-    flexDirection: 'row', alignItems: 'center', gap: 10, marginTop: 26,
-    backgroundColor: ops.alert, borderRadius: 18, paddingVertical: 16, paddingHorizontal: 28,
-  },
-  declareTxt: { color: '#fff', fontFamily: fonts.display, fontSize: 15, letterSpacing: 0.5 },
+  declareWrap: { alignSelf: 'stretch', marginTop: 26 },
   // active
   tag: { fontFamily: fonts.monoBold, fontSize: 10, letterSpacing: 3, color: ops.alert },
   title: { fontFamily: fonts.display, fontSize: 28, color: ops.ink, marginTop: 8, textAlign: 'center', lineHeight: 30 },
