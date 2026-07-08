@@ -59,8 +59,9 @@ export function bootCrew(): void {
   const isBle = process.env.EXPO_PUBLIC_TRANSPORT === 'ble';
   // BLE mode: no fake friends — real peers auto-add as their packets arrive.
   useCrewStore.getState().setAutoAddPeers(isBle);
-  // Seed the demo crew ONLY in sim mode with no real crew — a real crew's
+  // Seed the demo crew in sim mode (the design loop) so the radar always has
+  // friends — even if a real crew is set. On real BLE, no fake friends: crew
   // members auto-register from their tagged packets (see applyPacket).
-  if (isBle || useCrewStore.getState().crew) return;
+  if (isBle) return;
   useCrewStore.getState().registerFriends(DEMO_CREW.map(({ id, name, color }) => ({ id, name, color })));
 }

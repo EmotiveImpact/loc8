@@ -199,7 +199,11 @@ export const useCrewStore = create<CrewState>((set, get) => ({
 
     if (p.type === 'position') {
       const crew = get().crew;
-      if (crew) {
+      // Crew filtering is a real-transport privacy feature: accept only packets
+      // tagged for our crew. It's gated on autoAddPeers (true only on real BLE)
+      // so the sim design loop always shows the demo crew, regardless of any
+      // crew you've created.
+      if (crew && get().autoAddPeers) {
         // Real-crew mode: only accept position packets tagged for our crew.
         if (p.targetId !== crew.tag) return;
         const existing = get().friends[p.senderId];

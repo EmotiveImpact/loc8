@@ -125,6 +125,7 @@ describe('crewStore', () => {
   });
 
   it('with a crew set, drops position packets whose targetId != crew.tag', () => {
+    useCrewStore.getState().setAutoAddPeers(true); // crew filter is active only on real BLE
     useCrewStore.getState().joinCrew('FIRE-42');
     const tag = useCrewStore.getState().crew!.tag;
     // 101 is a pre-registered friend, but the packet is tagged for another crew.
@@ -133,6 +134,7 @@ describe('crewStore', () => {
   });
 
   it('with a crew set, accepts + auto-registers a sender whose targetId == crew.tag', () => {
+    useCrewStore.getState().setAutoAddPeers(true); // crew filter is active only on real BLE
     useCrewStore.getState().joinCrew('FIRE-42');
     const tag = useCrewStore.getState().crew!.tag;
     useCrewStore.getState().applyPacket({ ...posPacket(777, 1000), targetId: tag }, 'relayX');
