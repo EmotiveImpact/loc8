@@ -1,0 +1,129 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Loc8 — Interactive Market Model</title>
+<style>
+  *{box-sizing:border-box;margin:0;padding:0}
+  :root{--bg:#0a0b12;--card:#12141f;--card2:#161a2b;--border:rgba(255,255,255,.08);--text:#fff;--dim:rgba(255,255,255,.55);
+    --pink:#ff5a8c;--orange:#ff9a5a;--teal:#4be3c0;--yellow:#ffcf5a;--blue:#8c9aff}
+  body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;background:radial-gradient(900px 600px at 50% -10%,#1c1630,#07080f 60%);
+    color:var(--text);padding:24px 14px 60px;-webkit-font-smoothing:antialiased}
+  .wrap{max-width:900px;margin:0 auto}
+  h1{font-size:22px;font-weight:800;text-align:center}
+  h1 b{background:linear-gradient(90deg,var(--pink),var(--orange));-webkit-background-clip:text;background-clip:text;color:transparent}
+  .sub{text-align:center;color:var(--dim);font-size:12px;margin:6px 0 18px}
+  .totals{display:flex;gap:12px;flex-wrap:wrap;justify-content:center;margin-bottom:20px}
+  .tcard{flex:1;min-width:150px;background:var(--card);border:1px solid var(--border);border-radius:16px;padding:16px;text-align:center}
+  .tcard .lbl{font-size:11px;text-transform:uppercase;letter-spacing:1px;color:var(--dim)}
+  .tcard .val{font-size:30px;font-weight:800;margin-top:4px;font-variant-numeric:tabular-nums}
+  .tcard.tam .val{color:var(--blue)} .tcard.som .val{color:var(--teal)}
+  .sec{background:var(--card);border:1px solid var(--border);border-radius:16px;padding:8px 14px 14px;margin-bottom:16px}
+  .sec h2{font-size:12px;text-transform:uppercase;letter-spacing:1px;color:var(--dim);margin:10px 4px}
+  .row{display:grid;grid-template-columns:1.4fr 1fr 1fr 1.5fr 0.9fr;gap:10px;align-items:center;padding:9px 4px;border-top:1px solid var(--border)}
+  .row .nm{font-size:13px;font-weight:600}
+  .row input[type=number]{width:100%;background:var(--card2);border:1px solid var(--border);border-radius:8px;color:var(--text);padding:6px 8px;font-size:12px;font-variant-numeric:tabular-nums}
+  .cap{display:flex;align-items:center;gap:8px}
+  .cap input[type=range]{flex:1;accent-color:var(--teal)}
+  .cap .pct{font-size:11px;color:var(--dim);width:34px;text-align:right;font-variant-numeric:tabular-nums}
+  .som{text-align:right;font-weight:800;font-size:13px;color:var(--teal);font-variant-numeric:tabular-nums}
+  .hdr{display:grid;grid-template-columns:1.4fr 1fr 1fr 1.5fr 0.9fr;gap:10px;padding:2px 4px;font-size:10px;text-transform:uppercase;letter-spacing:.5px;color:var(--dim)}
+  .hdr div:nth-child(n+2){text-align:center} .hdr div:last-child{text-align:right}
+  .bar{height:5px;border-radius:3px;background:rgba(255,255,255,.06);margin-top:5px;overflow:hidden;grid-column:1/-1}
+  .bar i{display:block;height:100%;background:linear-gradient(90deg,var(--teal),var(--orange))}
+  .btn{display:block;margin:6px auto 0;background:var(--card2);border:1px solid var(--border);color:var(--dim);border-radius:10px;padding:8px 16px;font-size:12px;cursor:pointer}
+  .note{color:var(--dim);font-size:11px;text-align:center;margin-top:14px;line-height:1.6}
+  @media(max-width:620px){.row,.hdr{grid-template-columns:1.2fr 1fr 1.4fr 0.8fr}.row .tg,.hdr .tg{display:none}}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <h1><b>Loc8</b> market model — live</h1>
+  <div class="sub">Drag the capture sliders, edit price & targets. Everything recomputes. All £/yr, directional.</div>
+
+  <div class="totals">
+    <div class="tcard tam"><div class="lbl">Total TAM / yr</div><div class="val" id="tam">—</div></div>
+    <div class="tcard som"><div class="lbl">Your SOM (ARR)</div><div class="val" id="som">—</div></div>
+  </div>
+
+  <div class="sec">
+    <h2>B2B — org deals</h2>
+    <div class="hdr"><div>Vertical</div><div>£ / unit</div><div class="tg">Targets</div><div>Capture</div><div>SOM</div></div>
+    <div id="b2b"></div>
+  </div>
+
+  <div class="sec">
+    <h2>B2C — consumer engine (Crew Pass + Plus)</h2>
+    <div class="hdr"><div>Driver</div><div>Value</div><div class="tg"></div><div></div><div>Rev</div></div>
+    <div id="b2c"></div>
+  </div>
+
+  <button class="btn" id="reset">↺ reset to base case</button>
+  <div class="note">TAM = £/unit × targets (B2B) or users × ARPU (B2C). SOM = TAM × capture. Base case ≈ £40M ARR mature.<br>Order-of-magnitude estimates, not a forecast.</div>
+</div>
+
+<script>
+const BASE = [
+  {k:'fest-l', n:'Festivals (≥20k)', price:32000, targets:2500, cap:8},
+  {k:'fest-m', n:'Festivals (mid)', price:8000, targets:8000, cap:2},
+  {k:'cruise', n:'Cruise ships', price:80000, targets:300, cap:25},
+  {k:'parks', n:'Theme parks', price:150000, targets:120, cap:20},
+  {k:'ski', n:'Ski resorts', price:40000, targets:500, cap:15},
+  {k:'stad', n:'Stadiums/arenas', price:30000, targets:800, cap:12},
+  {k:'ind', n:'Industrial (per seat)', price:144, targets:5000000, cap:0.5},
+  {k:'gov', n:'Govt/mass gatherings', price:3000000, targets:15, cap:7},
+  {k:'conf', n:'Conferences', price:3000, targets:10000, cap:5},
+];
+const B2C = {users:10000000, conv:4, arpu:15}; // users, % paying, £/yr
+let state = JSON.parse(JSON.stringify(BASE));
+let consumer = {...B2C};
+
+const fmt = v => v>=1e9?'£'+(v/1e9).toFixed(2)+'B':v>=1e6?'£'+(v/1e6).toFixed(1)+'M':v>=1e3?'£'+(v/1e3).toFixed(0)+'k':'£'+Math.round(v);
+
+function render(){
+  const b2b=document.getElementById('b2b'); b2b.innerHTML='';
+  let maxSom=0;
+  state.forEach(r=>{ const som=r.price*r.targets*(r.cap/100); if(som>maxSom)maxSom=som; });
+  const consSom = consumer.users*(consumer.conv/100)*consumer.arpu;
+  maxSom=Math.max(maxSom,consSom);
+  let totTam=0, totSom=0;
+  state.forEach((r,i)=>{
+    const tam=r.price*r.targets, som=tam*(r.cap/100); totTam+=tam; totSom+=som;
+    const div=document.createElement('div'); div.className='row';
+    div.innerHTML=`<div class="nm">${r.n}</div>
+      <div><input type="number" value="${r.price}" data-i="${i}" data-f="price"></div>
+      <div class="tg"><input type="number" value="${r.targets}" data-i="${i}" data-f="targets"></div>
+      <div class="cap"><input type="range" min="0" max="${r.k==='ind'?5:r.k==='gov'?30:60}" step="${r.k==='ind'?0.1:1}" value="${r.cap}" data-i="${i}" data-f="cap"><span class="pct">${r.cap}%</span></div>
+      <div class="som">${fmt(som)}</div>
+      <div class="bar"><i style="width:${(som/maxSom*100).toFixed(0)}%"></i></div>`;
+    b2b.appendChild(div);
+  });
+  // consumer
+  const c=document.getElementById('b2c'); c.innerHTML='';
+  const consTam=consumer.users*consumer.arpu*0.10; totTam+=consTam; totSom+=consSom;
+  c.innerHTML=`<div class="row">
+    <div class="nm">Users × %paying × ARPU</div>
+    <div><input type="number" value="${consumer.users}" data-c="users" title="total users"></div>
+    <div class="tg"><input type="number" value="${consumer.conv}" data-c="conv" title="% paying"> </div>
+    <div class="cap"><input type="number" value="${consumer.arpu}" data-c="arpu" title="£/yr per paying"></div>
+    <div class="som">${fmt(consSom)}</div>
+    <div class="bar"><i style="width:${(consSom/maxSom*100).toFixed(0)}%"></i></div></div>`;
+
+  document.getElementById('tam').textContent=fmt(totTam);
+  document.getElementById('som').textContent=fmt(totSom);
+  wire();
+}
+function wire(){
+  document.querySelectorAll('[data-f]').forEach(el=>{
+    el.oninput=e=>{ const i=+el.dataset.i, f=el.dataset.f; state[i][f]=+el.value;
+      if(f==='cap') el.parentElement.querySelector('.pct').textContent=(+el.value)+'%';
+      render(); };
+  });
+  document.querySelectorAll('[data-c]').forEach(el=>{ el.oninput=e=>{ consumer[el.dataset.c]=+el.value; render(); }; });
+}
+document.getElementById('reset').onclick=()=>{ state=JSON.parse(JSON.stringify(BASE)); consumer={...B2C}; render(); };
+render();
+</script>
+</body>
+</html>
