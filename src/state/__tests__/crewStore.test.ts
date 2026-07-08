@@ -152,6 +152,31 @@ describe('crewStore', () => {
     expect(useCrewStore.getState().crew).toBeNull();
   });
 
+  it('updateProfile merges a partial patch into the existing profile', () => {
+    useCrewStore.getState().setProfile({ id: 7, name: 'Ada', color: '#fff' });
+    useCrewStore.getState().updateProfile({ name: 'Ada Lovelace' });
+    expect(useCrewStore.getState().profile).toMatchObject({ id: 7, name: 'Ada Lovelace', color: '#fff' });
+    useCrewStore.getState().updateProfile({ avatarUri: 'file://pic.jpg', color: '#ff4d7d' });
+    expect(useCrewStore.getState().profile).toMatchObject({
+      id: 7, name: 'Ada Lovelace', color: '#ff4d7d', avatarUri: 'file://pic.jpg',
+    });
+  });
+
+  it('updateProfile is a no-op when there is no profile yet', () => {
+    expect(useCrewStore.getState().profile).toBeNull();
+    useCrewStore.getState().updateProfile({ name: 'Ghost' });
+    expect(useCrewStore.getState().profile).toBeNull();
+  });
+
+  it('units default to metres and can be changed; notifications default on', () => {
+    expect(useCrewStore.getState().units).toBe('m');
+    expect(useCrewStore.getState().notificationsEnabled).toBe(true);
+    useCrewStore.getState().setUnits('ft');
+    expect(useCrewStore.getState().units).toBe('ft');
+    useCrewStore.getState().setNotificationsEnabled(false);
+    expect(useCrewStore.getState().notificationsEnabled).toBe(false);
+  });
+
   it('markCelebrated then clearCelebrated removes the flag (allows re-celebration)', () => {
     const s = useCrewStore.getState();
     s.markCelebrated(101);

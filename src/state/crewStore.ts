@@ -7,7 +7,9 @@ const PROFILE_KEY = 'loc8.profile.v1';
 
 export type PrivacyMode = 'live' | 'open' | 'invisible';
 
-export interface Profile { id: number; name: string; color: string; }
+export interface Profile { id: number; name: string; color: string; avatarUri?: string; }
+
+export type Units = 'm' | 'ft';
 
 export interface Crew { code: string; tag: number; }
 
@@ -72,6 +74,8 @@ interface CrewState {
   hydrated: boolean;
   autoAddPeers: boolean;
   privacyMode: PrivacyMode;
+  notificationsEnabled: boolean;
+  units: Units;
   sessionEndsAtSec: number | null;
   friends: Record<number, FriendState>;
   rallyPin: RallyPin | null;
@@ -83,6 +87,9 @@ interface CrewState {
   activityLog: ActivityEvent[];
 
   setProfile(p: Profile): void;
+  updateProfile(patch: Partial<Profile>): void;
+  setNotificationsEnabled(v: boolean): void;
+  setUnits(u: Units): void;
   createCrew(): string;
   joinCrew(code: string): void;
   leaveCrew(): void;
@@ -107,19 +114,28 @@ interface CrewState {
   reset(): void;
 }
 
-/** Persisted shape (v2): profile + crew stored together under PROFILE_KEY. */
-interface Persisted { profile: Profile | null; crew: Crew | null; }
+/** Persisted shape (v2): profile + crew + prefs stored together under PROFILE_KEY. */
+interface Persisted {
+  profile: Profile | null;
+  crew: Crew | null;
+  notificationsEnabled?: boolean;
+  units?: Units;
+}
 
-/** Persist profile + crew so id stays stable and the crew survives relaunch. */
+/** Persist profile + crew + prefs so they survive relaunch. */
 function persist(): void {
-  const { profile, crew } = useCrewStore.getState();
-  AsyncStorage.setItem(PROFILE_KEY, JSON.stringify({ profile, crew } as Persisted)).catch(() => {});
+  const { profile, crew, notificationsEnabled, units } = useCrewStore.getState();
+  AsyncStorage.setItem(
+    PROFILE_KEY,
+    JSON.stringify({ profile, crew, notificationsEnabled, units } as Persisted),
+  ).catch(() => {});
 }
 
 const initial = {
   profile: null as Profile | null, crew: null as Crew | null,
   hydrated: false, autoAddPeers: false,
   privacyMode: 'live' as PrivacyMode, sessionEndsAtSec: null,
+  notificationsEnabled: true, units: 'm' as Units,
   friends: {}, rallyPin: null, myLocation: null, meshNearby: 0,
   beaconMode: false, banner: null, celebrated: {},
   activityLog: [] as ActivityEvent[],
@@ -130,6 +146,23 @@ export const useCrewStore = create<CrewState>((set, get) => ({
 
   setProfile: (profile) => {
     set({ profile });
+    persist();
+  },
+
+  updateProfile: (patch) => {
+    const cur = get().profile;
+    if (!cur) return;
+    set({ profile: { ...cur, ...patch } });
+    persist();
+  },
+
+  setNotificationsEnabled: (notificationsEnabled) => {
+    set({ notificationsEnabled });
+    persist();
+  },
+
+  setUnits: (units) => {
+    set({ units });
     persist();
   },
 
@@ -159,9 +192,11 @@ export const useCrewStore = create<CrewState>((set, get) => ({
         const parsed = JSON.parse(raw) as Persisted | Profile;
         // v2 shape { profile, crew } — or legacy bare Profile (has `id`).
         if (parsed && 'profile' in parsed) {
-          const { profile, crew } = parsed as Persisted;
+          const { profile, crew, notificationsEnabled, units } = parsed as Persisted;
           if (profile && typeof profile.id === 'number') set({ profile });
           if (crew && typeof crew.tag === 'number') set({ crew });
+          if (typeof notificationsEnabled === 'boolean') set({ notificationsEnabled });
+          if (units === 'm' || units === 'ft') set({ units });
         } else if (parsed && typeof (parsed as Profile).id === 'number') {
           set({ profile: parsed as Profile });
         }

@@ -8,7 +8,7 @@ import { useFonts, Unbounded_600SemiBold, Unbounded_800ExtraBold } from '@expo-g
 import { Sora_300Light, Sora_400Regular, Sora_500Medium, Sora_600SemiBold, Sora_700Bold } from '@expo-google-fonts/sora';
 import { SpaceMono_400Regular, SpaceMono_700Bold } from '@expo-google-fonts/space-mono';
 import { useCrewStore } from '../src/state/crewStore';
-import { colors } from '../src/ui/theme';
+import { colors, fonts } from '../src/ui/theme';
 
 // `/onboarding` (app/onboarding.tsx) is created in the next task, so the
 // generated typed-routes union does not include it yet. Reference it through
@@ -78,6 +78,17 @@ export default function RootLayout() {
         <Stack.Screen name="onboarding" />
         <Stack.Screen name="compass/[id]" />
         <Stack.Screen name="rally" options={{ presentation: 'modal' }} />
+        <Stack.Screen
+          name="settings"
+          options={{
+            presentation: 'card',
+            headerShown: true,
+            title: 'Settings',
+            headerStyle: { backgroundColor: colors.bg },
+            headerTintColor: colors.text,
+            headerTitleStyle: { fontFamily: fonts.displaySemi },
+          }}
+        />
       </Stack>
     </>
   );

@@ -48,7 +48,10 @@ export function RadarView() {
   return (
     <View style={st.wrap} onLayout={(e) => setSize(Math.min(e.nativeEvent.layout.width, e.nativeEvent.layout.height))}>
       {size > 0 && (
-        <>
+        // Single centred square: rings, sweep, beacon and blips all share one
+        // origin (the square's centre). Positioning everything off the taller
+        // outer container is what made the beacon drift below the rings.
+        <View style={{ width: size, height: size }}>
           <Svg width={size} height={size} style={StyleSheet.absoluteFill}>
             <Defs>
               <RadialGradient id="glow" cx="0.5" cy="0.5" r="0.5">
@@ -131,7 +134,7 @@ export function RadarView() {
               />
             );
           })}
-        </>
+        </View>
       )}
     </View>
   );

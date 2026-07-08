@@ -16,6 +16,7 @@
         "NSMotionUsageDescription": "Loc8 uses the compass to point the arrow toward your friends.",
         "NSBluetoothAlwaysUsageDescription": "Loc8 uses Bluetooth to find your crew directly, phone-to-phone, when there's no internet.",
         "NSCameraUsageDescription": "Loc8 scans a crew QR code to join your crew.",
+        "NSPhotoLibraryUsageDescription": "Loc8 uses your photos to set your profile picture.",
         "UIBackgroundModes": [
           "bluetooth-central",
           "bluetooth-peripheral"
@@ -40,7 +41,8 @@
         "BLUETOOTH_ADVERTISE",
         "BLUETOOTH_CONNECT",
         "FOREGROUND_SERVICE",
-        "FOREGROUND_SERVICE_CONNECTED_DEVICE"
+        "FOREGROUND_SERVICE_CONNECTED_DEVICE",
+        "READ_MEDIA_IMAGES"
       ],
       "package": "com.emotiveimpact.loc8"
     },
