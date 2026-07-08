@@ -41,9 +41,10 @@ export default function SosActive() {
   const startHold = () => {
     setHolding(true);
     haptics.tap();
+    // Just stand down — the sosActive effect above pops this screen once, so we
+    // don't call router.back() here too (a double-back triggers a GO_BACK warning).
     holdTimer.current = setTimeout(() => {
       standDownSos();
-      router.back();
     }, HOLD_MS);
   };
   const endHold = () => {

@@ -2,14 +2,14 @@
 // Slots: Map · Incidents · [ SOS raised red centre ] · Muster · Shift.
 // SOS is NOT a tab route — it raises the SOS and pushes the /sos screen.
 import { View, Text, Pressable, StyleSheet } from 'react-native';
-import { LinearGradient } from 'expo-linear-gradient';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useRouter, type Href } from 'expo-router';
 import type { BottomTabBarProps } from 'expo-router/tabs';
-import { Map, TriangleAlert, Users, Clock, Siren, type LucideIcon } from 'lucide-react-native';
+import { Map, TriangleAlert, Users, Clock, type LucideIcon } from 'lucide-react-native';
 import { haptics } from '@loc8/engine';
-import { ops, fonts, opsGradients } from './opsTheme';
+import { ops, fonts } from './opsTheme';
 import { raiseSosNow } from '../state/sos';
+import { HoldSosButton } from './HoldSosButton';
 
 interface TabDef { name: string; label: string; Icon: LucideIcon; }
 
@@ -49,16 +49,8 @@ export function TabBar({ state, navigation }: BottomTabBarProps) {
         {renderTab(TABS[0])}
         {renderTab(TABS[1])}
 
-        {/* Raised red SOS — raises the SOS immediately, then opens the SOS screen */}
-        <Pressable
-          style={st.sosSlot}
-          onPress={() => { raiseSosNow(); router.push(SOS); }}
-        >
-          <LinearGradient colors={opsGradients.sos} start={{ x: 0, y: 0 }} end={{ x: 1, y: 1 }} style={st.sbtn}>
-            <Siren size={24} color="#fff" strokeWidth={2.4} />
-          </LinearGradient>
-          <Text style={[st.label, st.sosLabel]}>SOS</Text>
-        </Pressable>
+        {/* Raised red SOS — HOLD 1s to arm (ring fills), then opens the SOS screen */}
+        <HoldSosButton onArmed={() => { raiseSosNow(); router.push(SOS); }} />
 
         {renderTab(TABS[2])}
         {renderTab(TABS[3])}
@@ -77,12 +69,4 @@ const st = StyleSheet.create({
   },
   slot: { flex: 1, alignItems: 'center', justifyContent: 'flex-end', gap: 3, paddingBottom: 2 },
   label: { fontSize: 10, fontFamily: fonts.bodySemi },
-  sosSlot: { flex: 1, alignItems: 'center', justifyContent: 'flex-end', gap: 3 },
-  sbtn: {
-    width: 52, height: 52, borderRadius: 26, alignItems: 'center', justifyContent: 'center',
-    marginTop: -26, borderWidth: 3, borderColor: ops.bg,
-    shadowColor: ops.alert, shadowOpacity: 0.6, shadowRadius: 12, shadowOffset: { width: 0, height: 4 },
-    elevation: 8,
-  },
-  sosLabel: { color: ops.alert, fontFamily: fonts.bodyBold },
 });
