@@ -7,6 +7,7 @@ import * as Clipboard from 'expo-clipboard';
 import { CameraView, useCameraPermissions } from 'expo-camera';
 import QRCode from 'react-native-qrcode-svg';
 import { useCrewStore } from '../../src/state/crewStore';
+import { haptics } from '../../src/services/haptics';
 import { useNowSec } from '../../src/hooks/useNowSec';
 import { colors, fonts, gradients } from '../../src/ui/theme';
 import { AuroraBackground } from '../../src/ui/AuroraBackground';
@@ -57,13 +58,15 @@ export default function CrewScreen() {
 
   const onCreate = () => {
     const code = createCrew();
+    haptics.success();
     Alert.alert('Crew created', `Your crew code is ${code}. Share it so your friends can join.`);
   };
 
   const onJoin = () => {
     const code = joinInput.trim();
-    if (!code) return;
+    if (!code) { haptics.error(); return; }
     joinCrew(code);
+    haptics.success();
     setJoinInput('');
   };
 
@@ -86,7 +89,10 @@ export default function CrewScreen() {
     setScanning(false);
     if (code) {
       joinCrew(code);
+      haptics.success();
       Alert.alert('Joined crew', `You joined crew ${code.toUpperCase()}.`);
+    } else {
+      haptics.error();
     }
   };
 
@@ -116,7 +122,7 @@ export default function CrewScreen() {
               <Text style={st.p}>Not broadcasting. Start a session to become findable.</Text>
               <View style={st.row}>
                 {[4, 6, 12].map((h) => (
-                  <Pressable key={h} style={st.btnWrap} onPress={() => startSession(h)}>
+                  <Pressable key={h} style={st.btnWrap} onPress={() => { haptics.success(); startSession(h); }}>
                     <LinearGradient colors={gradients.sunset} start={{ x: 0, y: 0 }} end={{ x: 1, y: 1 }} style={st.btn}>
                       <Text style={st.btnText}>{h}h</Text>
                     </LinearGradient>
@@ -147,7 +153,7 @@ export default function CrewScreen() {
                 </LinearGradient>
               </Pressable>
             </View>
-            <Pressable style={st.btnGhost} onPress={leaveCrew}>
+            <Pressable style={st.btnGhost} onPress={() => { haptics.tap(); leaveCrew(); }}>
               <LogOut size={16} color={colors.textDim} strokeWidth={2} />
               <Text style={[st.btnGhostText, { color: colors.textDim }]}>Leave crew</Text>
             </Pressable>

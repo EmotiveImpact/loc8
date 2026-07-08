@@ -4,6 +4,7 @@ import Constants from 'expo-constants';
 import { BlurView } from 'expo-blur';
 import { useCrewStore, type Units } from '../src/state/crewStore';
 import { AuroraBackground } from '../src/ui/AuroraBackground';
+import { haptics } from '../src/services/haptics';
 import { colors, fonts } from '../src/ui/theme';
 
 const UNIT_OPTS: Array<{ value: Units; label: string }> = [
@@ -18,8 +19,16 @@ const APP_VERSION =
 export default function SettingsScreen() {
   const notificationsEnabled = useCrewStore((s) => s.notificationsEnabled);
   const setNotificationsEnabled = useCrewStore((s) => s.setNotificationsEnabled);
+  const hapticsEnabled = useCrewStore((s) => s.hapticsEnabled);
+  const setHapticsEnabled = useCrewStore((s) => s.setHapticsEnabled);
   const units = useCrewStore((s) => s.units);
   const setUnits = useCrewStore((s) => s.setUnits);
+
+  const onToggleHaptics = (v: boolean) => {
+    setHapticsEnabled(v);
+    // Fire a confirming tick right after enabling so the user feels it turn on.
+    if (v) haptics.select();
+  };
 
   return (
     <View style={st.root}>
@@ -37,6 +46,24 @@ export default function SettingsScreen() {
             <Switch
               value={notificationsEnabled}
               onValueChange={setNotificationsEnabled}
+              trackColor={{ true: colors.coral, false: colors.line }}
+              thumbColor="#fff"
+            />
+          </View>
+        </View>
+
+        {/* Haptics */}
+        <View style={st.card}>
+          <BlurView tint="dark" intensity={24} style={StyleSheet.absoluteFill} />
+          <Text style={st.cardH}>HAPTICS</Text>
+          <View style={st.row}>
+            <View style={{ flex: 1 }}>
+              <Text style={st.rowTitle}>Vibration feedback</Text>
+              <Text style={st.rowSub}>Feel taps, pings, rallies and the proximity heartbeat as you close in.</Text>
+            </View>
+            <Switch
+              value={hapticsEnabled}
+              onValueChange={onToggleHaptics}
               trackColor={{ true: colors.coral, false: colors.line }}
               thumbColor="#fff"
             />

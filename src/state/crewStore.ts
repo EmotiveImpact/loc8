@@ -75,6 +75,7 @@ interface CrewState {
   autoAddPeers: boolean;
   privacyMode: PrivacyMode;
   notificationsEnabled: boolean;
+  hapticsEnabled: boolean;
   units: Units;
   sessionEndsAtSec: number | null;
   friends: Record<number, FriendState>;
@@ -89,6 +90,7 @@ interface CrewState {
   setProfile(p: Profile): void;
   updateProfile(patch: Partial<Profile>): void;
   setNotificationsEnabled(v: boolean): void;
+  setHapticsEnabled(v: boolean): void;
   setUnits(u: Units): void;
   createCrew(): string;
   joinCrew(code: string): void;
@@ -119,15 +121,16 @@ interface Persisted {
   profile: Profile | null;
   crew: Crew | null;
   notificationsEnabled?: boolean;
+  hapticsEnabled?: boolean;
   units?: Units;
 }
 
 /** Persist profile + crew + prefs so they survive relaunch. */
 function persist(): void {
-  const { profile, crew, notificationsEnabled, units } = useCrewStore.getState();
+  const { profile, crew, notificationsEnabled, hapticsEnabled, units } = useCrewStore.getState();
   AsyncStorage.setItem(
     PROFILE_KEY,
-    JSON.stringify({ profile, crew, notificationsEnabled, units } as Persisted),
+    JSON.stringify({ profile, crew, notificationsEnabled, hapticsEnabled, units } as Persisted),
   ).catch(() => {});
 }
 
@@ -135,7 +138,7 @@ const initial = {
   profile: null as Profile | null, crew: null as Crew | null,
   hydrated: false, autoAddPeers: false,
   privacyMode: 'live' as PrivacyMode, sessionEndsAtSec: null,
-  notificationsEnabled: true, units: 'm' as Units,
+  notificationsEnabled: true, hapticsEnabled: true, units: 'm' as Units,
   friends: {}, rallyPin: null, myLocation: null, meshNearby: 0,
   beaconMode: false, banner: null, celebrated: {},
   activityLog: [] as ActivityEvent[],
@@ -158,6 +161,11 @@ export const useCrewStore = create<CrewState>((set, get) => ({
 
   setNotificationsEnabled: (notificationsEnabled) => {
     set({ notificationsEnabled });
+    persist();
+  },
+
+  setHapticsEnabled: (hapticsEnabled) => {
+    set({ hapticsEnabled });
     persist();
   },
 
@@ -192,10 +200,11 @@ export const useCrewStore = create<CrewState>((set, get) => ({
         const parsed = JSON.parse(raw) as Persisted | Profile;
         // v2 shape { profile, crew } — or legacy bare Profile (has `id`).
         if (parsed && 'profile' in parsed) {
-          const { profile, crew, notificationsEnabled, units } = parsed as Persisted;
+          const { profile, crew, notificationsEnabled, hapticsEnabled, units } = parsed as Persisted;
           if (profile && typeof profile.id === 'number') set({ profile });
           if (crew && typeof crew.tag === 'number') set({ crew });
           if (typeof notificationsEnabled === 'boolean') set({ notificationsEnabled });
+          if (typeof hapticsEnabled === 'boolean') set({ hapticsEnabled });
           if (units === 'm' || units === 'ft') set({ units });
         } else if (parsed && typeof (parsed as Profile).id === 'number') {
           set({ profile: parsed as Profile });

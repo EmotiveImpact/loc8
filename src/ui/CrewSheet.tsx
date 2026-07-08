@@ -5,6 +5,7 @@ import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useRouter, type Href } from 'expo-router';
 import { useCrewStore, freshnessSec, GHOST_SEC } from '../state/crewStore';
 import { getMeshService } from '../services/appServices';
+import { haptics } from '../services/haptics';
 import { getHaversineDistance } from '../core/geoMath';
 import { useNowSec } from '../hooks/useNowSec';
 import { colors, fonts } from './theme';
@@ -21,8 +22,8 @@ export function CrewSheet() {
 
   const ping = (id: number, name: string) =>
     Alert.alert(`Ping ${name}`, undefined, [
-      { text: 'Where are you?', onPress: () => getMeshService().pingFriend(id, 'pingWhere') },
-      { text: 'Come find me', onPress: () => getMeshService().pingFriend(id, 'pingComeFind') },
+      { text: 'Where are you?', onPress: () => { haptics.pingSent(); getMeshService().pingFriend(id, 'pingWhere'); } },
+      { text: 'Come find me', onPress: () => { haptics.pingSent(); getMeshService().pingFriend(id, 'pingComeFind'); } },
       { text: 'Cancel', style: 'cancel' },
     ]);
 
@@ -71,7 +72,7 @@ export function CrewSheet() {
             <Pressable style={st.pingBtn} onPress={() => ping(f.id, f.name)}>
               <Text style={st.pingText}>Ping</Text>
             </Pressable>
-            <Pressable style={st.findBtn} onPress={() => router.push(`/compass/${f.id}` as Href)}>
+            <Pressable style={st.findBtn} onPress={() => { haptics.tap(); router.push(`/compass/${f.id}` as Href); }}>
               <Text style={st.findText}>Find</Text>
               <ChevronRight size={12} color="#fff" strokeWidth={2.5} />
             </Pressable>

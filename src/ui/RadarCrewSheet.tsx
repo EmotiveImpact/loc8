@@ -13,6 +13,7 @@ import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useCrewStore, freshnessSec, GHOST_SEC } from '../state/crewStore';
 import { useNowSec } from '../hooks/useNowSec';
 import { CrewSheet } from './CrewSheet';
+import { haptics } from '../services/haptics';
 import { colors, fonts } from './theme';
 import { ChevronUp, Users } from 'lucide-react-native';
 
@@ -36,7 +37,7 @@ export function RadarCrewSheet() {
     <>
       {/* collapsed peek — sits just above the floating tab bar */}
       {!open && (
-        <Pressable style={[st.peek, { bottom: insets.bottom + 82 }]} onPress={() => setOpen(true)}>
+        <Pressable style={[st.peek, { bottom: insets.bottom + 82 }]} onPress={() => { haptics.tap(); setOpen(true); }}>
           <BlurView tint="dark" intensity={30} style={st.peekBlur}>
             <View style={st.grab} />
             <View style={st.peekRow}>

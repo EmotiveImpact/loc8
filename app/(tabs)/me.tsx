@@ -6,6 +6,7 @@ import { LinearGradient } from 'expo-linear-gradient';
 import { BlurView } from 'expo-blur';
 import * as ImagePicker from 'expo-image-picker';
 import { useCrewStore, type PrivacyMode } from '../../src/state/crewStore';
+import { haptics } from '../../src/services/haptics';
 import { AuroraBackground } from '../../src/ui/AuroraBackground';
 import { colors, gradients, fonts } from '../../src/ui/theme';
 import { MoonStar, Settings, Shield, ChevronRight, Pencil, Camera, X, type LucideIcon } from 'lucide-react-native';
@@ -64,6 +65,7 @@ export default function MeScreen() {
 
   const saveEdit = () => {
     updateProfile({ name: draftName.trim() || 'You', color: draftColor, avatarUri: draftAvatar });
+    haptics.success();
     setEditing(false);
   };
 
@@ -81,6 +83,7 @@ export default function MeScreen() {
         quality: 0.6,
       });
       if (!result.canceled && result.assets?.[0]?.uri) {
+        haptics.tap();
         setDraftAvatar(result.assets[0].uri);
       }
     } catch {
@@ -123,7 +126,7 @@ export default function MeScreen() {
               <Pressable
                 key={m.mode}
                 style={[st.segItem, on && st.segItemOn]}
-                onPress={() => setPrivacy(m.mode)}
+                onPress={() => { haptics.select(); setPrivacy(m.mode); }}
               >
                 <Text style={[st.segText, on && st.segTextOn]}>{m.label}</Text>
               </Pressable>
@@ -135,7 +138,7 @@ export default function MeScreen() {
 
       <Pressable
         style={[st.quickRow, privacyMode === 'invisible' && st.quickRowOn]}
-        onPress={() => setPrivacy('invisible')}
+        onPress={() => { haptics.warning(); setPrivacy('invisible'); }}
       >
         <BlurView tint="dark" intensity={24} style={StyleSheet.absoluteFill} />
         <MoonStar size={18} color={privacyMode === 'invisible' ? colors.gold : colors.text} strokeWidth={2} />
@@ -207,7 +210,7 @@ export default function MeScreen() {
                 <Pressable
                   key={c}
                   style={[st.swatch, { backgroundColor: c }, draftColor === c && st.swatchSel]}
-                  onPress={() => setDraftColor(c)}
+                  onPress={() => { haptics.select(); setDraftColor(c); }}
                 />
               ))}
             </View>

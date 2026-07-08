@@ -8,6 +8,7 @@ import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useRouter, type Href } from 'expo-router';
 import type { BottomTabBarProps } from 'expo-router/tabs';
 import { Radar, Bell, Flag, Users, User, type LucideIcon } from 'lucide-react-native';
+import { haptics } from '../services/haptics';
 import { colors, gradients, fonts } from './theme';
 
 interface TabDef { name: string; label: string; Icon: LucideIcon; }
@@ -34,7 +35,7 @@ export function TabBar({ state, navigation }: BottomTabBarProps) {
       <Pressable
         key={t.name}
         style={st.slot}
-        onPress={() => { if (!focused) navigation.navigate(t.name); }}
+        onPress={() => { if (!focused) { haptics.select(); navigation.navigate(t.name); } }}
       >
         <t.Icon size={22} color={tint} strokeWidth={2} />
         <Text style={[st.label, { color: tint }]}>{t.label}</Text>
@@ -50,7 +51,7 @@ export function TabBar({ state, navigation }: BottomTabBarProps) {
         {renderTab(TABS[1])}
 
         {/* Raised gold Rally — not a tab route */}
-        <Pressable style={st.rallySlot} onPress={() => router.push(RALLY)}>
+        <Pressable style={st.rallySlot} onPress={() => { haptics.tap(); router.push(RALLY); }}>
           <LinearGradient colors={gradients.rally} start={{ x: 0, y: 0 }} end={{ x: 1, y: 1 }} style={st.rbtn}>
             <Flag size={24} color="#1a0a10" strokeWidth={2.4} />
           </LinearGradient>

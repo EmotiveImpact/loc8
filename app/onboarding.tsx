@@ -5,6 +5,7 @@ import { BlurView } from 'expo-blur';
 import { LinearGradient } from 'expo-linear-gradient';
 import * as Location from 'expo-location';
 import { useCrewStore } from '../src/state/crewStore';
+import { haptics } from '../src/services/haptics';
 import { colors, fonts, gradients, FRIEND_COLORS } from '../src/ui/theme';
 import { AuroraBackground } from '../src/ui/AuroraBackground';
 import { MapPin, Plus } from 'lucide-react-native';
@@ -24,6 +25,7 @@ export default function Onboarding() {
   const joinCrew = useCrewStore((s) => s.joinCrew);
 
   const requestLocation = async () => {
+    haptics.tap();
     const { status } = await Location.requestForegroundPermissionsAsync();
     if (status === 'granted') {
       setPendingId(newId());
@@ -35,6 +37,7 @@ export default function Onboarding() {
 
   // Committing the profile is the gate that exits onboarding (root redirect → home).
   const finish = () => {
+    haptics.success();
     setProfile({ id: pendingId ?? newId(), name: name.trim() || 'You', color });
   };
 
@@ -61,7 +64,7 @@ export default function Onboarding() {
         <Pressable
           style={[st.btn, !name.trim() && { opacity: 0.4 }]}
           disabled={!name.trim()}
-          onPress={() => setStep('location')}
+          onPress={() => { haptics.tap(); setStep('location'); }}
         >
           <LinearGradient colors={gradients.sunset} start={{ x: 0, y: 0 }} end={{ x: 1, y: 1 }} style={st.btnInner}>
             <Text style={st.btnText}>Continue</Text>
@@ -116,7 +119,7 @@ export default function Onboarding() {
           </>
         ) : (
           <>
-            <Pressable style={st.btn} onPress={() => createCrew()}>
+            <Pressable style={st.btn} onPress={() => { haptics.tap(); createCrew(); }}>
               <LinearGradient colors={gradients.sunset} start={{ x: 0, y: 0 }} end={{ x: 1, y: 1 }} style={st.btnInner}>
                 <Plus size={16} color="#fff" strokeWidth={2.5} />
                 <Text style={st.btnText}>Create a crew</Text>

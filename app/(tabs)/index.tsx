@@ -13,6 +13,7 @@ import { AuroraBackground } from '../../src/ui/AuroraBackground';
 import { useRouter, type Href } from 'expo-router';
 import { colors, fonts } from '../../src/ui/theme';
 import { notifyPing } from '../../src/services/notifications';
+import { haptics } from '../../src/services/haptics';
 import { ensureBlePermissions } from '../../src/services/blePermissions';
 import { Play, TriangleAlert, BatteryLow, Wrench, ChevronRight } from 'lucide-react-native';
 
@@ -23,6 +24,8 @@ export default function RadarHome() {
   const setBanner = useCrewStore((s) => s.setBanner);
   const sessionEndsAtSec = useCrewStore((s) => s.sessionEndsAtSec);
   const startSession = useCrewStore((s) => s.startSession);
+  const rallyPin = useCrewStore((s) => s.rallyPin);
+  const myId = useCrewStore((s) => s.profile?.id);
   const locationStatus = useMyLocation();
   useBatteryGuard();
   const [devOpen, setDevOpen] = useState(false);
@@ -46,11 +49,20 @@ export default function RadarHome() {
 
   useEffect(() => {
     if (banner) {
-      if (banner.friendId) notifyPing('Loc8', banner.text, banner.friendId);
+      // A banner with a friendId is an INCOMING ping — notify + buzz the double-knock.
+      if (banner.friendId) {
+        notifyPing('Loc8', banner.text, banner.friendId);
+        haptics.pingReceived();
+      }
       const t = setTimeout(() => setBanner(null), 5000);
       return () => clearTimeout(t);
     }
   }, [banner]);
+
+  // Incoming rally: buzz when a pin lands from SOMEONE ELSE (not our own drop).
+  useEffect(() => {
+    if (rallyPin && rallyPin.droppedById !== myId) haptics.rallyReceived();
+  }, [rallyPin?.droppedById, rallyPin?.atSec]);
 
   return (
     <View style={st.wrap}>
@@ -75,7 +87,7 @@ export default function RadarHome() {
       )}
 
       {sessionEndsAtSec === null && (
-        <Pressable style={st.sessionCta} onPress={() => startSession(6)}>
+        <Pressable style={st.sessionCta} onPress={() => { haptics.success(); startSession(6); }}>
           <Play size={15} color="#fff" strokeWidth={2} fill="#fff" />
           <Text style={st.sessionCtaText}>Start a 6h session — become findable</Text>
         </Pressable>

@@ -66,6 +66,7 @@ Loaded via Google Fonts.
 - **The radar** — the consumer hero. Concentric distance **rings** + a **conic sweep** animation, a **you-beacon** at center (sunset gradient), and **avatar blips** for crew placed by bearing/distance.
 - **Bottom nav** — glass bar, **sunset-active** state on the current tab.
 - **Status / mesh badges** — small pills showing mesh connectivity and session/on-duty state.
+- **Haptics** — the touch vocabulary (taps, pings, rallies, the proximity heartbeat, the found celebration) and its accessibility toggle. See [`haptics.md`](haptics.md).
 
 ---
 

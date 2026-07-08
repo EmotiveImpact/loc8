@@ -7,6 +7,7 @@ import { BlurView } from 'expo-blur';
 import { useRouter } from 'expo-router';
 import { useCrewStore, freshnessSec, GHOST_SEC } from '../src/state/crewStore';
 import { getMeshService } from '../src/services/appServices';
+import { haptics } from '../src/services/haptics';
 import { getHaversineDistance } from '../src/core/geoMath';
 import { encodePlusCode } from '../src/core/plusCodes';
 import { useNowSec } from '../src/hooks/useNowSec';
@@ -62,7 +63,7 @@ export default function RallyScreen() {
             <Text style={st.p}>
               Drop a rally pin where you're standing. Your crew sees it on their radar and can navigate straight to it — no signal needed.
             </Text>
-            <Pressable style={st.goldBtn} onPress={() => getMeshService().dropRally()}>
+            <Pressable style={st.goldBtn} onPress={() => { haptics.rallyDrop(); getMeshService().dropRally(); }}>
               <Flag size={18} color="#1a0a10" strokeWidth={2.4} />
               <Text style={st.goldBtnText}>Drop rally here</Text>
             </Pressable>

@@ -4,9 +4,9 @@ import { BlurView } from 'expo-blur';
 import { LinearGradient } from 'expo-linear-gradient';
 import { useLocalSearchParams, useRouter } from 'expo-router';
 import Animated, { useAnimatedStyle, useSharedValue, withTiming } from 'react-native-reanimated';
-import { useEffect, useState } from 'react';
-import * as Haptics from 'expo-haptics';
+import { useEffect, useRef, useState } from 'react';
 import { useCrewStore, freshnessSec } from '../../src/state/crewStore';
+import { haptics } from '../../src/services/haptics';
 import { getHaversineDistance, getAbsoluteBearing } from '../../src/core/geoMath';
 import { useSmoothedHeading } from '../../src/hooks/useSmoothedHeading';
 import { useNowSec } from '../../src/hooks/useNowSec';
@@ -16,6 +16,13 @@ import { colors, fonts, gradients } from '../../src/ui/theme';
 import { Navigation, ScanEye, PartyPopper, Flame, Compass, ChevronLeft } from 'lucide-react-native';
 
 const AnimatedNavigation = Animated.createAnimatedComponent(Navigation);
+
+// Proximity heartbeat: a pulse that speeds up + hardens as you close in.
+// The zone opens at HEARTBEAT_START_M and runs down to the proximity threshold;
+// the period lerps from HEARTBEAT_MAX_MS (far edge) to HEARTBEAT_MIN_MS (right on top).
+const HEARTBEAT_START_M = 150;
+const HEARTBEAT_MAX_MS = 1100;
+const HEARTBEAT_MIN_MS = 300;
 
 export default function CompassScreen() {
   const { id } = useLocalSearchParams<{ id: string }>();
@@ -44,15 +51,43 @@ export default function CompassScreen() {
   const [celebrationShown, setCelebrationShown] = useState(false);
   const [shareOpen, setShareOpen] = useState(false);
 
+  // Proximity heartbeat. Once you're inside the zone (and not yet found/celebrating)
+  // a self-rescheduling pulse fires; it reads the LATEST distance via a ref so the
+  // rhythm tightens smoothly without tearing the timer down on every GPS update.
+  // closeness ∈ 0..1 is distance measured against the proximity threshold:
+  //   dist = HEARTBEAT_START_M → 0 (slow, Light) … dist ≤ proximityAt → 1 (fast, Heavy).
+  const distRef = useRef(dist);
+  distRef.current = dist;
+  const inHeartbeatZone =
+    dist !== null && dist <= HEARTBEAT_START_M && !found && !celebrationShown;
+
   useEffect(() => {
-    if (inProximity) Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light).catch(() => {});
-  }, [friend?.lastPacket?.timestampSec, inProximity]);
+    if (!inHeartbeatZone) return;
+    let cancelled = false;
+    let timer: ReturnType<typeof setTimeout>;
+    const span = Math.max(1, HEARTBEAT_START_M - proximityAt);
+    const beat = () => {
+      if (cancelled) return;
+      const d = distRef.current;
+      if (d === null || d > HEARTBEAT_START_M) {
+        timer = setTimeout(beat, HEARTBEAT_MAX_MS);
+        return;
+      }
+      const closeness = Math.min(1, Math.max(0, (HEARTBEAT_START_M - d) / span));
+      haptics.proximityPulse(closeness);
+      const period = HEARTBEAT_MAX_MS - (HEARTBEAT_MAX_MS - HEARTBEAT_MIN_MS) * closeness;
+      timer = setTimeout(beat, period);
+    };
+    // fire one immediately so entering the zone is felt, then self-schedule
+    beat();
+    return () => { cancelled = true; clearTimeout(timer); };
+  }, [inHeartbeatZone, proximityAt]);
 
   useEffect(() => {
     if (found && !celebrated && !celebrationShown) {
       setCelebrationShown(true);
       markCelebrated(Number(id));
-      Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success).catch(() => {});
+      haptics.found();
     }
   }, [found]);
 
