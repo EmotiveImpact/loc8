@@ -1,0 +1,117 @@
+// apps/guard/app/(tabs)/muster.tsx — Muster / evacuation (gallery screen 6).
+// Declare an evacuation (broadcast over the mesh) or, once called, confirm safe.
+// A live count tells everyone who's still unaccounted.
+import { View, Text, Pressable, StyleSheet } from 'react-native';
+import { LinearGradient } from 'expo-linear-gradient';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
+import { Users, ShieldAlert } from 'lucide-react-native';
+import { getMeshService, haptics } from '@loc8/engine';
+import { ops, fonts, opsGradients, tint } from '../../src/ui/opsTheme';
+import { OpsBackground } from '../../src/ui/OpsBackground';
+import { useGuardStore } from '../../src/state/guardStore';
+import { GUARD_TEAM } from '../../src/state/guardTeam';
+
+// Demo: this many teammates have already reached the assembly point.
+const SAFE_BASELINE = GUARD_TEAM.length - 1;
+
+export default function Muster() {
+  const insets = useSafeAreaInsets();
+  const musterActive = useGuardStore((s) => s.musterActive);
+  const mustered = useGuardStore((s) => s.mustered);
+  const callMuster = useGuardStore((s) => s.callMuster);
+  const endMuster = useGuardStore((s) => s.endMuster);
+  const markSafe = useGuardStore((s) => s.markSafe);
+
+  const total = GUARD_TEAM.length + 1; // team + you
+  const accounted = SAFE_BASELINE + (mustered ? 1 : 0);
+  const pct = Math.round((accounted / total) * 100);
+
+  const declare = () => {
+    haptics.warning();
+    callMuster();
+    getMeshService().sendCrewMessage('MUSTER — evacuate to the assembly point now');
+  };
+  const confirmSafe = () => { haptics.success(); markSafe(); };
+
+  if (!musterActive) {
+    return (
+      <View style={[st.wrap, { paddingTop: insets.top + 40, paddingBottom: insets.bottom + 90 }]}>
+        <OpsBackground />
+        <View style={st.iconWrap}><Users size={44} color={ops.muted} strokeWidth={2} /></View>
+        <Text style={st.idleTtl}>No active muster</Text>
+        <Text style={st.idleP}>Declare an evacuation to alert the whole team over the mesh and start accounting for everyone.</Text>
+        <Pressable style={st.declare} onPress={declare}>
+          <ShieldAlert size={20} color="#fff" strokeWidth={2.2} />
+          <Text style={st.declareTxt}>DECLARE MUSTER</Text>
+        </Pressable>
+      </View>
+    );
+  }
+
+  return (
+    <View style={[st.wrap, { paddingTop: insets.top + 30, paddingBottom: insets.bottom + 90 }]}>
+      <OpsBackground />
+      <Text style={st.tag}>◈ EVACUATION</Text>
+      <Text style={st.title}>MUSTER{'\n'}CALLED</Text>
+      <View style={st.mustIcon}><Users size={44} color={ops.alert} strokeWidth={2} /></View>
+      <Text style={st.p}>Tap when you're at the assembly point.</Text>
+
+      <Pressable style={[st.safe, mustered && st.safeDone]} onPress={confirmSafe} disabled={mustered}>
+        <LinearGradient
+          colors={mustered ? [ops.panel, ops.panel] : opsGradients.safe}
+          start={{ x: 0, y: 0 }} end={{ x: 1, y: 1 }}
+          style={st.safeGrad}
+        >
+          <Text style={[st.safeTxt, mustered && { color: ops.ok }]}>{mustered ? "YOU'RE SAFE" : "I'M SAFE"}</Text>
+          <Text style={[st.safeSub, mustered && { color: ops.ok }]}>{mustered ? 'ACCOUNTED FOR' : 'CONFIRM ACCOUNTED FOR'}</Text>
+        </LinearGradient>
+      </Pressable>
+
+      <View style={st.count}>
+        <Text style={st.cn}><Text style={{ color: ops.ok }}>{accounted}</Text> / {total} accounted for</Text>
+        <View style={st.bar}><View style={[st.barFill, { width: `${pct}%` }]} /></View>
+        <Text style={st.sub}>{total - accounted} not yet at muster point</Text>
+      </View>
+
+      <Pressable style={st.end} onPress={() => { haptics.tap(); endMuster(); }}>
+        <Text style={st.endTxt}>End muster</Text>
+      </Pressable>
+    </View>
+  );
+}
+
+const st = StyleSheet.create({
+  wrap: { flex: 1, alignItems: 'center', paddingHorizontal: 22, backgroundColor: ops.bg },
+  // idle
+  iconWrap: {
+    width: 96, height: 96, borderRadius: 48, alignItems: 'center', justifyContent: 'center',
+    backgroundColor: ops.panel, borderWidth: 1, borderColor: ops.line, marginTop: 20,
+  },
+  idleTtl: { fontFamily: fonts.display, fontSize: 20, color: ops.ink, marginTop: 20 },
+  idleP: { color: ops.muted, fontSize: 13, textAlign: 'center', lineHeight: 19, marginTop: 10, fontFamily: fonts.body },
+  declare: {
+    flexDirection: 'row', alignItems: 'center', gap: 10, marginTop: 26,
+    backgroundColor: ops.alert, borderRadius: 18, paddingVertical: 16, paddingHorizontal: 28,
+  },
+  declareTxt: { color: '#fff', fontFamily: fonts.display, fontSize: 15, letterSpacing: 0.5 },
+  // active
+  tag: { fontFamily: fonts.monoBold, fontSize: 10, letterSpacing: 3, color: ops.alert },
+  title: { fontFamily: fonts.display, fontSize: 28, color: ops.ink, marginTop: 8, textAlign: 'center', lineHeight: 30 },
+  mustIcon: {
+    width: 96, height: 96, borderRadius: 48, alignItems: 'center', justifyContent: 'center', marginTop: 24,
+    backgroundColor: tint(ops.alert, 0.14), borderWidth: 1, borderColor: tint(ops.alert, 0.4),
+  },
+  p: { color: 'rgba(255,255,255,0.75)', fontSize: 13, marginTop: 10, textAlign: 'center', fontFamily: fonts.body },
+  safe: { width: '100%', marginTop: 26, borderRadius: 22, overflow: 'hidden' },
+  safeDone: { opacity: 0.9 },
+  safeGrad: { paddingVertical: 22, alignItems: 'center', borderRadius: 22 },
+  safeTxt: { color: '#06120c', fontFamily: fonts.display, fontSize: 18, letterSpacing: 0.5 },
+  safeSub: { color: 'rgba(6,18,12,0.8)', fontFamily: fonts.monoBold, fontSize: 10, marginTop: 3, letterSpacing: 1 },
+  count: { width: '100%', marginTop: 26 },
+  cn: { fontFamily: fonts.display, fontSize: 16, color: ops.ink },
+  bar: { height: 10, borderRadius: 6, backgroundColor: 'rgba(255,255,255,0.08)', marginTop: 8, overflow: 'hidden' },
+  barFill: { height: '100%', borderRadius: 6, backgroundColor: ops.ok },
+  sub: { fontFamily: fonts.mono, fontSize: 10, color: ops.muted, marginTop: 6 },
+  end: { marginTop: 'auto', paddingVertical: 12 },
+  endTxt: { color: ops.muted, fontFamily: fonts.bodySemi, fontSize: 13 },
+});

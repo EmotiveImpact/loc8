@@ -37,7 +37,28 @@ export const QUICK_REPLIES: QuickReply[] = [
   { code: 7, label: '🎉' },
 ];
 
-/** Resolve a quick-reply code to its label, or '…' if unknown. */
+/**
+ * Ops status responses (Guard / Command) — the same quick-reply mechanism as the
+ * consumer, reskinned for a dispatch loop. Codes live in a separate 20+ block so
+ * they never collide with the consumer set above; both share one wire format and
+ * one `quickReplyLabel()` lookup. Additive on purpose: the engine is never forked.
+ */
+export const STATUS_EN_ROUTE = 20;
+export const STATUS_ON_SCENE = 21;
+export const STATUS_NEED_BACKUP = 22;
+export const STATUS_CLEAR = 23;
+
+export const STATUS_REPLIES: QuickReply[] = [
+  { code: STATUS_EN_ROUTE, label: 'En route' },
+  { code: STATUS_ON_SCENE, label: 'On scene' },
+  { code: STATUS_NEED_BACKUP, label: 'Need backup' },
+  { code: STATUS_CLEAR, label: 'Clear' },
+];
+
+/** Every known quick reply, consumer + ops, for a single code→label lookup. */
+const ALL_QUICK_REPLIES: QuickReply[] = [...QUICK_REPLIES, ...STATUS_REPLIES];
+
+/** Resolve a quick-reply code (consumer or ops status) to its label, or '…'. */
 export function quickReplyLabel(code: number): string {
-  return QUICK_REPLIES.find((q) => q.code === code)?.label ?? '…';
+  return ALL_QUICK_REPLIES.find((q) => q.code === code)?.label ?? '…';
 }
