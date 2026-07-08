@@ -5,14 +5,14 @@ import { LinearGradient } from 'expo-linear-gradient';
 import { useLocalSearchParams, useRouter } from 'expo-router';
 import Animated, { useAnimatedStyle, useSharedValue, withTiming } from 'react-native-reanimated';
 import { useEffect, useRef, useState } from 'react';
-import { useCrewStore, freshnessSec } from '../../src/state/crewStore';
-import { haptics } from '../../src/services/haptics';
-import { getHaversineDistance, getAbsoluteBearing } from '../../src/core/geoMath';
+import { useCrewStore, freshnessSec } from '@loc8/engine';
+import { haptics } from '@loc8/engine';
+import { getHaversineDistance, getAbsoluteBearing } from '@loc8/engine';
 import { useSmoothedHeading } from '../../src/hooks/useSmoothedHeading';
 import { useNowSec } from '../../src/hooks/useNowSec';
 import { ShareSheet } from '../../src/ui/ShareSheet';
 import { AuroraBackground } from '../../src/ui/AuroraBackground';
-import { colors, fonts, gradients } from '../../src/ui/theme';
+import { colors, fonts, gradients } from '@loc8/engine';
 import { Navigation, ScanEye, PartyPopper, Flame, Compass, ChevronLeft } from 'lucide-react-native';
 
 const AnimatedNavigation = Animated.createAnimatedComponent(Navigation);

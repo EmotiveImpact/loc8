@@ -1,9 +1,9 @@
 // src/ui/DevMenu.tsx
 import { Modal, View, Text, Pressable, StyleSheet } from 'react-native';
 import { Moon, Sun, PersonStanding, Footprints, MapPin, Megaphone, BatteryLow, BatteryFull, Wrench, type LucideIcon } from 'lucide-react-native';
-import { getSimTransport } from '../services/appServices';
-import { useCrewStore } from '../state/crewStore';
-import { colors } from './theme';
+import { getSimTransport } from '@loc8/engine';
+import { useCrewStore } from '@loc8/engine';
+import { colors } from '@loc8/engine';
 
 // Sim-only demo scenarios: on the real BLE mesh (EXPO_PUBLIC_TRANSPORT=ble)
 // getSimTransport() is null and these actions no-op.

@@ -5,12 +5,12 @@ import Svg, { Circle, Defs, RadialGradient, Stop, Path, LinearGradient as SvgLin
 import Animated, { useSharedValue, useAnimatedStyle, withRepeat, withTiming, Easing } from 'react-native-reanimated';
 import { LinearGradient } from 'expo-linear-gradient';
 import { useRouter, type Href } from 'expo-router';
-import { useCrewStore, freshnessSec, STALE_SEC, GHOST_SEC } from '../state/crewStore';
-import { calculateRadarPoint, LINEAR_MAX_M, OUTER_MAX_M } from '../core/geoMath';
+import { useCrewStore, freshnessSec, STALE_SEC, GHOST_SEC } from '@loc8/engine';
+import { calculateRadarPoint, LINEAR_MAX_M, OUTER_MAX_M } from '@loc8/engine';
 import { useNowSec } from '../hooks/useNowSec';
 import { Blip } from './Blip';
 import { ShareSheet } from './ShareSheet';
-import { colors, fonts, gradients } from './theme';
+import { colors, fonts, gradients } from '@loc8/engine';
 import { Flag } from 'lucide-react-native';
 
 export function RadarView() {

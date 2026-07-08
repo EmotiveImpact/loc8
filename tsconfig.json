@@ -9,6 +9,12 @@
       ],
       "@/assets/*": [
         "./assets/*"
+      ],
+      "@loc8/engine": [
+        "./packages/engine/src/index.ts"
+      ],
+      "@loc8/engine/*": [
+        "./packages/engine/src/*"
       ]
     }
   },

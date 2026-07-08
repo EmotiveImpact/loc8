@@ -2,7 +2,12 @@
   "name": "loc8",
   "main": "expo-router/entry",
   "version": "1.0.0",
+  "workspaces": [
+    "apps/*",
+    "packages/*"
+  ],
   "dependencies": {
+    "@loc8/engine": "*",
     "@expo-google-fonts/sora": "^0.4.2",
     "@expo-google-fonts/space-mono": "^0.4.2",
     "@expo-google-fonts/unbounded": "^0.4.1",

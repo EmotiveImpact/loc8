@@ -4,9 +4,9 @@ import { View, Text, TextInput, Pressable, StyleSheet, Linking } from 'react-nat
 import { BlurView } from 'expo-blur';
 import { LinearGradient } from 'expo-linear-gradient';
 import * as Location from 'expo-location';
-import { useCrewStore } from '../src/state/crewStore';
-import { haptics } from '../src/services/haptics';
-import { colors, fonts, gradients, FRIEND_COLORS } from '../src/ui/theme';
+import { useCrewStore } from '@loc8/engine';
+import { haptics } from '@loc8/engine';
+import { colors, fonts, gradients, FRIEND_COLORS } from '@loc8/engine';
 import { AuroraBackground } from '../src/ui/AuroraBackground';
 import { MapPin, Plus } from 'lucide-react-native';
 

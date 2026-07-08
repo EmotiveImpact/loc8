@@ -1,7 +1,7 @@
 // src/hooks/useBatteryGuard.ts
 import { useEffect } from 'react';
 import * as Battery from 'expo-battery';
-import { useCrewStore } from '../state/crewStore';
+import { useCrewStore } from '@loc8/engine';
 
 const LOW_BATTERY = 0.15;
 

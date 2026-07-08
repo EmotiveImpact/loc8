@@ -5,7 +5,7 @@ import { encodePacket, PACKET_SIZE } from '../../core/packetCodec';
 
 // Fake the loc8-mesh native module with an in-memory emitter so the transport
 // can be exercised without any native code (mirrors how jest runs everywhere).
-jest.mock('../../../modules/loc8-mesh', () => {
+jest.mock('../../../../../modules/loc8-mesh', () => {
   const packetListeners: Array<(e: unknown) => void> = [];
   const statusListeners: Array<(e: unknown) => void> = [];
   const makeSub = (arr: Array<(e: unknown) => void>, cb: (e: unknown) => void) => ({
@@ -38,7 +38,7 @@ jest.mock('../../../modules/loc8-mesh', () => {
   };
 });
 
-import * as Loc8MeshImport from '../../../modules/loc8-mesh';
+import * as Loc8MeshImport from '../../../../../modules/loc8-mesh';
 import { BleMeshTransport } from '../BleMeshTransport';
 
 type AnyMock = ReturnType<typeof jest.fn>;

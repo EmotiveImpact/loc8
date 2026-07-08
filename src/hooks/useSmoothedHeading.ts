@@ -1,7 +1,7 @@
 // src/hooks/useSmoothedHeading.ts
 import { useEffect, useRef, useState } from 'react';
 import * as Location from 'expo-location';
-import { smoothHeading } from '../core/geoMath';
+import { smoothHeading } from '@loc8/engine';
 
 /**
  * Device compass heading through the low-pass filter (spec §6 — festival EM noise).

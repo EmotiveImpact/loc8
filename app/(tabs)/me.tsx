@@ -5,10 +5,10 @@ import { useRouter } from 'expo-router';
 import { LinearGradient } from 'expo-linear-gradient';
 import { BlurView } from 'expo-blur';
 import * as ImagePicker from 'expo-image-picker';
-import { useCrewStore, type PrivacyMode } from '../../src/state/crewStore';
-import { haptics } from '../../src/services/haptics';
+import { useCrewStore, type PrivacyMode } from '@loc8/engine';
+import { haptics } from '@loc8/engine';
 import { AuroraBackground } from '../../src/ui/AuroraBackground';
-import { colors, gradients, fonts } from '../../src/ui/theme';
+import { colors, gradients, fonts } from '@loc8/engine';
 import { MoonStar, Settings, Shield, ChevronRight, Pencil, Camera, X, type LucideIcon } from 'lucide-react-native';
 
 const MODES: Array<{ mode: PrivacyMode; label: string }> = [

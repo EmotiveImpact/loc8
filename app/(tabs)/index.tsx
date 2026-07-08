@@ -1,9 +1,9 @@
 // app/(tabs)/index.tsx
 import { useEffect, useState } from 'react';
 import { View, Text, StyleSheet, Pressable } from 'react-native';
-import { useCrewStore } from '../../src/state/crewStore';
-import { QUICK_REPLIES } from '../../src/core/types';
-import { getMeshService, bootCrew } from '../../src/services/appServices';
+import { useCrewStore } from '@loc8/engine';
+import { QUICK_REPLIES } from '@loc8/engine';
+import { getMeshService, bootCrew } from '@loc8/engine';
 import { useMyLocation } from '../../src/hooks/useMyLocation';
 import { useBatteryGuard } from '../../src/hooks/useBatteryGuard';
 import { RadarView } from '../../src/ui/RadarView';
@@ -12,10 +12,10 @@ import { MeshDebugOverlay } from '../../src/ui/MeshDebugOverlay';
 import { RadarCrewSheet } from '../../src/ui/RadarCrewSheet';
 import { AuroraBackground } from '../../src/ui/AuroraBackground';
 import { useRouter, type Href } from 'expo-router';
-import { colors, fonts } from '../../src/ui/theme';
-import { notifyPing } from '../../src/services/notifications';
-import { haptics } from '../../src/services/haptics';
-import { ensureBlePermissions } from '../../src/services/blePermissions';
+import { colors, fonts } from '@loc8/engine';
+import { notifyPing } from '@loc8/engine';
+import { haptics } from '@loc8/engine';
+import { ensureBlePermissions } from '@loc8/engine';
 import { Play, TriangleAlert, BatteryLow, Wrench, ChevronRight } from 'lucide-react-native';
 
 export default function RadarHome() {

@@ -2,7 +2,7 @@ import type { Packet } from '../core/types';
 import { encodePacket, decodePacket } from '../core/packetCodec';
 import type { LocationTransport, MeshStatus } from './LocationTransport';
 import { useMeshDebugStore } from '../state/meshDebugStore';
-import * as Loc8Mesh from '../../modules/loc8-mesh';
+import * as Loc8Mesh from '../../../../modules/loc8-mesh';
 
 const dbg = () => useMeshDebugStore.getState();
 

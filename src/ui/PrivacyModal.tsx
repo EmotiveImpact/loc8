@@ -1,7 +1,7 @@
 // src/ui/PrivacyModal.tsx
 import { Modal, View, Text, Pressable, StyleSheet } from 'react-native';
-import { useCrewStore, type PrivacyMode } from '../state/crewStore';
-import { colors } from './theme';
+import { useCrewStore, type PrivacyMode } from '@loc8/engine';
+import { colors } from '@loc8/engine';
 
 const OPTIONS: Array<{ mode: PrivacyMode; title: string; desc: string }> = [
   { mode: 'live', title: 'Live (background)', desc: 'Broadcast even in your pocket. Radar stays true. Best experience.' },

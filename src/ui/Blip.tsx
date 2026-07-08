@@ -4,7 +4,7 @@ import Animated, { useSharedValue, useAnimatedStyle, withTiming } from 'react-na
 import { LinearGradient } from 'expo-linear-gradient';
 import { useEffect } from 'react';
 import { Waypoints } from 'lucide-react-native';
-import { colors, fonts } from './theme';
+import { colors, fonts } from '@loc8/engine';
 
 interface Props {
   x: number; y: number;                 // px offsets from radar center

@@ -2,7 +2,7 @@
 // Currently a clean flat dark; kept as one component so the whole app's
 // background can be re-tuned in a single place.
 import { View, StyleSheet } from 'react-native';
-import { colors } from './theme';
+import { colors } from '@loc8/engine';
 
 export function AuroraBackground() {
   return <View style={[StyleSheet.absoluteFill, { backgroundColor: colors.bg }]} pointerEvents="none" />;

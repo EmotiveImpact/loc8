@@ -1,8 +1,8 @@
 import { useEffect, useState } from 'react';
 import { View, Text, Pressable, StyleSheet } from 'react-native';
-import { useMeshDebugStore } from '../state/meshDebugStore';
+import { useMeshDebugStore } from '@loc8/engine';
 import { ChevronDown, TriangleAlert } from 'lucide-react-native';
-import { colors } from './theme';
+import { colors } from '@loc8/engine';
 
 /**
  * Field-test HUD for the BLE mesh — only rendered when EXPO_PUBLIC_TRANSPORT === 'ble'.

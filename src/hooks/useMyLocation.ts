@@ -1,8 +1,8 @@
 // src/hooks/useMyLocation.ts
 import { useEffect, useState } from 'react';
 import * as Location from 'expo-location';
-import { useCrewStore } from '../state/crewStore';
-import { getSimTransport, FALLBACK_ORIGIN } from '../services/appServices';
+import { useCrewStore } from '@loc8/engine';
+import { getSimTransport, FALLBACK_ORIGIN } from '@loc8/engine';
 
 export type LocationStatus = 'pending' | 'granted' | 'denied';
 

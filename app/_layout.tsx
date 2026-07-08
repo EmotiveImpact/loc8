@@ -7,8 +7,8 @@ import * as Notifications from 'expo-notifications';
 import { useFonts, Unbounded_600SemiBold, Unbounded_800ExtraBold } from '@expo-google-fonts/unbounded';
 import { Sora_300Light, Sora_400Regular, Sora_500Medium, Sora_600SemiBold, Sora_700Bold } from '@expo-google-fonts/sora';
 import { SpaceMono_400Regular, SpaceMono_700Bold } from '@expo-google-fonts/space-mono';
-import { useCrewStore } from '../src/state/crewStore';
-import { colors, fonts } from '../src/ui/theme';
+import { useCrewStore } from '@loc8/engine';
+import { colors, fonts } from '@loc8/engine';
 
 // `/onboarding` (app/onboarding.tsx) is created in the next task, so the
 // generated typed-routes union does not include it yet. Reference it through

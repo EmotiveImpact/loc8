@@ -2,9 +2,9 @@
 import { Modal, View, Text, Pressable, StyleSheet, Share } from 'react-native';
 import * as Clipboard from 'expo-clipboard';
 import { useState } from 'react';
-import { encodePlusCode } from '../core/plusCodes';
-import type { Coordinate } from '../core/types';
-import { colors } from './theme';
+import { encodePlusCode } from '@loc8/engine';
+import type { Coordinate } from '@loc8/engine';
+import { colors } from '@loc8/engine';
 import { Check, Copy } from 'lucide-react-native';
 
 interface Props {
