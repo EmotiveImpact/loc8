@@ -2,6 +2,8 @@
 import { AppState, type AppStateStatus, type NativeEventSubscription } from 'react-native';
 import { useCrewStore } from '../state/crewStore';
 import { TrustLayer } from '../core/trustLayer';
+import { fragmentText, TextReassembler } from '../core/textFragments';
+import { haptics } from './haptics';
 import type { LocationTransport } from '../transport/LocationTransport';
 import type { Packet, PacketType } from '../core/types';
 
@@ -16,6 +18,8 @@ export interface MeshService {
   pingFriend(friendId: number, kind: Extract<PacketType, 'pingWhere' | 'pingComeFind'>): void;
   /** Fire a canned quick reply back to `targetId` (closes the ping loop). */
   sendQuickReply(targetId: number, code: number): void;
+  /** Fragment `text` across mesh packets and broadcast it to the crew. */
+  sendCrewMessage(text: string): void;
   dropRally(): void;
 }
 
@@ -29,6 +33,10 @@ export function createMeshService(
   let wasActive = false;
   let foreground = true;
   let appStateSub: NativeEventSubscription | null = null;
+  // Reassembles inbound 'text' fragments; one per service instance.
+  const reassembler = new TextReassembler();
+  // Rolling uint16 message id for outgoing messages (monotonic, not time-based).
+  let msgIdCounter = 0;
   const store = () => useCrewStore.getState();
 
   const myPacket = (type: PacketType, targetId = 0): Packet | null => {
@@ -45,6 +53,22 @@ export function createMeshService(
     start() {
       if (timer) return;   // idempotent — don't re-register callbacks or start a 2nd interval
       transport.onPacket((p, relayVia) => {
+        if (p.type === 'text') {
+          // Text is fragmented: route to the reassembler FIRST (fragments share
+          // a timestamp, so the per-type trust gate would drop all but the
+          // first). Surface to the store only when a full message completes.
+          const s = store();
+          if (s.profile && p.senderId === s.profile.id) return; // self-echo
+          const crew = s.crew;
+          // Real-crew mode (BLE): only accept fragments tagged for our crew.
+          if (crew && s.autoAddPeers && p.targetId !== crew.tag) return;
+          const done = reassembler.add(p);
+          if (done) {
+            s.receiveMessage(done.senderId, done.text);
+            haptics.pingReceived();
+          }
+          return;
+        }
         if (trust.accept(p)) store().applyPacket(p, relayVia);
       });
       transport.onMeshStatus((st) => store().setMeshNearby(st.nearbyCount));
@@ -110,6 +134,22 @@ export function createMeshService(
       const p = myPacket('quickReply', targetId);
       if (!p) return;
       transport.broadcast({ ...p, quickReplyCode: code });
+    },
+
+    sendCrewMessage(text) {
+      const s = store();
+      if (!s.profile) return;
+      const trimmed = text.trim();
+      if (!trimmed) return;
+      // Crew-scoped like position packets (0 = no crew / broadcast to all).
+      const targetId = s.crew?.tag ?? 0;
+      const msgId = (msgIdCounter = (msgIdCounter + 1) & 0xffff);
+      const frags = fragmentText({
+        senderId: s.profile.id, targetId, msgId, text: trimmed, timestampSec: nowSec(),
+      });
+      for (const f of frags) transport.broadcast(f);
+      // Echo my own message into the timeline immediately.
+      s.addLocalMessage(trimmed);
     },
 
     dropRally() {

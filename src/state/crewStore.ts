@@ -53,7 +53,7 @@ export interface RallyPin { latitude: number; longitude: number; droppedById: nu
 export type BannerKind = 'ping' | 'reply' | 'rally' | 'info';
 export interface Banner { text: string; friendId?: number; kind?: BannerKind; }
 
-export type ActivityKind = 'ping' | 'reply' | 'rally' | 'found' | 'dark' | 'session';
+export type ActivityKind = 'ping' | 'reply' | 'rally' | 'found' | 'dark' | 'session' | 'message';
 export interface ActivityEvent {
   id: number;
   kind: ActivityKind;
@@ -104,6 +104,10 @@ interface CrewState {
   setAutoAddPeers(v: boolean): void;
   registerFriends(list: Array<Pick<FriendState, 'id' | 'name' | 'color'>>): void;
   applyPacket(p: Packet, relayVia?: string): void;
+  /** Surface a fully-reassembled crew message from another member. */
+  receiveMessage(senderId: number, text: string): void;
+  /** Echo the local user's own outgoing message into the timeline. */
+  addLocalMessage(text: string): void;
   startSession(hours: number, nowSec?: number): void;
   extendSession(hours: number): void;
   endSession(): void;
@@ -298,6 +302,34 @@ export const useCrewStore = create<CrewState>((set, get) => ({
       set({ banner: { text, friendId: p.senderId, kind: 'reply' } });
       get().pushActivity({ kind: 'reply', text, atSec: p.timestampSec, friendId: p.senderId });
     }
+  },
+
+  receiveMessage: (senderId, text) => {
+    // Ignore our own message (self-echo through the mesh).
+    if (get().profile && senderId === get().profile!.id) return;
+    // Resolve a name; auto-register unknown BLE senders like other packet paths.
+    let friend = get().friends[senderId];
+    if (!friend && get().autoAddPeers) {
+      friend = {
+        id: senderId,
+        name: `Friend ${senderId % 1000}`,
+        color: FRIEND_COLORS[senderId % FRIEND_COLORS.length],
+      };
+      set({ friends: { ...get().friends, [senderId]: friend } });
+    }
+    const name = friend?.name ?? 'Someone';
+    const atSec = Math.floor(Date.now() / 1000);
+    const display = `${name}: ${text}`;
+    get().pushActivity({ kind: 'message', text: display, atSec, friendId: senderId });
+    set({ banner: { text: display, friendId: senderId, kind: 'info' } });
+  },
+
+  addLocalMessage: (text) => {
+    get().pushActivity({
+      kind: 'message',
+      text: `You: ${text}`,
+      atSec: Math.floor(Date.now() / 1000),
+    });
   },
 
   startSession: (hours, nowSec = Math.floor(Date.now() / 1000)) =>

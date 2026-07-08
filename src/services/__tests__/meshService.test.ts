@@ -2,6 +2,7 @@
 import { createMeshService } from '../meshService';
 import { useCrewStore } from '../../state/crewStore';
 import { TrustLayer } from '../../core/trustLayer';
+import { fragmentText } from '../../core/textFragments';
 import type { LocationTransport, MeshStatus } from '../../transport/LocationTransport';
 import type { Packet } from '../../core/types';
 
@@ -91,6 +92,61 @@ describe('meshService', () => {
     expect(reply?.targetId).toBe(101);
     expect(reply?.senderId).toBe(1);
     expect(reply?.quickReplyCode).toBe(3);
+  });
+
+  it('sendCrewMessage fragments a message into N text packets and echoes it locally', () => {
+    const svc = createMeshService(transport, new TrustLayer(600, nowSec), nowSec);
+    svc.start();
+    useCrewStore.getState().startSession(6, clock);
+    const msg = 'B'.repeat(50); // >11 bytes → multiple fragments
+    svc.sendCrewMessage(msg);
+    const frags = transport.sent.filter((p) => p.type === 'text');
+    expect(frags.length).toBe(Math.ceil(50 / 11));
+    frags.forEach((f) => expect(f.senderId).toBe(1));
+    // all fragments share one msgId, and seqs are 0..N-1
+    expect(new Set(frags.map((f) => f.msgId)).size).toBe(1);
+    expect(frags.map((f) => f.seq).sort((a, b) => a! - b!)).toEqual(frags.map((_, i) => i));
+    // local echo
+    const log = useCrewStore.getState().activityLog;
+    expect(log[0].kind).toBe('message');
+    expect(log[0].text).toBe(`You: ${msg}`);
+  });
+
+  it('receiving all fragments of a message produces one message activity + banner', () => {
+    const svc = createMeshService(transport, new TrustLayer(600, nowSec), nowSec);
+    svc.start();
+    const frags = fragmentText({ senderId: 101, targetId: 0, msgId: 5, text: 'hey where are you', timestampSec: clock });
+    expect(frags.length).toBeGreaterThan(1);
+    frags.forEach((f) => transport.packetCb!(f));
+    const log = useCrewStore.getState().activityLog.filter((e) => e.kind === 'message');
+    expect(log.length).toBe(1);
+    expect(log[0].text).toBe('Maya: hey where are you');
+    expect(log[0].friendId).toBe(101);
+    expect(useCrewStore.getState().banner?.text).toBe('Maya: hey where are you');
+  });
+
+  it('ignores our own text fragments echoed back through the mesh (self)', () => {
+    const svc = createMeshService(transport, new TrustLayer(600, nowSec), nowSec);
+    svc.start();
+    const mine = fragmentText({ senderId: 1, targetId: 0, msgId: 9, text: 'echo', timestampSec: clock });
+    mine.forEach((f) => transport.packetCb!(f));
+    expect(useCrewStore.getState().activityLog.some((e) => e.kind === 'message')).toBe(false);
+  });
+
+  it('drops text fragments not tagged for our crew (real BLE mode)', () => {
+    useCrewStore.getState().setAutoAddPeers(true);
+    useCrewStore.getState().joinCrew('FIRE-42');
+    const tag = useCrewStore.getState().crew!.tag;
+    const svc = createMeshService(transport, new TrustLayer(600, nowSec), nowSec);
+    svc.start();
+    const wrong = fragmentText({ senderId: 202, targetId: tag + 1, msgId: 3, text: 'not for us', timestampSec: clock });
+    wrong.forEach((f) => transport.packetCb!(f));
+    expect(useCrewStore.getState().activityLog.some((e) => e.kind === 'message')).toBe(false);
+    const right = fragmentText({ senderId: 202, targetId: tag, msgId: 4, text: 'for us', timestampSec: clock });
+    right.forEach((f) => transport.packetCb!(f));
+    const log = useCrewStore.getState().activityLog.filter((e) => e.kind === 'message');
+    expect(log.length).toBe(1);
+    expect(log[0].text).toMatch(/for us/);
   });
 
   it('dropRally broadcasts a rally packet at my location and pins locally', () => {

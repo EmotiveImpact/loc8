@@ -60,6 +60,32 @@ describe('PacketCodec', () => {
       expect(decodePacket(encodePacket({ ...sample, type })).type).toBe(type);
     });
   });
+  it('round-trips a text fragment losslessly (msgId/seq/total/frag preserved)', () => {
+    const frag: Packet = {
+      type: 'text', senderId: 7, targetId: 42,
+      latitude: 0, longitude: 0, headingDeg: 0, batteryPct: 0,
+      timestampSec: 0, accuracyM: 0,
+      msgId: 40000, seq: 3, total: 9, frag: [72, 101, 108, 108, 111, 33, 240, 159, 142, 137, 1],
+    };
+    const d = decodePacket(encodePacket(frag));
+    expect(d.type).toBe('text');
+    expect(d.senderId).toBe(7);
+    expect(d.targetId).toBe(42);
+    expect(d.msgId).toBe(40000);
+    expect(d.seq).toBe(3);
+    expect(d.total).toBe(9);
+    expect(d.frag).toEqual([72, 101, 108, 108, 111, 33, 240, 159, 142, 137, 1]);
+    expect(encodePacket(frag).byteLength).toBe(PACKET_SIZE);
+  });
+  it('text fragment with a short (0-padded) frag decodes only the real bytes', () => {
+    const frag: Packet = {
+      type: 'text', senderId: 1, targetId: 0,
+      latitude: 0, longitude: 0, headingDeg: 0, batteryPct: 0,
+      timestampSec: 0, accuracyM: 0, msgId: 1, seq: 0, total: 1, frag: [65, 66],
+    };
+    const d = decodePacket(encodePacket(frag));
+    expect(d.frag).toEqual([65, 66]);
+  });
   it('round-trips a quickReply packet losslessly (code + type preserved)', () => {
     const reply: Packet = {
       type: 'quickReply', senderId: 7, targetId: 42,

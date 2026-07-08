@@ -3,7 +3,7 @@ export interface Coordinate {
   longitude: number;
 }
 
-export type PacketType = 'position' | 'pingWhere' | 'pingComeFind' | 'rally' | 'quickReply';
+export type PacketType = 'position' | 'pingWhere' | 'pingComeFind' | 'rally' | 'quickReply' | 'text';
 
 export interface Packet {
   type: PacketType;
@@ -16,6 +16,11 @@ export interface Packet {
   timestampSec: number; // unix seconds
   accuracyM: number;   // 0–255 (GPS reported accuracy, meters)
   quickReplyCode?: number; // 0–255, only present on 'quickReply' packets
+  // Free-text fragmentation ('text' packets only). One 'text' packet = one fragment.
+  msgId?: number;      // uint16, groups fragments of one message from a sender
+  seq?: number;        // uint8, 0-based fragment index
+  total?: number;      // uint8, total fragment count in this message
+  frag?: number[];     // this fragment's raw UTF-8 bytes, length ≤ 11
 }
 
 /** A canned, tap-to-send reply that closes the ping loop. */
