@@ -4,7 +4,8 @@ import { projectToCanvas } from '../domain/coverage';
 import { Console, ConsoleTop, FeedItem, PageHead, RosterItem, SectionTitle, StatusTile } from '../ui/primitives';
 import { AssemblyMarker, GuardDot, IncidentMarker, MapCanvas, ZoneRect } from '../ui/map';
 import { Icon } from '../ui/Icon';
-import { incidentTone, staffDotTone, staffTone } from '../ui/status';
+import { CommsStatus } from '../ui/CommsStatus';
+import { incidentTone, staffDotTone, staffStatusLabel, staffTone } from '../ui/status';
 import type { Nav } from '../App';
 
 export function OperationsOverview({ nav }: { nav: Nav }) {
@@ -28,6 +29,7 @@ export function OperationsOverview({ nav }: { nav: Nav }) {
               <StatusTile n={store.sosCount()} label="SOS active" variant="alert" />
               <StatusTile n={`${store.venueCoveragePct()}%`} label="Coverage" variant="ok" />
             </div>
+            <CommsStatus />
             <SectionTitle>Live feed</SectionTitle>
             <div className="feed" style={{ maxHeight: 300 }}>
               {feed.map((i) => (
@@ -35,8 +37,9 @@ export function OperationsOverview({ nav }: { nav: Nav }) {
                   key={i.id}
                   tone={incidentTone(i)}
                   hot={i.kind === 'sos' && i.status !== 'resolved'}
+                  resolved={i.status === 'resolved'}
                   text={i.feedText}
-                  sub={i.feedSub}
+                  sub={i.status === 'resolved' ? `${i.feedSub ?? ''} · resolved` : i.feedSub}
                   onClick={() => nav.open('incident', i.id)}
                 />
               ))}
@@ -68,7 +71,7 @@ export function OperationsOverview({ nav }: { nav: Nav }) {
               {sos?.location && (
                 <IncidentMarker
                   {...projectToCanvas(sos.location)}
-                  label={`SOS · Guard 07 · ${zoneName(store.zones, sos.zoneId)}`}
+                  label={`SOS · Guard ${String(sos.raisedByStaffId).padStart(2, '0')} · ${zoneName(store.zones, sos.zoneId)}`}
                 />
               )}
               {store.muster.active && <AssemblyMarker x={48} y={94} label={`ASSEMBLY · ${store.musteredCount()}`} />}
@@ -87,6 +90,7 @@ export function OperationsOverview({ nav }: { nav: Nav }) {
                     key={s.id}
                     tone={staffTone(s.status)}
                     name={`Guard ${String(s.id).padStart(2, '0')} · ${s.name.split(' ')[0]}`}
+                    status={s.status === 'on_post' ? undefined : staffStatusLabel(s.status)}
                     zone={zoneName(store.zones, s.zoneId).split(' ')[0]}
                     onClick={() => nav.open('roster')}
                   />

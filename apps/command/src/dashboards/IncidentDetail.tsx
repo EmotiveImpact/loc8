@@ -1,19 +1,30 @@
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { useCommandStore } from '../store/commandStore';
 import { zoneName } from '../domain/zones';
 import { projectToCanvas } from '../domain/coverage';
-import { fmtHM } from '../domain/time';
-import { Console, ConsoleTop, PageHead, SectionTitle } from '../ui/primitives';
+import { canReveal } from '../domain/privacy';
+import { fmtElapsed, fmtHM } from '../domain/time';
+import { Console, ConsoleTop, PageHead, Pill, SectionTitle } from '../ui/primitives';
 import { DispatchPaths, GuardDot, IncidentMarker, MapCanvas, ZoneRect } from '../ui/map';
 import { Icon } from '../ui/Icon';
 import { useElapsed } from '../ui/hooks';
+import { incidentStatusLabel, incidentStatusTone, isLiveEmergency } from '../ui/status';
 import type { Nav } from '../App';
 
 export function IncidentDetail({ nav }: { nav: Nav }) {
   const store = useCommandStore();
   const inc = store.activeIncident() ?? store.incidents.find((i) => i.kind === 'sos');
   const [dispatchText, setDispatchText] = useState('Converge on Gate C — hold cordon');
-  const elapsed = useElapsed(inc?.raisedAtSec ?? 0);
+  const liveElapsed = useElapsed(inc?.raisedAtSec ?? 0);
+
+  // Viewing an incident that names an individual + their coordinates IS a
+  // reveal — log it to the audit trail (privacy model: every reveal is recorded).
+  const incId = inc?.id;
+  const hasSubject = Boolean(inc?.subjectName || inc?.location);
+  useEffect(() => {
+    if (incId && hasSubject) store.noteReveal(incId);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [incId, hasSubject]);
 
   if (!inc) {
     return (
@@ -28,8 +39,16 @@ export function IncidentDetail({ nav }: { nav: Nav }) {
     );
   }
 
-  const isSos = inc.kind === 'sos';
-  const coord = inc.location ? `${inc.location.latitude.toFixed(4)}, ${inc.location.longitude.toFixed(4)}` : '—';
+  const live = isLiveEmergency(inc);
+  // Fail-closed consent gate: only render an individual's identity/location if
+  // the consent basis permits it.
+  const reveal = canReveal(inc.consentBasis);
+  const coord = inc.location && reveal ? `${inc.location.latitude.toFixed(4)}, ${inc.location.longitude.toFixed(4)}` : '—';
+  const subject = reveal ? (inc.subjectName ?? '—') : 'identity withheld';
+  const elapsed = inc.closedAtSec ? fmtElapsed(inc.closedAtSec - inc.raisedAtSec) : liveElapsed;
+  const tagText = live
+    ? `SOS ${incidentStatusLabel(inc.status)} · MESH-CONFIRMED`
+    : `${incidentStatusLabel(inc.status)} · #${inc.id}`;
 
   return (
     <>
@@ -37,18 +56,18 @@ export function IncidentDetail({ nav }: { nav: Nav }) {
       <Console>
         <ConsoleTop
           site={<><span>· </span><b>Incident</b> · #{inc.id}</>}
-          tag={{ text: isSos ? 'SOS ACTIVE · MESH-CONFIRMED' : 'INCIDENT · MESH-CONFIRMED', variant: isSos ? 'red' : 'amber' }}
+          tag={{ text: tagText, variant: live ? 'red' : inc.status === 'resolved' ? 'ok' : 'amber' }}
         />
 
-        {isSos && (
-          <div className="sosbanner">
+        {live && (
+          <div className="sosbanner" role="alert">
             <div className="bcore">
               <Icon name="alert" size={22} />
             </div>
             <div>
               <h2>SOS · GUARD {String(inc.raisedByStaffId).padStart(2, '0')} · {zoneName(store.zones, inc.zoneId)}</h2>
               <div className="subm">
-                {inc.subjectName} · panic hold triggered · {inc.meshConfirmed ? 'mesh-confirmed' : 'unconfirmed'}
+                {subject} · panic hold triggered · {inc.meshConfirmed ? 'mesh-confirmed' : 'unconfirmed'}
               </div>
             </div>
             <div className="meta">
@@ -58,6 +77,16 @@ export function IncidentDetail({ nav }: { nav: Nav }) {
               <br />
               COORD <b>{coord}</b>
             </div>
+          </div>
+        )}
+
+        {!live && (
+          <div className="resolvedbar">
+            <Pill tone={incidentStatusTone(inc.status)}>{incidentStatusLabel(inc.status)}</Pill>
+            <span className="rbsub">
+              {inc.kind === 'sos' ? 'SOS' : inc.kind} · {zoneName(store.zones, inc.zoneId)} · raised {fmtHM(inc.raisedAtSec)}
+              {inc.closedAtSec ? ` · closed ${fmtHM(inc.closedAtSec)} · duration ${elapsed}` : ''}
+            </span>
           </div>
         )}
 
@@ -128,10 +157,17 @@ export function IncidentDetail({ nav }: { nav: Nav }) {
 
           {/* responders + actions */}
           <div className="cright">
+            <div className="statusrow">
+              <span className="feedttl">Status</span>
+              <Pill tone={incidentStatusTone(inc.status)}>{incidentStatusLabel(inc.status)}</Pill>
+            </div>
+
             <SectionTitle>Responders · {inc.responders.length}</SectionTitle>
             <div className="resp">
               {inc.responders.map((r, i) => {
                 const control = r.staffId === 0;
+                const stateTone =
+                  r.state === 'clear' ? 'ok' : r.state === 'on_scene' ? 'amber' : r.state === 'viewing' ? 'info' : 'info';
                 return (
                   <div key={i} className="rcard">
                     <div className={`ra ${control ? 'info' : ''}`}>{r.name.charAt(0)}</div>
@@ -139,7 +175,9 @@ export function IncidentDetail({ nav }: { nav: Nav }) {
                       <div className="rname">{r.name}</div>
                       <div className="rd">
                         {r.distanceM != null ? `${r.distanceM}m · ` : ''}
-                        {r.state.replace('_', ' ')}
+                        <span style={{ color: `var(--${stateTone === 'ok' ? 'ok' : stateTone === 'amber' ? 'caution' : 'info'})` }}>
+                          {r.state.replace('_', ' ')}
+                        </span>
                       </div>
                     </div>
                   </div>
@@ -151,19 +189,42 @@ export function IncidentDetail({ nav }: { nav: Nav }) {
             <div className="field" style={{ marginBottom: 8 }}>
               <input value={dispatchText} onChange={(e) => setDispatchText(e.target.value)} aria-label="dispatch message" />
             </div>
-            <button type="button" className="btn go" onClick={() => store.dispatch(dispatchText, { incidentId: inc.id })}>
+            <button
+              type="button"
+              className="btn go"
+              disabled={inc.status === 'resolved'}
+              onClick={() => store.dispatch(dispatchText, { incidentId: inc.id })}
+            >
               <Icon name="send" /> Send dispatch
             </button>
 
             <SectionTitle>Actions</SectionTitle>
             <div className="btnrow">
-              <button type="button" className="btn go" onClick={() => store.acknowledge(inc.id)}>
+              <button
+                type="button"
+                className="btn go"
+                disabled={inc.status !== 'active'}
+                onClick={() => store.acknowledge(inc.id)}
+              >
                 <Icon name="check" /> Acknowledge
               </button>
-              <button type="button" className="btn primary" onClick={() => store.escalate(inc.id)}>
+              <button
+                type="button"
+                className="btn primary"
+                disabled={inc.status === 'resolved' || inc.status === 'escalated'}
+                onClick={() => {
+                  if (window.confirm('Escalate this incident to police? This is logged and externally consequential.'))
+                    store.escalate(inc.id);
+                }}
+              >
                 <Icon name="triangle" /> Escalate to police
               </button>
-              <button type="button" className="btn ghost" onClick={() => { store.resolve(inc.id); nav.open('operations'); }}>
+              <button
+                type="button"
+                className="btn ghost"
+                disabled={inc.status === 'resolved'}
+                onClick={() => { store.resolve(inc.id); nav.open('operations'); }}
+              >
                 <Icon name="doc" /> Log resolution
               </button>
             </div>

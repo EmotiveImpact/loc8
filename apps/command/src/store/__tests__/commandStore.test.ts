@@ -68,6 +68,62 @@ describe('inbound Guard status', () => {
   });
 });
 
+describe('incident ↔ person state reconciliation', () => {
+  it('resolving an SOS logs a resolve, closes it, and clears the SOS person', () => {
+    const s = useCommandStore.getState();
+    expect(s.sosCount()).toBe(1); // one open SOS incident
+    expect(s.staff[7].status).toBe('sos');
+    s.resolve('SOS-0442');
+    const st = useCommandStore.getState();
+    const inc = st.incidents.find((i) => i.id === 'SOS-0442')!;
+    expect(inc.status).toBe('resolved');
+    expect(inc.closedAtSec).toBeGreaterThan(0);
+    expect(st.staff[7].status).toBe('on_post'); // person reconciled off 'sos'
+    expect(st.sosCount()).toBe(0); // badge/tile clear
+    expect(st.auditLog[0].action).toBe('resolve'); // not 'acknowledge'
+  });
+
+  it('acknowledge is a no-op once the incident has left active', () => {
+    const s = useCommandStore.getState();
+    s.escalate('SOS-0442');
+    const before = useCommandStore.getState().auditLog.length;
+    useCommandStore.getState().acknowledge('SOS-0442'); // should do nothing
+    const st = useCommandStore.getState();
+    expect(st.incidents.find((i) => i.id === 'SOS-0442')!.status).toBe('escalated');
+    expect(st.auditLog.length).toBe(before); // no bogus "acknowledged after escalated"
+  });
+
+  it('applyGuardStatus routes to the named incident and syncs responder state', () => {
+    useCommandStore.getState().applyGuardStatus(5, 4, 'SOS-0442'); // Clear
+    const inc = useCommandStore.getState().incidents.find((i) => i.id === 'SOS-0442')!;
+    expect(inc.responders.find((r) => r.staffId === 5)!.state).toBe('clear');
+  });
+});
+
+describe('viewing a named incident is audited (reveal_subject)', () => {
+  it('logs a reveal for an incident that names an individual', () => {
+    useCommandStore.getState().noteReveal('SOS-0442');
+    const st = useCommandStore.getState();
+    expect(st.auditLog[0].action).toBe('reveal_subject');
+    expect(st.auditLog[0].subjectIds).toContain(7);
+  });
+});
+
+describe('muster safety', () => {
+  it('a no-signal guard cannot be checked in from the console', () => {
+    useCommandStore.getState().checkIn(12); // Kwame Osei, no_signal
+    expect(useCommandStore.getState().staff[12].mustered).toBe(false);
+  });
+
+  it('stand down logs a stand_down audit entry', () => {
+    useCommandStore.getState().callMuster();
+    useCommandStore.getState().standDownMuster();
+    const st = useCommandStore.getState();
+    expect(st.muster.active).toBe(false);
+    expect(st.auditLog[0].action).toBe('stand_down');
+  });
+});
+
 describe('assisted search through the store', () => {
   it('a valid search logs one assisted_search entry', () => {
     const res = useCommandStore.getState().runAssistedSearch('Priya', 'lost-child report at Gate C');

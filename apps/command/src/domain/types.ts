@@ -96,6 +96,8 @@ export interface Incident {
   location?: Coordinate;
   consentBasis: ConsentBasis;
   raisedAtSec: number;
+  /** set when the incident leaves the active set — freezes the elapsed clock */
+  closedAtSec?: number;
   meshConfirmed: boolean;
   timeline: TimelineEntry[];
   responders: Responder[];
@@ -114,7 +116,15 @@ export interface AuditEntry {
   id: number;
   atSec: number;
   operatorId: string;
-  action: 'assisted_search' | 'reveal_subject' | 'dispatch' | 'acknowledge' | 'escalate' | 'muster';
+  action:
+    | 'assisted_search'
+    | 'reveal_subject'
+    | 'dispatch'
+    | 'acknowledge'
+    | 'escalate'
+    | 'resolve'
+    | 'muster'
+    | 'stand_down';
   reason: string;
   subjectIds: number[];
   detail?: string;

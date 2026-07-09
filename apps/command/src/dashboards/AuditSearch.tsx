@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { useCommandStore } from '../store/commandStore';
+import { exportAuditLog, useCommandStore } from '../store/commandStore';
 import { zoneName } from '../domain/zones';
 import { fmtHM } from '../domain/time';
 import { Console, ConsoleTop, PageHead, SectionTitle } from '../ui/primitives';
@@ -69,7 +69,27 @@ export function AuditSearch() {
 
           {/* audit trail */}
           <div style={{ padding: 18 }}>
-            <SectionTitle>Audit trail · {store.auditLog.length}</SectionTitle>
+            <div className="statusrow">
+              <SectionTitle>Audit trail · {store.auditLog.length}</SectionTitle>
+              <button
+                type="button"
+                className="btn ghost"
+                style={{ padding: '6px 10px', fontSize: 11 }}
+                disabled={store.auditLog.length === 0}
+                title="Download the trail as a JSON after-action report"
+                onClick={() => {
+                  const blob = new Blob([exportAuditLog(store.auditLog)], { type: 'application/json' });
+                  const url = URL.createObjectURL(blob);
+                  const a = document.createElement('a');
+                  a.href = url;
+                  a.download = `loc8-audit-${new Date().toISOString().slice(0, 10)}.json`;
+                  a.click();
+                  URL.revokeObjectURL(url);
+                }}
+              >
+                <Icon name="doc" size={14} /> Export report
+              </button>
+            </div>
             <div className="feed" style={{ maxHeight: 420, marginTop: 10 }}>
               {store.auditLog.length === 0 && (
                 <p className="mono" style={{ fontSize: 11, color: 'var(--faint)' }}>

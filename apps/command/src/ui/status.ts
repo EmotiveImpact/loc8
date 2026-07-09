@@ -1,6 +1,28 @@
-import type { Incident, StaffStatus } from '../domain/types';
+import type { Incident, IncidentStatus, StaffStatus } from '../domain/types';
 
 export type Tone = 'ok' | 'amber' | 'alert' | 'off' | 'info';
+
+/** Is this incident still a live emergency (drives the red SOS banner/tag)? */
+export function isLiveEmergency(inc: Incident): boolean {
+  return inc.kind === 'sos' && inc.status !== 'resolved';
+}
+
+export function incidentStatusLabel(status: IncidentStatus): string {
+  return status.toUpperCase();
+}
+
+export function incidentStatusTone(status: IncidentStatus): Tone {
+  switch (status) {
+    case 'active':
+      return 'alert';
+    case 'escalated':
+      return 'alert';
+    case 'acknowledged':
+      return 'info';
+    case 'resolved':
+      return 'ok';
+  }
+}
 
 export function staffTone(status: StaffStatus): Tone {
   switch (status) {

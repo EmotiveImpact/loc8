@@ -8,7 +8,7 @@
   --line: rgba(255, 255, 255, 0.09);
   --ink: #ffffff;
   --muted: rgba(255, 255, 255, 0.55);
-  --faint: rgba(255, 255, 255, 0.3);
+  --faint: rgba(255, 255, 255, 0.48); /* ≥3:1 on the near-black bg (WCAG large-text) */
 
   --ok: #46e0a0;
   --caution: #ffb43a;
@@ -136,6 +136,7 @@ body {
 .ritem:hover { border-color: var(--line); background: var(--panel); }
 .ritem .rn { font-size: 12px; font-weight: 600; }
 .ritem .rz { font-family: var(--mono); font-size: 10px; color: var(--muted); margin-left: auto; }
+.ritem .rstat { font-family: var(--mono); font-weight: 700; font-size: 8.5px; letter-spacing: 0.5px; }
 
 /* --- pills --- */
 .pill { display: inline-flex; align-items: center; gap: 6px; font-family: var(--mono); font-weight: 700; font-size: 9px; padding: 4px 9px; border-radius: 20px; border: 1px solid var(--line); }
@@ -147,7 +148,7 @@ body {
 .pill.info { color: var(--info); } .pill.info .pd { background: var(--info); }
 
 /* --- buttons --- */
-.btn { display: inline-flex; align-items: center; justify-content: center; gap: 8px; border-radius: 13px; font-family: var(--body); font-weight: 700; font-size: 13px; padding: 11px 14px; border: 1px solid var(--line); background: var(--panel); color: var(--ink); cursor: pointer; }
+.btn { display: inline-flex; align-items: center; justify-content: center; gap: 8px; border-radius: 13px; font-family: var(--body); font-weight: 700; font-size: 14px; padding: 11px 14px; border: 1px solid var(--line); background: var(--panel); color: var(--ink); cursor: pointer; }
 .btn:hover { background: var(--panel2); border-color: rgba(255,255,255,.18); }
 .btn.primary { background: linear-gradient(135deg, #ff4053, #c81f30); border: none; box-shadow: 0 8px 24px rgba(255, 64, 83, 0.28); }
 .btn.go { color: var(--ok); background: rgba(70, 224, 160, 0.1); border-color: rgba(70, 224, 160, 0.3); }
@@ -166,14 +167,17 @@ body {
 }
 .cmap.static { position: relative; min-height: 360px; }
 .zone { position: absolute; border: 1px solid var(--line); border-radius: 8px; background: rgba(255, 255, 255, 0.015); }
-.zlab { position: absolute; font-family: var(--mono); font-size: 8px; color: var(--faint); letter-spacing: 1px; }
+.zlab { position: absolute; font-family: var(--mono); font-size: 10px; color: var(--faint); letter-spacing: 1px; }
 .dot { position: absolute; width: 26px; height: 26px; border-radius: 50%; display: grid; place-items: center; font-family: var(--disp); font-weight: 700; font-size: 11px; color: #0a0d15; box-shadow: 0 0 0 3px #0a0d15; transform: translate(-50%, -50%); }
+/* Status is encoded by SHAPE as well as hue (colorblind-safe):
+   ok = circle · caution = rounded square · sos = glowing circle (paired with
+   the triangle incident marker) · off = dimmed dashed ring. */
 .dot.ok { background: var(--ok); }
 .dot.info { background: var(--info); box-shadow: 0 0 0 3px #0a0d15, 0 0 14px rgba(122,162,255,.7); }
-.dot.caution { background: var(--caution); }
+.dot.caution { background: var(--caution); border-radius: 8px; }
 .dot.sos { background: var(--alert); color: #fff; box-shadow: 0 0 0 3px #0a0d15, 0 0 18px rgba(255,64,83,.85); }
-.dot.off { background: rgba(255,255,255,.25); color: var(--faint); }
-.dotlab { position: absolute; font-family: var(--mono); font-size: 8px; color: var(--muted); transform: translate(-50%, 10px); white-space: nowrap; }
+.dot.off { background: rgba(255,255,255,.25); color: var(--faint); border: 2px dashed rgba(255,255,255,.4); }
+.dotlab { position: absolute; font-family: var(--mono); font-size: 10px; color: var(--muted); transform: translate(-50%, 12px); white-space: nowrap; }
 
 .inc { position: absolute; transform: translate(-50%, -50%); }
 .inc .core { width: 30px; height: 30px; border-radius: 50%; background: var(--alert); display: grid; place-items: center; color: #fff; box-shadow: 0 0 18px rgba(255,64,83,.8); position: relative; z-index: 2; }
@@ -262,8 +266,8 @@ table.rt tr:hover td { background: var(--panel2); }
 .zbar { flex: 1; height: 8px; border-radius: 6px; background: var(--panel); overflow: hidden; }
 .zf { height: 100%; }
 .zc { font-family: var(--mono); font-size: 10px; color: var(--muted); width: 74px; text-align: right; }
-.sel { display: flex; align-items: center; justify-content: space-between; padding: 10px 12px; border: 1px solid var(--line); border-radius: 10px; background: var(--panel); font-size: 12px; margin-bottom: 8px; }
-.sel .glyph { color: var(--faint); }
+.sel { display: block; width: 100%; padding: 10px 12px; border: 1px solid var(--line); border-radius: 10px; background: var(--panel); color: var(--ink); font-family: var(--body); font-size: 12px; margin-bottom: 8px; }
+select.sel:disabled { color: var(--muted); cursor: not-allowed; }
 
 /* --- coverage heatmap --- */
 .heatbody { display: grid; grid-template-columns: 1fr 250px; min-height: 470px; }
@@ -307,6 +311,26 @@ table.rt tr:hover td { background: var(--panel2); }
 .searchres { margin-top: 6px; display: flex; flex-direction: column; gap: 6px; max-height: 180px; overflow-y: auto; }
 .searcherr { color: var(--alert); font-size: 12px; margin: 6px 0; }
 .audited { font-family: var(--mono); font-size: 9px; color: var(--faint); margin-top: 10px; text-align: center; }
+
+/* --- comms status strip (the wedge: mesh up while infrastructure is down) --- */
+.commswrap { display: flex; flex-direction: column; gap: 5px; padding: 10px 11px; border: 1px solid var(--line); border-radius: 12px; background: var(--panel2); }
+.comms { display: flex; align-items: baseline; gap: 7px; font-family: var(--mono); font-size: 10px; }
+.comms .cdot { width: 7px; height: 7px; border-radius: 50%; align-self: center; }
+.comms.up .cdot { background: var(--ok); box-shadow: 0 0 8px rgba(70,224,160,.7); }
+.comms.down .cdot { background: transparent; border: 1.5px solid var(--alert); }
+.comms .clabel { color: var(--muted); letter-spacing: 1px; width: 74px; }
+.comms.up .cstate { color: var(--ok); font-weight: 700; }
+.comms.down .cstate { color: var(--alert); font-weight: 700; text-decoration: line-through; text-decoration-thickness: 1px; }
+.comms .cdetail { color: var(--faint); margin-left: auto; font-size: 9px; }
+
+/* --- incident status chip + resolved bar --- */
+.statusrow { display: flex; align-items: center; justify-content: space-between; margin-bottom: 4px; }
+.resolvedbar { display: flex; align-items: center; gap: 12px; padding: 12px 18px; border-bottom: 1px solid var(--line); background: var(--panel2); }
+.rbsub { font-family: var(--mono); font-size: 11px; color: var(--muted); }
+
+/* resolved feed items read as closed, not live */
+.fitem.resolved { opacity: 0.62; }
+.fitem.resolved .ft { text-decoration: none; }
 
 /* --- map dot as a button (reset native chrome) --- */
 button.dot { border: none; padding: 0; font: inherit; -webkit-appearance: none; appearance: none; }

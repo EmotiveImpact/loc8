@@ -17,7 +17,6 @@
     "noEmit": true,
     "types": ["node"],
     "paths": {
-      "@loc8/engine": ["../../packages/engine/src/index.ts"],
       "@loc8/engine/*": ["../../packages/engine/src/*"]
     }
   },

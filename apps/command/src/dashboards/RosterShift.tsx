@@ -25,7 +25,7 @@ export function RosterShift() {
 
   return (
     <>
-      <PageHead title="Roster & shift management" sub="Who's on, where, and since when — plus live zone coverage. (Assign/reassign: stubbed.)" />
+      <PageHead title="Roster & shift management" sub="Who's on, where, and since when — plus live zone coverage." />
       <Console>
         <ConsoleTop
           site={<><span>· </span><b>Roster</b> · {store.shiftLabel} · Team B</>}
@@ -71,23 +71,20 @@ export function RosterShift() {
 
             <div className="card">
               <h4>Assign / reassign zone</h4>
-              <div className="sel">
-                Guard 01 · Adeyemi <span className="glyph">▾</span>
-              </div>
-              <div className="sel">
-                → Perimeter <span className="glyph">▾</span>
-              </div>
+              <select className="sel" disabled aria-label="Guard to reassign" title="Available when shift back-office ships">
+                <option>Guard 01 · Adeyemi</option>
+              </select>
+              <select className="sel" disabled aria-label="Target zone" title="Available when shift back-office ships">
+                <option>→ Perimeter</option>
+              </select>
               <div className="btnrow" style={{ marginTop: 4 }}>
-                <button type="button" className="btn go" disabled title="Stubbed — shift back-office">
+                <button type="button" className="btn go" disabled title="Available when shift back-office ships">
                   <Icon name="arrow" /> Reassign zone
                 </button>
-                <button type="button" className="btn" disabled title="Stubbed — shift back-office">
+                <button type="button" className="btn" disabled title="Available when shift back-office ships">
                   <Icon name="plus" /> Add guard to shift
                 </button>
               </div>
-              <p className="mono" style={{ fontSize: 9, color: 'var(--faint)', marginTop: 10 }}>
-                Stub: interaction wired, write path deferred.
-              </p>
             </div>
           </div>
         </div>

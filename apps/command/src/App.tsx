@@ -44,7 +44,9 @@ export default function App() {
   // reaches the store — the inbound leg of dispatch/status, visible live.
   useEffect(() => {
     const incident = useCommandStore.getState().incidents.find((i) => i.kind === 'sos');
-    const responderIds = (incident?.responders ?? []).map((r) => r.staffId).filter((id) => id !== 0);
+    if (!incident) return;
+    const sosIncidentId = incident.id;
+    const responderIds = incident.responders.map((r) => r.staffId).filter((id) => id !== 0);
     if (responderIds.length === 0) return;
     const script = guardStatusScript(responderIds);
     let i = 0;
@@ -55,7 +57,9 @@ export default function App() {
       }
       const [staffId, code] = script[i++];
       const decoded = emitGuardStatus(staffId, code);
-      if (decoded) useCommandStore.getState().applyGuardStatus(decoded.fromId, decoded.code);
+      // Pin the update to the SOS incident this script belongs to — not
+      // whatever incident the operator happens to be viewing.
+      if (decoded) useCommandStore.getState().applyGuardStatus(decoded.fromId, decoded.code, sosIncidentId);
     }, 6000);
     return () => clearInterval(id);
   }, []);

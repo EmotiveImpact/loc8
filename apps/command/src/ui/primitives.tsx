@@ -83,16 +83,18 @@ export function FeedItem({
   text,
   sub,
   hot,
+  resolved,
   onClick,
 }: {
   tone: Tone;
   text: string;
   sub?: string;
   hot?: boolean;
+  resolved?: boolean;
   onClick?: () => void;
 }) {
   return (
-    <button type="button" className={`fitem ${hot ? 'hot' : ''}`} onClick={onClick}>
+    <button type="button" className={`fitem ${hot ? 'hot' : ''} ${resolved ? 'resolved' : ''}`} onClick={onClick}>
       <span className="fdot" style={{ background: TONE_COLOR[tone] }} />
       <span className="ft">
         {text}
@@ -106,17 +108,25 @@ export function RosterItem({
   tone,
   name,
   zone,
+  status,
   onClick,
 }: {
   tone: Tone;
   name: string;
   zone: string;
+  /** status as TEXT, not color alone (a11y: WCAG 1.4.1) */
+  status?: string;
   onClick?: () => void;
 }) {
   return (
     <button type="button" className="ritem" onClick={onClick}>
       <span className="fdot" style={{ background: TONE_COLOR[tone] }} />
       <span className="rn">{name}</span>
+      {status && (
+        <span className="rstat" style={{ color: TONE_COLOR[tone] }}>
+          {status}
+        </span>
+      )}
       <span className="rz">{zone}</span>
     </button>
   );

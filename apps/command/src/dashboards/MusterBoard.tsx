@@ -34,13 +34,16 @@ export function MusterBoard() {
           </div>
         ) : (
           <>
-            <div className="musterbanner">
+            <div className="musterbanner" role="alert">
               <span className="mpulse" />
               <div>
                 <h2>MUSTER IN PROGRESS</h2>
                 <div className="subm">all staff to {store.muster.assemblyPoint}</div>
               </div>
-              <span className="clock">{elapsed}</span>
+              <span className="clock" aria-live="polite">{elapsed}</span>
+              <button type="button" className="btn amber" style={{ marginLeft: 12 }} onClick={() => store.standDownMuster()}>
+                <Icon name="check" /> Stand down
+              </button>
             </div>
 
             <div className="countwrap">
@@ -64,10 +67,15 @@ export function MusterBoard() {
               <div className="mustergrid">
                 {staff.map((s) => {
                   const out = !s.mustered;
+                  // A no-signal guard cannot self-report over the mesh, so the
+                  // console must not let a tap mark them "safe" — that is the
+                  // exact failure a muster board exists to prevent.
+                  const unreachable = s.status === 'no_signal';
+                  const checkable = out && !unreachable;
                   const detail = out
                     ? s.status === 'sos'
                       ? `SOS · ${zoneName(store.zones, s.zoneId).split(' ')[0]}`
-                      : s.status === 'no_signal'
+                      : unreachable
                         ? 'NO SIGNAL'
                         : zoneName(store.zones, s.zoneId).split(' ')[0].toUpperCase()
                     : 'ACCOUNTED';
@@ -76,8 +84,15 @@ export function MusterBoard() {
                       key={s.id}
                       type="button"
                       className={`gcard ${out ? 'out' : 'acc'}`}
-                      onClick={() => !s.mustered && store.checkIn(s.id)}
-                      title={out ? 'Tap to check in' : 'Accounted for'}
+                      disabled={out && unreachable}
+                      onClick={() => checkable && store.checkIn(s.id)}
+                      title={
+                        !out
+                          ? 'Accounted for'
+                          : unreachable
+                            ? 'No mesh signal — cannot self-report; locate physically before marking safe'
+                            : 'Tap to check in'
+                      }
                     >
                       <div className="gid">{String(s.id).padStart(2, '0')}</div>
                       <div className="gname">{s.name.split(' ').slice(-1)[0]}</div>

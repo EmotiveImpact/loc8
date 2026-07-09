@@ -17,6 +17,7 @@ import {
   buildStaff,
   buildZoneDensity,
   OPERATOR_ID,
+  COMMAND_ID,
   SHIFT_LABEL,
   SITE_NAME,
   TEAM_TAG,
@@ -26,6 +27,7 @@ import type {
   AuditEntry,
   Incident,
   MusterState,
+  ResponderState,
   StaffMember,
   Zone,
   ZoneDensity,
@@ -74,20 +76,66 @@ interface CommandState {
 
   // --- actions (all state-changing individual actions write to the audit log) ---
   setActiveIncident(id: string | null): void;
+  /** Record that an operator viewed an incident that names an individual. */
+  noteReveal(incidentId: string): void;
   acknowledge(id: string): void;
   escalate(id: string): void;
   resolve(id: string): void;
   dispatch(text: string, opts?: { incidentId?: string; toTag?: number }): void;
-  applyGuardStatus(staffId: number, code: number): void;
+  applyGuardStatus(staffId: number, code: number, incidentId?: string): void;
+  standDownMuster(): void;
   callMuster(): void;
   endMuster(): void;
   checkIn(staffId: number): void;
   runAssistedSearch(query: string, reason: string): { ok: boolean; error?: string };
 }
 
-let auditSeq = 1;
+// --- audit trail durability -------------------------------------------------
+// The audit log is the product's accountability contract, so it must survive a
+// reload and its ids must not restart. Entries persist to localStorage
+// (append-only in usage: nothing in the store ever removes or mutates an
+// entry), and the id sequence is seeded from what's already on disk. In a real
+// deployment this becomes a server-side append-only ledger; the shape is ready.
+const AUDIT_KEY = 'loc8.command.audit.v1';
+const AUDIT_MAX = 2000; // generous shift-scale bound; oldest archived off, never silently at 200
+
+function loadAudit(): AuditEntry[] {
+  try {
+    const raw = globalThis.localStorage?.getItem(AUDIT_KEY);
+    if (!raw) return [];
+    const parsed = JSON.parse(raw) as AuditEntry[];
+    return Array.isArray(parsed) ? parsed : [];
+  } catch {
+    return [];
+  }
+}
+
+function persistAudit(log: AuditEntry[]): void {
+  try {
+    globalThis.localStorage?.setItem(AUDIT_KEY, JSON.stringify(log));
+  } catch {
+    // Storage full/unavailable — keep the in-memory trail going regardless.
+  }
+}
+
+const audit0 = loadAudit();
+let auditSeq = (audit0[0]?.id ?? 0) + 1;
+// Rolling uint16 message id for outgoing dispatches (see dispatch()).
+let dispatchMsgSeq = 0;
+
 function audit(prev: AuditEntry[], e: Omit<AuditEntry, 'id'>): AuditEntry[] {
-  return [{ ...e, id: auditSeq++ }, ...prev].slice(0, 200);
+  const next = [{ ...e, id: auditSeq++ }, ...prev].slice(0, AUDIT_MAX);
+  persistAudit(next);
+  return next;
+}
+
+/** Serialize the trail for an after-action report (newest first). */
+export function exportAuditLog(log: AuditEntry[]): string {
+  return JSON.stringify(
+    { exportedAt: new Date().toISOString(), format: 'loc8-command-audit-v1', entries: log },
+    null,
+    2,
+  );
 }
 
 function patchIncident(list: Incident[], id: string, patch: (i: Incident) => Incident): Incident[] {
@@ -105,7 +153,7 @@ export const useCommandStore = create<CommandState>((set, get) => ({
   incidents: buildIncidents(staff0),
   zoneDensity: buildZoneDensity(staff0),
   muster: buildMuster(),
-  auditLog: [],
+  auditLog: audit0,
   dispatchLog: [],
   activeIncidentId: 'SOS-0442',
   lastSearch: null,
@@ -116,7 +164,9 @@ export const useCommandStore = create<CommandState>((set, get) => ({
     Object.values(get().staff).filter((s) => s.status !== 'no_signal').length,
   respondingCount: () =>
     Object.values(get().staff).filter((s) => s.status === 'responding').length,
-  sosCount: () => Object.values(get().staff).filter((s) => s.status === 'sos').length,
+  // Tied to OPEN SOS *incidents*, not raw staff status — so resolving an
+  // incident actually clears the badge/tile instead of leaving them lit.
+  sosCount: () => get().incidents.filter((i) => i.kind === 'sos' && i.status !== 'resolved').length,
   venueCoveragePct: () => venueCoverage(get().zoneDensity),
   musteredCount: () => Object.values(get().staff).filter((s) => s.mustered).length,
   outstandingStaff: () => Object.values(get().staff).filter((s) => !s.mustered),
@@ -130,72 +180,127 @@ export const useCommandStore = create<CommandState>((set, get) => ({
 
   setActiveIncident: (id) => set({ activeIncidentId: id }),
 
+  noteReveal: (incidentId) =>
+    set((st) => {
+      const inc = st.incidents.find((i) => i.id === incidentId);
+      if (!inc || (!inc.subjectName && !inc.location)) return {};
+      // Debounce repeat views of the same incident (also absorbs StrictMode's
+      // dev double-mount) — distinct viewing sessions still log separately.
+      const last = st.auditLog[0];
+      if (
+        last?.action === 'reveal_subject' &&
+        last.detail?.startsWith(inc.id) &&
+        nowSec() - last.atSec < 30
+      )
+        return {};
+      return {
+        auditLog: audit(st.auditLog, {
+          atSec: nowSec(),
+          operatorId: st.operatorId,
+          action: 'reveal_subject',
+          reason: `viewed incident ${inc.id}${inc.subjectName ? ` (${inc.subjectName})` : ''}`,
+          subjectIds: inc.raisedByStaffId ? [inc.raisedByStaffId] : [],
+          detail: `${inc.id} · ${inc.location ? 'name + coordinates shown' : 'name shown'}`,
+        }),
+      };
+    }),
+
   acknowledge: (id) =>
-    set((st) => ({
-      incidents: patchIncident(st.incidents, id, (i) => ({
-        ...i,
-        status: i.status === 'active' ? 'acknowledged' : i.status,
-        timeline: [
-          ...i.timeline,
-          { atSec: nowSec(), tone: 'ok', text: 'Acknowledged by control room', sub: st.operatorId },
-        ],
-      })),
-      auditLog: audit(st.auditLog, {
-        atSec: nowSec(),
-        operatorId: st.operatorId,
-        action: 'acknowledge',
-        reason: 'incident acknowledged',
-        subjectIds: [],
-        detail: id,
-      }),
-    })),
+    set((st) => {
+      const inc = st.incidents.find((i) => i.id === id);
+      // No-op once the incident has left the active state — prevents the
+      // "escalated, then acknowledged" nonsense in the timeline/audit.
+      if (!inc || inc.status !== 'active') return {};
+      return {
+        incidents: patchIncident(st.incidents, id, (i) => ({
+          ...i,
+          status: 'acknowledged',
+          timeline: [
+            ...i.timeline,
+            { atSec: nowSec(), tone: 'ok', text: 'Acknowledged by control room', sub: st.operatorId },
+          ],
+        })),
+        auditLog: audit(st.auditLog, {
+          atSec: nowSec(),
+          operatorId: st.operatorId,
+          action: 'acknowledge',
+          reason: 'incident acknowledged',
+          subjectIds: [],
+          detail: id,
+        }),
+      };
+    }),
 
   escalate: (id) =>
-    set((st) => ({
-      incidents: patchIncident(st.incidents, id, (i) => ({
-        ...i,
-        status: 'escalated',
-        timeline: [
-          ...i.timeline,
-          { atSec: nowSec(), tone: 'alert', text: 'Escalated to police', sub: st.operatorId },
-        ],
-      })),
-      auditLog: audit(st.auditLog, {
-        atSec: nowSec(),
-        operatorId: st.operatorId,
-        action: 'escalate',
-        reason: 'escalated to law enforcement',
-        subjectIds: [],
-        detail: id,
-      }),
-    })),
+    set((st) => {
+      const inc = st.incidents.find((i) => i.id === id);
+      if (!inc || inc.status === 'escalated' || inc.status === 'resolved') return {};
+      return {
+        incidents: patchIncident(st.incidents, id, (i) => ({
+          ...i,
+          status: 'escalated',
+          timeline: [
+            ...i.timeline,
+            { atSec: nowSec(), tone: 'alert', text: 'Escalated to police', sub: st.operatorId },
+          ],
+        })),
+        auditLog: audit(st.auditLog, {
+          atSec: nowSec(),
+          operatorId: st.operatorId,
+          action: 'escalate',
+          reason: 'escalated to law enforcement',
+          subjectIds: inc.raisedByStaffId ? [inc.raisedByStaffId] : [],
+          detail: id,
+        }),
+      };
+    }),
 
   resolve: (id) =>
-    set((st) => ({
-      incidents: patchIncident(st.incidents, id, (i) => ({
-        ...i,
-        status: 'resolved',
-        timeline: [
-          ...i.timeline,
-          { atSec: nowSec(), tone: 'ok', text: 'Resolution logged', sub: st.operatorId },
-        ],
-      })),
-      auditLog: audit(st.auditLog, {
-        atSec: nowSec(),
-        operatorId: st.operatorId,
-        action: 'acknowledge',
-        reason: 'resolution logged',
-        subjectIds: [],
-        detail: id,
-      }),
-    })),
+    set((st) => {
+      const inc = st.incidents.find((i) => i.id === id);
+      if (!inc || inc.status === 'resolved') return {};
+      const at = nowSec();
+      // Reconcile the raising staff member: an SOS subject stops being 'sos'
+      // once their incident is resolved, so the badge/tile/roster all clear.
+      let staff = st.staff;
+      if (inc.raisedByStaffId && st.staff[inc.raisedByStaffId]?.status === 'sos') {
+        const s = st.staff[inc.raisedByStaffId];
+        staff = { ...st.staff, [s.id]: { ...s, status: 'on_post', lastPingSec: at } };
+      }
+      return {
+        staff,
+        incidents: patchIncident(st.incidents, id, (i) => ({
+          ...i,
+          status: 'resolved',
+          closedAtSec: at,
+          timeline: [...i.timeline, { atSec: at, tone: 'ok', text: 'Resolution logged', sub: st.operatorId }],
+        })),
+        auditLog: audit(st.auditLog, {
+          atSec: at,
+          operatorId: st.operatorId,
+          action: 'resolve',
+          reason: 'resolution logged',
+          subjectIds: inc.raisedByStaffId ? [inc.raisedByStaffId] : [],
+          detail: id,
+        }),
+      };
+    }),
 
   dispatch: (text, opts) =>
     set((st) => {
       const toTag = opts?.toTag ?? TEAM_TAG;
       const at = nowSec();
       // Reuse the shared engine wire codec — these are the actual mesh frames.
-      const frames = encodeDispatch({ fromId: 0xc0, toTag, text, msgId: at & 0xffff, nowSec: at });
+      // msgId is a true monotonic counter: the receiver's TextReassembler keys
+      // buffers by (senderId, msgId), so a clock-derived id would merge two
+      // same-second dispatches into one corrupted message.
+      const frames = encodeDispatch({
+        fromId: COMMAND_ID,
+        toTag,
+        text,
+        msgId: (dispatchMsgSeq = (dispatchMsgSeq + 1) & 0xffff),
+        nowSec: at,
+      });
       const log: DispatchLogEntry = {
         atSec: at,
         toTag,
@@ -225,22 +330,29 @@ export const useCommandStore = create<CommandState>((set, get) => ({
       };
     }),
 
-  applyGuardStatus: (staffId, code) =>
+  applyGuardStatus: (staffId, code, incidentId) =>
     set((st) => {
       const label = GUARD_STATUS.find((s) => s.code === code)?.label ?? '…';
-      const status: StaffMember['status'] =
-        code === 2 ? 'responding' : code === 4 ? 'on_post' : code === 3 ? 'responding' : 'responding';
+      // Map the Guard status code to both the staff status and the responder
+      // card state, so the timeline and the responder rail always agree.
+      const respState: ResponderState = code === 4 ? 'clear' : code >= 2 ? 'on_scene' : 'en_route';
+      const staffStatus: StaffMember['status'] = code === 4 ? 'on_post' : 'responding';
       const cur = st.staff[staffId];
       if (!cur) return {};
+      const at = nowSec();
+      // Route to the incident this beat belongs to — NOT whatever is on screen,
+      // so responder chatter can't bleed into an unrelated incident.
+      const targetId = incidentId ?? st.activeIncidentId;
       return {
-        staff: { ...st.staff, [staffId]: { ...cur, status, lastPingSec: nowSec() } },
-        lastInboundStatus: { staffId, name: cur.name, label, atSec: nowSec() },
-        incidents: st.activeIncidentId
-          ? patchIncident(st.incidents, st.activeIncidentId, (i) => ({
+        staff: { ...st.staff, [staffId]: { ...cur, status: staffStatus, lastPingSec: at } },
+        lastInboundStatus: { staffId, name: cur.name, label, atSec: at },
+        incidents: targetId
+          ? patchIncident(st.incidents, targetId, (i) => ({
               ...i,
+              responders: i.responders.map((r) => (r.staffId === staffId ? { ...r, state: respState } : r)),
               timeline: [
                 ...i.timeline,
-                { atSec: nowSec(), tone: 'info', text: `${cur.name}: ${label}`, sub: `Guard ${staffId}` },
+                { atSec: at, tone: 'info', text: `${cur.name}: ${label}`, sub: `Guard ${staffId}` },
               ],
             }))
           : st.incidents,
@@ -262,10 +374,28 @@ export const useCommandStore = create<CommandState>((set, get) => ({
 
   endMuster: () => set((st) => ({ muster: { ...st.muster, active: false } })),
 
+  standDownMuster: () =>
+    set((st) => {
+      if (!st.muster.active) return {};
+      return {
+        muster: { ...st.muster, active: false },
+        auditLog: audit(st.auditLog, {
+          atSec: nowSec(),
+          operatorId: st.operatorId,
+          action: 'stand_down',
+          reason: 'muster stood down',
+          subjectIds: [],
+          detail: `${Object.values(st.staff).filter((s) => s.mustered).length}/${Object.keys(st.staff).length} accounted`,
+        }),
+      };
+    }),
+
   checkIn: (staffId) =>
     set((st) => {
       const cur = st.staff[staffId];
       if (!cur) return {};
+      // A no-signal guard cannot self-report — never let a tap mark them safe.
+      if (cur.status === 'no_signal') return {};
       return { staff: { ...st.staff, [staffId]: { ...cur, mustered: true } } };
     }),
 

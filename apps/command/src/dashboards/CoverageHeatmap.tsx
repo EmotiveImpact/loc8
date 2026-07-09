@@ -21,7 +21,7 @@ export function CoverageHeatmap() {
 
   return (
     <>
-      <PageHead title="Coverage heatmap" sub="Anonymised aggregate density — crowd-crush prevention without surveillance. (Clean stub.)" />
+      <PageHead title="Coverage heatmap" sub="Anonymised aggregate density — crowd-crush prevention without surveillance." />
       <Console>
         <ConsoleTop site={<><span>· </span><b>Coverage</b> · aggregate density</>} tag={{ text: 'MESH · ANONYMISED', variant: 'ok' }} />
         <div className="heatbody">
