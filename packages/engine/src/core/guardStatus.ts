@@ -24,3 +24,12 @@ export const GUARD_STATUS: GuardStatus[] = [
 export function guardStatusLabel(code: number): string {
   return GUARD_STATUS.find((s) => s.code === code)?.label ?? '…';
 }
+
+/**
+ * Silent duress — deliberately NOT in GUARD_STATUS (never rendered as a chip,
+ * never labelled on the sending device). On the wire it is an ordinary
+ * quickReply frame, indistinguishable from a routine status tap to anyone
+ * watching the guard or sniffing traffic; only the control room decodes its
+ * meaning. security-vertical.md: "silent duress" is a universal use case.
+ */
+export const DURESS_CODE = 9;

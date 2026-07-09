@@ -8,7 +8,7 @@ import { Console, ConsoleTop, PageHead, Pill, SectionTitle } from '../ui/primiti
 import { DispatchPaths, GuardDot, IncidentMarker, MapCanvas, ZoneRect } from '../ui/map';
 import { Icon } from '../ui/Icon';
 import { useElapsed } from '../ui/hooks';
-import { incidentStatusLabel, incidentStatusTone, isLiveEmergency } from '../ui/status';
+import { emergencyHeadline, incidentStatusLabel, incidentStatusTone, isLiveEmergency } from '../ui/status';
 import type { Nav } from '../App';
 
 export function IncidentDetail({ nav }: { nav: Nav }) {
@@ -65,9 +65,16 @@ export function IncidentDetail({ nav }: { nav: Nav }) {
               <Icon name="alert" size={22} />
             </div>
             <div>
-              <h2>SOS · GUARD {String(inc.raisedByStaffId).padStart(2, '0')} · {zoneName(store.zones, inc.zoneId)}</h2>
+              <h2>
+                {emergencyHeadline(inc)} · GUARD {String(inc.raisedByStaffId).padStart(2, '0')} ·{' '}
+                {zoneName(store.zones, inc.zoneId)}
+              </h2>
               <div className="subm">
-                {subject} · panic hold triggered · {inc.meshConfirmed ? 'mesh-confirmed' : 'unconfirmed'}
+                {inc.kind === 'duress'
+                  ? `${subject} · covert — NO acknowledgment is sent to the device`
+                  : inc.kind === 'man_down'
+                    ? `${subject} · device silent · last known position held`
+                    : `${subject} · panic hold triggered · ${inc.meshConfirmed ? 'mesh-confirmed' : 'unconfirmed'}`}
               </div>
             </div>
             <div className="meta">

@@ -64,7 +64,15 @@ export interface StaffMember {
   mustered?: boolean;
 }
 
-export type IncidentKind = 'sos' | 'ejection' | 'capacity' | 'lone_worker' | 'medical' | 'shift';
+export type IncidentKind =
+  | 'sos'
+  | 'duress' // covert emergency — no acknowledgment is ever sent to the device
+  | 'man_down' // watchdog-raised: on-duty device went silent
+  | 'ejection'
+  | 'capacity'
+  | 'lone_worker'
+  | 'medical'
+  | 'shift';
 export type IncidentStatus = 'active' | 'acknowledged' | 'escalated' | 'resolved';
 
 export interface TimelineEntry {

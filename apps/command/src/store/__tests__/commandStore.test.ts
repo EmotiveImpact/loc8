@@ -124,6 +124,60 @@ describe('muster safety', () => {
   });
 });
 
+describe('silent duress (covert quickReply channel)', () => {
+  it('raises a duress incident, marks the subject, audits, and never duplicates', () => {
+    useCommandStore.getState().raiseDuress(2, 1_000_100); // Luca Bianchi, Bar
+    const st = useCommandStore.getState();
+    const inc = st.incidents.find((i) => i.kind === 'duress');
+    expect(inc).toBeDefined();
+    expect(inc!.status).toBe('active');
+    expect(inc!.raisedByStaffId).toBe(2);
+    expect(inc!.feedText).toMatch(/SILENT DURESS/);
+    expect(inc!.timeline.some((t) => t.text.includes('NO acknowledgment'))).toBe(true);
+    expect(st.staff[2].status).toBe('sos');
+    expect(st.auditLog[0].reason).toMatch(/duress/);
+    // covert protocol: repeat signals must not spawn duplicate incidents
+    useCommandStore.getState().raiseDuress(2, 1_000_160);
+    expect(useCommandStore.getState().incidents.filter((i) => i.kind === 'duress')).toHaveLength(1);
+  });
+
+  it('auto-identifies the nearest responder', () => {
+    useCommandStore.getState().raiseDuress(2, 1_000_100);
+    const inc = useCommandStore.getState().incidents.find((i) => i.kind === 'duress')!;
+    expect(inc.responders.length).toBeGreaterThanOrEqual(1);
+    expect(inc.responders[0].distanceM).toBeGreaterThan(0);
+  });
+});
+
+describe('man-down watchdog', () => {
+  it('raises + auto-dispatches for an on-duty device gone silent, exactly once', () => {
+    const base = 1_000_000;
+    // Sofia (9) last pinged at base-240; jump the clock past the threshold.
+    const later = base + 20 * 60;
+    useCommandStore.getState().runWatchdog(later);
+    const st = useCommandStore.getState();
+    const md = st.incidents.filter((i) => i.kind === 'man_down');
+    expect(md.length).toBeGreaterThanOrEqual(1);
+    const sofia = md.find((i) => i.raisedByStaffId === 9)!;
+    expect(sofia).toBeDefined();
+    expect(sofia.feedSub).toMatch(/watchdog/);
+    expect(sofia.responders.length).toBe(1); // nearest auto-dispatched
+    expect(st.staff[9].status).toBe('no_signal');
+    expect(st.auditLog.some((a) => a.reason === 'man-down auto-dispatch' && a.subjectIds.includes(9))).toBe(true);
+    // idempotent: same silence must not raise a second incident
+    useCommandStore.getState().runWatchdog(later + 60);
+    expect(
+      useCommandStore.getState().incidents.filter((i) => i.kind === 'man_down' && i.raisedByStaffId === 9),
+    ).toHaveLength(1);
+  });
+
+  it('does nothing while everyone is inside the threshold', () => {
+    const before = useCommandStore.getState().incidents.length;
+    useCommandStore.getState().runWatchdog(1_000_000 + 30); // 30s after seed
+    expect(useCommandStore.getState().incidents.length).toBe(before);
+  });
+});
+
 describe('assisted search through the store', () => {
   it('a valid search logs one assisted_search entry', () => {
     const res = useCommandStore.getState().runAssistedSearch('Priya', 'lost-child report at Gate C');

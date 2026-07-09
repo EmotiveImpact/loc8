@@ -2,9 +2,16 @@ import type { Incident, IncidentStatus, StaffStatus } from '../domain/types';
 
 export type Tone = 'ok' | 'amber' | 'alert' | 'off' | 'info';
 
-/** Is this incident still a live emergency (drives the red SOS banner/tag)? */
+/** Is this incident still a live emergency (drives the red banner/tag)? */
 export function isLiveEmergency(inc: Incident): boolean {
-  return inc.kind === 'sos' && inc.status !== 'resolved';
+  return (inc.kind === 'sos' || inc.kind === 'duress' || inc.kind === 'man_down') && inc.status !== 'resolved';
+}
+
+/** Banner headline per emergency kind. */
+export function emergencyHeadline(inc: Incident): string {
+  if (inc.kind === 'duress') return 'SILENT DURESS';
+  if (inc.kind === 'man_down') return 'MAN DOWN?';
+  return 'SOS';
 }
 
 export function incidentStatusLabel(status: IncidentStatus): string {
@@ -69,7 +76,7 @@ export function staffDotTone(status: StaffStatus): 'ok' | 'info' | 'caution' | '
 }
 
 export function incidentTone(inc: Incident): Tone {
-  if (inc.kind === 'sos') return 'alert';
+  if (inc.kind === 'sos' || inc.kind === 'duress' || inc.kind === 'man_down') return 'alert';
   if (inc.kind === 'lone_worker') return 'amber';
   if (inc.kind === 'shift') return 'ok';
   return 'info';

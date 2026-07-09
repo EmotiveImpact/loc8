@@ -4,7 +4,7 @@ import { useState } from 'react';
 import { Pressable, ScrollView, StyleSheet, Text, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { router } from 'expo-router';
-import { useCrewStore, freshnessSec, GHOST_SEC, STALE_SEC } from '@loc8/engine';
+import { useCrewStore, freshnessSec, haptics, DURESS_CODE, GHOST_SEC, STALE_SEC } from '@loc8/engine';
 import { GUARD_STATUS, sendStatus } from '../../src/services/ops';
 import { useGuardStore } from '../../src/store/guardStore';
 import { Card, MeshBadge } from '../../src/ui/kit';
@@ -24,7 +24,19 @@ export default function Team() {
           <Text style={styles.title}>Team B</Text>
           <Text style={styles.sub}>YOU · Guard 07</Text>
         </View>
-        <MeshBadge />
+        {/* Covert duress: a long-press here sends DURESS_CODE on an
+            ordinary-looking status frame. NOTHING changes on screen — the only
+            confirmation is one subtle tap in the pocket. Trained gesture. */}
+        <Pressable
+          accessibilityLabel="Mesh status"
+          delayLongPress={1200}
+          onLongPress={() => {
+            sendStatus(DURESS_CODE);
+            haptics.tap();
+          }}
+        >
+          <MeshBadge />
+        </Pressable>
       </View>
       <ScrollView contentContainerStyle={styles.scroll}>
         <Text style={styles.section}>MY STATUS — SENT OVER MESH</Text>

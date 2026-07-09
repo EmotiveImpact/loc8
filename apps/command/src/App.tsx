@@ -42,9 +42,17 @@ export default function App() {
 
   // LIVE mode: ?bridge=ws://<host>:8787 connects to the mesh-bridge relay and
   // renders real frames from a Guard gateway phone instead of the sim script.
+  // The man-down watchdog only runs on live data — sim timestamps are frozen,
+  // so it would cascade false positives against the demo scenario.
   useEffect(() => {
     const url = bridgeUrlFromLocation();
-    if (url) connectLiveBridge(url);
+    if (!url) return;
+    connectLiveBridge(url);
+    const id = setInterval(
+      () => useCommandStore.getState().runWatchdog(Math.floor(Date.now() / 1000)),
+      10_000,
+    );
+    return () => clearInterval(id);
   }, []);
 
   // Live two-way flow (sim): a simulated Guard device replies over the mesh.

@@ -8,7 +8,7 @@
 //
 // Enable with ?bridge=ws://<host>:8787 (or ?bridge=1 for localhost).
 
-import { BridgedTransport, TextReassembler, type Packet } from '../engine';
+import { BridgedTransport, TextReassembler, DURESS_CODE, type Packet } from '../engine';
 import { setFrameSink, useCommandStore } from '../store/commandStore';
 
 let bridge: BridgedTransport | null = null;
@@ -38,6 +38,12 @@ export function connectLiveBridge(url: string): void {
         store.raiseLiveSos(p.senderId, { latitude: p.latitude, longitude: p.longitude }, p.timestampSec);
         break;
       case 'quickReply': {
+        // The covert channel: DURESS_CODE looks like any status tap on the
+        // wire — only the console decodes its meaning, and it NEVER replies.
+        if (p.quickReplyCode === DURESS_CODE) {
+          store.raiseDuress(p.senderId, p.timestampSec);
+          break;
+        }
         // Route the status to the sender's open SOS if there is one.
         const open = store.incidents.find(
           (i) => i.kind === 'sos' && i.status !== 'resolved',

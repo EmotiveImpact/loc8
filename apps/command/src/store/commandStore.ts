@@ -92,6 +92,10 @@ interface CommandState {
   applyLivePosition(staffId: number, coord: Coordinate, atSec: number): void;
   raiseLiveSos(staffId: number, coord: Coordinate, atSec: number): void;
   receiveTeamText(fromId: number, text: string): void;
+  /** covert emergency (DURESS_CODE quickReply) — never acknowledged to the device */
+  raiseDuress(staffId: number, atSec: number): void;
+  /** man-down watchdog: raise + auto-dispatch for on-duty devices gone silent */
+  runWatchdog(nowSec: number): void;
   callMuster(): void;
   endMuster(): void;
   checkIn(staffId: number): void;
@@ -130,6 +134,9 @@ const audit0 = loadAudit();
 let auditSeq = (audit0[0]?.id ?? 0) + 1;
 // Rolling uint16 message id for outgoing dispatches (see dispatch()).
 let dispatchMsgSeq = 0;
+
+/** An on-duty device silent this long is a suspected man-down (demo-scaled). */
+export const MAN_DOWN_AFTER_SEC = 15 * 60;
 
 // When the live bridge is up, dispatch frames are ALSO transmitted for real.
 // The bridge service plugs itself in here (avoids a store↔service import cycle).
@@ -489,6 +496,116 @@ export const useCommandStore = create<CommandState>((set, get) => ({
         ],
       };
       return { staff, incidents: [incident, ...st.incidents], activeIncidentId: id };
+    }),
+
+  raiseDuress: (staffId, atSec) =>
+    set((st) => {
+      const cur = st.staff[staffId];
+      if (!cur) return {};
+      // One open duress per raiser.
+      if (st.incidents.some((i) => i.kind === 'duress' && i.raisedByStaffId === staffId && i.status !== 'resolved'))
+        return {};
+      const ranked = cur.location
+        ? nearestResponders(cur.location, Object.values(st.staff), { excludeId: staffId, limit: 1 })
+        : [];
+      const id = `DUR-${String(atSec % 10000).padStart(4, '0')}`;
+      const incident: Incident = {
+        id,
+        kind: 'duress',
+        status: 'active',
+        raisedByStaffId: staffId,
+        subjectName: cur.name,
+        zoneId: cur.zoneId,
+        location: cur.location,
+        consentBasis: 'on_duty_staff',
+        raisedAtSec: atSec,
+        meshConfirmed: true,
+        feedText: `SILENT DURESS — ${cur.name}`,
+        feedSub: 'covert · no device acknowledgment',
+        responders: ranked.map((r) => ({
+          staffId: r.staff.id,
+          name: r.staff.name,
+          distanceM: r.distanceM,
+          state: 'en_route' as const,
+        })),
+        timeline: [
+          { atSec, tone: 'alert', text: `Silent duress — ${cur.name}`, sub: 'covert signal · rode an ordinary status frame' },
+          { atSec, tone: 'info', text: 'NO acknowledgment sent to the device', sub: 'covert protocol' },
+          ...(ranked.length
+            ? [{ atSec, tone: 'info' as const, text: `Nearest responder: ${ranked[0].staff.name}`, sub: `${ranked[0].distanceM}m · dispatch quietly` }]
+            : []),
+        ],
+      };
+      return {
+        staff: { ...st.staff, [staffId]: { ...cur, status: 'sos' } },
+        incidents: [incident, ...st.incidents],
+        auditLog: audit(st.auditLog, {
+          atSec,
+          operatorId: 'system · mesh',
+          action: 'escalate',
+          reason: 'silent duress decoded',
+          subjectIds: [staffId],
+          detail: id,
+        }),
+      };
+    }),
+
+  runWatchdog: (now) =>
+    set((st) => {
+      // A device that was reporting and has gone silent past the threshold is
+      // a man-down until proven otherwise (regulated lone-worker duty of care).
+      const silent = Object.values(st.staff).filter(
+        (s) =>
+          s.status !== 'no_signal' &&
+          s.status !== 'sos' &&
+          s.location &&
+          now - s.lastPingSec > MAN_DOWN_AFTER_SEC &&
+          !st.incidents.some((i) => i.kind === 'man_down' && i.raisedByStaffId === s.id && i.status !== 'resolved'),
+      );
+      if (silent.length === 0) return {};
+      let staff = st.staff;
+      const incidents = [...st.incidents];
+      let auditLog = st.auditLog;
+      for (const s of silent) {
+        staff = { ...staff, [s.id]: { ...s, status: 'no_signal' } };
+        const ranked = nearestResponders(s.location!, Object.values(staff), { excludeId: s.id, limit: 1 });
+        const id = `MD-${String((now + s.id) % 10000).padStart(4, '0')}`;
+        incidents.unshift({
+          id,
+          kind: 'man_down',
+          status: 'active',
+          raisedByStaffId: s.id,
+          subjectName: s.name,
+          zoneId: s.zoneId,
+          location: s.location,
+          consentBasis: 'on_duty_staff',
+          raisedAtSec: now,
+          meshConfirmed: false,
+          feedText: `MAN DOWN? — ${s.name} silent ${Math.round((now - s.lastPingSec) / 60)}m`,
+          feedSub: 'auto-raised · watchdog',
+          responders: ranked.map((r) => ({
+            staffId: r.staff.id,
+            name: r.staff.name,
+            distanceM: r.distanceM,
+            state: 'en_route' as const,
+          })),
+          timeline: [
+            { atSec: now, tone: 'alert', text: `Device silent — ${s.name}`, sub: `last ping ${Math.round((now - s.lastPingSec) / 60)}m ago · last known position held` },
+            ...(ranked.length
+              ? [{ atSec: now, tone: 'info' as const, text: `Auto-dispatched ${ranked[0].staff.name}`, sub: `${ranked[0].distanceM}m to last known position` }]
+              : []),
+          ],
+        });
+        auditLog = audit(auditLog, {
+          atSec: now,
+          operatorId: 'system · watchdog',
+          action: 'dispatch',
+          reason: 'man-down auto-dispatch',
+          subjectIds: [s.id],
+          detail: id,
+        });
+      }
+      return { staff, incidents, auditLog };
     }),
 
   receiveTeamText: (fromId, text) =>
