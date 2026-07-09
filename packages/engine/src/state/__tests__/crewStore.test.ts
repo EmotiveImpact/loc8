@@ -1,4 +1,7 @@
-import { useCrewStore, freshnessSec, STALE_SEC } from '../crewStore';
+import {
+  useCrewStore, freshnessSec, STALE_SEC,
+  shouldNotifyBanner, shouldAutoDismissBanner, parseCrewDeepLink,
+} from '../crewStore';
 import type { Packet } from '../../core/types';
 
 const posPacket = (senderId: number, timestampSec: number): Packet => ({
@@ -53,6 +56,8 @@ describe('crewStore', () => {
   });
 
   it('ping packets set a banner instead of moving blips', () => {
+    // Directed ping addressed to me (targetId === my id) — surfaces a banner.
+    useCrewStore.getState().setProfile({ id: 1, name: 'You', color: '#fff' });
     useCrewStore.getState().applyPacket({ ...posPacket(101, 1000), type: 'pingWhere', targetId: 1 });
     expect(useCrewStore.getState().banner?.text).toMatch(/Maya/);
     expect(useCrewStore.getState().friends[101].lastPacket).toBeUndefined();
@@ -208,5 +213,91 @@ describe('crewStore', () => {
     s.clearCelebrated(101);
     expect(useCrewStore.getState().celebrated[101]).toBeUndefined();
     expect(101 in useCrewStore.getState().celebrated).toBe(false);
+  });
+
+  // Fix 1: a directed ping addressed to someone else must not surface on my device.
+  it('drops a directed ping addressed to a DIFFERENT id (not me)', () => {
+    useCrewStore.getState().setProfile({ id: 555, name: 'You', color: '#fff' });
+    useCrewStore.getState().applyPacket({ ...posPacket(101, 1000), type: 'pingWhere', targetId: 999 });
+    expect(useCrewStore.getState().banner).toBeNull();
+    expect(useCrewStore.getState().activityLog.length).toBe(0);
+  });
+
+  it('accepts a directed ping addressed to me (targetId === my id)', () => {
+    useCrewStore.getState().setProfile({ id: 555, name: 'You', color: '#fff' });
+    useCrewStore.getState().applyPacket({ ...posPacket(101, 1000), type: 'pingComeFind', targetId: 555 });
+    expect(useCrewStore.getState().banner?.kind).toBe('ping');
+    expect(useCrewStore.getState().banner?.text).toMatch(/Maya/);
+    expect(useCrewStore.getState().activityLog[0].kind).toBe('ping');
+  });
+
+  it('accepts the sim broadcast ping (targetId 0) regardless of my id', () => {
+    useCrewStore.getState().setProfile({ id: 555, name: 'You', color: '#fff' });
+    useCrewStore.getState().applyPacket({ ...posPacket(101, 1000), type: 'pingWhere', targetId: 0 });
+    expect(useCrewStore.getState().banner?.kind).toBe('ping');
+  });
+
+  // Fix 2b: a rally must not leak across crews on a shared real (BLE) mesh.
+  it('with a crew set + autoAddPeers, drops a rally whose targetId != crew.tag', () => {
+    useCrewStore.getState().setAutoAddPeers(true);
+    useCrewStore.getState().joinCrew('FIRE-42');
+    const tag = useCrewStore.getState().crew!.tag;
+    useCrewStore.getState().applyPacket({ ...posPacket(303, 2000), type: 'rally', targetId: tag + 1 });
+    expect(useCrewStore.getState().rallyPin).toBeNull();
+    expect(useCrewStore.getState().friends[303]).toBeUndefined(); // no phantom friend added
+  });
+
+  it('with a crew set + autoAddPeers, accepts a rally whose targetId == crew.tag', () => {
+    useCrewStore.getState().setAutoAddPeers(true);
+    useCrewStore.getState().joinCrew('FIRE-42');
+    const tag = useCrewStore.getState().crew!.tag;
+    useCrewStore.getState().applyPacket({ ...posPacket(303, 2000), type: 'rally', targetId: tag });
+    expect(useCrewStore.getState().rallyPin?.droppedById).toBe(303);
+  });
+
+  it('in sim (autoAddPeers false) a rally is unaffected by crew tagging', () => {
+    useCrewStore.getState().joinCrew('FIRE-42');
+    const tag = useCrewStore.getState().crew!.tag;
+    // Sim broadcast rally (targetId 0) still lands even though a crew is set.
+    useCrewStore.getState().applyPacket({ ...posPacket(101, 2000), type: 'rally', targetId: tag + 99 });
+    expect(useCrewStore.getState().rallyPin?.droppedById).toBe(101);
+  });
+
+  // Fix 3 + 6: banner predicates that the home screen uses to gate notify/buzz + auto-dismiss.
+  describe('banner predicates', () => {
+    it('shouldNotifyBanner: message (kind:info) does NOT notify/buzz; ping & reply do', () => {
+      expect(shouldNotifyBanner({ text: 'Maya: hi', friendId: 101, kind: 'info' })).toBe(false);
+      expect(shouldNotifyBanner({ text: 'Maya: come find me', friendId: 101, kind: 'ping' })).toBe(true);
+      expect(shouldNotifyBanner({ text: 'Maya: on my way', friendId: 101, kind: 'reply' })).toBe(true);
+    });
+    it('shouldNotifyBanner: rally / "Sent" banners (no friendId) do not', () => {
+      expect(shouldNotifyBanner({ text: 'x dropped a pin', kind: 'rally' })).toBe(false);
+      expect(shouldNotifyBanner({ text: 'Sent "On my way"', kind: 'info' })).toBe(false);
+    });
+    it('shouldAutoDismissBanner: ping stays; info/reply/rally auto-dismiss', () => {
+      expect(shouldAutoDismissBanner({ text: '', friendId: 1, kind: 'ping' })).toBe(false);
+      expect(shouldAutoDismissBanner({ text: '', friendId: 1, kind: 'reply' })).toBe(true);
+      expect(shouldAutoDismissBanner({ text: '', friendId: 1, kind: 'info' })).toBe(true);
+      expect(shouldAutoDismissBanner({ text: '', kind: 'rally' })).toBe(true);
+    });
+  });
+
+  // Fix 4: a malformed deep link must never crash the join flow.
+  describe('parseCrewDeepLink', () => {
+    it('parses a normal crew link', () => {
+      expect(parseCrewDeepLink('loc8://crew/FIRE-42')).toBe('FIRE-42');
+    });
+    it('does not throw on malformed percent-encoding, returns the raw segment', () => {
+      expect(() => parseCrewDeepLink('loc8://crew/50%off')).not.toThrow();
+      expect(parseCrewDeepLink('loc8://crew/50%off')).toBe('50%off');
+    });
+    it('decodes valid percent-encoding', () => {
+      expect(parseCrewDeepLink('loc8://crew/FIRE%2D42')).toBe('FIRE-42');
+    });
+    it('returns null for a non-crew or empty url', () => {
+      expect(parseCrewDeepLink('loc8://other/x')).toBeNull();
+      expect(parseCrewDeepLink(null)).toBeNull();
+      expect(parseCrewDeepLink(undefined)).toBeNull();
+    });
   });
 });

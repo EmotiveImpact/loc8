@@ -1,7 +1,7 @@
 // app/(tabs)/index.tsx
 import { useEffect, useState } from 'react';
 import { View, Text, StyleSheet, Pressable } from 'react-native';
-import { useCrewStore } from '@loc8/engine';
+import { useCrewStore, shouldNotifyBanner, shouldAutoDismissBanner } from '@loc8/engine';
 import { QUICK_REPLIES } from '@loc8/engine';
 import { getMeshService, bootCrew } from '@loc8/engine';
 import { useMyLocation } from '../../src/hooks/useMyLocation';
@@ -49,15 +49,19 @@ export default function RadarHome() {
   }, []);
 
   useEffect(() => {
-    if (banner) {
-      // A banner with a friendId is an INCOMING ping — notify + buzz the double-knock.
-      if (banner.friendId) {
-        notifyPing('Loc8', banner.text, banner.friendId);
-        haptics.pingReceived();
-      }
-      const t = setTimeout(() => setBanner(null), 5000);
-      return () => clearTimeout(t);
+    if (!banner) return;
+    // Notify + double-buzz ONLY directed social banners (ping/reply). A message
+    // banner is kind:'info' and the mesh service already buzzed it on reassembly —
+    // firing here again double-buzzes it and deep-links it like a ping.
+    if (shouldNotifyBanner(banner)) {
+      notifyPing('Loc8', banner.text, banner.friendId!);
+      haptics.pingReceived();
     }
+    // Interactive ping banners render reply chips and must NOT auto-dismiss — they
+    // stay until the user taps a chip / dismisses, or a newer banner replaces them.
+    if (!shouldAutoDismissBanner(banner)) return;
+    const t = setTimeout(() => setBanner(null), 5000);
+    return () => clearTimeout(t);
   }, [banner]);
 
   // Incoming rally: buzz when a pin lands from SOMEONE ELSE (not our own drop).

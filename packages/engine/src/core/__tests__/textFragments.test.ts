@@ -108,6 +108,22 @@ describe('textFragments', () => {
     expect(r.add(solo[0])).toEqual({ senderId: 2, targetId: 0, text: 'ok' });
   });
 
+  // Fix 10: a reused (senderId,msgId) with a lingering partial must not poison the
+  // reused-id message. msgId is a rolling uint16, so ids get reused.
+  it('resets a lingering partial when the msgId is reused with a different total', () => {
+    const r = new TextReassembler();
+    // Old message msgId=3, total=5: only seq0,seq1 arrive → never completes.
+    const old = fragmentText({ senderId: 9, targetId: 0, msgId: 3, text: 'A'.repeat(50), timestampSec: 0 });
+    expect(old.length).toBe(5);
+    expect(r.add(old[0])).toBeNull();
+    expect(r.add(old[1])).toBeNull();
+    // New message reusing msgId=3, total=1 — its seq0 would collide with the stale
+    // partial's seq0. It must reset and complete as the NEW message ('ok').
+    const fresh = fragmentText({ senderId: 9, targetId: 0, msgId: 3, text: 'ok', timestampSec: 10 });
+    expect(fresh.length).toBe(1);
+    expect(r.add(fresh[0])).toEqual({ senderId: 9, targetId: 0, text: 'ok' });
+  });
+
   it('ignores non-text packets', () => {
     const r = new TextReassembler();
     const notText: Packet = {

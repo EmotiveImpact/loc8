@@ -9,6 +9,7 @@ export * from './core/plusCodes';
 export * from './core/trustLayer';
 export * from './core/packetCodec';
 export * from './core/textFragments';
+export * from './core/proximity';
 
 // --- transport: location transport contract + implementations ---
 export * from './transport/LocationTransport';
@@ -21,6 +22,7 @@ export * from './services/appServices';
 export * from './services/meshService';
 export * from './services/haptics';
 export * from './services/notifications';
+export * from './services/notificationRouting';
 export * from './services/blePermissions';
 
 // --- state: crew store + mesh debug store ---

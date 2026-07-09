@@ -224,6 +224,66 @@ describe('meshService', () => {
     expect(useCrewStore.getState().rallyPin?.droppedById).toBe(1);
   });
 
+  // Fix 2a: the rally packet must carry the crew tag (like position/text/profile)
+  // so it doesn't leak to other crews sharing the mesh.
+  it('dropRally tags the rally packet with the crew tag', () => {
+    useCrewStore.getState().joinCrew('FIRE-42');
+    const tag = useCrewStore.getState().crew!.tag;
+    const svc = createMeshService(transport, new TrustLayer(600, nowSec), nowSec);
+    svc.start();
+    svc.dropRally();
+    const rally = transport.sent.find((p) => p.type === 'rally');
+    expect(rally?.targetId).toBe(tag);
+  });
+
+  it('dropRally with no crew tags the rally with 0 (broadcast)', () => {
+    const svc = createMeshService(transport, new TrustLayer(600, nowSec), nowSec);
+    svc.start();
+    svc.dropRally();
+    expect(transport.sent.find((p) => p.type === 'rally')?.targetId).toBe(0);
+  });
+
+  // Fix 9: text bypasses TrustLayer (reassembled first), so a re-delivered full
+  // fragment set would reassemble twice and double-push to Activity.
+  it('a re-delivered completed message pushes only ONE activity entry', () => {
+    const svc = createMeshService(transport, new TrustLayer(600, nowSec), nowSec);
+    svc.start();
+    const frags = fragmentText({ senderId: 101, targetId: 0, msgId: 7, text: 'hey where are you', timestampSec: clock });
+    frags.forEach((f) => transport.packetCb!(f));
+    // Replay the identical full fragment set (e.g. a relayed duplicate copy).
+    frags.forEach((f) => transport.packetCb!(f));
+    const log = useCrewStore.getState().activityLog.filter((e) => e.kind === 'message');
+    expect(log.length).toBe(1);
+  });
+
+  // Fix 8: iOS 'inactive' (control center / call banner / Face ID) must be treated
+  // as still-foreground, so open-mode broadcasting doesn't wrongly halt.
+  it('treats iOS "inactive" as still-foreground (open mode keeps broadcasting)', () => {
+    const { AppState } = require('react-native');
+    let changeHandler: ((s: string) => void) | undefined;
+    const spy = jest
+      .spyOn(AppState, 'addEventListener')
+      .mockImplementation((...args: unknown[]) => {
+        const [ev, cb] = args as [string, (s: string) => void];
+        if (ev === 'change') changeHandler = cb;
+        return { remove() {} } as never;
+      });
+    try {
+      const svc = createMeshService(transport, new TrustLayer(600, nowSec), nowSec);
+      svc.start();
+      useCrewStore.getState().setPrivacy('open');
+      useCrewStore.getState().startSession(6, clock);
+      // iOS fires 'inactive' — with the old handler this dropped foreground and
+      // halted open-mode broadcasting.
+      changeHandler?.('inactive');
+      clock += 10; // clear the broadcast interval gate
+      svc.broadcastTick();
+      expect(transport.sent.filter((p) => p.type === 'position').length).toBe(1);
+    } finally {
+      spy.mockRestore();
+    }
+  });
+
   it('start() is idempotent — a second start() does not double-broadcast per tick', () => {
     const svc = createMeshService(transport, new TrustLayer(600, nowSec), nowSec);
     svc.start();

@@ -47,6 +47,25 @@ export function createMeshService(
   let profileMsgIdCounter = 0;
   const store = () => useCrewStore.getState();
 
+  // Bounded FIFO of recently-COMPLETED `${type}:${senderId}:${msgId}` keys.
+  // text/profile bypass the TrustLayer (they're routed to the reassembler first,
+  // since fragments share a timestamp), so a re-delivered full fragment set would
+  // reassemble a second time and double-push to Activity. This is their replay
+  // guard: a completed message is surfaced exactly once.
+  const recentCompleted = new Set<string>();
+  const recentOrder: string[] = [];
+  const RECENT_CAP = 64;
+  const firstCompletion = (key: string): boolean => {
+    if (recentCompleted.has(key)) return false; // already surfaced — drop the replay
+    recentCompleted.add(key);
+    recentOrder.push(key);
+    if (recentOrder.length > RECENT_CAP) {
+      const evicted = recentOrder.shift()!;
+      recentCompleted.delete(evicted);
+    }
+    return true;
+  };
+
   const myPacket = (type: PacketType, targetId = 0): Packet | null => {
     const s = store();
     if (!s.profile || !s.myLocation) return null;
@@ -86,7 +105,7 @@ export function createMeshService(
           // Real-crew mode (BLE): only accept fragments tagged for our crew.
           if (crew && s.autoAddPeers && p.targetId !== crew.tag) return;
           const done = reassembler.add(p);
-          if (done) {
+          if (done && firstCompletion(`text:${p.senderId}:${p.msgId}`)) {
             s.receiveMessage(done.senderId, done.text);
             haptics.pingReceived();
           }
@@ -102,7 +121,7 @@ export function createMeshService(
           // Real-crew mode (BLE): only accept fragments tagged for our crew.
           if (crew && s.autoAddPeers && p.targetId !== crew.tag) return;
           const done = profileReassembler.add(p);
-          if (done) s.setFriendName(done.senderId, done.text);
+          if (done && firstCompletion(`profile:${p.senderId}:${p.msgId}`)) s.setFriendName(done.senderId, done.text);
           return;
         }
         if (trust.accept(p)) store().applyPacket(p, relayVia);
@@ -110,8 +129,13 @@ export function createMeshService(
       transport.onMeshStatus((st) => store().setMeshNearby(st.nearbyCount));
       foreground = AppState.currentState !== 'background';
       appStateSub = AppState.addEventListener('change', (next: AppStateStatus) => {
-        const cameToForeground = next === 'active' && !foreground;
-        foreground = next === 'active';
+        // Treat 'inactive' (iOS control center / call banner / Face ID) as STILL
+        // foreground, matching the init above. Only 'background' truly backgrounds
+        // us — otherwise a transient 'inactive' would wrongly halt open-mode
+        // broadcasting and make us disappear from the crew.
+        const nowForeground = next !== 'background';
+        const cameToForeground = nowForeground && !foreground;
+        foreground = nowForeground;
         // Returning to the foreground retries a native transport start that
         // failed earlier (background FGS restriction, permissions granted after
         // boot). transport.start() is idempotent, so this is a no-op when the
@@ -197,10 +221,12 @@ export function createMeshService(
     },
 
     dropRally() {
-      const p = myPacket('rally');
+      const s = store();
+      // Crew-scoped like position/text/profile (0 = no crew) so a rally pin doesn't
+      // leak to other crews sharing the mesh; receivers filter on the tag.
+      const p = myPacket('rally', s.crew?.tag ?? 0);
       if (!p) return;
       transport.broadcast(p);
-      const s = store();
       s.dropLocalPin({
         latitude: p.latitude, longitude: p.longitude,
         droppedById: p.senderId, atSec: p.timestampSec,

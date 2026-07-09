@@ -34,6 +34,25 @@ export function normalizeCrewCode(code: string): string {
   return code.trim().toUpperCase();
 }
 
+/**
+ * Parse a `loc8://crew/<CODE>` deep link into a crew code, or null if the URL
+ * isn't a crew link. Tolerates malformed percent-encoding (e.g. "50%off", which
+ * makes decodeURIComponent throw a URIError) by falling back to the raw path
+ * segment — a bad deep link must never crash the join flow.
+ */
+export function parseCrewDeepLink(url: string | null | undefined): string | null {
+  if (!url) return null;
+  const m = url.match(/loc8:\/\/crew\/(.+)/i);
+  if (!m) return null;
+  let code: string;
+  try {
+    code = decodeURIComponent(m[1]).trim();
+  } catch {
+    code = m[1].trim(); // malformed %-escape — use the raw segment rather than throw
+  }
+  return code || null;
+}
+
 /** Friendly random code, e.g. "FIRE-42": 4 letters + 2 digits. */
 function randomCrewCode(): string {
   let letters = '';
@@ -52,6 +71,26 @@ export interface RallyPin { latitude: number; longitude: number; droppedById: nu
 /** Top banner. `kind` lets the UI decide what to render (e.g. reply chips for an incoming ping). */
 export type BannerKind = 'ping' | 'reply' | 'rally' | 'info';
 export interface Banner { text: string; friendId?: number; kind?: BannerKind; }
+
+/**
+ * Whether a banner should fire the incoming-social notification + double-buzz.
+ * Only directed SOCIAL events do (an incoming ping/reply). A message banner is
+ * kind:'info' and was ALREADY buzzed by the mesh service when it reassembled —
+ * notifying again here double-buzzes it and deep-links it like a ping. Rally and
+ * "Sent …" banners carry no friendId, so they're excluded too.
+ */
+export function shouldNotifyBanner(b: Banner): boolean {
+  return b.friendId != null && b.kind !== 'info';
+}
+
+/**
+ * Whether a banner should auto-dismiss after the standard timeout. An interactive
+ * ping banner (kind:'ping') renders reply chips and must stay until the user taps
+ * a chip / dismisses it (or a newer banner replaces it); everything else fades.
+ */
+export function shouldAutoDismissBanner(b: Banner): boolean {
+  return b.kind !== 'ping';
+}
 
 export type ActivityKind = 'ping' | 'reply' | 'rally' | 'found' | 'dark' | 'session' | 'message';
 export interface ActivityEvent {
@@ -275,6 +314,11 @@ export const useCrewStore = create<CrewState>((set, get) => ({
       if (!f) return; // unknown sender (sim mode) — not our crew, drop
       set({ friends: { ...get().friends, [p.senderId]: { ...f, lastPacket: p, relayVia } } });
     } else if (p.type === 'rally') {
+      const crew = get().crew;
+      // Real-crew mode (BLE): only accept rally pins tagged for our crew, mirroring
+      // the position branch — otherwise a rally leaks across crews on the shared mesh.
+      // Gated on autoAddPeers so the sim design loop is unaffected.
+      if (crew && get().autoAddPeers && p.targetId !== crew.tag) return;
       ensureFriend(p.senderId);
       const current = get().rallyPin;
       if (!current || p.timestampSec > current.atSec) {
@@ -289,6 +333,9 @@ export const useCrewStore = create<CrewState>((set, get) => ({
         get().pushActivity({ kind: 'rally', text: `${name} dropped a rally pin`, atSec: p.timestampSec, friendId: p.senderId });
       }
     } else if (p.type === 'pingWhere' || p.type === 'pingComeFind') {
+      // Pings are directed (by targetId), like replies. Drop a directed ping not
+      // addressed to me; targetId:0 is the sim's broadcast and is still accepted.
+      if (p.targetId !== 0 && p.targetId !== get().profile?.id) return;
       ensureFriend(p.senderId);
       const name = get().friends[p.senderId]?.name ?? 'Someone';
       const text = p.type === 'pingWhere' ? `${name} asked: where are you?` : `${name}: come find me!`;
