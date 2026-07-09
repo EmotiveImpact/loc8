@@ -17,12 +17,14 @@ function Link({ label, up, detail }: { label: string; up: boolean; detail: strin
 
 export function CommsStatus() {
   const staff = useCommandStore((s) => s.staff);
+  const live = useCommandStore((s) => s.liveConnected);
   const meshNodes = Object.values(staff).filter((s) => s.status !== 'no_signal').length;
   return (
     <div className="commswrap" role="group" aria-label="Communication links status">
       <Link label="CELLULAR" up={false} detail="congested / no service" />
       <Link label="VENUE WIFI" up={false} detail="unavailable" />
       <Link label="MESH" up detail={`${meshNodes} nodes · phone-to-phone`} />
+      {live && <Link label="BRIDGE" up detail="gateway phone · real frames" />}
     </div>
   );
 }

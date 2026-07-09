@@ -4,7 +4,7 @@ import { StyleSheet, Text, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { router } from 'expo-router';
 import { Users } from 'lucide-react-native';
-import { getMeshService } from '@loc8/engine';
+import { ops } from '../src/services/ops';
 import { useGuardStore } from '../src/store/guardStore';
 import { GradientBtn, Tag } from '../src/ui/kit';
 import { fonts, g } from '../src/theme';
@@ -15,7 +15,7 @@ export default function Muster() {
 
   const imSafe = () => {
     markSelfSafe();
-    getMeshService().sendCrewMessage('MUSTER SAFE — Guard 07 at Assembly Point A');
+    ops().sendCrewMessage('MUSTER SAFE — Guard 07 at Assembly Point A');
   };
 
   return (

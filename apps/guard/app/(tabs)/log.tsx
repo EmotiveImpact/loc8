@@ -5,7 +5,8 @@ import { useState } from 'react';
 import { Pressable, ScrollView, StyleSheet, Text, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { MapPin } from 'lucide-react-native';
-import { getMeshService, useCrewStore, encodePlusCode } from '@loc8/engine';
+import { useCrewStore, encodePlusCode } from '@loc8/engine';
+import { ops } from '../../src/services/ops';
 import { INCIDENT_TYPES, useGuardStore, type IncidentType } from '../../src/store/guardStore';
 import { GradientBtn, MeshBadge } from '../../src/ui/kit';
 import { fonts, g } from '../../src/theme';
@@ -36,7 +37,7 @@ export default function IncidentLog() {
     logIncident({ type: selected, place: 'Bar', atSec: at, byLabel: 'Guard 07', tone: TONE[selected] });
     // Broadcast over the mesh as team comms — plus code keeps it short + precise.
     const pin = myLocation ? ` @ ${encodePlusCode(myLocation.latitude, myLocation.longitude)}` : '';
-    getMeshService().sendCrewMessage(`INCIDENT ${selected.toUpperCase()} — Bar${pin}`);
+    ops().sendCrewMessage(`INCIDENT ${selected.toUpperCase()} — Bar${pin}`);
   };
 
   return (

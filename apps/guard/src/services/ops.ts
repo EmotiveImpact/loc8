@@ -4,14 +4,20 @@
 //   SOS            → first-class 'sos' packet (type 7), raiser position aboard
 //   status reply   → the shared GUARD_STATUS quickReply vocabulary
 //   dispatch inbox → reassembles inbound free-text as dispatch orders
+//   gateway mode   → EXPO_PUBLIC_BRIDGE_URL wraps the mesh in BridgedTransport,
+//                    making this phone the venue's mesh ↔ Command gateway.
 import {
   getTransport,
-  getMeshService,
   bootCrew,
+  createMeshService,
+  BridgedTransport,
+  TrustLayer,
   useCrewStore,
   TextReassembler,
   haptics,
   GUARD_STATUS,
+  type LocationTransport,
+  type MeshService,
   type Packet,
 } from '@loc8/engine';
 import { useGuardStore } from '../store/guardStore';
@@ -30,7 +36,25 @@ export const GUARD_TEAM = [
   { id: 104, name: 'Erik · Guard 08', color: '#46e0a0' },
 ];
 
+let transport: LocationTransport | null = null;
+let service: MeshService | null = null;
 let booted = false;
+
+/** Guard's transport: the engine's (sim/BLE), bridged when a gateway URL is set. */
+export function opsTransport(): LocationTransport {
+  if (!transport) {
+    const inner = getTransport();
+    const url = process.env.EXPO_PUBLIC_BRIDGE_URL;
+    transport = url ? new BridgedTransport(inner, { url }) : inner;
+  }
+  return transport;
+}
+
+/** Guard's mesh service — same engine service, over the (possibly bridged) transport. */
+export function ops(): MeshService {
+  if (!service) service = createMeshService(opsTransport(), new TrustLayer());
+  return service;
+}
 
 /** Boot the shared engine + attach Guard's ops listeners (idempotent). */
 export function bootGuard(): void {
@@ -41,11 +65,11 @@ export function bootGuard(): void {
   if (process.env.EXPO_PUBLIC_TRANSPORT !== 'ble') {
     useCrewStore.getState().registerFriends(GUARD_TEAM);
   }
-  const transport = getTransport();
+  const t = opsTransport();
   // Guard's own dispatch inbox: inbound free-text over the mesh IS a dispatch
   // order on this door (product-architecture.md §Communication).
   const inbox = new TextReassembler();
-  transport.onPacket((p: Packet) => {
+  t.onPacket((p: Packet) => {
     const me = useCrewStore.getState().profile;
     if (me && p.senderId === me.id) return; // self-echo
     if (p.type === 'text') {
@@ -56,7 +80,7 @@ export function bootGuard(): void {
       }
     }
   });
-  getMeshService().start();
+  ops().start();
 }
 
 /** One un-missable SOS: broadcast a first-class 'sos' packet with my position. */
@@ -75,7 +99,7 @@ export function sendSos(): void {
     timestampSec: nowSec(),
     accuracyM: 10,
   };
-  getTransport().broadcast(p);
+  opsTransport().broadcast(p);
   useGuardStore.getState().raiseSos(nowSec());
   haptics.rallyReceived(); // strongest pattern in the vocabulary
 }
@@ -83,7 +107,7 @@ export function sendSos(): void {
 /** Send a field status (En route / On scene / Need backup / Clear). */
 export function sendStatus(code: number): void {
   // quickReply is directed; 0 = broadcast so Command and teammates both hear it.
-  getMeshService().sendQuickReply(0, code);
+  ops().sendQuickReply(0, code);
 }
 
 export { GUARD_STATUS };

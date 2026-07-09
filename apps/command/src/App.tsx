@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react';
 import { useCommandStore } from './store/commandStore';
 import { emitGuardStatus, guardStatusScript } from './domain/guardFeed';
+import { bridgeUrlFromLocation, connectLiveBridge } from './services/liveBridge';
 import { Icon } from './ui/Icon';
 import { OperationsOverview } from './dashboards/OperationsOverview';
 import { IncidentDetail } from './dashboards/IncidentDetail';
@@ -39,10 +40,19 @@ export default function App() {
     },
   };
 
-  // Live two-way flow: a simulated Guard device replies over the mesh. Each beat
-  // is a real quickReply frame encoded + decoded through @loc8/engine before it
-  // reaches the store — the inbound leg of dispatch/status, visible live.
+  // LIVE mode: ?bridge=ws://<host>:8787 connects to the mesh-bridge relay and
+  // renders real frames from a Guard gateway phone instead of the sim script.
   useEffect(() => {
+    const url = bridgeUrlFromLocation();
+    if (url) connectLiveBridge(url);
+  }, []);
+
+  // Live two-way flow (sim): a simulated Guard device replies over the mesh.
+  // Each beat is a real quickReply frame encoded + decoded through @loc8/engine
+  // before it reaches the store. Skipped entirely when a live bridge is set —
+  // real frames must never mix with scripted ones.
+  useEffect(() => {
+    if (bridgeUrlFromLocation()) return;
     const incident = useCommandStore.getState().incidents.find((i) => i.kind === 'sos');
     if (!incident) return;
     const sosIncidentId = incident.id;

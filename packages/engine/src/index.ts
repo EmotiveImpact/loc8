@@ -15,6 +15,7 @@ export * from './core/guardStatus';
 export * from './transport/LocationTransport';
 export * from './transport/SimulatedTransport';
 export * from './transport/BleMeshTransport';
+export * from './transport/BridgedTransport';
 export * from './transport/seededRandom';
 
 // --- services: mesh orchestration, haptics, notifications, permissions, boot ---

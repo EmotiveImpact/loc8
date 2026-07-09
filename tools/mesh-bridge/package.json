@@ -1,0 +1,10 @@
+{
+  "name": "@loc8/mesh-bridge",
+  "version": "1.0.0",
+  "private": true,
+  "type": "module",
+  "description": "Dumb WebSocket relay between Guard gateway phones and the Command console.",
+  "bin": { "loc8-mesh-bridge": "./index.mjs" },
+  "scripts": { "start": "node index.mjs" },
+  "dependencies": { "ws": "^8.18.0" }
+}

@@ -11,6 +11,8 @@ import { encodeDispatch, GUARD_STATUS } from '../domain/dispatch';
 import { assistedSearch, type SearchableSubject } from '../domain/privacy';
 import { nowSec } from '../domain/time';
 import { venueCoverage } from '../domain/zones';
+import { getHaversineDistance, type Coordinate } from '../engine';
+import { nearestResponders } from '../domain/coverage';
 import {
   buildIncidents,
   buildMuster,
@@ -84,6 +86,12 @@ interface CommandState {
   dispatch(text: string, opts?: { incidentId?: string; toTag?: number }): void;
   applyGuardStatus(staffId: number, code: number, incidentId?: string): void;
   standDownMuster(): void;
+  /** live bridge: real mesh frames rendered by the console */
+  liveConnected: boolean;
+  setLiveConnected(v: boolean): void;
+  applyLivePosition(staffId: number, coord: Coordinate, atSec: number): void;
+  raiseLiveSos(staffId: number, coord: Coordinate, atSec: number): void;
+  receiveTeamText(fromId: number, text: string): void;
   callMuster(): void;
   endMuster(): void;
   checkIn(staffId: number): void;
@@ -122,6 +130,13 @@ const audit0 = loadAudit();
 let auditSeq = (audit0[0]?.id ?? 0) + 1;
 // Rolling uint16 message id for outgoing dispatches (see dispatch()).
 let dispatchMsgSeq = 0;
+
+// When the live bridge is up, dispatch frames are ALSO transmitted for real.
+// The bridge service plugs itself in here (avoids a store↔service import cycle).
+let frameSink: ((frames: ArrayBuffer[]) => void) | null = null;
+export function setFrameSink(sink: ((frames: ArrayBuffer[]) => void) | null): void {
+  frameSink = sink;
+}
 
 function audit(prev: AuditEntry[], e: Omit<AuditEntry, 'id'>): AuditEntry[] {
   const next = [{ ...e, id: auditSeq++ }, ...prev].slice(0, AUDIT_MAX);
@@ -301,6 +316,7 @@ export const useCommandStore = create<CommandState>((set, get) => ({
         msgId: (dispatchMsgSeq = (dispatchMsgSeq + 1) & 0xffff),
         nowSec: at,
       });
+      frameSink?.(frames); // live bridge up → the order actually leaves the console
       const log: DispatchLogEntry = {
         atSec: at,
         toTag,
@@ -373,6 +389,123 @@ export const useCommandStore = create<CommandState>((set, get) => ({
     })),
 
   endMuster: () => set((st) => ({ muster: { ...st.muster, active: false } })),
+
+  liveConnected: false,
+  setLiveConnected: (liveConnected) => set({ liveConnected }),
+
+  applyLivePosition: (staffId, coord, atSec) =>
+    set((st) => {
+      // Nearest zone centroid → the guard's zone (real geo, not hand-set).
+      const zone = [...st.zones].sort(
+        (a, b) => getHaversineDistance(coord, a.center) - getHaversineDistance(coord, b.center),
+      )[0];
+      const cur = st.staff[staffId];
+      const member: StaffMember = cur
+        ? { ...cur, location: coord, lastPingSec: atSec, zoneId: zone?.id ?? cur.zoneId,
+            status: cur.status === 'no_signal' ? 'on_post' : cur.status }
+        : {
+            // Unknown sender broadcasting on the shift channel = a live guard
+            // device; on-duty consent is the basis (identity-privacy doc).
+            id: staffId,
+            name: `Guard ${String(staffId % 100).padStart(2, '0')}`,
+            zoneId: zone?.id ?? 'perimeter',
+            status: 'on_post',
+            onSinceSec: atSec,
+            lastPingSec: atSec,
+            consent: 'on_duty_staff',
+            location: coord,
+          };
+      const staff = { ...st.staff, [staffId]: member };
+      return { staff, zoneDensity: buildZoneDensity(staff) };
+    }),
+
+  raiseLiveSos: (staffId, coord, atSec) =>
+    set((st) => {
+      const cur = st.staff[staffId];
+      const name = cur?.name ?? `Guard ${String(staffId % 100).padStart(2, '0')}`;
+      const staff: Record<number, StaffMember> = {
+        ...st.staff,
+        [staffId]: {
+          ...(cur ?? {
+            id: staffId,
+            name,
+            zoneId: 'perimeter',
+            onSinceSec: atSec,
+            consent: 'on_duty_staff' as const,
+          }),
+          status: 'sos',
+          location: coord,
+          lastPingSec: atSec,
+          mustered: cur?.mustered ?? false,
+        },
+      };
+      // One open SOS per raiser: refresh it if it exists, else open a new one.
+      const open = st.incidents.find(
+        (i) => i.kind === 'sos' && i.raisedByStaffId === staffId && i.status !== 'resolved',
+      );
+      if (open) {
+        return {
+          staff,
+          incidents: patchIncident(st.incidents, open.id, (i) => ({ ...i, location: coord })),
+        };
+      }
+      const zone = [...st.zones].sort(
+        (a, b) => getHaversineDistance(coord, a.center) - getHaversineDistance(coord, b.center),
+      )[0];
+      const ranked = nearestResponders(coord, Object.values(staff), { excludeId: staffId, limit: 2 });
+      const id = `SOS-${String(atSec % 10000).padStart(4, '0')}`;
+      const incident: Incident = {
+        id,
+        kind: 'sos',
+        status: 'active',
+        raisedByStaffId: staffId,
+        subjectName: name,
+        zoneId: zone?.id ?? 'perimeter',
+        location: coord,
+        consentBasis: 'on_duty_staff',
+        raisedAtSec: atSec,
+        meshConfirmed: true,
+        feedText: `SOS — ${name} (live mesh)`,
+        feedSub: `${ranked.length} nearest identified`,
+        responders: [
+          ...ranked.map((r) => ({
+            staffId: r.staff.id,
+            name: r.staff.name,
+            distanceM: r.distanceM,
+            state: 'en_route' as const,
+          })),
+          { staffId: 0, name: 'Control room', state: 'viewing' as const },
+        ],
+        timeline: [
+          { atSec, tone: 'alert', text: `SOS raised — ${name}`, sub: 'live over mesh bridge' },
+          ...(ranked.length
+            ? [{
+                atSec,
+                tone: 'info' as const,
+                text: `Nearest ${ranked.length} identified`,
+                sub: ranked.map((r) => `${r.staff.name} · ${r.distanceM}m`).join(', '),
+              }]
+            : []),
+        ],
+      };
+      return { staff, incidents: [incident, ...st.incidents], activeIncidentId: id };
+    }),
+
+  receiveTeamText: (fromId, text) =>
+    set((st) => {
+      const name = st.staff[fromId]?.name ?? `Guard ${String(fromId % 100).padStart(2, '0')}`;
+      const at = nowSec();
+      const short = text.length > 60 ? `${text.slice(0, 60)}…` : text;
+      return {
+        lastInboundStatus: { staffId: fromId, name, label: short, atSec: at },
+        incidents: st.activeIncidentId
+          ? patchIncident(st.incidents, st.activeIncidentId, (i) => ({
+              ...i,
+              timeline: [...i.timeline, { atSec: at, tone: 'info', text: `${name}: ${short}`, sub: 'team comms · mesh' }],
+            }))
+          : st.incidents,
+      };
+    }),
 
   standDownMuster: () =>
     set((st) => {

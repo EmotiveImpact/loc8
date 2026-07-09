@@ -6,7 +6,8 @@ import { StyleSheet, Text, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { router } from 'expo-router';
 import { AlertTriangle, MapPin } from 'lucide-react-native';
-import { getMeshService, useCrewStore, encodePlusCode } from '@loc8/engine';
+import { useCrewStore, encodePlusCode } from '@loc8/engine';
+import { ops } from '../src/services/ops';
 import { CHECKIN_GRACE_SEC, promptSecondsLeft } from '../src/domain/loneWorker';
 import { useGuardStore } from '../src/store/guardStore';
 import { GradientBtn, Tag } from '../src/ui/kit';
@@ -28,7 +29,7 @@ export default function Checkin() {
         // prompt down (control room now owns it).
         const loc = useCrewStore.getState().myLocation;
         const pin = loc ? ` @ ${encodePlusCode(loc.latitude, loc.longitude)}` : '';
-        getMeshService().sendCrewMessage(`LONE-WORKER OVERDUE — Guard 07${pin}`);
+        ops().sendCrewMessage(`LONE-WORKER OVERDUE — Guard 07${pin}`);
         useGuardStore.getState().checkinOk(nowSec());
         clearInterval(id);
         router.back();
