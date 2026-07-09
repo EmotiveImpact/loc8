@@ -30,6 +30,20 @@ Reuse from engine: mesh presence, **quick replies reskinned as status responses*
 ## Command console (`apps/command`) — scope
 Design ref: `docs/design/gallery-command.html` (Operations overview, Incident detail, Muster/evacuation board, Roster & shift, Coverage heatmap). Control-room, data-forward. Likely a different surface (web-friendly / large-screen). Reuse engine types + comms; dispatch messages + status flow both ways with Guard. Respect the privacy model (anonymous crowd heatmap, no god-mode — see `identity-privacy-login.md`).
 
+## Status (2026-07-09)
+- **Foundation** merged; **Command** (apps/command, Vite/React web) and **Guard**
+  (apps/guard, Expo RN) both built on `@loc8/engine`.
+- Engine gained (additive): `core/guardStatus` (shared Guard↔Command status
+  vocabulary + covert `DURESS_CODE`), `sos` packet type (code 7), and
+  `transport/BridgedTransport` (mesh ↔ WebSocket gateway/console modes).
+- **Live path works end-to-end in software**: Guard gateway
+  (`EXPO_PUBLIC_BRIDGE_URL`) → `tools/mesh-bridge` relay → Command `?bridge=1`
+  LIVE mode. Verified: real frames drove positions, an SOS, silent duress, a
+  status reply and fragmented team text onto the console. Field test on phones
+  is plug-and-play — see `tools/mesh-bridge/README.md` for the wifi-off demo.
+- Ops mechanisms shipped: man-down watchdog (auto-raise + auto-dispatch,
+  live-mode only) and silent duress (ordinary-looking quickReply frame).
+
 ## Non-negotiables (carry into every session)
 - Offline-first; mutual-consent only; **one engine, never fork the core**.
 - Every session verifies `tsc` (non-test) clean + `jest` green + an `expo export` bundle before handing back.
