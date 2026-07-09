@@ -4,9 +4,9 @@ import type { Packet, PacketType } from './types';
 export const PACKET_SIZE = 25;
 
 const TYPE_TO_CODE: Record<PacketType, number> = {
-  position: 0, pingWhere: 1, pingComeFind: 2, rally: 3, quickReply: 4, text: 5, profile: 6,
+  position: 0, pingWhere: 1, pingComeFind: 2, rally: 3, quickReply: 4, text: 5, profile: 6, sos: 7,
 };
-const CODE_TO_TYPE: PacketType[] = ['position', 'pingWhere', 'pingComeFind', 'rally', 'quickReply', 'text', 'profile'];
+const CODE_TO_TYPE: PacketType[] = ['position', 'pingWhere', 'pingComeFind', 'rally', 'quickReply', 'text', 'profile', 'sos'];
 
 /** Max UTF-8 bytes a single fragment ('text' or 'profile') carries (bytes 14–24). */
 export const TEXT_FRAG_BYTES = 11;

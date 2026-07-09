@@ -3,7 +3,17 @@ export interface Coordinate {
   longitude: number;
 }
 
-export type PacketType = 'position' | 'pingWhere' | 'pingComeFind' | 'rally' | 'quickReply' | 'text' | 'profile';
+export type PacketType =
+  | 'position'
+  | 'pingWhere'
+  | 'pingComeFind'
+  | 'rally'
+  | 'quickReply'
+  | 'text'
+  | 'profile'
+  // Ops doors (Guard/Command): a first-class emergency packet. Carries the
+  // raiser's position like 'position', but semantically un-ignorable.
+  | 'sos';
 
 export interface Packet {
   type: PacketType;

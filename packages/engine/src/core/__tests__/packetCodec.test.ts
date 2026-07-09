@@ -129,3 +129,20 @@ describe('quickReplyLabel', () => {
     expect(quickReplyLabel(0)).toBe('…');
   });
 });
+
+describe('sos packet (ops doors, additive type 7)', () => {
+  it('round-trips an SOS with the raiser position intact', () => {
+    const p: Packet = {
+      type: 'sos', senderId: 7, targetId: 4242,
+      latitude: 51.4924, longitude: -0.1003, headingDeg: 0,
+      batteryPct: 61, timestampSec: 1_752_000_000, accuracyM: 8,
+    };
+    const out = decodePacket(encodePacket(p));
+    expect(out.type).toBe('sos');
+    expect(out.senderId).toBe(7);
+    expect(out.targetId).toBe(4242);
+    expect(out.latitude).toBeCloseTo(51.4924, 6);
+    expect(out.longitude).toBeCloseTo(-0.1003, 6);
+    expect(out.batteryPct).toBe(61);
+  });
+});

@@ -26,6 +26,7 @@
   ],
   "exclude": [
     "node_modules",
-    "apps/command"
+    "apps/command",
+    "apps/guard"
   ]
 }
