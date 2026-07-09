@@ -27,5 +27,5 @@ export {
   TextReassembler,
   MAX_MESSAGE_BYTES,
 } from '@loc8/engine/core/textFragments';
-export { getHaversineDistance, getAbsoluteBearing } from '@loc8/engine/core/geoMath';
+export { getHaversineDistance } from '@loc8/engine/core/geoMath';
 export { colors as engineColors, fonts as engineFonts } from '@loc8/engine/ui/theme';

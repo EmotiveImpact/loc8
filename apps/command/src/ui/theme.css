@@ -308,6 +308,35 @@ table.rt tr:hover td { background: var(--panel2); }
 .searcherr { color: var(--alert); font-size: 12px; margin: 6px 0; }
 .audited { font-family: var(--mono); font-size: 9px; color: var(--faint); margin-top: 10px; text-align: center; }
 
+/* --- map dot as a button (reset native chrome) --- */
+button.dot { border: none; padding: 0; font: inherit; -webkit-appearance: none; appearance: none; }
+
+/* --- inbound-status toast (live two-way flow) --- */
+.toast {
+  position: fixed; right: 22px; bottom: 22px; z-index: 60;
+  display: flex; gap: 10px; align-items: center;
+  background: #0b0e16; border: 1px solid rgba(70,224,160,.4);
+  box-shadow: 0 12px 40px rgba(0,0,0,.5); border-radius: 12px;
+  padding: 11px 14px; color: var(--ink); font-size: 13px;
+  animation: toastin .28s ease-out;
+}
+.toast svg { color: var(--ok); }
+.toast b { font-weight: 700; }
+.toastsub { display: block; font-family: var(--mono); font-size: 9px; color: var(--faint); margin-top: 2px; }
+@keyframes toastin { from { transform: translateY(8px); opacity: 0; } to { transform: translateY(0); opacity: 1; } }
+
+/* --- accessibility: visible focus ring (status is also carried as text, not
+   color alone: pills show ON POST/SOS/…, dots show the guard number) --- */
+:focus-visible { outline: 2px solid var(--info); outline-offset: 2px; border-radius: 6px; }
+
+/* respect reduced-motion: kill the ambient animations */
+@media (prefers-reduced-motion: reduce) {
+  .inc .r { animation: none; }
+  .paths path { animation: none; }
+  .mpulse { animation: none; }
+  .toast { animation: none; }
+}
+
 /* --- responsive --- */
 @media (max-width: 900px) {
   .app { grid-template-columns: 1fr; }

@@ -3,22 +3,34 @@
 // consented staff dots, incident markers, assembly points — never anonymous
 // attendees.
 import type { ReactNode } from 'react';
+import { projectedZoneRect } from '../domain/coverage';
 import type { Zone } from '../domain/types';
 
 type DotTone = 'ok' | 'info' | 'caution' | 'sos' | 'off';
 
-export function MapCanvas({ children, staticSize }: { children: ReactNode; staticSize?: boolean }) {
-  return <div className={`cmap ${staticSize ? 'static' : ''}`}>{children}</div>;
+export function MapCanvas({
+  children,
+  staticSize,
+  label,
+}: {
+  children: ReactNode;
+  staticSize?: boolean;
+  label?: string;
+}) {
+  return (
+    <div className={`cmap ${staticSize ? 'static' : ''}`} role="img" aria-label={label ?? 'Tactical venue map'}>
+      {children}
+    </div>
+  );
 }
 
+/** A zone rectangle, positioned by projecting the zone's real centroid. */
 export function ZoneRect({ zone }: { zone: Zone }) {
+  const r = projectedZoneRect(zone);
   return (
     <>
-      <div
-        className="zone"
-        style={{ left: `${zone.x}%`, top: `${zone.y}%`, width: `${zone.w}%`, height: `${zone.h}%` }}
-      />
-      <div className="zlab" style={{ left: `${zone.x + 1.5}%`, top: `${zone.y + 2}%` }}>
+      <div className="zone" style={{ left: `${r.x}%`, top: `${r.y}%`, width: `${r.w}%`, height: `${r.h}%` }} />
+      <div className="zlab" style={{ left: `${r.x + 1.5}%`, top: `${r.y + 2}%` }}>
         {zone.name}
       </div>
     </>
@@ -31,6 +43,7 @@ export function GuardDot({
   tone,
   label,
   sublabel,
+  title,
   onClick,
 }: {
   x: number;
@@ -38,18 +51,25 @@ export function GuardDot({
   tone: DotTone;
   label: string;
   sublabel?: string;
+  title?: string;
   onClick?: () => void;
 }) {
+  const tip = title ?? sublabel;
+  const dotProps = {
+    className: `dot ${tone}`,
+    style: { left: `${x}%`, top: `${y}%`, cursor: onClick ? 'pointer' : 'default' },
+    title: tip,
+    'aria-label': tip,
+  };
   return (
     <>
-      <div
-        className={`dot ${tone}`}
-        style={{ left: `${x}%`, top: `${y}%`, cursor: onClick ? 'pointer' : 'default' }}
-        onClick={onClick}
-        title={sublabel}
-      >
-        {label}
-      </div>
+      {onClick ? (
+        <button type="button" {...dotProps} onClick={onClick}>
+          {label}
+        </button>
+      ) : (
+        <div {...dotProps}>{label}</div>
+      )}
       {sublabel && (
         <div className="dotlab" style={{ left: `${x}%`, top: `${y}%` }}>
           {sublabel}

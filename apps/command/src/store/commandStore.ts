@@ -59,6 +59,8 @@ interface CommandState {
   dispatchLog: DispatchLogEntry[];
   activeIncidentId: string | null;
   lastSearch: AssistedSearchOutcome | null;
+  /** most recent status decoded from an inbound Guard mesh frame (for the toast) */
+  lastInboundStatus: { staffId: number; name: string; label: string; atSec: number } | null;
 
   // --- selectors (computed) ---
   activeIncident(): Incident | undefined;
@@ -92,19 +94,22 @@ function patchIncident(list: Incident[], id: string, patch: (i: Incident) => Inc
   return list.map((i) => (i.id === id ? patch(i) : i));
 }
 
+const staff0 = buildStaff();
+
 export const useCommandStore = create<CommandState>((set, get) => ({
   operatorId: OPERATOR_ID,
   siteName: SITE_NAME,
   shiftLabel: SHIFT_LABEL,
   zones: ZONES,
-  staff: buildStaff(),
-  incidents: buildIncidents(),
-  zoneDensity: buildZoneDensity(),
+  staff: staff0,
+  incidents: buildIncidents(staff0),
+  zoneDensity: buildZoneDensity(staff0),
   muster: buildMuster(),
   auditLog: [],
   dispatchLog: [],
   activeIncidentId: 'SOS-0442',
   lastSearch: null,
+  lastInboundStatus: null,
 
   activeIncident: () => get().incidents.find((i) => i.id === get().activeIncidentId),
   onDutyCount: () =>
@@ -229,6 +234,7 @@ export const useCommandStore = create<CommandState>((set, get) => ({
       if (!cur) return {};
       return {
         staff: { ...st.staff, [staffId]: { ...cur, status, lastPingSec: nowSec() } },
+        lastInboundStatus: { staffId, name: cur.name, label, atSec: nowSec() },
         incidents: st.activeIncidentId
           ? patchIncident(st.incidents, st.activeIncidentId, (i) => ({
               ...i,

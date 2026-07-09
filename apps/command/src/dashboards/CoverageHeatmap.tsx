@@ -1,9 +1,9 @@
 import { useCommandStore } from '../store/commandStore';
 import { coverageGaps, zoneName } from '../domain/zones';
+import { projectToCanvas } from '../domain/coverage';
 import { Console, ConsoleTop, PageHead } from '../ui/primitives';
 import { ZoneRect } from '../ui/map';
 import { Icon } from '../ui/Icon';
-import type { Zone } from '../domain/types';
 
 // Coverage heatmap — the PRIVACY-SAFE operator overview. It renders ONLY
 // aggregate zone density (from store.zoneDensity, which holds counts, never
@@ -11,26 +11,13 @@ import type { Zone } from '../domain/types';
 // design. Roster-level detail lives elsewhere; this view can never become a
 // person-tracker because it has no person data to draw from.
 
-const HEAT_ZONES: Zone[] = [
-  { id: 'main_room', name: 'MAIN ROOM', x: 6, y: 8, w: 40, h: 40 },
-  { id: 'bar', name: 'BAR', x: 54, y: 8, w: 40, h: 32 },
-  { id: 'terrace', name: 'SMOKING TERRACE', x: 6, y: 56, w: 40, h: 36 },
-  { id: 'car_park', name: 'CAR PARK', x: 54, y: 50, w: 40, h: 42 },
-];
-
-// Blob centre per zone (percentage of canvas).
-const BLOB_POS: Record<string, [number, number, number]> = {
-  main_room: [26, 28, 60],
-  bar: [74, 24, 52],
-  terrace: [26, 74, 50],
-  car_park: [74, 70, 58],
-  perimeter: [8, 8, 44],
-  gate_c: [88, 12, 40],
-};
+// Blob radius (px) scales with the anonymous crowd load in the zone.
+const blobSize = (attendeeCount: number) => 120 + Math.min(attendeeCount, 500) * 0.5;
 
 export function CoverageHeatmap() {
   const store = useCommandStore();
   const gaps = coverageGaps(store.zoneDensity);
+  const zoneById = Object.fromEntries(store.zones.map((z) => [z.id, z]));
 
   return (
     <>
@@ -38,28 +25,33 @@ export function CoverageHeatmap() {
       <Console>
         <ConsoleTop site={<><span>· </span><b>Coverage</b> · aggregate density</>} tag={{ text: 'MESH · ANONYMISED', variant: 'ok' }} />
         <div className="heatbody">
-          <div className="heatmap">
+          <div className="heatmap" role="img" aria-label="Anonymised coverage density by zone">
             {store.zoneDensity.map((d) => {
-              const p = BLOB_POS[d.zoneId];
-              if (!p) return null;
+              const z = zoneById[d.zoneId];
+              if (!z) return null;
+              const p = projectToCanvas(z.center);
               const cls = d.level === 'good' ? 'good' : d.level === 'thin' ? 'mid' : 'gap';
+              const size = blobSize(d.attendeeCount);
               return (
                 <div
                   key={d.zoneId}
                   className={`blob ${cls}`}
-                  style={{ left: `${p[0]}%`, top: `${p[1]}%`, width: p[2] * 3, height: p[2] * 3 }}
+                  style={{ left: `${p.x}%`, top: `${p.y}%`, width: size, height: size }}
                 />
               );
             })}
             <div className="heatgrid" />
-            {HEAT_ZONES.map((z) => (
-              <ZoneRect key={z.id} zone={z} />
-            ))}
+            {store.zones
+              .filter((z) => store.zoneDensity.some((d) => d.zoneId === z.id))
+              .map((z) => (
+                <ZoneRect key={z.id} zone={z} />
+              ))}
             {gaps.map((zid) => {
-              const p = BLOB_POS[zid];
-              if (!p) return null;
+              const z = zoneById[zid];
+              if (!z) return null;
+              const p = projectToCanvas(z.center);
               return (
-                <div key={zid} className="gaplab" style={{ left: `${p[0]}%`, top: `${p[1]}%` }}>
+                <div key={zid} className="gaplab" style={{ left: `${p.x}%`, top: `${p.y}%` }}>
                   GAP · {zoneName(store.zones, zid)}
                 </div>
               );

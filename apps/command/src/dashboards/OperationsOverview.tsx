@@ -1,25 +1,11 @@
 import { useCommandStore } from '../store/commandStore';
 import { zoneName } from '../domain/zones';
+import { projectToCanvas } from '../domain/coverage';
 import { Console, ConsoleTop, FeedItem, PageHead, RosterItem, SectionTitle, StatusTile } from '../ui/primitives';
 import { AssemblyMarker, GuardDot, IncidentMarker, MapCanvas, ZoneRect } from '../ui/map';
 import { Icon } from '../ui/Icon';
 import { incidentTone, staffDotTone, staffTone } from '../ui/status';
 import type { Nav } from '../App';
-
-// Percentage positions for staff dots on the ops map (by staff id).
-const POS: Record<number, [number, number]> = {
-  1: [20, 24],
-  2: [66, 20],
-  3: [80, 15],
-  4: [82, 30],
-  5: [74, 22],
-  6: [16, 74],
-  8: [30, 34],
-  9: [70, 68],
-  10: [12, 46],
-  11: [30, 82],
-  12: [93, 92],
-};
 
 export function OperationsOverview({ nav }: { nav: Nav }) {
   const store = useCommandStore();
@@ -59,24 +45,31 @@ export function OperationsOverview({ nav }: { nav: Nav }) {
 
           {/* center map */}
           <div className="ccenter">
-            <MapCanvas>
+            <MapCanvas label="Venue map — guard positions and active incident">
               {zones.map((z) => (
                 <ZoneRect key={z.id} zone={z} />
               ))}
               {staff
-                .filter((s) => POS[s.id] && s.status !== 'sos')
-                .map((s) => (
-                  <GuardDot
-                    key={s.id}
-                    x={POS[s.id][0]}
-                    y={POS[s.id][1]}
-                    tone={staffDotTone(s.status)}
-                    label={String(s.id).padStart(2, '0')}
-                    onClick={() => nav.open('roster')}
-                  />
-                ))}
-              {sos && (
-                <IncidentMarker x={82} y={12} label={`SOS · Guard 07 · ${zoneName(store.zones, sos.zoneId)}`} />
+                .filter((s) => s.location && s.status !== 'sos')
+                .map((s) => {
+                  const p = projectToCanvas(s.location!);
+                  return (
+                    <GuardDot
+                      key={s.id}
+                      x={p.x}
+                      y={p.y}
+                      tone={staffDotTone(s.status)}
+                      label={String(s.id).padStart(2, '0')}
+                      title={`Guard ${String(s.id).padStart(2, '0')} · ${s.name.split(' ')[0]} · ${s.status}`}
+                      onClick={() => nav.open('roster')}
+                    />
+                  );
+                })}
+              {sos?.location && (
+                <IncidentMarker
+                  {...projectToCanvas(sos.location)}
+                  label={`SOS · Guard 07 · ${zoneName(store.zones, sos.zoneId)}`}
+                />
               )}
               {store.muster.active && <AssemblyMarker x={48} y={94} label={`ASSEMBLY · ${store.musteredCount()}`} />}
             </MapCanvas>

@@ -3,36 +3,48 @@
 // This stands in for a live mesh bridge: in the field, staff + incidents arrive
 // as decoded engine packets from Guard devices. Here we seed the same shapes so
 // the console is fully explorable offline. NOTE the deliberate absence of any
-// "all attendees" list — the crowd is only ever the anonymous zoneDensity below.
+// "all attendees" list — the crowd is only ever anonymous per-zone counts.
+//
+// Coverage and responder distances are NOT hand-authored: they are computed from
+// the seeded staff positions (see coverage.ts), so the map and the numbers agree.
 
 import { nowSec } from './time';
-import { toZoneDensity } from './zones';
-import type {
-  Incident,
-  MusterState,
-  StaffMember,
-  Zone,
-  ZoneDensity,
-} from './types';
+import { computeZoneDensity, nearestResponders } from './coverage';
+import type { Incident, MusterState, StaffMember, Zone, ZoneDensity } from './types';
 
 export const SITE_NAME = 'Ministry of Sound';
 export const SHIFT_LABEL = 'Night Shift';
 /** The signed-in supervisor — every audited action is attributed to them. */
 export const OPERATOR_ID = 'SUP · Night Control';
 
+/** Command console's own mesh id (fits uint32; 0xC0 = "control"). */
+export const COMMAND_ID = 0xc0;
 /** A team/crew tag guards + command share, so dispatch is addressed to the team. */
 export const TEAM_TAG = 4242;
 
-/** Venue zones with layout hints (0..100 of the tactical canvas). */
+/** Venue zones with real centroids (the map is a projection, not fixed px). */
 export const ZONES: Zone[] = [
-  { id: 'main_room', name: 'MAIN ROOM', x: 6, y: 8, w: 40, h: 40 },
-  { id: 'bar', name: 'BAR', x: 54, y: 8, w: 40, h: 32 },
-  { id: 'terrace', name: 'SMOKING TERRACE', x: 6, y: 56, w: 40, h: 36 },
-  { id: 'car_park', name: 'CAR PARK', x: 54, y: 50, w: 40, h: 42 },
-  { id: 'gate_c', name: 'GATE C', x: 70, y: 6, w: 24, h: 22 },
-  { id: 'foyer', name: 'FOYER', x: 6, y: 8, w: 30, h: 24 },
-  { id: 'perimeter', name: 'PERIMETER', x: 2, y: 2, w: 96, h: 96 },
+  { id: 'main_room', name: 'MAIN ROOM', center: { latitude: 51.4947, longitude: -0.1013 }, w: 34, h: 30 },
+  { id: 'bar', name: 'BAR', center: { latitude: 51.495, longitude: -0.0995 }, w: 30, h: 24 },
+  { id: 'terrace', name: 'SMOKING TERRACE', center: { latitude: 51.494, longitude: -0.1019 }, w: 30, h: 26 },
+  { id: 'car_park', name: 'CAR PARK', center: { latitude: 51.4938, longitude: -0.099 }, w: 28, h: 26 },
+  { id: 'gate_c', name: 'GATE C', center: { latitude: 51.4928, longitude: -0.1006 }, w: 22, h: 20 },
+  { id: 'foyer', name: 'FOYER', center: { latitude: 51.4949, longitude: -0.1008 }, w: 22, h: 18 },
+  { id: 'perimeter', name: 'PERIMETER', center: { latitude: 51.4952, longitude: -0.0987 }, w: 20, h: 16 },
 ];
+
+/** Anonymous crowd counts per zone (the density sensor feed — counts only). */
+export const ATTENDEES_BY_ZONE: Record<string, number> = {
+  main_room: 420,
+  bar: 260,
+  terrace: 140,
+  gate_c: 60,
+  car_park: 90,
+  perimeter: 30,
+};
+
+/** Zones that appear on the coverage heatmap (foyer is back-of-house). */
+export const HEATMAP_ZONE_IDS = ['main_room', 'bar', 'terrace', 'car_park', 'gate_c', 'perimeter'];
 
 export function buildStaff(base = nowSec()): Record<number, StaffMember> {
   const onSince = base - 6600; // ~22:00 shift start
@@ -41,14 +53,14 @@ export function buildStaff(base = nowSec()): Record<number, StaffMember> {
     { id: 1, name: 'Kofi Adeyemi', zoneId: 'main_room', status: 'on_post', lastPingSec: base - 60, mustered: true, location: { latitude: 51.4948, longitude: -0.1015 } },
     { id: 2, name: 'Luca Bianchi', zoneId: 'bar', status: 'on_post', lastPingSec: base - 60, mustered: true, location: { latitude: 51.4951, longitude: -0.0996 } },
     { id: 3, name: 'Paulo Okafor', zoneId: 'gate_c', status: 'responding', lastPingSec: base - 30, mustered: true, location: { latitude: 51.4931, longitude: -0.1006 } },
-    { id: 4, name: 'Jan Novak', zoneId: 'bar', status: 'on_post', lastPingSec: base - 90, mustered: true, location: { latitude: 51.4950, longitude: -0.0993 } },
+    { id: 4, name: 'Jan Novak', zoneId: 'bar', status: 'on_post', lastPingSec: base - 90, mustered: true, location: { latitude: 51.495, longitude: -0.0993 } },
     { id: 5, name: 'Marcus Reyes', zoneId: 'gate_c', status: 'responding', lastPingSec: base - 30, mustered: true, location: { latitude: 51.4929, longitude: -0.1009 } },
     { id: 6, name: 'Rami Haddad', zoneId: 'terrace', status: 'on_post', lastPingSec: base - 45, mustered: true, location: { latitude: 51.4941, longitude: -0.1018 } },
     { id: 7, name: 'Priya Okafor', zoneId: 'gate_c', status: 'sos', lastPingSec: base - 68, mustered: false, location: { latitude: 51.4924, longitude: -0.1003 } },
     { id: 8, name: 'Erik Larsson', zoneId: 'main_room', status: 'on_post', lastPingSec: base - 55, mustered: true, location: { latitude: 51.4946, longitude: -0.1012 } },
     { id: 9, name: 'Sofia Delgado', zoneId: 'car_park', status: 'lone', lastPingSec: base - 240, mustered: false, location: { latitude: 51.4938, longitude: -0.0988 } },
     { id: 10, name: 'Ana Ferreira', zoneId: 'foyer', status: 'on_post', lastPingSec: base - 120, mustered: true, location: { latitude: 51.4949, longitude: -0.1008 } },
-    { id: 11, name: 'Minh Nguyen', zoneId: 'terrace', status: 'on_post', lastPingSec: base - 80, mustered: true, location: { latitude: 51.4940, longitude: -0.1020 } },
+    { id: 11, name: 'Minh Nguyen', zoneId: 'terrace', status: 'on_post', lastPingSec: base - 80, mustered: true, location: { latitude: 51.494, longitude: -0.102 } },
     { id: 12, name: 'Kwame Osei', zoneId: 'perimeter', status: 'no_signal', lastPingSec: base - 600, mustered: false },
   ];
   const map: Record<number, StaffMember> = {};
@@ -56,7 +68,19 @@ export function buildStaff(base = nowSec()): Record<number, StaffMember> {
   return map;
 }
 
-export function buildIncidents(base = nowSec()): Incident[] {
+export function buildIncidents(staff: Record<number, StaffMember>, base = nowSec()): Incident[] {
+  const sosLoc = { latitude: 51.4924, longitude: -0.1003 };
+  const ranked = nearestResponders(sosLoc, Object.values(staff), { excludeId: 7, limit: 2 });
+  const responders = [
+    ...ranked.map((r) => ({
+      staffId: r.staff.id,
+      name: `${r.staff.name.split(' ')[0]} · Guard ${String(r.staff.id).padStart(2, '0')}`,
+      distanceM: r.distanceM,
+      state: 'en_route' as const,
+    })),
+    { staffId: 0, name: 'Control room', state: 'viewing' as const },
+  ];
+
   return [
     {
       id: 'SOS-0442',
@@ -65,23 +89,18 @@ export function buildIncidents(base = nowSec()): Incident[] {
       raisedByStaffId: 7,
       subjectName: 'Priya Okafor',
       zoneId: 'gate_c',
-      location: { latitude: 51.4924, longitude: -0.1003 },
+      location: sosLoc,
       consentBasis: 'on_duty_staff',
       raisedAtSec: base - 68,
       meshConfirmed: true,
       feedText: 'SOS — Guard 07 at Gate C',
-      feedSub: '2 dispatched · panic hold',
-      responders: [
-        { staffId: 5, name: 'Marcus · Guard 05', etaMin: 40, state: 'en_route' },
-        { staffId: 3, name: 'Paulo · Guard 03', etaMin: 85, state: 'en_route' },
-        { staffId: 0, name: 'Control room', state: 'viewing' },
-      ],
+      feedSub: `${ranked.length} dispatched · panic hold`,
+      responders,
       timeline: [
         { atSec: base - 68, tone: 'alert', text: 'SOS raised — Guard 07', sub: 'panic hold · Gate C' },
         { atSec: base - 67, tone: 'info', text: 'Location broadcast over mesh', sub: '6 nodes relayed' },
-        { atSec: base - 65, tone: 'info', text: 'Nearest 2 auto-dispatched', sub: 'Guard 05, Guard 03' },
-        { atSec: base - 52, tone: 'info', text: 'Guard 05 acknowledged — en route', sub: 'ETA 40m' },
-        { atSec: base - 47, tone: 'info', text: 'Guard 03 acknowledged — en route', sub: 'ETA 85m' },
+        { atSec: base - 65, tone: 'info', text: 'Nearest 2 auto-dispatched', sub: ranked.map((r) => `Guard ${String(r.staff.id).padStart(2, '0')}`).join(', ') },
+        ...ranked.map((r) => ({ atSec: base - 52, tone: 'info' as const, text: `Guard ${String(r.staff.id).padStart(2, '0')} acknowledged — en route`, sub: `${r.distanceM}m out` })),
         { atSec: base - 46, tone: 'ok', text: 'Control room notified', sub: 'supervisor viewing' },
       ],
     },
@@ -145,16 +164,12 @@ export function buildIncidents(base = nowSec()): Incident[] {
   ];
 }
 
-/** Anonymous crowd density per zone — COUNTS ONLY, the safe operator overview. */
-export function buildZoneDensity(): ZoneDensity[] {
-  return [
-    toZoneDensity({ zoneId: 'main_room', guardCount: 2, attendeeCount: 420, coveragePct: 100 }),
-    toZoneDensity({ zoneId: 'bar', guardCount: 2, attendeeCount: 260, coveragePct: 100 }),
-    toZoneDensity({ zoneId: 'terrace', guardCount: 2, attendeeCount: 140, coveragePct: 100 }),
-    toZoneDensity({ zoneId: 'gate_c', guardCount: 1, attendeeCount: 60, coveragePct: 88 }),
-    toZoneDensity({ zoneId: 'car_park', guardCount: 1, attendeeCount: 90, coveragePct: 55 }),
-    toZoneDensity({ zoneId: 'perimeter', guardCount: 0, attendeeCount: 30, coveragePct: 20 }),
-  ];
+/** Anonymous crowd density per zone — computed from real staff positions. */
+export function buildZoneDensity(staff: Record<number, StaffMember>): ZoneDensity[] {
+  const list = Object.values(staff);
+  return ZONES.filter((z) => HEATMAP_ZONE_IDS.includes(z.id)).map((z) =>
+    computeZoneDensity(z, list, ATTENDEES_BY_ZONE[z.id] ?? 0),
+  );
 }
 
 export function buildMuster(base = nowSec()): MusterState {

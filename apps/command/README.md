@@ -25,7 +25,20 @@ app rather than an Expo/React-Native target:
 
 Because Command speaks the **same wire format** as Guard, dispatch orders and
 status responses flow both ways with no translation layer (see
-[`src/domain/dispatch.ts`](src/domain/dispatch.ts) and its tests).
+[`src/domain/dispatch.ts`](src/domain/dispatch.ts) and its tests). The return leg
+is **live, not just tested**: a simulated Guard ([`src/domain/guardFeed.ts`](src/domain/guardFeed.ts))
+emits `quickReply` status frames that are encoded **and decoded** through the
+engine codec before they reach the store — you see them arrive as a toast and in
+the incident timeline.
+
+### Everything on the map is real
+
+The tactical map is a **projection of real coordinates**, not decorative pixels
+([`src/domain/coverage.ts`](src/domain/coverage.ts)): guards are plotted from
+`staff.location`, nearest-responder distances are computed with the engine's
+`getHaversineDistance`, and zone coverage/density is derived from how many
+consented guards are actually in each zone versus its (anonymous) crowd load —
+no hand-authored coverage numbers.
 
 ## Dashboards
 

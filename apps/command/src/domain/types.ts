@@ -12,9 +12,9 @@ import type { Coordinate } from '../engine';
 export interface Zone {
   id: string;
   name: string;
-  /** layout hint for the tactical map/heatmap, 0..100 of the canvas */
-  x: number;
-  y: number;
+  /** real-world centroid — the map projects everything from geo, not fixed px */
+  center: Coordinate;
+  /** display size of the zone rectangle, 0..100 of the canvas */
   w: number;
   h: number;
 }
@@ -78,7 +78,8 @@ export type ResponderState = 'en_route' | 'on_scene' | 'clear' | 'viewing';
 export interface Responder {
   staffId: number; // 0 = control room (not a field staff id)
   name: string;
-  etaMin?: number;
+  /** straight-line distance to the incident, metres (computed via geoMath) */
+  distanceM?: number;
   state: ResponderState;
 }
 

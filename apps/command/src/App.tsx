@@ -1,5 +1,6 @@
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { useCommandStore } from './store/commandStore';
+import { emitGuardStatus, guardStatusScript } from './domain/guardFeed';
 import { Icon } from './ui/Icon';
 import { OperationsOverview } from './dashboards/OperationsOverview';
 import { IncidentDetail } from './dashboards/IncidentDetail';
@@ -28,6 +29,8 @@ export default function App() {
   const [tab, setTab] = useState<TabId>('operations');
   const store = useCommandStore();
   const sosActive = store.sosCount() > 0;
+  const inbound = useCommandStore((s) => s.lastInboundStatus);
+  const [toastOn, setToastOn] = useState(false);
 
   const nav: Nav = {
     open(next, incidentId) {
@@ -35,6 +38,35 @@ export default function App() {
       setTab(next);
     },
   };
+
+  // Live two-way flow: a simulated Guard device replies over the mesh. Each beat
+  // is a real quickReply frame encoded + decoded through @loc8/engine before it
+  // reaches the store — the inbound leg of dispatch/status, visible live.
+  useEffect(() => {
+    const incident = useCommandStore.getState().incidents.find((i) => i.kind === 'sos');
+    const responderIds = (incident?.responders ?? []).map((r) => r.staffId).filter((id) => id !== 0);
+    if (responderIds.length === 0) return;
+    const script = guardStatusScript(responderIds);
+    let i = 0;
+    const id = setInterval(() => {
+      if (i >= script.length) {
+        clearInterval(id);
+        return;
+      }
+      const [staffId, code] = script[i++];
+      const decoded = emitGuardStatus(staffId, code);
+      if (decoded) useCommandStore.getState().applyGuardStatus(decoded.fromId, decoded.code);
+    }, 6000);
+    return () => clearInterval(id);
+  }, []);
+
+  // Show a transient toast whenever a new inbound status decodes.
+  useEffect(() => {
+    if (!inbound) return;
+    setToastOn(true);
+    const t = setTimeout(() => setToastOn(false), 4200);
+    return () => clearTimeout(t);
+  }, [inbound?.atSec]);
 
   return (
     <div className="app">
@@ -71,6 +103,16 @@ export default function App() {
         {tab === 'heatmap' && <CoverageHeatmap />}
         {tab === 'audit' && <AuditSearch />}
       </main>
+
+      {toastOn && inbound && (
+        <div className="toast" role="status" aria-live="polite">
+          <Icon name="radar" size={16} />
+          <span>
+            <b>{inbound.name}</b> · {inbound.label}
+            <span className="toastsub">inbound over mesh · Guard {String(inbound.staffId).padStart(2, '0')}</span>
+          </span>
+        </div>
+      )}
     </div>
   );
 }

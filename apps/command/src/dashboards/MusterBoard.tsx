@@ -1,16 +1,11 @@
 import { useCommandStore } from '../store/commandStore';
 import { zoneName } from '../domain/zones';
+import { projectToCanvas } from '../domain/coverage';
 import { Console, ConsoleTop, PageHead } from '../ui/primitives';
 import { AssemblyMarker, GuardDot, IncidentMarker, MapCanvas, ZoneRect } from '../ui/map';
 import { Icon } from '../ui/Icon';
 import { useElapsed } from '../ui/hooks';
 import { staffDotTone } from '../ui/status';
-import type { Zone } from '../domain/types';
-
-const MUSTER_ZONES: Zone[] = [
-  { id: 'venue', name: 'VENUE', x: 6, y: 8, w: 50, h: 60 },
-  { id: 'gate_c', name: 'GATE C', x: 64, y: 8, w: 30, h: 26 },
-];
 
 export function MusterBoard() {
   const store = useCommandStore();
@@ -96,18 +91,22 @@ export function MusterBoard() {
               </div>
 
               <div className="ccenter">
-                <MapCanvas>
-                  {MUSTER_ZONES.map((z) => (
-                    <ZoneRect key={z.id} zone={z} />
-                  ))}
-                  <AssemblyMarker x={30} y={82} label={`ASSEMBLY POINT A · ${accounted}`} />
+                <MapCanvas label="Muster map — assembly point and outstanding staff">
+                  {store.zones
+                    .filter((z) => ['main_room', 'gate_c', 'car_park'].includes(z.id))
+                    .map((z) => (
+                      <ZoneRect key={z.id} zone={z} />
+                    ))}
+                  <AssemblyMarker x={30} y={88} label={`ASSEMBLY POINT A · ${accounted}`} />
                   {outstanding.map((s, i) => {
-                    if (s.status === 'sos') return <IncidentMarker key={s.id} x={78} y={18} label={`${String(s.id).padStart(2, '0')} · still out`} />;
+                    const p = s.location ? projectToCanvas(s.location) : { x: 90, y: 90 + i };
+                    if (s.status === 'sos')
+                      return <IncidentMarker key={s.id} x={p.x} y={p.y} label={`${String(s.id).padStart(2, '0')} · still out`} />;
                     return (
                       <GuardDot
                         key={s.id}
-                        x={70 + i * 6}
-                        y={50 + i * 8}
+                        x={p.x}
+                        y={p.y}
                         tone={staffDotTone(s.status)}
                         label={String(s.id).padStart(2, '0')}
                         sublabel={`${String(s.id).padStart(2, '0')} · ${s.status === 'no_signal' ? 'no signal' : zoneName(store.zones, s.zoneId).split(' ')[0].toLowerCase()}`}
