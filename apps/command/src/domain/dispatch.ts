@@ -17,29 +17,15 @@ import {
   decodePacket,
   fragmentText,
   TextReassembler,
+  guardStatusLabel,
   type Packet,
 } from '../engine';
 
-/**
- * Guard's status vocabulary — the consumer "quick replies" reskinned as field
- * status responses (product-architecture.md §Communication). Wire-identical to
- * a consumer quickReply packet; only the code→label mapping differs per door.
- */
-export interface GuardStatus {
-  code: number;
-  label: string;
-}
-export const GUARD_STATUS: GuardStatus[] = [
-  { code: 1, label: 'En route' },
-  { code: 2, label: 'On scene' },
-  { code: 3, label: 'Need backup' },
-  { code: 4, label: 'Clear' },
-];
-
-/** Resolve a Guard status code to its label, or '…' if unknown. */
-export function guardStatusLabel(code: number): string {
-  return GUARD_STATUS.find((s) => s.code === code)?.label ?? '…';
-}
+// Guard's status vocabulary (En route / On scene / Need backup / Clear) is the
+// Guard ↔ Command wire contract, so it lives in the engine — re-exported here
+// for the store and tests.
+export { GUARD_STATUS, guardStatusLabel } from '../engine';
+export type { GuardStatus } from '../engine';
 
 export interface DispatchInput {
   fromId: number; // Command console's mesh id

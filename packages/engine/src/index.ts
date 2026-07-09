@@ -9,6 +9,7 @@ export * from './core/plusCodes';
 export * from './core/trustLayer';
 export * from './core/packetCodec';
 export * from './core/textFragments';
+export * from './core/guardStatus';
 
 // --- transport: location transport contract + implementations ---
 export * from './transport/LocationTransport';
