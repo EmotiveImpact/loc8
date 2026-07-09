@@ -66,9 +66,29 @@ export function floorLabel(floor: number): string {
   return `B${-floor}`;
 }
 
-/** Short label for tight spots (badges): "G" / "2" / "-1". */
+/** Short label for tight spots (badges): "G" / "L2" / "B1" — same register as floorLabel. */
 export function floorShort(floor: number): string {
   if (floor === 0) return 'G';
-  if (floor > 0) return `${floor}`;
-  return `${floor}`; // already has the minus sign
+  if (floor > 0) return `L${floor}`;
+  return `B${-floor}`;
+}
+
+/**
+ * A venue's named level — real buildings have "Balcony" and "Car Park", not
+ * bare integers. Apps supply the list; `floor` is the wire integer.
+ */
+export interface VenueLevel {
+  floor: number;
+  name: string;
+  short: string;
+}
+
+/** Venue name for a floor, falling back to the generic label. */
+export function venueLevelName(levels: VenueLevel[] | undefined, floor: number): string {
+  return levels?.find((l) => l.floor === floor)?.name ?? floorLabel(floor);
+}
+
+/** Venue short tag for a floor, falling back to the generic short label. */
+export function venueLevelShort(levels: VenueLevel[] | undefined, floor: number): string {
+  return levels?.find((l) => l.floor === floor)?.short ?? floorShort(floor);
 }

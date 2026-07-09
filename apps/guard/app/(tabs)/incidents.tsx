@@ -5,11 +5,12 @@ import { useState } from 'react';
 import { View, Text, Pressable, StyleSheet, ScrollView } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { MapPin } from 'lucide-react-native';
-import { useCrewStore, getMeshService, haptics, floorLabel } from '@loc8/engine';
+import { useCrewStore, getMeshService, haptics } from '@loc8/engine';
 import { ops, fonts, tint } from '../../src/ui/opsTheme';
 import { OpsBackground } from '../../src/ui/OpsBackground';
 import { GuardHeader } from '../../src/ui/GuardHeader';
 import { useGuardStore, badgeLabel, INCIDENT_TYPES, type IncidentType } from '../../src/state/guardStore';
+import { levelName } from '../../src/state/guardTeam';
 import { useNowSec } from '../../src/hooks/useNowSec';
 
 function fmtClock(sec: number): string {
@@ -43,7 +44,7 @@ export default function Incidents() {
   const log = () => {
     haptics.warning();
     logIncident(type, locLabel, `Guard ${badgeLabel(badge)}`, myFloor, now);
-    getMeshService().sendCrewMessage(`INCIDENT · ${type} · ${floorLabel(myFloor)} · ${locLabel}`);
+    getMeshService().sendCrewMessage(`INCIDENT · ${type} · ${levelName(myFloor)} · ${locLabel}`);
   };
 
   return (
@@ -73,7 +74,7 @@ export default function Incidents() {
         <View style={st.locField}>
           <MapPin size={18} color={ops.info} strokeWidth={2} />
           <View style={{ flex: 1 }}>
-            <Text style={st.locName}>{floorLabel(myFloor)} · {locLabel} · your position</Text>
+            <Text style={st.locName}>{levelName(myFloor)} · {locLabel} · your position</Text>
             <Text style={st.locCoords}>auto-filled · {coords}</Text>
           </View>
         </View>
@@ -89,7 +90,7 @@ export default function Incidents() {
             <View key={i.id} style={st.ritem}>
               <View style={[st.fdot, { backgroundColor: COLOR[i.type] }]} />
               <View style={{ flex: 1 }}>
-                <Text style={st.ritemTxt}>{i.type} — {floorLabel(i.floor)} · {i.location}</Text>
+                <Text style={st.ritemTxt}>{i.type} — {levelName(i.floor)} · {i.location}</Text>
                 <Text style={st.ritemSub}>{fmtClock(i.atSec)} · {i.byLabel}</Text>
               </View>
             </View>

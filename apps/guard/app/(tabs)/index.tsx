@@ -6,8 +6,9 @@ import { View, Text, Pressable, StyleSheet } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useRouter, type Href } from 'expo-router';
 import { Check, Navigation, Layers } from 'lucide-react-native';
-import { useCrewStore, haptics, floorLabel } from '@loc8/engine';
+import { useCrewStore, haptics, venueLevelName, confirmCurrentFloor } from '@loc8/engine';
 import { ops, fonts, tint } from '../../src/ui/opsTheme';
+import { VENUE_LEVELS } from '../../src/state/guardTeam';
 import { OpsBackground } from '../../src/ui/OpsBackground';
 import { GuardHeader } from '../../src/ui/GuardHeader';
 import { TeamMap } from '../../src/ui/TeamMap';
@@ -27,7 +28,8 @@ export default function TeamMapScreen() {
   const dispatchLabel = useGuardStore((s) => s.dispatchLabel);
   const sosActive = useGuardStore((s) => s.sosActive);
   const myFloor = useCrewStore((s) => s.myFloor);
-  const floorMode = useCrewStore((s) => s.floorMode);
+  const floorConfidence = useCrewStore((s) => s.floorConfidence);
+  const floorConfirmNeeded = useCrewStore((s) => s.floorConfirmNeeded);
 
   const inRange = Object.values(friends).filter((f) => f.lastPacket).length;
 
@@ -57,11 +59,30 @@ export default function TeamMapScreen() {
       <View style={{ paddingTop: insets.top + 8 }}>
         <GuardHeader />
         <View style={st.floorRow}>
-          <Pressable style={st.floorPill} onPress={() => { haptics.tap(); router.push('/floor' as Href); }}>
-            <Layers size={13} color={ops.info} strokeWidth={2} />
-            <Text style={st.floorPillTxt}>Your level · {floorLabel(myFloor)}</Text>
-            <Text style={st.floorMode}>{floorMode === 'auto' ? 'AUTO' : 'PINNED'}</Text>
+          <Pressable
+            style={[st.floorPill, floorConfidence !== 'anchored' && st.floorPillUnsure]}
+            onPress={() => { haptics.tap(); router.push('/floor' as Href); }}
+          >
+            <Layers size={13} color={floorConfidence === 'anchored' ? ops.info : ops.caution} strokeWidth={2} />
+            <Text style={st.floorPillTxt}>
+              {floorConfidence === 'unknown'
+                ? 'Set your level'
+                : `Your level · ${venueLevelName(VENUE_LEVELS, myFloor)}`}
+            </Text>
+            <Text style={[st.floorBadge, { color: floorConfidence === 'anchored' ? ops.info : ops.caution }]}>
+              {floorConfidence === 'anchored' ? 'ANCHORED' : floorConfidence === 'estimated' ? 'ESTIMATED' : 'TAP'}
+            </Text>
           </Pressable>
+
+          {/* Moved ≥2 floors since the last anchor — honesty check-in */}
+          {floorConfirmNeeded && (
+            <Pressable style={st.floorConfirm} onPress={() => { haptics.success(); confirmCurrentFloor(); }}>
+              <Check size={14} color="#06120c" strokeWidth={2.6} />
+              <Text style={st.floorConfirmTxt}>
+                Still on {venueLevelName(VENUE_LEVELS, myFloor)}? Tap to confirm
+              </Text>
+            </Pressable>
+          )}
         </View>
       </View>
 
@@ -109,14 +130,20 @@ const st = StyleSheet.create({
     borderWidth: 1, borderColor: ops.line, borderRadius: 12, padding: 11,
   },
   bannerTxt: { color: ops.ink, fontSize: 13, fontFamily: fonts.bodySemi },
-  floorRow: { paddingHorizontal: 18, marginTop: 8 },
+  floorRow: { paddingHorizontal: 18, marginTop: 8, gap: 6 },
   floorPill: {
     flexDirection: 'row', alignItems: 'center', gap: 7, alignSelf: 'flex-start',
     backgroundColor: tint(ops.info, 0.1), borderWidth: 1, borderColor: tint(ops.info, 0.3),
     borderRadius: 11, paddingHorizontal: 10, paddingVertical: 6,
   },
+  floorPillUnsure: { backgroundColor: tint(ops.caution, 0.1), borderColor: tint(ops.caution, 0.35) },
   floorPillTxt: { color: ops.ink, fontFamily: fonts.bodySemi, fontSize: 12 },
-  floorMode: { color: ops.info, fontFamily: fonts.monoBold, fontSize: 9, letterSpacing: 0.5 },
+  floorBadge: { fontFamily: fonts.monoBold, fontSize: 9, letterSpacing: 0.5 },
+  floorConfirm: {
+    flexDirection: 'row', alignItems: 'center', gap: 7, alignSelf: 'flex-start',
+    backgroundColor: ops.ok, borderRadius: 11, paddingHorizontal: 10, paddingVertical: 7,
+  },
+  floorConfirmTxt: { color: '#06120c', fontFamily: fonts.bodyBold, fontSize: 12 },
   mapWrap: { flex: 1, marginTop: 10, marginHorizontal: 0 },
   bottom: { position: 'absolute', left: 14, right: 14, bottom: 0, gap: 10 },
   statusPill: {

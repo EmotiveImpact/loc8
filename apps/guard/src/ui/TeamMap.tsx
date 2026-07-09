@@ -7,13 +7,13 @@
 // boxes, per the gallery.
 import { useEffect, useRef, useState } from 'react';
 import { View, Text, Pressable, StyleSheet, Animated, Easing, type LayoutChangeEvent } from 'react-native';
-import { useCrewStore, getHaversineDistance, getAbsoluteBearing, freshnessSec, STALE_SEC, floorLabel } from '@loc8/engine';
+import { useCrewStore, getHaversineDistance, getAbsoluteBearing, freshnessSec, STALE_SEC, venueLevelName, venueLevelShort } from '@loc8/engine';
 import type { Coordinate } from '@loc8/engine';
 import { useGuardStore, badgeLabel } from '../state/guardStore';
-import { guardFor, friendFloor } from '../state/guardTeam';
+import { guardFor, friendFloor, VENUE_LEVELS } from '../state/guardTeam';
 import { useNowSec } from '../hooks/useNowSec';
 import { ops, fonts } from './opsTheme';
-import { FloorSwitcher } from './FloorSwitcher';
+import { FloorStrip, type FloorRow } from './FloorStrip';
 
 const RANGE_M = 350; // metres mapped to the map radius before clamping
 
@@ -47,17 +47,36 @@ export function TeamMap({ onPressIncident }: { onPressIncident?: () => void }) {
 
   const viewFloor = viewFloorRaw ?? myFloor;
 
-  // Floors that have people (teammates + you), roof→basement, with head counts.
+  // Build the cross-section: venue levels ∪ any occupied/incident floor,
+  // roof→basement, each with population + trouble markers.
   const countByFloor: Record<number, number> = {};
+  const cautionByFloor: Record<number, boolean> = {};
   for (const f of Object.values(friends)) {
     if (!f.lastPacket) continue;
     const fl = friendFloor(f);
     countByFloor[fl] = (countByFloor[fl] ?? 0) + 1;
+    if (guardFor(f.id)?.status === 'caution') cautionByFloor[fl] = true;
   }
   countByFloor[myFloor] = (countByFloor[myFloor] ?? 0) + 1; // you
-  const floors = Array.from(new Set([...Object.keys(countByFloor).map(Number), myFloor]))
-    .sort((a, b) => b - a);
+  const incidentFloor = rallyPin ? (rallyPin.floor ?? 0) : null;
+  const allFloors = new Set<number>([
+    ...VENUE_LEVELS.map((l) => l.floor),
+    ...Object.keys(countByFloor).map(Number),
+    ...(incidentFloor != null ? [incidentFloor] : []),
+  ]);
+  const rows: FloorRow[] = Array.from(allFloors)
+    .sort((a, b) => b - a)
+    .map((fl) => ({
+      floor: fl,
+      short: venueLevelShort(VENUE_LEVELS, fl),
+      count: countByFloor[fl] ?? 0,
+      hasIncident: incidentFloor === fl,
+      hasCaution: cautionByFloor[fl] ?? false,
+    }));
   const peeking = viewFloor !== myFloor;
+  // You're always on your own floor, so "empty" can only happen while peeking.
+  const viewedIsEmpty =
+    peeking && (countByFloor[viewFloor] ?? 0) === 0 && incidentFloor !== viewFloor;
 
   const pulse = useRef(new Animated.Value(0)).current;
   useEffect(() => {
@@ -150,23 +169,27 @@ export function TeamMap({ onPressIncident }: { onPressIncident?: () => void }) {
         </View>
       )}
 
-      {/* floor switcher (right edge) */}
-      {floors.length > 1 && (
-        <View style={st.switcher}>
-          <FloorSwitcher
-            floors={floors}
-            viewFloor={viewFloor}
-            myFloor={myFloor}
-            countByFloor={countByFloor}
-            onSelect={(f) => setViewFloor(f === myFloor ? null : f)}
-          />
-        </View>
-      )}
+      {/* building cross-section (right edge) */}
+      <View style={st.switcher}>
+        <FloorStrip
+          rows={rows}
+          viewFloor={viewFloor}
+          myFloor={myFloor}
+          onSelect={(f) => setViewFloor(f === myFloor ? null : f)}
+        />
+      </View>
 
-      {/* peeking-another-floor banner */}
+      {/* peeking-another-floor banner + empty state */}
       {peeking && (
         <View style={st.peekBanner}>
-          <Text style={st.peekTxt}>Viewing {floorLabel(viewFloor)} · you're on {floorLabel(myFloor)}</Text>
+          <Text style={st.peekTxt}>
+            Viewing {venueLevelName(VENUE_LEVELS, viewFloor)} · you're on {venueLevelName(VENUE_LEVELS, myFloor)}
+          </Text>
+        </View>
+      )}
+      {viewedIsEmpty && maxR > 0 && (
+        <View style={[st.emptyWrap, { left: cx, top: cy }]} pointerEvents="none">
+          <Text style={st.emptyTxt}>No one on {venueLevelName(VENUE_LEVELS, viewFloor)}</Text>
         </View>
       )}
     </View>
@@ -182,6 +205,8 @@ const st = StyleSheet.create({
     borderWidth: 1, borderColor: 'rgba(122,162,255,0.4)', borderRadius: 10, paddingHorizontal: 10, paddingVertical: 6,
   },
   peekTxt: { color: ops.info, fontFamily: fonts.mono, fontSize: 10 },
+  emptyWrap: { position: 'absolute', width: 220, marginLeft: -110, alignItems: 'center' },
+  emptyTxt: { color: ops.faint, fontFamily: fonts.mono, fontSize: 11 },
   grid: { position: 'absolute', backgroundColor: 'rgba(255,255,255,0.028)' },
   zone: {
     position: 'absolute', borderWidth: 1, borderColor: 'rgba(255,255,255,0.06)',

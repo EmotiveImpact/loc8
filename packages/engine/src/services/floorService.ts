@@ -1,48 +1,28 @@
 // src/services/floorService.ts
 //
-// Automatic floor detection from the phone's barometer, with a manual override.
-// Mirrors the haptics contract: guarded, fire-and-forget, safe where there's no
-// sensor (web, simulators, older devices) — it simply never moves the floor and
-// the UI's manual picker takes over.
+// Glue between the phone's barometer and the FloorTracker (core/floorTracker):
+// MANUAL ANCHOR is the source of truth, the barometer only tracks within-device
+// movement — the one thing it's reliable at. Absolute pressure→floor and
+// cross-device pressure sharing are deliberately NOT done here: device sensor
+// bias (0.5–2 hPa between phones) is often bigger than a storey, so "automatic
+// team-consistent floors from pressure" would be false confidence. Consistency
+// comes from each guard anchoring once at clock-in; phase-2 co-location
+// calibration (e.g. at muster) can tighten this later.
 //
-// Strategy (see core/floorMath for the physics):
-//   • Self-baseline: the first stable pressure reading after start() is treated
-//     as the current floor's reference (floor 0 at clock-in / entry).
-//   • Every reading → EMA-smoothed → fractional estimate vs baseline → resolved
-//     with hysteresis so it doesn't flap at a boundary → written to the store
-//     (which ignores it while the user has pinned a floor manually).
-//   • Manual pin recalibrates the baseline so 'auto' agrees on return.
-//
-// Weather drift over a long shift is the known limitation; a future enhancement
-// is a shared baseline broadcast over the mesh (all phones see one weather), for
-// which setSharedBaseline() is the hook.
+// Guarded like haptics: safe where there's no sensor (web, simulators) — floors
+// then move only via anchorFloor(), which is pure manual mode.
 import { Platform } from 'react-native';
 import { Barometer } from 'expo-sensors';
 import { useCrewStore } from '../state/crewStore';
-import {
-  floorEstimate,
-  resolveFloorWithHysteresis,
-  smoothPressure,
-  DEFAULT_HPA_PER_FLOOR,
-} from '../core/floorMath';
+import { FloorTracker } from '../core/floorTracker';
 
+let tracker = new FloorTracker();
 let sub: { remove: () => void } | null = null;
-let baselineHpa: number | null = null;
-let smoothed: number | null = null;
 let started = false;
 let available = false;
 
-const store = () => useCrewStore.getState();
-
-function onReading(pressureHpa: number): void {
-  if (!Number.isFinite(pressureHpa) || pressureHpa <= 0) return;
-  smoothed = smoothPressure(smoothed, pressureHpa);
-  // First good reading establishes the baseline = wherever you are now (floor 0).
-  if (baselineHpa == null) baselineHpa = smoothed;
-  const est = floorEstimate(smoothed, baselineHpa);
-  const s = store();
-  const resolved = resolveFloorWithHysteresis(est, s.myFloor);
-  if (resolved !== s.myFloor) s.setMyFloor(resolved); // no-op while mode === 'manual'
+function push(state: { floor: number; confidence: 'unknown' | 'anchored' | 'estimated'; confirmSuggested: boolean }): void {
+  useCrewStore.getState().setFloorState(state.floor, state.confidence, state.confirmSuggested);
 }
 
 /** True once start() has confirmed a usable barometer. */
@@ -59,10 +39,15 @@ export async function startFloorService(): Promise<void> {
   } catch {
     available = false;
   }
-  if (!available) return; // simulator / device without a barometer → manual only
+  if (!available) return; // simulator / no sensor → anchors only
   try {
-    Barometer.setUpdateInterval(500); // 2 Hz is ample
-    sub = Barometer.addListener(({ pressure }) => onReading(pressure));
+    Barometer.setUpdateInterval(500); // 2 Hz is ample for stairs and lifts
+    sub = Barometer.addListener(({ pressure, timestamp }) => {
+      // expo-sensors timestamps are seconds; fall back to wall clock.
+      const atMs = Number.isFinite(timestamp) ? timestamp * 1000 : Date.now();
+      const changed = tracker.addSample(pressure, atMs);
+      if (changed) push(changed);
+    });
   } catch {
     available = false;
   }
@@ -73,29 +58,20 @@ export function stopFloorService(): void {
   sub = null;
   started = false;
   available = false;
-  smoothed = null;
-  baselineHpa = null;
-}
-
-/** Pin the floor manually and recalibrate the baseline so 'auto' agrees later. */
-export function setManualFloor(floor: number): void {
-  store().setFloorManual(floor);
-  if (smoothed != null) baselineHpa = smoothed + floor * DEFAULT_HPA_PER_FLOOR;
-}
-
-/** Hand control back to the barometer, keeping the current floor as the anchor. */
-export function setAutoFloor(): void {
-  const cur = store().myFloor;
-  store().setFloorAuto();
-  if (smoothed != null) baselineHpa = smoothed + cur * DEFAULT_HPA_PER_FLOOR;
+  tracker = new FloorTracker();
 }
 
 /**
- * Adopt a baseline learned elsewhere (e.g. a ground-floor reference broadcast
- * over the mesh) so floors are consistent team-wide and weather drift cancels.
- * `refPressureHpa` is the pressure that corresponds to `refFloor`.
+ * The user asserts their floor ("I'm on the Balcony"). Recalibrates the
+ * barometric reference so subsequent movement is measured from here. This is
+ * the spine of the whole feature — call it at clock-in and whenever the user
+ * picks a level or confirms a suggestion.
  */
-export function setSharedBaseline(refPressureHpa: number, refFloor = 0): void {
-  if (!Number.isFinite(refPressureHpa) || refPressureHpa <= 0) return;
-  baselineHpa = refPressureHpa + refFloor * DEFAULT_HPA_PER_FLOOR;
+export function anchorFloor(floor: number): void {
+  push(tracker.anchor(floor));
+}
+
+/** One-tap "yes, that's right" for the confirm prompt: re-anchor where we are. */
+export function confirmCurrentFloor(): void {
+  push(tracker.anchor(useCrewStore.getState().myFloor));
 }

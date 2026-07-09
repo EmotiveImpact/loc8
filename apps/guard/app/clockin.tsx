@@ -1,17 +1,18 @@
 // apps/guard/app/clockin.tsx — start of shift (gallery: "Shift / clock-in").
 // Venue, assigned zone, team preview, and one big button to go on-duty. Mesh is
 // armed by the tabs once you're on duty. Also mints a guard profile if needed.
+import { useState } from 'react';
 import { View, Text, Pressable, StyleSheet, ScrollView } from 'react-native';
 import { LinearGradient } from 'expo-linear-gradient';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useRouter, type Href } from 'expo-router';
 import { MapPin } from 'lucide-react-native';
-import { useCrewStore, haptics } from '@loc8/engine';
-import { ops, fonts, opsGradients } from '../src/ui/opsTheme';
+import { useCrewStore, haptics, anchorFloor } from '@loc8/engine';
+import { ops, fonts, opsGradients, tint } from '../src/ui/opsTheme';
 import { OpsBackground } from '../src/ui/OpsBackground';
 import { MeshBadge } from '../src/ui/MeshBadge';
 import { useGuardStore, badgeLabel } from '../src/state/guardStore';
-import { GUARD_TEAM } from '../src/state/guardTeam';
+import { GUARD_TEAM, VENUE_LEVELS } from '../src/state/guardTeam';
 
 const TABS: Href = '/(tabs)' as Href;
 const DEMO_NAME = 'Alex Okafor';
@@ -24,6 +25,7 @@ export default function ClockIn() {
   const shift = useGuardStore((s) => s.shift);
   const badge = useGuardStore((s) => s.badge);
   const goOnDuty = useGuardStore((s) => s.goOnDuty);
+  const [startLevel, setStartLevel] = useState(0); // where you're clocking in
 
   const startShift = () => {
     if (!profile) {
@@ -32,6 +34,9 @@ export default function ClockIn() {
       setProfile({ id, name: DEMO_NAME, color: ops.info });
     }
     haptics.success();
+    // The clock-in anchor: "I'm on this level right now." From here the
+    // barometer tracks movement; every floor the app shows traces back to this.
+    anchorFloor(startLevel);
     goOnDuty();
     router.replace(TABS);
   };
@@ -54,6 +59,23 @@ export default function ClockIn() {
             <Text style={st.zt}>{shift.zone}</Text>
             <Text style={st.zsub}>Main Room · Bar · Smoking</Text>
           </View>
+        </View>
+
+        <Text style={st.teamTtl}>Starting level — where are you clocking in?</Text>
+        <View style={st.levels}>
+          {VENUE_LEVELS.map((l) => {
+            const on = l.floor === startLevel;
+            return (
+              <Pressable
+                key={l.floor}
+                onPress={() => { haptics.select(); setStartLevel(l.floor); }}
+                style={[st.levelChip, on && st.levelChipOn]}
+              >
+                <Text style={[st.levelShort, on && { color: '#06070d' }]}>{l.short}</Text>
+                <Text style={[st.levelName, on && { color: 'rgba(6,7,13,0.75)' }]}>{l.name}</Text>
+              </Pressable>
+            );
+          })}
         </View>
 
         <Text style={st.teamTtl}>Team B · {GUARD_TEAM.length + 1} on shift</Text>
@@ -104,6 +126,15 @@ const st = StyleSheet.create({
   zt: { fontFamily: fonts.displaySemi, fontSize: 16, color: ops.ink },
   zsub: { fontFamily: fonts.mono, fontSize: 10, color: ops.muted, marginTop: 2 },
   teamTtl: { fontFamily: fonts.monoBold, fontSize: 10, letterSpacing: 1.5, color: ops.faint, marginTop: 20, marginBottom: 9 },
+  levels: { flexDirection: 'row', flexWrap: 'wrap', gap: 8 },
+  levelChip: {
+    flexDirection: 'row', alignItems: 'center', gap: 7,
+    paddingHorizontal: 12, paddingVertical: 10, borderRadius: 12,
+    backgroundColor: ops.panel, borderWidth: 1, borderColor: ops.line,
+  },
+  levelChipOn: { backgroundColor: tint(ops.info, 0.92), borderColor: ops.info },
+  levelShort: { fontFamily: fonts.monoBold, fontSize: 11, color: ops.muted },
+  levelName: { fontFamily: fonts.bodySemi, fontSize: 12, color: ops.ink },
   team: { gap: 6 },
   tmem: {
     flexDirection: 'row', alignItems: 'center', gap: 10, padding: 9, borderRadius: 11,

@@ -6,11 +6,11 @@ import { View, Text, StyleSheet, Animated, Easing } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useRouter } from 'expo-router';
 import { Siren } from 'lucide-react-native';
-import { useCrewStore, getHaversineDistance, floorLabel } from '@loc8/engine';
+import { useCrewStore, getHaversineDistance } from '@loc8/engine';
 import { ops, fonts } from '../src/ui/opsTheme';
 import { HoldButton } from '../src/ui/HoldButton';
 import { useGuardStore, badgeLabel } from '../src/state/guardStore';
-import { guardFor } from '../src/state/guardTeam';
+import { guardFor, levelName } from '../src/state/guardTeam';
 import { standDownSos } from '../src/state/sos';
 
 export default function SosActive() {
@@ -62,7 +62,7 @@ export default function SosActive() {
 
       <Text style={st.title}>SOS ACTIVE</Text>
       <View style={st.floorChip}>
-        <Text style={st.floorChipTxt}>◈ {floorLabel(rallyPin?.floor ?? 0)}</Text>
+        <Text style={st.floorChipTxt}>◈ {levelName(rallyPin?.floor ?? 0)}</Text>
       </View>
       <Text style={st.p}>Your location and floor are broadcasting to the team — even with no signal.</Text>
 

@@ -86,10 +86,15 @@ interface CrewState {
   friends: Record<number, FriendState>;
   rallyPin: RallyPin | null;
   myLocation: Coordinate | null;
-  /** My current floor/level (0 = ground). Driven by floorService (baro or manual). */
+  /** My current floor/level (0 = ground). Driven by floorService via the FloorTracker. */
   myFloor: number;
-  /** 'auto' = barometer decides; 'manual' = the user pinned it (floorService stops overriding). */
-  floorMode: 'auto' | 'manual';
+  /**
+   * How much to trust myFloor: 'anchored' = the user asserted it, 'estimated' =
+   * the barometer has tracked movement since, 'unknown' = never anchored.
+   */
+  floorConfidence: 'unknown' | 'anchored' | 'estimated';
+  /** ≥2 floors travelled since the last anchor — the UI should ask to confirm. */
+  floorConfirmNeeded: boolean;
   meshNearby: number;
   beaconMode: boolean;
   banner: Banner | null;
@@ -120,12 +125,8 @@ interface CrewState {
   isSessionActive(nowSec: number): boolean;
   setPrivacy(m: PrivacyMode): void;
   setMyLocation(c: Coordinate): void;
-  /** Set my floor from the barometer (auto mode). No-op if the user pinned it manually. */
-  setMyFloor(floor: number): void;
-  /** Pin my floor manually (switches to 'manual' mode). */
-  setFloorManual(floor: number): void;
-  /** Hand floor back to the barometer. */
-  setFloorAuto(): void;
+  /** Written by floorService whenever the FloorTracker's state changes. */
+  setFloorState(floor: number, confidence: 'unknown' | 'anchored' | 'estimated', confirmNeeded: boolean): void;
   setMeshNearby(n: number): void;
   setBeacon(on: boolean): void;
   setBanner(b: Banner | null): void;
@@ -160,7 +161,8 @@ const initial = {
   hydrated: false, autoAddPeers: false,
   privacyMode: 'live' as PrivacyMode, sessionEndsAtSec: null,
   notificationsEnabled: true, hapticsEnabled: true, units: 'm' as Units,
-  friends: {}, rallyPin: null, myLocation: null, myFloor: 0, floorMode: 'auto' as const,
+  friends: {}, rallyPin: null, myLocation: null,
+  myFloor: 0, floorConfidence: 'unknown' as const, floorConfirmNeeded: false,
   meshNearby: 0,
   beaconMode: false, banner: null, celebrated: {},
   activityLog: [] as ActivityEvent[],
@@ -374,10 +376,8 @@ export const useCrewStore = create<CrewState>((set, get) => ({
 
   setPrivacy: (privacyMode) => set({ privacyMode }),
   setMyLocation: (myLocation) => set({ myLocation }),
-  // Auto (barometer) updates are ignored once the user has pinned a floor.
-  setMyFloor: (myFloor) => { if (get().floorMode === 'auto') set({ myFloor }); },
-  setFloorManual: (myFloor) => set({ myFloor, floorMode: 'manual' }),
-  setFloorAuto: () => set({ floorMode: 'auto' }),
+  setFloorState: (myFloor, floorConfidence, floorConfirmNeeded) =>
+    set({ myFloor, floorConfidence, floorConfirmNeeded }),
   setMeshNearby: (meshNearby) => set({ meshNearby }),
   setBeacon: (beaconMode) => set({ beaconMode }),
   setBanner: (banner) => set({ banner }),

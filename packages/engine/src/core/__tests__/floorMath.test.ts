@@ -6,6 +6,9 @@ import {
   clampFloor,
   floorLabel,
   floorShort,
+  venueLevelName,
+  venueLevelShort,
+  type VenueLevel,
   DEFAULT_HPA_PER_FLOOR,
 } from '../floorMath';
 
@@ -61,9 +64,27 @@ describe('labels', () => {
     expect(floorLabel(2)).toBe('L2');
     expect(floorLabel(-1)).toBe('B1');
   });
-  it('floorShort', () => {
+  it('floorShort matches the floorLabel register (no bare minus signs)', () => {
     expect(floorShort(0)).toBe('G');
-    expect(floorShort(4)).toBe('4');
-    expect(floorShort(-2)).toBe('-2');
+    expect(floorShort(4)).toBe('L4');
+    expect(floorShort(-2)).toBe('B2');
+  });
+});
+
+describe('venue levels', () => {
+  const LEVELS: VenueLevel[] = [
+    { floor: 1, name: 'Balcony', short: 'L1' },
+    { floor: 0, name: 'Main Floor', short: 'G' },
+    { floor: -1, name: 'Car Park', short: 'B1' },
+  ];
+
+  it('resolves names from the venue list', () => {
+    expect(venueLevelName(LEVELS, 1)).toBe('Balcony');
+    expect(venueLevelShort(LEVELS, -1)).toBe('B1');
+  });
+
+  it('falls back to generic labels for unlisted floors', () => {
+    expect(venueLevelName(LEVELS, 7)).toBe('L7');
+    expect(venueLevelShort(undefined, -3)).toBe('B3');
   });
 });

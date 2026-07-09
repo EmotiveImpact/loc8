@@ -5,12 +5,12 @@ import { View, Text, Pressable, StyleSheet } from 'react-native';
 import { LinearGradient } from 'expo-linear-gradient';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { Users, ShieldAlert } from 'lucide-react-native';
-import { getMeshService, haptics, useCrewStore, floorLabel } from '@loc8/engine';
+import { getMeshService, haptics, useCrewStore } from '@loc8/engine';
 import { ops, fonts, opsGradients, tint } from '../../src/ui/opsTheme';
 import { OpsBackground } from '../../src/ui/OpsBackground';
 import { HoldButton } from '../../src/ui/HoldButton';
 import { useGuardStore } from '../../src/state/guardStore';
-import { GUARD_TEAM, friendFloor } from '../../src/state/guardTeam';
+import { GUARD_TEAM, friendFloor, levelName } from '../../src/state/guardTeam';
 
 // Demo: this many teammates have already reached the assembly point.
 const SAFE_BASELINE = GUARD_TEAM.length - 1;
@@ -96,7 +96,7 @@ export default function Muster() {
         <View style={st.floors}>
           {floorRows.map((fl) => (
             <View key={fl} style={st.floorTag}>
-              <Text style={st.floorTagName}>{floorLabel(fl)}</Text>
+              <Text style={st.floorTagName}>{levelName(fl)}</Text>
               <Text style={st.floorTagCount}>{byFloor[fl]}</Text>
             </View>
           ))}

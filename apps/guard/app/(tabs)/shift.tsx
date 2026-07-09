@@ -5,12 +5,12 @@ import { View, Text, Pressable, StyleSheet, ScrollView, TextInput, KeyboardAvoid
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useRouter, type Href } from 'expo-router';
 import { UserCheck, Send, LogOut } from 'lucide-react-native';
-import { useCrewStore, getMeshService, freshnessSec, STALE_SEC, haptics, MAX_MESSAGE_BYTES, floorLabel } from '@loc8/engine';
+import { useCrewStore, getMeshService, freshnessSec, STALE_SEC, haptics, MAX_MESSAGE_BYTES } from '@loc8/engine';
 import { ops, fonts, tint } from '../../src/ui/opsTheme';
 import { OpsBackground } from '../../src/ui/OpsBackground';
 import { GuardHeader } from '../../src/ui/GuardHeader';
 import { useGuardStore, badgeLabel } from '../../src/state/guardStore';
-import { GUARD_TEAM, friendFloor } from '../../src/state/guardTeam';
+import { GUARD_TEAM, friendFloor, levelName } from '../../src/state/guardTeam';
 import { useNowSec } from '../../src/hooks/useNowSec';
 
 const CLOCKIN: Href = '/clockin' as Href;
@@ -78,7 +78,7 @@ export default function Shift() {
           <View style={st.tmem}>
             <View style={[st.av, { backgroundColor: ops.info }]}><Text style={st.avTxt}>{badgeLabel(myBadge)}</Text></View>
             <Text style={st.tn}>You</Text>
-            <Text style={st.tz}>{floorLabel(myFloor)}</Text>
+            <Text style={st.tz}>{levelName(myFloor)}</Text>
             <View style={[st.statusDot, { backgroundColor: ops.info }]} />
           </View>
           {GUARD_TEAM.map((m) => {
@@ -91,7 +91,7 @@ export default function Shift() {
               <View key={m.id} style={st.tmem}>
                 <View style={[st.av, { backgroundColor: color }]}><Text style={st.avTxt}>{badgeLabel(m.badge)}</Text></View>
                 <Text style={st.tn}>{m.name}</Text>
-                <Text style={st.tz}>{floorLabel(floor)} · {m.zone}</Text>
+                <Text style={st.tz}>{levelName(floor)} · {m.zone}</Text>
                 <View style={[st.statusDot, { backgroundColor: color, opacity: stale ? 0.35 : 1 }]} />
               </View>
             );

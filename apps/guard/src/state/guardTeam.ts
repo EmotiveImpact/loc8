@@ -4,10 +4,27 @@
 // mode the transport is seeded with the engine's DEMO_CREW ids (101–104) and
 // moves those senders; we simply RESKIN those same ids as a security team so the
 // live team map is driven by the real engine loop — no forked transport.
-import { useCrewStore } from '@loc8/engine';
+import { useCrewStore, venueLevelName, type VenueLevel } from '@loc8/engine';
 import { ops } from '../ui/opsTheme';
 
 export type GuardStatus = 'ok' | 'caution';
+
+/**
+ * The venue's real levels — guards say "Balcony", not "floor 1". Drives the
+ * clock-in anchor, the map's floor strip, and every floor caption. (Per-venue
+ * config; this is the demo venue.)
+ */
+export const VENUE_LEVELS: VenueLevel[] = [
+  { floor: 2, name: 'Roof Terrace', short: 'L2' },
+  { floor: 1, name: 'Balcony', short: 'L1' },
+  { floor: 0, name: 'Main Floor', short: 'G' },
+  { floor: -1, name: 'Car Park', short: 'B1' },
+];
+
+/** This venue's name for a floor ("Balcony"), falling back to L1/B1 style. */
+export function levelName(floor: number): string {
+  return venueLevelName(VENUE_LEVELS, floor);
+}
 
 export interface GuardMember {
   id: number; // must match the engine sim's senderId to receive live positions

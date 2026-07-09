@@ -12,13 +12,13 @@ import {
   getHaversineDistance,
   getAbsoluteBearing,
   haptics,
-  floorLabel,
   STATUS_REPLIES,
   STATUS_EN_ROUTE,
 } from '@loc8/engine';
 import { ops, fonts, tint } from '../src/ui/opsTheme';
 import { OpsBackground } from '../src/ui/OpsBackground';
 import { useGuardStore } from '../src/state/guardStore';
+import { levelName } from '../src/state/guardTeam';
 import { useNowSec } from '../src/hooks/useNowSec';
 
 export default function Dispatch() {
@@ -70,8 +70,8 @@ export default function Dispatch() {
           {floorDelta < 0 && <ChevronsDown size={15} color={ops.caution} strokeWidth={2.4} />}
           <Text style={[st.floorChipTxt, floorDelta !== 0 && { color: ops.caution }]}>
             {floorDelta === 0
-              ? `Same floor · ${floorLabel(targetFloor)}`
-              : `${floorLabel(targetFloor)} · ${Math.abs(floorDelta)} floor${Math.abs(floorDelta) > 1 ? 's' : ''} ${floorDelta > 0 ? 'up' : 'down'}`}
+              ? `Same floor · ${levelName(targetFloor)}`
+              : `${levelName(targetFloor)} · ${Math.abs(floorDelta)} floor${Math.abs(floorDelta) > 1 ? 's' : ''} ${floorDelta > 0 ? 'up' : 'down'}`}
           </Text>
         </View>
       </View>
