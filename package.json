@@ -70,6 +70,13 @@
     "setupFiles": [
       "./jest.setup.js"
     ],
+    "testPathIgnorePatterns": [
+      "<rootDir>/node_modules/",
+      "<rootDir>/.claude/"
+    ],
+    "modulePathIgnorePatterns": [
+      "<rootDir>/.claude/"
+    ],
     "moduleNameMapper": {
       "^@loc8/engine$": "<rootDir>/packages/engine/src/index.ts",
       "^@loc8/engine/(.*)$": "<rootDir>/packages/engine/src/$1"
