@@ -7,7 +7,7 @@ All notable work, mapped against the plans and specs it was built from. Newest f
 - Plan: [`docs/superpowers/plans/2026-07-06-loc8-v1-prototype.md`](docs/superpowers/plans/2026-07-06-loc8-v1-prototype.md) (Tasks 1–18)
 - Spec: [`docs/superpowers/specs/2026-07-07-v2-mesh-spike-brief.md`](docs/superpowers/specs/2026-07-07-v2-mesh-spike-brief.md)
 
-**Current state:** Expo SDK 57 · RN 0.86 · React 19 · app version `1.0.0` · **119 jest tests green (10 suites)** · app code `tsc --noEmit` clean · `npx expo export -p ios` bundles clean. Runs in the iOS simulator in **sim mode** (simulated transport); real BLE mesh (v2) runs only on hardware via `EXPO_PUBLIC_TRANSPORT=ble`.
+**Current state:** Expo SDK 57 · RN 0.86 · React 19 · app version `1.0.0` · **162 jest tests green (12 suites)** · `tsc --noEmit` fully clean (tests type-checked) · `npx expo export -p ios` bundles clean · **mesh proven on 2 real iPhones**. Runs in the iOS simulator in **sim mode** (simulated transport); real BLE mesh (v2) runs only on hardware via `EXPO_PUBLIC_TRANSPORT=ble`.
 
 Legend: ✅ done & verified · 🟡 built, needs hardware/user to finish · ⏳ deferred/not started
 
@@ -49,6 +49,13 @@ The "Signal in the dark" design ported into the app, plus real (backend-free) cr
 - ✅ **Signature moments** — the compass **proximity heartbeat** (pulse strength *and* rhythm escalate as you close in) and the **found-each-other burst** — `3fb7324`
 - ✅ **Accessibility toggle** in Settings; documented vocabulary + escalation math in [`docs/design/haptics.md`](docs/design/haptics.md) — `3fb7324`
 - Note: haptics are feelable only on a **real device** (not the simulator) — they light up on the phone build.
+
+### Hardening — adversarial review pass (real-device bugs tests missed)
+An 8-dimension multi-agent review + adversarial verification found **16 confirmed defects (12 unique)** in what we'd built — mostly invisible to the sim (single crew, one process clock, warm start). All fixed with **33 new regression tests** (162 total) — `b85657f`:
+- 🔴 **Directed pings leaked to the whole crew** on real BLE (no `targetId` filter) · **Rally pins leaked across crews** (not crew-tagged) · **chat messages double-buzzed + fired a ping-styled notification** · **malformed `loc8://crew` links crashed the join** · **clock-skew silently dropped a peer's position** while its name still showed (trust gate assumed synced clocks)
+- 🟠 ping reply chips vanished after 5s · cold-start notification taps didn't route · iOS "inactive" halted open-mode broadcasting · replayed chat fragments duplicated in Activity
+- 🟡 msgId reuse after restart poisoned reassembly · two same-second replies dropped one · found-celebration flapped on GPS noise
+- All fixes live in `@loc8/engine` → **Guard + Command inherit the hardening**.
 
 ### Communication — two-way (phase 1: quick replies)
 - ✅ **Closed the ping loop** — an incoming "Where are you?" now shows **tap-back reply chips** (On my way / Stay there / Come to me / 5 min / At the flag / 👍 / 🎉); one tap sends a `quickReply` packet back and buzzes the asker — `c19346a`

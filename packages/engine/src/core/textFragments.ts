@@ -172,6 +172,15 @@ export class TextReassembler {
     if ((p.type !== 'text' && p.type !== 'profile') || p.msgId == null || p.seq == null || p.total == null) return null;
     const key = `${p.senderId}:${p.msgId}`;
     let buf = this.bufs.get(key);
+    // Reused (senderId,msgId) with a DIFFERENT fragment count = a new message, not
+    // more parts of the lingering partial. msgId is a rolling uint16, so ids get
+    // reused; without this reset a stale partial (e.g. total=5, only seq0/seq1
+    // seen) would swallow the reused-id message's seq0 and never complete. Reset
+    // to the fresh fragment instead of merging.
+    if (buf && buf.total !== p.total) {
+      this.bufs.delete(key);
+      buf = undefined;
+    }
     if (!buf) {
       buf = {
         total: p.total,

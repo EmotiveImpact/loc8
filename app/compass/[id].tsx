@@ -8,6 +8,7 @@ import { useEffect, useRef, useState } from 'react';
 import { useCrewStore, freshnessSec } from '@loc8/engine';
 import { haptics } from '@loc8/engine';
 import { getHaversineDistance, getAbsoluteBearing } from '@loc8/engine';
+import { proximityRadiusM, isFound, shouldRearmCelebration } from '@loc8/engine';
 import { useSmoothedHeading } from '../../src/hooks/useSmoothedHeading';
 import { useNowSec } from '../../src/hooks/useNowSec';
 import { ShareSheet } from '../../src/ui/ShareSheet';
@@ -45,9 +46,9 @@ export default function CompassScreen() {
   const celebrated = useCrewStore((s) => s.celebrated[Number(id)]);
   const accuracy = friend?.lastPacket?.accuracyM ?? 15;
   // Proximity threshold adapts to GPS accuracy (spec §3): never pretend arrow precision we don't have.
-  const proximityAt = Math.max(25, accuracy * 1.5);
+  const proximityAt = proximityRadiusM(accuracy);
   const inProximity = dist !== null && dist < proximityAt;
-  const found = dist !== null && dist < 15;
+  const found = isFound(dist);
   const [celebrationShown, setCelebrationShown] = useState(false);
   const [shareOpen, setShareOpen] = useState(false);
 
@@ -91,13 +92,16 @@ export default function CompassScreen() {
     }
   }, [found]);
 
+  // Drifted apart after celebrating: dismiss the celebration view and re-arm for a
+  // future reunion — but only past the hysteresis margin (proximity radius + margin),
+  // so GPS jitter around the found radius can't flap the celebration or re-fire found().
+  const drifted = shouldRearmCelebration(dist, accuracy);
   useEffect(() => {
-    // Drifted apart after celebrating: dismiss the celebration view and re-arm for a future reunion.
-    if (dist !== null && dist > proximityAt && celebrated) {
+    if (drifted && celebrated) {
       clearCelebrated(Number(id));
       setCelebrationShown(false);
     }
-  }, [dist !== null && dist > proximityAt, celebrated]);
+  }, [drifted, celebrated]);
 
   useEffect(() => {
     // rotate the short way round
