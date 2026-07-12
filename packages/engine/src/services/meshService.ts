@@ -73,6 +73,8 @@ export function createMeshService(
       type, senderId: s.profile.id, targetId,
       latitude: s.myLocation.latitude, longitude: s.myLocation.longitude,
       headingDeg: 0, batteryPct: 100, timestampSec: nowSec(), accuracyM: 10,
+      // Stamp our current floor so peers can place us on the right level.
+      floor: s.myFloor,
     };
   };
 
@@ -229,7 +231,7 @@ export function createMeshService(
       transport.broadcast(p);
       s.dropLocalPin({
         latitude: p.latitude, longitude: p.longitude,
-        droppedById: p.senderId, atSec: p.timestampSec,
+        droppedById: p.senderId, atSec: p.timestampSec, floor: p.floor ?? 0,
       });
     },
   };

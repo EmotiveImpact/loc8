@@ -1,14 +1,13 @@
 {
   "name": "@loc8/guard",
+  "main": "expo-router/entry",
   "version": "1.0.0",
   "private": true,
-  "main": "expo-router/entry",
-  "description": "Loc8 Guard — the field-staff door on @loc8/engine (Expo / React Native).",
   "scripts": {
     "start": "expo start",
     "ios": "expo run:ios",
     "android": "expo run:android",
-    "export": "expo export -p ios"
+    "web": "expo start --web"
   },
   "dependencies": {
     "@expo-google-fonts/sora": "^0.4.2",
@@ -17,25 +16,30 @@
     "@loc8/engine": "*",
     "@react-native-async-storage/async-storage": "2.2.0",
     "expo": "~57.0.2",
+    "expo-blur": "~57.0.0",
     "expo-constants": "~57.0.3",
     "expo-font": "~57.0.0",
     "expo-haptics": "~57.0.0",
     "expo-linear-gradient": "~57.0.0",
     "expo-linking": "~57.0.1",
     "expo-location": "~57.0.2",
+    "expo-notifications": "~57.0.3",
     "expo-router": "~57.0.3",
+    "expo-sensors": "~57.0.1",
+    "expo-splash-screen": "~57.0.2",
     "expo-status-bar": "~57.0.0",
+    "expo-system-ui": "~57.0.0",
     "lucide-react-native": "^1.23.0",
     "react": "19.2.3",
     "react-dom": "19.2.3",
     "react-native": "0.86.0",
+    "react-native-gesture-handler": "~2.32.0",
+    "react-native-reanimated": "4.5.0",
     "react-native-safe-area-context": "~5.7.0",
     "react-native-screens": "4.25.2",
     "react-native-svg": "15.15.4",
+    "react-native-web": "~0.21.0",
+    "react-native-worklets": "0.10.0",
     "zustand": "^5.0.14"
-  },
-  "devDependencies": {
-    "@types/react": "~19.2.2",
-    "typescript": "~6.0.3"
   }
 }

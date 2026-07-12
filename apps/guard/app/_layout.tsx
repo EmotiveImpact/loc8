@@ -1,57 +1,42 @@
+// apps/guard/app/_layout.tsx — Guard root: fonts, dark tactical chrome, and a
+// clock-in gate (you can't reach the tabs until you're on duty).
+import { Stack, useRouter, useSegments, type Href } from 'expo-router';
 import { useEffect } from 'react';
-import { Stack, router } from 'expo-router';
 import { StatusBar } from 'expo-status-bar';
-import { View } from 'react-native';
 import { useFonts, Unbounded_600SemiBold, Unbounded_800ExtraBold } from '@expo-google-fonts/unbounded';
-import { Sora_400Regular, Sora_500Medium, Sora_600SemiBold, Sora_700Bold } from '@expo-google-fonts/sora';
+import { Sora_300Light, Sora_400Regular, Sora_500Medium, Sora_600SemiBold, Sora_700Bold } from '@expo-google-fonts/sora';
 import { SpaceMono_400Regular, SpaceMono_700Bold } from '@expo-google-fonts/space-mono';
 import { useCrewStore } from '@loc8/engine';
-import { bootGuard } from '../src/services/ops';
-import { useGuardStore } from '../src/store/guardStore';
-import { g } from '../src/theme';
+import { ops } from '../src/ui/opsTheme';
+import { useGuardStore } from '../src/state/guardStore';
 
-const nowSec = () => Math.floor(Date.now() / 1000);
+const CLOCKIN: Href = '/clockin' as Href;
+const TABS: Href = '/(tabs)' as Href;
 
-export default function RootLayout() {
+export default function GuardRootLayout() {
+  const hydrate = useCrewStore((s) => s.hydrate);
+  const hydrated = useCrewStore((s) => s.hydrated);
+  const onDuty = useGuardStore((s) => s.onDuty);
+  const segments = useSegments();
+  const router = useRouter();
+
   const [fontsLoaded] = useFonts({
-    Unbounded_600SemiBold,
-    Unbounded_800ExtraBold,
-    Sora_400Regular,
-    Sora_500Medium,
-    Sora_600SemiBold,
-    Sora_700Bold,
-    SpaceMono_400Regular,
-    SpaceMono_700Bold,
+    Unbounded_600SemiBold, Unbounded_800ExtraBold,
+    Sora_300Light, Sora_400Regular, Sora_500Medium, Sora_600SemiBold, Sora_700Bold,
+    SpaceMono_400Regular, SpaceMono_700Bold,
   });
 
-  useEffect(() => {
-    useCrewStore.getState().hydrate();
-    bootGuard();
-  }, []);
+  useEffect(() => { hydrate(); }, []);
 
-  // Event-driven takeovers: an inbound dispatch order opens the dispatch
-  // screen; the lone-worker machine opens the check-in prompt on schedule.
+  // Gate: off-duty → clock-in; on-duty but stuck on clock-in → tabs.
   useEffect(() => {
-    let lastDispatchAt = 0;
-    const unsub = useGuardStore.subscribe((s) => {
-      if (s.dispatch && !s.dispatch.acknowledged && s.dispatch.atSec !== lastDispatchAt) {
-        lastDispatchAt = s.dispatch.atSec;
-        router.push('/dispatch');
-      }
-    });
-    const tick = setInterval(() => {
-      const st = useGuardStore.getState();
-      if (!st.onDuty) return;
-      const wasIdle = st.checkin.promptExpiresAtSec === null;
-      if (st.checkinTick(nowSec()) === 'prompt' && wasIdle) router.push('/checkin');
-    }, 1000);
-    return () => {
-      unsub();
-      clearInterval(tick);
-    };
-  }, []);
+    if (!hydrated) return;
+    const onClockIn = (segments[0] as string) === 'clockin';
+    if (!onDuty && !onClockIn) router.replace(CLOCKIN);
+    if (onDuty && onClockIn) router.replace(TABS);
+  }, [hydrated, onDuty, segments]);
 
-  if (!fontsLoaded) return <View style={{ flex: 1, backgroundColor: g.bg }} />;
+  if (!fontsLoaded) return null;
 
   return (
     <>
@@ -59,16 +44,15 @@ export default function RootLayout() {
       <Stack
         screenOptions={{
           headerShown: false,
-          contentStyle: { backgroundColor: g.bg },
+          contentStyle: { backgroundColor: ops.bg },
         }}
       >
-        <Stack.Screen name="index" />
-        <Stack.Screen name="shift" />
+        <Stack.Screen name="clockin" />
         <Stack.Screen name="(tabs)" />
         <Stack.Screen name="sos" options={{ presentation: 'fullScreenModal', animation: 'fade' }} />
-        <Stack.Screen name="checkin" options={{ presentation: 'fullScreenModal', animation: 'fade' }} />
-        <Stack.Screen name="muster" options={{ presentation: 'fullScreenModal', animation: 'fade' }} />
-        <Stack.Screen name="dispatch" options={{ presentation: 'fullScreenModal', animation: 'slide_from_bottom' }} />
+        <Stack.Screen name="dispatch" options={{ presentation: 'card' }} />
+        <Stack.Screen name="lone" options={{ presentation: 'modal' }} />
+        <Stack.Screen name="floor" options={{ presentation: 'modal' }} />
       </Stack>
     </>
   );

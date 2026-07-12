@@ -61,8 +61,8 @@ describe('status (Guard → Command, quickReply over the mesh)', () => {
   });
 
   it('maps the field vocabulary (not the consumer one)', () => {
-    expect(guardStatusLabel(1)).toBe('En route');
-    expect(guardStatusLabel(3)).toBe('Need backup');
+    expect(guardStatusLabel(20)).toBe('En route');
+    expect(guardStatusLabel(22)).toBe('Need backup');
     expect(guardStatusLabel(99)).toBe('…'); // unknown code
   });
 

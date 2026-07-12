@@ -2,6 +2,7 @@
 import type { LocationTransport } from '../transport/LocationTransport';
 import { SimulatedTransport } from '../transport/SimulatedTransport';
 import { BleMeshTransport } from '../transport/BleMeshTransport';
+import { BridgedTransport } from '../transport/BridgedTransport';
 import { TrustLayer } from '../core/trustLayer';
 import { createMeshService, type MeshService } from './meshService';
 import { useCrewStore } from '../state/crewStore';
@@ -27,13 +28,19 @@ let service: MeshService | null = null;
  */
 export function getTransport(): LocationTransport {
   if (!transport) {
-    transport = process.env.EXPO_PUBLIC_TRANSPORT === 'ble'
-      ? new BleMeshTransport()
-      : new SimulatedTransport({
-          seed: 42,
-          origin: useCrewStore.getState().myLocation ?? FALLBACK_ORIGIN,
-          friends: DEMO_CREW,
-        });
+    const inner: LocationTransport =
+      process.env.EXPO_PUBLIC_TRANSPORT === 'ble'
+        ? new BleMeshTransport()
+        : new SimulatedTransport({
+            seed: 42,
+            origin: useCrewStore.getState().myLocation ?? FALLBACK_ORIGIN,
+            friends: DEMO_CREW,
+          });
+    // Gateway mode (any door): EXPO_PUBLIC_BRIDGE_URL mirrors every mesh frame
+    // to a mesh-bridge relay (tools/mesh-bridge) so a control-room console can
+    // render the live mesh. The app code is unchanged either way.
+    const bridgeUrl = process.env.EXPO_PUBLIC_BRIDGE_URL;
+    transport = bridgeUrl ? new BridgedTransport(inner, { url: bridgeUrl }) : inner;
   }
   return transport;
 }

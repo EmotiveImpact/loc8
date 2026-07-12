@@ -21,6 +21,12 @@ export { fragmentText, TextReassembler } from '@loc8/engine/core/textFragments';
 export { getHaversineDistance } from '@loc8/engine/core/geoMath';
 export { GUARD_STATUS, guardStatusLabel, DURESS_CODE } from '@loc8/engine/core/guardStatus';
 export type { GuardStatus } from '@loc8/engine/core/guardStatus';
+export {
+  STATUS_EN_ROUTE,
+  STATUS_ON_SCENE,
+  STATUS_NEED_BACKUP,
+  STATUS_CLEAR,
+} from '@loc8/engine/core/types';
 // Live mode: the console becomes a bridge client and renders REAL mesh frames
 // relayed from a Guard gateway phone (pure module — WebSocket is platform-global).
 export { BridgedTransport } from '@loc8/engine/transport/BridgedTransport';

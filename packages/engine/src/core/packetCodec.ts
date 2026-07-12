@@ -1,5 +1,6 @@
 // src/core/packetCodec.ts
 import type { Packet, PacketType } from './types';
+import { clampFloor } from './floorMath';
 
 export const PACKET_SIZE = 25;
 
@@ -10,6 +11,24 @@ const CODE_TO_TYPE: PacketType[] = ['position', 'pingWhere', 'pingComeFind', 'ra
 
 /** Max UTF-8 bytes a single fragment ('text' or 'profile') carries (bytes 14–24). */
 export const TEXT_FRAG_BYTES = 11;
+
+// The heading slot (bytes 17–18) is a uint16, but heading only needs 9 bits
+// (0–359 < 512). We reuse the top 7 bits to carry a SIGNED floor (−64..+63), so
+// floor rides existing position/rally/ping packets with zero extra bytes.
+const HEADING_MASK = 0x1ff; // low 9 bits = heading
+
+/** Pack heading (0–359) + signed floor into one uint16. */
+export function packHeadingFloor(headingDeg: number, floor: number): number {
+  const h = ((((Math.round(headingDeg) % 360) + 360) % 360)) & HEADING_MASK;
+  const f = (clampFloor(floor) & 0x7f);
+  return h | (f << 9);
+}
+
+/** Extract the signed floor from a packed heading uint16. */
+export function unpackFloor(u16: number): number {
+  const raw = (u16 >> 9) & 0x7f;
+  return raw >= 64 ? raw - 128 : raw; // sign-extend 7-bit
+}
 
 /** Fragment-carrying packet types share the identical bytes 9–24 layout. */
 function isFragmentType(t: PacketType): boolean {
@@ -45,7 +64,8 @@ export function encodePacket(p: Packet): ArrayBuffer {
   } else {
     v.setInt32(9, Math.round(p.latitude * 1e7));
     v.setInt32(13, Math.round(p.longitude * 1e7));
-    v.setUint16(17, ((Math.round(p.headingDeg) % 360) + 360) % 360);
+    // heading (low 9 bits) + floor (top 7 bits, signed) share this uint16.
+    v.setUint16(17, packHeadingFloor(p.headingDeg, p.floor ?? 0));
   }
   v.setUint8(19, Math.min(100, Math.max(0, Math.round(p.batteryPct))));
   v.setUint32(20, p.timestampSec);
@@ -77,17 +97,23 @@ export function decodePacket(buf: ArrayBuffer): Packet {
       frag,
     };
   }
+  const headingSlot = v.getUint16(17);
   const packet: Packet = {
     type,
     senderId: v.getUint32(1),
     targetId: v.getUint32(5),
     latitude: v.getInt32(9) / 1e7,
     longitude: v.getInt32(13) / 1e7,
-    headingDeg: v.getUint16(17),
+    headingDeg: headingSlot & HEADING_MASK,
     batteryPct: v.getUint8(19),
     timestampSec: v.getUint32(20),
     accuracyM: v.getUint8(24),
   };
-  if (type === 'quickReply') packet.quickReplyCode = v.getUint8(17);
+  if (type === 'quickReply') {
+    packet.quickReplyCode = v.getUint8(17);
+    packet.headingDeg = 0; // heading slot held the reply code, not a heading
+  } else {
+    packet.floor = unpackFloor(headingSlot);
+  }
   return packet;
 }

@@ -11,6 +11,8 @@ export * from './core/packetCodec';
 export * from './core/textFragments';
 export * from './core/guardStatus';
 export * from './core/proximity';
+export * from './core/floorMath';
+export * from './core/floorTracker';
 
 // --- transport: location transport contract + implementations ---
 export * from './transport/LocationTransport';
@@ -23,6 +25,7 @@ export * from './transport/seededRandom';
 export * from './services/appServices';
 export * from './services/meshService';
 export * from './services/haptics';
+export * from './services/floorService';
 export * from './services/notifications';
 export * from './services/notificationRouting';
 export * from './services/blePermissions';

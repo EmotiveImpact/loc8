@@ -29,7 +29,10 @@ export type HapticEvent =
   | 'rallyDrop'
   | 'rallyReceived'
   | 'proximityPulse'
-  | 'found';
+  | 'found'
+  // Ops (Guard / Command) — emergency vocabulary. Additive, shared across doors.
+  | 'sos'
+  | 'dispatch';
 
 export interface Haptic {
   select(): void;
@@ -44,6 +47,15 @@ export interface Haptic {
   /** closeness in 0..1 (1 = closest) → single graded impact. Caller owns the rhythm. */
   proximityPulse(closeness: number): void;
   found(): void;
+  /**
+   * SOS — the un-missable one. A long, insistent burst of heavy impacts + error
+   * chimes, deliberately unlike any other pattern so it's recognised eyes-free,
+   * in a pocket, in the dark. Fire once when SOS is raised (locally) and on an
+   * incoming SOS for responders. Ops-only.
+   */
+  sos(): void;
+  /** A responder is dispatched to an incident — a firm triple knock. Ops-only. */
+  dispatch(): void;
 }
 
 /** True when haptics may actually fire (toggle on + native platform). */
@@ -139,5 +151,31 @@ export const haptics: Haptic = {
       impact(Haptics.ImpactFeedbackStyle.Heavy);
       later(120, () => notify(Haptics.NotificationFeedbackType.Success));
       later(260, () => impact(Haptics.ImpactFeedbackStyle.Rigid));
+    }),
+
+  // SOS — un-missable. Three heavy "knock-knock-knock" clusters spread over ~1.7s,
+  // each cluster capped with an error chime. Long and rhythmic on purpose: nothing
+  // else in the app sustains this long, so it reads as EMERGENCY through a pocket.
+  sos: () =>
+    guard(() => {
+      // First knock fires NOW (no timer latency) — the rest sustain the pattern.
+      impact(Haptics.ImpactFeedbackStyle.Heavy);
+      const cluster = (t: number, skipFirst = false) => {
+        if (!skipFirst) later(t, () => impact(Haptics.ImpactFeedbackStyle.Heavy));
+        later(t + 110, () => impact(Haptics.ImpactFeedbackStyle.Heavy));
+        later(t + 220, () => impact(Haptics.ImpactFeedbackStyle.Heavy));
+        later(t + 340, () => notify(Haptics.NotificationFeedbackType.Error));
+      };
+      cluster(0, true); // first heavy already fired synchronously above
+      cluster(600);
+      cluster(1200);
+    }),
+
+  // Dispatched to an incident — a firm, alert triple knock (medium → medium → heavy).
+  dispatch: () =>
+    guard(() => {
+      impact(Haptics.ImpactFeedbackStyle.Medium);
+      later(110, () => impact(Haptics.ImpactFeedbackStyle.Medium));
+      later(230, () => impact(Haptics.ImpactFeedbackStyle.Heavy));
     }),
 };

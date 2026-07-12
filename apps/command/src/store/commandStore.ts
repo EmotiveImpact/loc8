@@ -11,7 +11,7 @@ import { encodeDispatch, GUARD_STATUS } from '../domain/dispatch';
 import { assistedSearch, type SearchableSubject } from '../domain/privacy';
 import { nowSec } from '../domain/time';
 import { venueCoverage } from '../domain/zones';
-import { getHaversineDistance, type Coordinate } from '../engine';
+import { getHaversineDistance, STATUS_CLEAR, STATUS_EN_ROUTE, type Coordinate } from '../engine';
 import { nearestResponders } from '../domain/coverage';
 import {
   buildIncidents,
@@ -358,8 +358,9 @@ export const useCommandStore = create<CommandState>((set, get) => ({
       const label = GUARD_STATUS.find((s) => s.code === code)?.label ?? '…';
       // Map the Guard status code to both the staff status and the responder
       // card state, so the timeline and the responder rail always agree.
-      const respState: ResponderState = code === 4 ? 'clear' : code >= 2 ? 'on_scene' : 'en_route';
-      const staffStatus: StaffMember['status'] = code === 4 ? 'on_post' : 'responding';
+      const respState: ResponderState =
+        code === STATUS_CLEAR ? 'clear' : code === STATUS_EN_ROUTE ? 'en_route' : 'on_scene';
+      const staffStatus: StaffMember['status'] = code === STATUS_CLEAR ? 'on_post' : 'responding';
       const cur = st.staff[staffId];
       if (!cur) return {};
       const at = nowSec();

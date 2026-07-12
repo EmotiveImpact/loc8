@@ -5,20 +5,17 @@
 // the CONTRACT between Guard (which sends a status) and Command (which renders
 // it), so it lives in the engine — never fork it per app.
 //
-// product-architecture.md §Communication: "Quick replies … Guard: reskins to
-// status responses — En route / On scene / Need backup / Clear."
+// The canonical codes are STATUS_REPLIES in core/types.ts (20–23), deliberately
+// OUTSIDE the consumer quick-reply range (1–7) so both vocabularies share one
+// wire and one quickReplyLabel() without collision. This module aliases them
+// under the Guard/Command naming and adds the covert duress code.
 
-export interface GuardStatus {
-  code: number;
-  label: string;
-}
+import { STATUS_REPLIES, type QuickReply } from './types';
 
-export const GUARD_STATUS: GuardStatus[] = [
-  { code: 1, label: 'En route' },
-  { code: 2, label: 'On scene' },
-  { code: 3, label: 'Need backup' },
-  { code: 4, label: 'Clear' },
-];
+export type GuardStatus = QuickReply;
+
+/** En route (20) · On scene (21) · Need backup (22) · Clear (23). */
+export const GUARD_STATUS: GuardStatus[] = STATUS_REPLIES;
 
 /** Resolve a Guard status code to its label, or '…' if unknown. */
 export function guardStatusLabel(code: number): string {
@@ -30,6 +27,6 @@ export function guardStatusLabel(code: number): string {
  * never labelled on the sending device). On the wire it is an ordinary
  * quickReply frame, indistinguishable from a routine status tap to anyone
  * watching the guard or sniffing traffic; only the control room decodes its
- * meaning. security-vertical.md: "silent duress" is a universal use case.
+ * meaning. Code 9 sits outside both the consumer (1–7) and ops (20–23) ranges.
  */
 export const DURESS_CODE = 9;

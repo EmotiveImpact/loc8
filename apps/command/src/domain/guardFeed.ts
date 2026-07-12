@@ -6,7 +6,7 @@
 // air) before handing the result up. Nothing here special-cases the sim — the
 // bytes make a full round-trip through @loc8/engine.
 
-import { encodeGuardStatus, decodeGuardStatus } from './dispatch';
+import { encodeGuardStatus, decodeGuardStatus, GUARD_STATUS } from './dispatch';
 import { COMMAND_ID } from './sim';
 import { nowSec } from './time';
 
@@ -31,10 +31,10 @@ export function emitGuardStatus(staffId: number, code: number): InboundStatus | 
 /** A deterministic script of (staffId, statusCode) beats over the mesh. */
 export function guardStatusScript(responderIds: number[]): Array<[number, number]> {
   const beats: Array<[number, number]> = [];
-  // 1 En route → 2 On scene → 3 Need backup → 4 Clear, staggered per responder.
-  const codes = [1, 2, 3, 4];
-  for (const code of codes) {
-    for (const id of responderIds) beats.push([id, code]);
+  // En route → On scene → Need backup → Clear, staggered per responder,
+  // on the canonical GUARD_STATUS codes (20–23).
+  for (const s of GUARD_STATUS) {
+    for (const id of responderIds) beats.push([id, s.code]);
   }
   return beats;
 }

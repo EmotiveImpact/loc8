@@ -1,43 +1,37 @@
-# Loc8 Guard
+# Loc8 Guard (`apps/guard`)
 
-The field-staff door on `@loc8/engine` — an Expo / React Native app for guards,
-stewards and medics. Same mesh, same wire format, same haptics as the consumer
-app; a different surface for people on shift.
+The **field team** door of Loc8 — a tactical, offline-first app for security /
+event staff, built entirely on the shared **`@loc8/engine`** (mesh, comms,
+haptics, crew store, geo). It never forks the engine; ops-specific behaviour is
+added *additively* to the engine or lives here in the app.
 
-## What it reuses from the engine (everything that matters)
+## Screens
 
-- **Presence**: `meshService` + `crewStore` — position broadcast, freshness/ghost
-  states, teammate names over `profile` fragments.
-- **Team map**: plotted with `calculateRadarPoint` — the same north-up,
-  log-compressed radar math as the consumer radar.
-- **Comms**: incident broadcasts + lone-worker escalations ride
-  `sendCrewMessage` (fragmented free-text); inbound free-text is Guard's
-  **dispatch inbox**. Status replies use the shared `GUARD_STATUS` quickReply
-  vocabulary (En route / On scene / Need backup / Clear) — the Guard ↔ Command
-  wire contract.
-- **SOS**: a first-class `sos` packet (type 7, additive) carrying the raiser's
-  position — un-missable by design, `haptics.rallyReceived()` strength.
-- **Transports**: `SimulatedTransport` for the design loop,
-  `EXPO_PUBLIC_TRANSPORT=ble` for the real mesh via `modules/loc8-mesh`.
+| Screen | Route | Engine reuse |
+| --- | --- | --- |
+| **Shift / clock-in** | `app/clockin.tsx` | crewStore profile; gate before the tabs |
+| **Team map** (home) | `app/(tabs)/index.tsx` | live positions via `geoMath` bearing/distance; rally pin = incident marker |
+| **SOS active** | `app/sos.tsx` | `meshService.dropRally()` broadcasts your position; `haptics.sos()` |
+| **Dispatch → navigate** | `app/dispatch.tsx` | `geoMath` arrow + distance; **status responses** via `sendQuickReply()` |
+| **Incident log** | `app/(tabs)/incidents.tsx` | logs + `sendCrewMessage()` team alert |
+| **Muster / evacuation** | `app/(tabs)/muster.tsx` | `sendCrewMessage()` broadcast; live safe count |
+| **Lone-worker check-in** | `app/lone.tsx` | timed prompt; silence auto-escalates to SOS |
 
-## Screens (per docs/design/gallery-guard.html)
+Bottom nav (5 slots): **Map · Incidents · [ SOS ] · Muster · Shift** — the
+raised centre slot is **SOS** (the Guard analogue of the consumer's Rally).
 
-Shift / clock-in → tabs **Map · Log · [SOS raised centre] · Team**, plus
-event-driven takeovers: **SOS active**, **Dispatch → navigate** (opens when an
-order arrives over the mesh), **Lone-worker check-in** (scheduled prompt,
-auto-escalates with last known position on silence), **Muster** ("I'M SAFE"
-reports to the control room).
+## Additive engine changes (shared, not forked)
 
-Consent model: clocking in IS the consent basis (`identity-privacy-login.md`) —
-staff broadcast on shift, and `End shift` stops the session.
+- `STATUS_REPLIES` (`En route / On scene / Need backup / Clear`) — ops-reskinned
+  quick-reply codes (20–23), resolved by the same `quickReplyLabel()`.
+- `haptics.sos()` — an un-missable, long, multi-cluster burst; `haptics.dispatch()`
+  — a firm triple knock for incoming dispatch.
 
 ## Run
 
 ```bash
-cd apps/guard
-npx expo start            # simulated transport
-EXPO_PUBLIC_TRANSPORT=ble npx expo start   # real BLE mesh
-npx expo export -p ios    # bundle check
+# from apps/guard (monorepo deps are hoisted to the repo root)
+npx expo start          # sim transport (design loop) by default
+EXPO_PUBLIC_TRANSPORT=ble npx expo run:ios   # real BLE mesh
+npx expo export -p ios  # verify it bundles
 ```
-
-Pure logic (lone-worker machine) is tested from the repo root: `npx jest apps/guard`.

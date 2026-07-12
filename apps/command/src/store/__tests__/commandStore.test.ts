@@ -59,7 +59,7 @@ describe('muster is logged', () => {
 
 describe('inbound Guard status', () => {
   it('updates the responder and records it for the toast', () => {
-    useCommandStore.getState().applyGuardStatus(5, 2); // On scene
+    useCommandStore.getState().applyGuardStatus(5, 21); // On scene
     const st = useCommandStore.getState();
     expect(st.lastInboundStatus).not.toBeNull();
     expect(st.lastInboundStatus!.staffId).toBe(5);
@@ -94,7 +94,7 @@ describe('incident ↔ person state reconciliation', () => {
   });
 
   it('applyGuardStatus routes to the named incident and syncs responder state', () => {
-    useCommandStore.getState().applyGuardStatus(5, 4, 'SOS-0442'); // Clear
+    useCommandStore.getState().applyGuardStatus(5, 23, 'SOS-0442'); // Clear
     const inc = useCommandStore.getState().incidents.find((i) => i.id === 'SOS-0442')!;
     expect(inc.responders.find((r) => r.staffId === 5)!.state).toBe('clear');
   });

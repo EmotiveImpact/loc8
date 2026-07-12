@@ -1,19 +1,28 @@
-import { GUARD_STATUS, guardStatusLabel } from '../guardStatus';
+import { GUARD_STATUS, guardStatusLabel, DURESS_CODE } from '../guardStatus';
+import { QUICK_REPLIES, quickReplyLabel } from '../types';
 import { encodePacket, decodePacket } from '../packetCodec';
 import type { Packet } from '../types';
 
 describe('guard status vocabulary (shared Guard ↔ Command contract)', () => {
-  it('defines the four field verbs on stable codes', () => {
+  it('defines the four field verbs on the canonical ops codes (20–23)', () => {
     expect(GUARD_STATUS.map((s) => [s.code, s.label])).toEqual([
-      [1, 'En route'],
-      [2, 'On scene'],
-      [3, 'Need backup'],
-      [4, 'Clear'],
+      [20, 'En route'],
+      [21, 'On scene'],
+      [22, 'Need backup'],
+      [23, 'Clear'],
     ]);
   });
 
-  it('resolves labels and falls back on unknown codes', () => {
-    expect(guardStatusLabel(2)).toBe('On scene');
+  it('never collides with the consumer quick-reply range or duress', () => {
+    const consumerCodes = new Set(QUICK_REPLIES.map((q) => q.code));
+    for (const s of GUARD_STATUS) expect(consumerCodes.has(s.code)).toBe(false);
+    expect(consumerCodes.has(DURESS_CODE)).toBe(false);
+    expect(GUARD_STATUS.some((s) => s.code === DURESS_CODE)).toBe(false);
+  });
+
+  it('resolves labels via both lookups and falls back on unknown codes', () => {
+    expect(guardStatusLabel(21)).toBe('On scene');
+    expect(quickReplyLabel(21)).toBe('On scene'); // one wire, one resolver
     expect(guardStatusLabel(99)).toBe('…');
   });
 
