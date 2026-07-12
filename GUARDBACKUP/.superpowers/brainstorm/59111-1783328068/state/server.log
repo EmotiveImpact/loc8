@@ -1,0 +1,17 @@
+{"type":"server-started","port":59884,"host":"127.0.0.1","url_host":"localhost","url":"http://localhost:59884","screen_dir":"/Users/augustusedem/Loc8/.superpowers/brainstorm/59111-1783328068/content","state_dir":"/Users/augustusedem/Loc8/.superpowers/brainstorm/59111-1783328068/state"}
+{"type":"screen-added","file":"/Users/augustusedem/Loc8/.superpowers/brainstorm/59111-1783328068/content/core-screen.html"}
+{"source":"user-event","type":"click","text":"Maya 80m\n      Jules 140m\n      Sam 210m\n    \n    A · RadarAll friends at once, as dots around you. Bearing + distance. Glanceable.","choice":"radar","id":null,"timestamp":1783328244741}
+{"source":"user-event","type":"click","text":"Following · Maya\n      ➤\n      220mMaya · this way\n    \n    B · CompassPick one friend, giant arrow points to them. \"Hot / cold\" walking.","choice":"compass","id":null,"timestamp":1783328245947}
+{"source":"user-event","type":"click","text":"★\n      M\n      J\n      S\n    \n    C · Live MapEveryone as pins on a map. Familiar, but needs offline map tiles (heavier).","choice":"map","id":null,"timestamp":1783328246441}
+{"source":"user-event","type":"click","text":"Maya 80m\n      Jules 140m\n      Sam 210m\n    \n    A · RadarAll friends at once, as dots around you. Bearing + distance. Glanceable.","choice":"radar","id":null,"timestamp":1783328247912}
+{"source":"user-event","type":"click","text":"Following · Maya\n      ➤\n      220mMaya · this way\n    \n    B · CompassPick one friend, giant arrow points to them. \"Hot / cold\" walking.","choice":"compass","id":null,"timestamp":1783328248379}
+{"source":"user-event","type":"click","text":"★\n      M\n      J\n      S\n    \n    C · Live MapEveryone as pins on a map. Familiar, but needs offline map tiles (heavier).","choice":"map","id":null,"timestamp":1783328248796}
+{"source":"user-event","type":"click","text":"★\n      M\n      J\n      S\n    \n    C · Live MapEveryone as pins on a map. Familiar, but needs offline map tiles (heavier).","choice":"map","id":null,"timestamp":1783328433261}
+{"source":"user-event","type":"click","text":"★\n      M\n      J\n      S\n    \n    C · Live MapEveryone as pins on a map. Familiar, but needs offline map tiles (heavier).","choice":"map","id":null,"timestamp":1783328433671}
+{"source":"user-event","type":"click","text":"Following · Maya\n      ➤\n      220mMaya · this way\n    \n    B · CompassPick one friend, giant arrow points to them. \"Hot / cold\" walking.","choice":"compass","id":null,"timestamp":1783328434210}
+{"source":"user-event","type":"click","text":"Maya 80m\n      Jules 140m\n      Sam 210m\n    \n    A · RadarAll friends at once, as dots around you. Bearing + distance. Glanceable.","choice":"radar","id":null,"timestamp":1783328434700}
+{"type":"screen-added","file":"/Users/augustusedem/Loc8/.superpowers/brainstorm/59111-1783328068/content/hifi-radar.html"}
+{"type":"screen-added","file":"/Users/augustusedem/Loc8/.superpowers/brainstorm/59111-1783328068/content/three-options.html"}
+{"type":"screen-added","file":"/Users/augustusedem/Loc8/.superpowers/brainstorm/59111-1783328068/content/waiting.html"}
+{"type":"screen-added","file":"/Users/augustusedem/Loc8/.superpowers/brainstorm/59111-1783328068/content/prototype.html"}
+{"type":"server-stopped","reason":"idle timeout"}

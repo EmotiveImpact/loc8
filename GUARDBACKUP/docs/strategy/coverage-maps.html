@@ -1,0 +1,207 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Loc8 Coverage — All Points East, Victoria Park</title>
+<style>
+  *{box-sizing:border-box;margin:0;padding:0}
+  :root{--bg:#0a0b12;--card:#12141f;--border:rgba(255,255,255,.08);--text:#fff;--dim:rgba(255,255,255,.55);
+    --pink:#ff5a8c;--orange:#ff9a5a;--teal:#4be3c0;--yellow:#ffcf5a;--blue:#8c9aff;--danger:#ff5a5a}
+  body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;
+    background:radial-gradient(900px 600px at 50% -10%,#1c1630,#07080f 60%);color:var(--text);
+    padding:26px 16px 50px;-webkit-font-smoothing:antialiased}
+  .head{max-width:1120px;margin:0 auto 22px;text-align:center}
+  .head h1{font-size:23px;font-weight:800;letter-spacing:-.4px}
+  .head h1 b{background:linear-gradient(90deg,var(--pink),var(--orange));-webkit-background-clip:text;background-clip:text;color:transparent}
+  .head p{color:var(--dim);font-size:13px;margin-top:6px;line-height:1.5}
+  .head .site{margin-top:8px;font-size:12px;color:var(--teal)}
+  .grid{max-width:1120px;margin:0 auto;display:flex;gap:16px;flex-wrap:wrap;justify-content:center}
+  .panel{flex:1;min-width:300px;max-width:352px;background:var(--card);border:1px solid var(--border);border-radius:18px;overflow:hidden}
+  .ptitle{padding:14px 16px 4px}
+  .ptitle .tag{font-size:10px;font-weight:800;letter-spacing:1px;text-transform:uppercase}
+  .ptitle h3{font-size:17px;font-weight:800;margin-top:3px}
+  .ptitle p{font-size:12px;color:var(--dim);margin-top:3px;line-height:1.45;min-height:34px}
+  svg{display:block;width:100%;height:auto;background:#0c0e18}
+  .stats{padding:12px 16px 16px;display:flex;flex-direction:column;gap:7px}
+  .stat{display:flex;justify-content:space-between;align-items:baseline;font-size:12px}
+  .stat .k{color:var(--dim)}
+  .stat .v{font-weight:700;font-variant-numeric:tabular-nums}
+  .cov{height:6px;border-radius:3px;background:rgba(255,255,255,.08);overflow:hidden;margin-top:2px}
+  .cov i{display:block;height:100%;border-radius:3px}
+  .foot{max-width:1120px;margin:22px auto 0;color:var(--dim);font-size:11.5px;text-align:center;line-height:1.6}
+  .legend{max-width:1120px;margin:16px auto 0;display:flex;gap:16px;flex-wrap:wrap;justify-content:center;font-size:11px;color:var(--dim)}
+  .legend span{display:inline-flex;align-items:center;gap:6px}
+  .sw{width:12px;height:12px;border-radius:3px;display:inline-block}
+</style>
+</head>
+<body>
+  <div class="head">
+    <h1><b>Loc8</b> coverage — the case for anchors</h1>
+    <p>Same festival, same crowd, three infrastructure choices. Green = a person there can reliably reach the mesh.</p>
+    <div class="site">📍 modelled on All Points East · Victoria Park, London · 50,000 cap · ~600 × 450 m arena</div>
+  </div>
+
+  <div class="grid">
+    <div class="panel">
+      <div class="ptitle">
+        <div class="tag" style="color:var(--pink)">Option 1 · phones only</div>
+        <h3>Just the app</h3>
+        <p>Works only where the crowd is dense enough for phones to chain together. Thins out and dies at the edges.</p>
+      </div>
+      <svg id="m1" viewBox="0 0 364 292"></svg>
+      <div class="stats">
+        <div class="stat"><span class="k">Coverage</span><span class="v" style="color:var(--yellow)">~60%</span></div>
+        <div class="cov"><i style="width:60%;background:var(--yellow)"></i></div>
+        <div class="stat"><span class="k">Anchors to deploy</span><span class="v">0</span></div>
+        <div class="stat"><span class="k">Hardware cost</span><span class="v">£0</span></div>
+        <div class="stat"><span class="k">Fails where</span><span class="v" style="color:var(--danger)">edges · quiet corners · day 1</span></div>
+      </div>
+    </div>
+
+    <div class="panel">
+      <div class="ptitle">
+        <div class="tag" style="color:var(--teal)">Option 2 · + BLE anchors</div>
+        <h3>Relay grid</h3>
+        <p>Always-on Bluetooth relays on a grid fill the gaps. Solid coverage, but every unit needs power.</p>
+      </div>
+      <svg id="m2" viewBox="0 0 364 292"></svg>
+      <div class="stats">
+        <div class="stat"><span class="k">Coverage</span><span class="v" style="color:var(--teal)">~90%</span></div>
+        <div class="cov"><i style="width:90%;background:var(--teal)"></i></div>
+        <div class="stat"><span class="k">Anchors to deploy</span><span class="v">~32 <span style="color:var(--dim);font-weight:400">(1 / 90 m)</span></span></div>
+        <div class="stat"><span class="k">Hardware cost</span><span class="v">~£1k <span style="color:var(--dim);font-weight:400">(£30 ea)</span></span></div>
+        <div class="stat"><span class="k">Catch</span><span class="v" style="color:var(--yellow)">power + mounting × 32</span></div>
+      </div>
+    </div>
+
+    <div class="panel">
+      <div class="ptitle">
+        <div class="tag" style="color:var(--orange)">Option 3 · + LoRa backbone</div>
+        <h3>Trunk + last-hop</h3>
+        <p>A dozen long-range LoRa nodes span the whole park and bridge distant clusters. Fewest units, full coverage, resilient even at low crowd.</p>
+      </div>
+      <svg id="m3" viewBox="0 0 364 292"></svg>
+      <div class="stats">
+        <div class="stat"><span class="k">Coverage</span><span class="v" style="color:var(--teal)">~98%</span></div>
+        <div class="cov"><i style="width:98%;background:linear-gradient(90deg,var(--teal),var(--orange))"></i></div>
+        <div class="stat"><span class="k">Anchors to deploy</span><span class="v">~13 trunk</span></div>
+        <div class="stat"><span class="k">Hardware cost</span><span class="v">~£1k <span style="color:var(--dim);font-weight:400">(£60–80 ea)</span></span></div>
+        <div class="stat"><span class="k">Bonus</span><span class="v" style="color:var(--teal)">works before anyone installs</span></div>
+      </div>
+    </div>
+  </div>
+
+  <div class="legend">
+    <span><i class="sw" style="background:rgba(75,227,192,.5)"></i> mesh coverage</span>
+    <span><i class="sw" style="background:var(--pink)"></i> stage</span>
+    <span><i class="sw" style="background:var(--teal);border-radius:50%"></i> BLE anchor</span>
+    <span><i class="sw" style="background:var(--orange);border-radius:50%"></i> LoRa trunk node</span>
+    <span><i class="sw" style="background:#1a2a4a"></i> boating lake</span>
+    <span><i class="sw" style="border:1px dashed var(--danger);background:transparent"></i> dead zone</span>
+  </div>
+
+  <div class="foot">
+    Model: BLE reliable range ≈ 30 m in a packed crowd (bodies absorb 2.4 GHz), up to ~80 m open. Anchor spacing / counts are planning estimates for this footprint, not a survey.<br>
+    The honest caveat holds in all three: a <b>backgrounded iPhone</b> a non-Apple anchor has never linked to stays partly invisible — anchors help most once a link exists and for Android.
+  </div>
+
+<script>
+  // ---- Victoria Park APE arena, local metres (600 x 450) ----
+  const S = 0.567, PAD = 12;
+  const X = m => PAD + m * S, Y = m => PAD + m * S, R = m => m * S;
+  const PARK = [[40,60],[220,25],[430,40],[560,110],[575,300],[470,415],[230,430],[70,382],[24,200]];
+  const LAKE = {x:430,y:140,rx:72,ry:46};
+  const STAGES = [{x:180,y:330,n:'EAST'},{x:472,y:322,n:'WEST'},{x:300,y:112,n:'NORTH'}];
+  const ENTRANCE = {x:300,y:432};
+  const NS = 'http://www.w3.org/2000/svg';
+
+  function el(tag, attrs){ const e=document.createElementNS(NS,tag); for(const k in attrs) e.setAttribute(k,attrs[k]); return e; }
+  function polyStr(pts){ return pts.map(p=>X(p[0])+','+Y(p[1])).join(' '); }
+  function inPoly(x,y,poly){ let c=false; for(let i=0,j=poly.length-1;i<poly.length;j=i++){ const xi=poly[i][0],yi=poly[i][1],xj=poly[j][0],yj=poly[j][1];
+    if(((yi>y)!=(yj>y)) && (x < (xj-xi)*(y-yi)/(yj-yi)+xi)) c=!c; } return c; }
+  function inLake(x,y){ return ((x-LAKE.x)**2)/(LAKE.rx**2) + ((y-LAKE.y)**2)/(LAKE.ry**2) < 1; }
+
+  function base(svg, id){
+    const defs = el('defs',{}); const cp = el('clipPath',{id:'clip'+id});
+    cp.appendChild(el('polygon',{points:polyStr(PARK)})); defs.appendChild(cp); svg.appendChild(defs);
+    // park
+    svg.appendChild(el('polygon',{points:polyStr(PARK),fill:'#141826',stroke:'rgba(255,255,255,.14)','stroke-width':1.2}));
+    return 'clip'+id;
+  }
+  function overlays(svg,clip){
+    // lake (over coverage so water reads as a gap)
+    svg.appendChild(el('ellipse',{cx:X(LAKE.x),cy:Y(LAKE.y),rx:R(LAKE.rx),ry:R(LAKE.ry),fill:'#152036',stroke:'rgba(140,154,255,.35)','stroke-width':1}));
+    const lk=el('text',{x:X(LAKE.x),y:Y(LAKE.y)+3,fill:'rgba(140,154,255,.7)','font-size':8,'text-anchor':'middle'}); lk.textContent='lake'; svg.appendChild(lk);
+    // stages
+    STAGES.forEach(s=>{ svg.appendChild(el('rect',{x:X(s.x)-7,y:Y(s.y)-7,width:14,height:14,rx:3,fill:'#ff5a8c',stroke:'#fff','stroke-width':1.3,transform:`rotate(45 ${X(s.x)} ${Y(s.y)})`}));
+      const t=el('text',{x:X(s.x),y:Y(s.y)+16,fill:'#ff90b3','font-size':7.5,'font-weight':700,'text-anchor':'middle'}); t.textContent=s.n; svg.appendChild(t); });
+    // entrance
+    svg.appendChild(el('circle',{cx:X(ENTRANCE.x),cy:Y(ENTRANCE.y)-4,r:3,fill:'#fff'}));
+    const et=el('text',{x:X(ENTRANCE.x),y:Y(ENTRANCE.y)+7,fill:'var(--dim)','font-size':7,'text-anchor':'middle',fill:'rgba(255,255,255,.5)'}); et.textContent='IN'; svg.appendChild(et);
+    // scale bar 100 m
+    const bx=26, by=278; svg.appendChild(el('line',{x1:bx,y1:by,x2:bx+R(100),y2:by,stroke:'rgba(255,255,255,.6)','stroke-width':1.5}));
+    const st=el('text',{x:bx,y:by-4,fill:'rgba(255,255,255,.6)','font-size':7.5}); st.textContent='100 m'; svg.appendChild(st);
+  }
+  function covCircle(x,y,rm,fill){ return el('circle',{cx:X(x),cy:Y(y),r:R(rm),fill:fill}); }
+  const GREEN='rgba(75,227,192,.30)';
+
+  // ---------- Map 1: phones only ----------
+  (function(){
+    const svg=document.getElementById('m1'); const clip=base(svg,'1');
+    const g=el('g',{'clip-path':`url(#${clip})`});
+    // coverage only where crowd is dense: stages + spine corridor
+    g.appendChild(covCircle(180,330,105,GREEN));
+    g.appendChild(covCircle(472,322,92,GREEN));
+    g.appendChild(covCircle(300,112,92,GREEN));
+    // spine corridor (entrance -> north), a stack of circles
+    for(let y=430;y>=140;y-=34) g.appendChild(covCircle(300,y,42,GREEN));
+    svg.appendChild(g);
+    overlays(svg,clip);
+    // dead-zone callouts
+    [['far corners',70,120],['edges',540,360],['low-density gap',430,320]].forEach(([lbl,x,y])=>{
+      svg.appendChild(el('circle',{cx:X(x),cy:Y(y),r:16,fill:'none',stroke:'rgba(255,90,90,.7)','stroke-width':1.2,'stroke-dasharray':'3 3'}));
+    });
+    const d=el('text',{x:X(70),y:Y(150),fill:'rgba(255,120,120,.9)','font-size':7.5,'text-anchor':'middle'}); d.textContent='dead'; svg.appendChild(d);
+  })();
+
+  // ---------- Map 2: BLE anchor grid ----------
+  (function(){
+    const svg=document.getElementById('m2'); const clip=base(svg,'2');
+    const g=el('g',{'clip-path':`url(#${clip})`});
+    const anchors=[];
+    for(let x=70;x<=545;x+=95) for(let y=70;y<=405;y+=84){
+      if(inPoly(x,y,PARK) && !inLake(x,y)) anchors.push([x,y]);
+    }
+    anchors.forEach(([x,y])=> g.appendChild(covCircle(x,y,80,GREEN)));
+    svg.appendChild(g);
+    overlays(svg,clip);
+    anchors.forEach(([x,y])=> svg.appendChild(el('circle',{cx:X(x),cy:Y(y),r:2.6,fill:'#4be3c0',stroke:'#0c0e18','stroke-width':.8})));
+    // count label
+    const c=el('text',{x:X(300),y:Y(455),fill:'rgba(75,227,192,.9)','font-size':8,'text-anchor':'middle','font-weight':700}); c.textContent=anchors.length+' anchors'; svg.appendChild(c);
+    window.__bleCount=anchors.length;
+  })();
+
+  // ---------- Map 3: LoRa backbone ----------
+  (function(){
+    const svg=document.getElementById('m3'); const clip=base(svg,'3');
+    const g=el('g',{'clip-path':`url(#${clip})`});
+    // faint whole-park crowd fill (the mesh still bridges between trunks)
+    g.appendChild(el('polygon',{points:polyStr(PARK),fill:'rgba(75,227,192,.12)'}));
+    const trunks=[[110,110],[300,90],[500,120],[70,300],[300,230],[540,300],[180,330],[472,322],[300,410],[120,410],[470,410],[560,200],[300,112]];
+    const use=trunks.filter(([x,y])=>inPoly(x,y,PARK)&&!inLake(x,y));
+    use.forEach(([x,y])=> g.appendChild(covCircle(x,y,100,GREEN)));
+    svg.appendChild(g);
+    // LoRa links: connect near neighbours (dashed orange) — spanning backbone
+    for(let i=0;i<use.length;i++)for(let j=i+1;j<use.length;j++){
+      const dx=use[i][0]-use[j][0], dy=use[i][1]-use[j][1]; const d=Math.hypot(dx,dy);
+      if(d<200) svg.appendChild(el('line',{x1:X(use[i][0]),y1:Y(use[i][1]),x2:X(use[j][0]),y2:Y(use[j][1]),
+        stroke:'rgba(255,154,90,.45)','stroke-width':1,'stroke-dasharray':'4 3'}));
+    }
+    overlays(svg,clip);
+    use.forEach(([x,y])=> svg.appendChild(el('circle',{cx:X(x),cy:Y(y),r:4,fill:'#ff9a5a',stroke:'#0c0e18','stroke-width':1})));
+    const c=el('text',{x:X(300),y:Y(455),fill:'rgba(255,154,90,.95)','font-size':8,'text-anchor':'middle','font-weight':700}); c.textContent=use.length+' trunk nodes · LoRa-linked'; svg.appendChild(c);
+  })();
+</script>
+</body>
+</html>

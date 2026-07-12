@@ -1,0 +1,9 @@
+{
+  "platforms": ["apple", "android"],
+  "apple": {
+    "modules": ["Loc8MeshModule"]
+  },
+  "android": {
+    "modules": ["expo.modules.loc8mesh.Loc8MeshModule"]
+  }
+}

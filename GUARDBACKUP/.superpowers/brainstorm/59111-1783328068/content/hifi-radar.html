@@ -1,0 +1,141 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Loc8 — Design Preview</title>
+<style>
+  * { box-sizing:border-box; margin:0; padding:0; -webkit-font-smoothing:antialiased; }
+  body {
+    font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;
+    background:radial-gradient(1200px 800px at 20% -10%, #241a3a, #0a0b12 55%);
+    color:#fff; min-height:100vh; display:flex; flex-direction:column;
+    align-items:center; justify-content:center; gap:28px; padding:40px 16px;
+  }
+  .head { text-align:center; max-width:420px; }
+  .head h1 { font-size:24px; font-weight:800; letter-spacing:-.5px; }
+  .head h1 span { background:linear-gradient(90deg,#ff5a8c,#ff9a5a); -webkit-background-clip:text; background-clip:text; color:transparent; }
+  .head p { opacity:.6; font-size:14px; margin-top:6px; }
+
+  /* PHONE */
+  .phone {
+    width:330px; height:680px; border-radius:46px; padding:12px;
+    background:linear-gradient(160deg,#2a2f45,#12141f);
+    box-shadow:0 40px 100px rgba(0,0,0,.6), inset 0 0 0 2px #33384f;
+    position:relative;
+  }
+  .notch { position:absolute; top:20px; left:50%; transform:translateX(-50%); width:120px; height:26px; background:#000; border-radius:16px; z-index:20; }
+  .screen {
+    width:100%; height:100%; border-radius:36px; overflow:hidden; position:relative;
+    background:radial-gradient(circle at 50% 42%, #191d33 0%, #0c0e18 70%);
+  }
+
+  /* TOP BAR */
+  .topbar { position:absolute; top:0; left:0; right:0; padding:44px 22px 14px; z-index:10;
+    display:flex; align-items:center; justify-content:space-between; }
+  .brand { font-weight:800; font-size:18px; letter-spacing:-.3px; }
+  .brand b { background:linear-gradient(90deg,#ff5a8c,#ff9a5a); -webkit-background-clip:text; background-clip:text; color:transparent; }
+  .offline { display:flex; align-items:center; gap:6px; background:rgba(75,227,192,.12);
+    color:#4be3c0; font-size:11px; font-weight:600; padding:5px 10px; border-radius:20px; border:1px solid rgba(75,227,192,.25); }
+  .dot-live { width:6px; height:6px; border-radius:50%; background:#4be3c0; box-shadow:0 0 8px #4be3c0; animation:pulse 1.6s infinite; }
+  @keyframes pulse { 0%,100%{opacity:1} 50%{opacity:.3} }
+
+  /* RADAR */
+  .radar { position:absolute; top:56%; left:50%; transform:translate(-50%,-50%); width:300px; height:300px; }
+  .ring { position:absolute; top:50%; left:50%; transform:translate(-50%,-50%); border-radius:50%; border:1px solid rgba(255,255,255,.07); }
+  .ring.r1{width:100px;height:100px}.ring.r2{width:200px;height:200px}.ring.r3{width:300px;height:300px}
+  .ring-label { position:absolute; left:50%; transform:translateX(-50%); font-size:9px; color:rgba(255,255,255,.28); }
+  .sweep { position:absolute; top:50%; left:50%; width:150px; height:150px; transform-origin:top left;
+    background:conic-gradient(from -10deg, rgba(255,90,140,.28), rgba(255,90,140,0) 55deg);
+    border-radius:0 0 0 150px; animation:spin 3.2s linear infinite; }
+  @keyframes spin { to { transform:translate(0,-50%) rotate(360deg); } }
+  .me { position:absolute; top:50%; left:50%; transform:translate(-50%,-50%); z-index:5; }
+  .me .core { width:18px; height:18px; border-radius:50%; background:#fff; box-shadow:0 0 0 6px rgba(255,255,255,.12); }
+  .me .halo { position:absolute; top:50%; left:50%; transform:translate(-50%,-50%); width:18px; height:18px; border-radius:50%; box-shadow:0 0 0 2px rgba(255,90,140,.5); animation:halo 2.4s ease-out infinite; }
+  @keyframes halo { 0%{width:18px;height:18px;opacity:.8} 100%{width:120px;height:120px;opacity:0} }
+
+  .friend { position:absolute; z-index:6; display:flex; flex-direction:column; align-items:center; gap:5px; transform:translate(-50%,-50%); }
+  .avatar { width:38px; height:38px; border-radius:50%; display:flex; align-items:center; justify-content:center;
+    font-weight:700; font-size:14px; color:#0a0b12; box-shadow:0 4px 14px rgba(0,0,0,.5); border:2px solid rgba(255,255,255,.85); }
+  .tag { font-size:10px; font-weight:600; background:rgba(0,0,0,.55); padding:2px 7px; border-radius:10px; white-space:nowrap; }
+  .tag b { color:#4be3c0; }
+
+  /* BOTTOM SHEET */
+  .sheet { position:absolute; bottom:0; left:0; right:0; background:rgba(18,20,32,.92);
+    backdrop-filter:blur(12px); border-top:1px solid rgba(255,255,255,.08);
+    border-radius:26px 26px 0 0; padding:16px 18px 26px; z-index:10; }
+  .grab { width:38px; height:4px; border-radius:4px; background:rgba(255,255,255,.2); margin:0 auto 14px; }
+  .sheet h4 { font-size:12px; text-transform:uppercase; letter-spacing:1px; opacity:.5; margin-bottom:12px; }
+  .frow { display:flex; align-items:center; gap:12px; padding:9px 0; }
+  .frow .av { width:34px; height:34px; border-radius:50%; display:flex; align-items:center; justify-content:center; font-weight:700; font-size:13px; color:#0a0b12; }
+  .frow .nm { flex:1; }
+  .frow .nm .n { font-size:14px; font-weight:600; }
+  .frow .nm .s { font-size:11px; opacity:.5; }
+  .frow .go { background:linear-gradient(90deg,#ff5a8c,#ff9a5a); color:#fff; font-size:12px; font-weight:700; padding:7px 14px; border-radius:20px; }
+
+  .caption { max-width:340px; text-align:center; opacity:.55; font-size:12px; line-height:1.5; }
+</style>
+</head>
+<body>
+  <div class="head">
+    <h1><span>Loc8</span> — the home screen</h1>
+    <p>Radar view · works with zero signal · tap a friend to get an arrow</p>
+  </div>
+
+  <div class="phone">
+    <div class="notch"></div>
+    <div class="screen">
+
+      <div class="topbar">
+        <div class="brand">Loc<b>8</b></div>
+        <div class="offline"><span class="dot-live"></span> MESH · 4 nearby</div>
+      </div>
+
+      <div class="radar">
+        <div class="ring r3"></div><div class="ring r2"></div><div class="ring r1"></div>
+        <div class="ring-label" style="top:calc(50% - 50px - 12px)">100m</div>
+        <div class="ring-label" style="top:calc(50% - 100px - 12px)">250m</div>
+        <div class="sweep"></div>
+        <div class="me"><div class="halo"></div><div class="core"></div></div>
+
+        <!-- friends positioned at bearing+distance -->
+        <div class="friend" style="top:26%;left:66%">
+          <div class="avatar" style="background:#4be3c0">M</div>
+          <div class="tag">Maya · <b>80m</b></div>
+        </div>
+        <div class="friend" style="top:70%;left:34%">
+          <div class="avatar" style="background:#ff9a5a">J</div>
+          <div class="tag">Jules · <b>140m</b></div>
+        </div>
+        <div class="friend" style="top:44%;left:16%">
+          <div class="avatar" style="background:#8c9aff">S</div>
+          <div class="tag">Sam · <b>210m</b></div>
+        </div>
+      </div>
+
+      <div class="sheet">
+        <div class="grab"></div>
+        <h4>Your crew · 3 online</h4>
+        <div class="frow">
+          <div class="av" style="background:#4be3c0">M</div>
+          <div class="nm"><div class="n">Maya</div><div class="s">80m · NE · updated 3s ago</div></div>
+          <div class="go">Find →</div>
+        </div>
+        <div class="frow">
+          <div class="av" style="background:#ff9a5a">J</div>
+          <div class="nm"><div class="n">Jules</div><div class="s">140m · SW · updated 8s ago</div></div>
+          <div class="go">Find →</div>
+        </div>
+        <div class="frow">
+          <div class="av" style="background:#8c9aff">S</div>
+          <div class="nm"><div class="n">Sam</div><div class="s">210m · W · via Maya's phone 🔗</div></div>
+          <div class="go">Find →</div>
+        </div>
+      </div>
+
+    </div>
+  </div>
+
+  <p class="caption">You're the white dot in the center. Friends orbit you at their real direction & distance. The green “MESH” badge shows you're connected phone-to-phone with no internet. “via Maya's phone” = Sam is out of your range but reached you by hopping through Maya. Tap <b>Find →</b> to switch to the big-arrow Compass mode.</p>
+</body>
+</html>
