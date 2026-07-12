@@ -16,8 +16,6 @@ import { ops, fonts, opsGradients } from './opsTheme';
 const AnimatedCircle = Animated.createAnimatedComponent(Circle);
 
 export const SOS_HOLD_MS = 1000;
-/** Released within this window = a tap (navigate), not an aborted hold. */
-export const SOS_TAP_MS = 300;
 
 const SIZE = 52;         // button diameter
 const STROKE = 3;        // ring thickness (sits on the black outline)
@@ -29,11 +27,13 @@ export function HoldSosButton({ onArmed, onPress }: { onArmed: () => void; onPre
   const progress = useRef(new Animated.Value(0)).current;
   const anim = useRef<Animated.CompositeAnimation | null>(null);
   const fired = useRef(false);
-  const pressedAt = useRef(0);
 
+  // The ring is purely visual; FIRING is the framework's own long-press
+  // recognition (delayLongPress = the ring duration), and a quick TAP is the
+  // framework's onPress — RN guarantees the two are mutually exclusive, on
+  // native and web alike.
   const start = () => {
     fired.current = false;
-    pressedAt.current = Date.now();
     haptics.tap(); // acknowledge the press-in — "arming"
     progress.setValue(0);
     anim.current = Animated.timing(progress, {
@@ -42,32 +42,41 @@ export function HoldSosButton({ onArmed, onPress }: { onArmed: () => void; onPre
       easing: Easing.linear,
       useNativeDriver: false, // SVG stroke props aren't native-animatable
     });
-    anim.current.start(({ finished }) => {
-      if (finished && !fired.current) {
-        fired.current = true;
-        onArmed(); // raise the SOS + navigate
-        progress.setValue(0);
-      }
-    });
+    anim.current.start();
+  };
+
+  const arm = () => {
+    if (fired.current) return;
+    fired.current = true;
+    progress.setValue(0);
+    onArmed(); // raise the SOS + navigate
   };
 
   const cancel = () => {
     anim.current?.stop();
-    if (fired.current) return; // completed → let onArmed handle reset
+    if (fired.current) return; // completed → onArmed already handled it
     Animated.timing(progress, {
       toValue: 0,
       duration: 160,
       easing: Easing.out(Easing.ease),
       useNativeDriver: false,
     }).start();
-    // A quick release is a tap, not an aborted hold — open the SOS screen.
-    if (Date.now() - pressedAt.current < SOS_TAP_MS) onPress?.();
   };
 
   const dashoffset = progress.interpolate({ inputRange: [0, 1], outputRange: [C, 0] });
 
   return (
-    <Pressable style={st.slot} onPressIn={start} onPressOut={cancel} delayLongPress={SOS_HOLD_MS}>
+    <Pressable
+      style={st.slot}
+      accessibilityLabel="SOS — tap to open, hold to send"
+      onPressIn={start}
+      onPressOut={cancel}
+      onPress={() => {
+        if (!fired.current) onPress?.(); // quick tap → open the SOS screen
+      }}
+      onLongPress={arm}
+      delayLongPress={SOS_HOLD_MS}
+    >
       <View style={st.btnWrap}>
         {/* black outline base */}
         <LinearGradient colors={opsGradients.sos} start={{ x: 0, y: 0 }} end={{ x: 1, y: 1 }} style={st.btn}>

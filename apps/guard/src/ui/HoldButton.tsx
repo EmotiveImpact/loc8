@@ -48,6 +48,9 @@ export function HoldButton({
   const anim = useRef<Animated.CompositeAnimation | null>(null);
   const fired = useRef(false);
 
+  // The fill is purely visual; FIRING is the framework's own long-press
+  // recognition (delayLongPress = holdMs) so it works identically on native
+  // and web. Early release drains the fill and nothing fires.
   const start = () => {
     fired.current = false;
     haptics.tap(); // acknowledge press-in
@@ -58,14 +61,15 @@ export function HoldButton({
       easing: Easing.linear,
       useNativeDriver: false, // width % isn't native-animatable
     });
-    anim.current.start(({ finished }) => {
-      if (finished && !fired.current) {
-        fired.current = true;
-        haptics.success();
-        onComplete();
-        progress.setValue(0);
-      }
-    });
+    anim.current.start();
+  };
+
+  const complete = () => {
+    if (fired.current) return;
+    fired.current = true;
+    haptics.success();
+    progress.setValue(0);
+    onComplete();
   };
 
   const cancel = () => {
@@ -82,7 +86,13 @@ export function HoldButton({
   const fillWidth = progress.interpolate({ inputRange: [0, 1], outputRange: ['0%', '100%'] });
 
   return (
-    <Pressable onPressIn={start} onPressOut={cancel} delayLongPress={holdMs}>
+    <Pressable
+      accessibilityLabel={label}
+      onPressIn={start}
+      onPressOut={cancel}
+      onLongPress={complete}
+      delayLongPress={holdMs}
+    >
       <View style={[st.wrap, { height, borderColor: borderColor ?? 'transparent', borderWidth: borderColor ? 1 : 0 }]}>
         {gradient ? (
           <LinearGradient colors={gradient} start={{ x: 0, y: 0 }} end={{ x: 1, y: 1 }} style={StyleSheet.absoluteFill} />
