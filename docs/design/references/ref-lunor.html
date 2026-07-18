@@ -1,0 +1,442 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Lunor — Dashboard</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  body {
+    background: #232325;
+    font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+    -webkit-font-smoothing: antialiased;
+  }
+
+  /* ---------- App window ---------- */
+  .window {
+    max-width: 1120px;
+    min-height: 1200px;
+    height: 1200px;
+    margin: 48px auto;
+    border-radius: 24px;
+    background: #131315;
+    border: 1px solid rgba(255, 255, 255, 0.06);
+    overflow: hidden;
+    display: grid;
+    grid-template-columns: 300px 1px 1fr;
+  }
+
+  .v-divider { background: rgba(255, 255, 255, 0.07); }
+
+  /* ---------- Sidebar ---------- */
+  .sidebar {
+    background: #131315;
+    padding: 20px 16px;
+    display: flex;
+    flex-direction: column;
+    height: 100%;
+  }
+
+  .workspace {
+    border-radius: 12px;
+    background: #1c1c1f;
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    padding: 10px 12px;
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    gap: 10px;
+  }
+
+  .workspace-tile {
+    width: 34px;
+    height: 34px;
+    border-radius: 9px;
+    background: #0c0c0d;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+  }
+
+  .workspace-name {
+    color: #ececee;
+    font-size: 16px;
+    font-weight: 600;
+  }
+
+  .workspace-caret {
+    margin-left: auto;
+    color: #6f6f76;
+    display: flex;
+    align-items: center;
+  }
+
+  .nav { display: flex; flex-direction: column; }
+  .nav.utility { margin-top: 18px; }
+
+  .nav-item {
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    gap: 12px;
+    padding: 11px 10px;
+    border-radius: 8px;
+    color: #8e8e95;
+    font-size: 14.5px;
+    font-weight: 500;
+  }
+
+  .nav-item svg { color: #8e8e95; flex-shrink: 0; }
+
+  .nav-item.active {
+    background: #202024;
+    border: 1px solid rgba(255, 255, 255, 0.09);
+    color: #ececee;
+    border-radius: 10px;
+  }
+  .nav-item.active svg { color: #ececee; }
+
+  .kbd {
+    margin-left: auto;
+    width: 22px;
+    height: 22px;
+    border-radius: 6px;
+    background: #1e1e21;
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    color: #9a9aa0;
+    font-size: 12px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+
+  .h-divider {
+    height: 1px;
+    background: rgba(255, 255, 255, 0.07);
+    margin: 14px 2px;
+    flex-shrink: 0;
+  }
+
+  .folder-row .caret {
+    margin-left: auto;
+    color: #6f6f76;
+    display: flex;
+    align-items: center;
+  }
+
+  .spacer { flex-grow: 1; }
+
+  /* ---------- Upgrade card ---------- */
+  .upgrade {
+    border-radius: 16px;
+    border: 1px solid rgba(255, 255, 255, 0.09);
+    background: #17171a;
+    padding: 18px;
+    position: relative;
+  }
+
+  .upgrade-close {
+    position: absolute;
+    top: 12px;
+    right: 12px;
+    color: #6f6f76;
+    display: flex;
+  }
+
+  .upgrade-tile {
+    width: 44px;
+    height: 44px;
+    border-radius: 10px;
+    background: #101012;
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+
+  .upgrade-title {
+    margin-top: 16px;
+    color: #ececee;
+    font-size: 15.5px;
+    font-weight: 600;
+  }
+
+  .upgrade-copy {
+    margin-top: 8px;
+    color: #8e8e95;
+    font-size: 13.5px;
+    line-height: 1.5;
+  }
+
+  .upgrade-btn {
+    display: block;
+    width: 100%;
+    margin-top: 16px;
+    padding: 11px;
+    border-radius: 10px;
+    background: #202024;
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    color: #ececee;
+    font-size: 14px;
+    font-weight: 500;
+    font-family: inherit;
+    text-align: center;
+  }
+
+  /* ---------- Content pane ---------- */
+  .content {
+    background: #18181a;
+    padding: 28px 36px;
+  }
+
+  .crumb {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    color: #8e8e95;
+    font-size: 16px;
+    font-weight: 500;
+  }
+
+  .crumb svg { color: #8e8e95; }
+
+  h1 {
+    margin-top: 40px;
+    color: #f2f2f3;
+    font-size: 27px;
+    font-weight: 500;
+    letter-spacing: -0.2px;
+  }
+
+  .cards {
+    margin-top: 28px;
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+  }
+
+  .card {
+    background: #1d1d20;
+    border: 1px solid rgba(255, 255, 255, 0.06);
+    border-radius: 14px;
+  }
+
+  /* Row 1: fixed-width pair; second card overflows the pane and is
+     clipped by the window's overflow:hidden at its right edge. */
+  .card-row-top {
+    display: grid;
+    grid-template-columns: 420px 420px;
+    gap: 20px;
+  }
+  .card-row-top .card { height: 180px; }
+
+  .card-wide { width: 792px; } /* ~92% of pane span — slightly clipped right */
+  .card-tall { height: 490px; }
+  .card-bottom { height: 420px; } /* window bottom crops it */
+</style>
+</head>
+<body>
+
+<div class="window">
+
+  <!-- ================= SIDEBAR ================= -->
+  <aside class="sidebar">
+
+    <!-- Workspace switcher -->
+    <div class="workspace">
+      <div class="workspace-tile">
+        <!-- crescent moon -->
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="#ffffff" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+          <path d="M21 12.79A9 9 0 1 1 11.21 3a7 7 0 0 0 9.79 9.79Z"/>
+        </svg>
+      </div>
+      <span class="workspace-name">Lunor</span>
+      <span class="workspace-caret">
+        <!-- chevrons-up-down -->
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+          <path d="m7 15 5 5 5-5"/><path d="m7 9 5-5 5 5"/>
+        </svg>
+      </span>
+    </div>
+
+    <!-- Utility nav -->
+    <nav class="nav utility">
+      <div class="nav-item">
+        <!-- search -->
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+          <circle cx="11" cy="11" r="7.5"/><path d="m21 21-4.2-4.2"/>
+        </svg>
+        <span>Search</span>
+        <span class="kbd">/</span>
+      </div>
+      <div class="nav-item">
+        <!-- shield -->
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+          <path d="M20 13c0 5-3.5 7.5-7.66 8.95a1 1 0 0 1-.67-.01C7.5 20.5 4 18 4 13V6a1 1 0 0 1 1-1c2 0 4.5-1.2 6.24-2.72a1.17 1.17 0 0 1 1.52 0C14.51 3.81 17 5 19 5a1 1 0 0 1 1 1z"/>
+        </svg>
+        <span>Reports</span>
+      </div>
+      <div class="nav-item">
+        <!-- document -->
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+          <path d="M15 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V7Z"/><path d="M14 2v4a2 2 0 0 0 2 2h4"/>
+        </svg>
+        <span>Contracts</span>
+      </div>
+    </nav>
+
+    <div class="h-divider"></div>
+
+    <!-- Main nav -->
+    <nav class="nav">
+      <div class="nav-item active">
+        <!-- 4-squares grid -->
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+          <rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="14" y="14" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/>
+        </svg>
+        <span>Dashboard</span>
+      </div>
+      <div class="nav-item">
+        <!-- column chart -->
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+          <path d="M6 20v-5"/><path d="M12 20V10"/><path d="M18 20V4"/>
+        </svg>
+        <span>Analytics</span>
+      </div>
+      <div class="nav-item">
+        <!-- paperclip -->
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+          <path d="m21.44 11.05-9.19 9.19a6 6 0 0 1-8.49-8.49l8.57-8.57A4 4 0 1 1 18 8.84l-8.59 8.57a2 2 0 0 1-2.83-2.83l8.49-8.48"/>
+        </svg>
+        <span>Templates</span>
+      </div>
+      <div class="nav-item">
+        <!-- person -->
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+          <path d="M19 21v-2a4 4 0 0 0-4-4H9a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/>
+        </svg>
+        <span>Clients</span>
+      </div>
+      <div class="nav-item">
+        <!-- circle-slash -->
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+          <circle cx="12" cy="12" r="9"/><path d="m5.6 5.6 12.8 12.8"/>
+        </svg>
+        <span>Integrations</span>
+      </div>
+      <div class="nav-item">
+        <!-- gear -->
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+          <path d="M12.22 2h-.44a2 2 0 0 0-2 2v.18a2 2 0 0 1-1 1.73l-.43.25a2 2 0 0 1-2 0l-.15-.08a2 2 0 0 0-2.73.73l-.22.38a2 2 0 0 0 .73 2.73l.15.1a2 2 0 0 1 1 1.72v.51a2 2 0 0 1-1 1.74l-.15.09a2 2 0 0 0-.73 2.73l.22.38a2 2 0 0 0 2.73.73l.15-.08a2 2 0 0 1 2 0l.43.25a2 2 0 0 1 1 1.73V20a2 2 0 0 0 2 2h.44a2 2 0 0 0 2-2v-.18a2 2 0 0 1 1-1.73l.43-.25a2 2 0 0 1 2 0l.15.08a2 2 0 0 0 2.73-.73l.22-.39a2 2 0 0 0-.73-2.73l-.15-.08a2 2 0 0 1-1-1.74v-.5a2 2 0 0 1 1-1.74l.15-.09a2 2 0 0 0 .73-2.73l-.22-.38a2 2 0 0 0-2.73-.73l-.15.08a2 2 0 0 1-2 0l-.43-.25a2 2 0 0 1-1-1.73V4a2 2 0 0 0-2-2z"/><circle cx="12" cy="12" r="3"/>
+        </svg>
+        <span>Settings</span>
+      </div>
+    </nav>
+
+    <div class="h-divider"></div>
+
+    <!-- Folders -->
+    <nav class="nav">
+      <div class="nav-item folder-row">
+        <!-- filled folder, blue -->
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor" style="color:#3b82f6" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+          <path d="M20 20a2 2 0 0 0 2-2V8a2 2 0 0 0-2-2h-7.9a2 2 0 0 1-1.69-.9L9.6 3.9A2 2 0 0 0 7.93 3H4a2 2 0 0 0-2 2v13a2 2 0 0 0 2 2Z"/>
+        </svg>
+        <span>Company contracts</span>
+        <span class="caret">
+          <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+            <path d="m6 9 6 6 6-6"/>
+          </svg>
+        </span>
+      </div>
+      <div class="nav-item folder-row">
+        <!-- filled folder, gray -->
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor" style="color:#6b6b72" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+          <path d="M20 20a2 2 0 0 0 2-2V8a2 2 0 0 0-2-2h-7.9a2 2 0 0 1-1.69-.9L9.6 3.9A2 2 0 0 0 7.93 3H4a2 2 0 0 0-2 2v13a2 2 0 0 0 2 2Z"/>
+        </svg>
+        <span>Onboarding templates</span>
+        <span class="caret">
+          <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+            <path d="m6 9 6 6 6-6"/>
+          </svg>
+        </span>
+      </div>
+      <div class="nav-item folder-row">
+        <!-- filled folder, yellow -->
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor" style="color:#eab308" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+          <path d="M20 20a2 2 0 0 0 2-2V8a2 2 0 0 0-2-2h-7.9a2 2 0 0 1-1.69-.9L9.6 3.9A2 2 0 0 0 7.93 3H4a2 2 0 0 0-2 2v13a2 2 0 0 0 2 2Z"/>
+        </svg>
+        <span>Extra fees/legal stuff</span>
+        <span class="caret">
+          <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+            <path d="m6 9 6 6 6-6"/>
+          </svg>
+        </span>
+      </div>
+      <div class="nav-item">
+        <!-- folder-plus, stroke -->
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+          <path d="M20 20a2 2 0 0 0 2-2V8a2 2 0 0 0-2-2h-7.9a2 2 0 0 1-1.69-.9L9.6 3.9A2 2 0 0 0 7.93 3H4a2 2 0 0 0-2 2v13a2 2 0 0 0 2 2Z"/><path d="M12 10v6"/><path d="M9 13h6"/>
+        </svg>
+        <span>Create folder</span>
+      </div>
+    </nav>
+
+    <div class="spacer"></div>
+
+    <!-- Upgrade card -->
+    <div class="upgrade">
+      <span class="upgrade-close">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+          <path d="M18 6 6 18"/><path d="m6 6 12 12"/>
+        </svg>
+      </span>
+      <div class="upgrade-tile">
+        <!-- signature squiggle -->
+        <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#ffffff" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+          <path d="M2.5 16c1.8-1.2 3.2-3.6 4-6.5.4-1.5.2-2.5-.5-2.5-1.2 0-2 3.5-1.5 6 .4 2 1.6 2.6 3 1.5 1-.8 1.8-2 2.5-2s.4 2 1.5 2 2-1.7 3-1.7.6 1.7 1.7 1.7c.8 0 1.6-.6 2.3-1.2"/>
+          <circle cx="21.5" cy="12.6" r="1" fill="#ffffff" stroke="none"/>
+        </svg>
+      </div>
+      <div class="upgrade-title">Upgrade to Premium!</div>
+      <div class="upgrade-copy">Send unlimited contracts<br>Customize for your brand</div>
+      <button class="upgrade-btn" type="button">Upgrade Now</button>
+    </div>
+
+  </aside>
+
+  <div class="v-divider"></div>
+
+  <!-- ================= CONTENT PANE ================= -->
+  <main class="content">
+
+    <div class="crumb">
+      <!-- 4-squares grid -->
+      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+        <rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="14" y="14" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/>
+      </svg>
+      <span>Dashboard</span>
+    </div>
+
+    <h1>Welcome back John Doe!</h1>
+
+    <div class="cards">
+      <div class="card-row-top">
+        <div class="card"></div>
+        <div class="card"></div>
+      </div>
+      <div class="card card-wide card-tall"></div>
+      <div class="card card-wide card-bottom"></div>
+    </div>
+
+  </main>
+
+</div>
+
+</body>
+</html>

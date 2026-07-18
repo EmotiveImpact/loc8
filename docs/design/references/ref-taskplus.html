@@ -1,0 +1,888 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Taskplus — Dashboard Reference</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  body {
+    background: #1a1a1c;
+    font-family: 'Inter', sans-serif;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+    color: #dcdcde;
+  }
+
+  .window {
+    max-width: 1120px;
+    margin: 40px auto;
+    border-radius: 18px;
+    background: #0f0f10;
+    border: 1px solid rgba(255,255,255,0.07);
+    overflow: hidden;
+    display: grid;
+    grid-template-columns: 218px 1fr;
+  }
+
+  /* ============ SIDEBAR ============ */
+  .sidebar {
+    padding: 18px 14px;
+    display: flex;
+    flex-direction: column;
+    border-right: 1px solid rgba(255,255,255,0.06);
+  }
+
+  .brand {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+  .brand .wordmark {
+    color: #f0f0f2;
+    font-size: 15.5px;
+    font-weight: 700;
+    letter-spacing: -0.01em;
+  }
+  .brand .avatar {
+    margin-left: auto;
+  }
+
+  .avatar {
+    border-radius: 50%;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: 600;
+    color: rgba(255,255,255,0.82);
+    flex-shrink: 0;
+  }
+  .avatar.sz-26 { width: 26px; height: 26px; font-size: 9px; }
+  .avatar.sz-22 { width: 22px; height: 22px; font-size: 8px; }
+
+  .nav {
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+  }
+  .nav.utility { margin-top: 22px; }
+
+  .nav-item {
+    display: flex;
+    align-items: center;
+    gap: 11px;
+    padding: 9px 10px;
+    border-radius: 8px;
+    border: 1px solid transparent;
+    color: #8b8b92;
+    font-size: 13.5px;
+    font-weight: 500;
+  }
+  .nav-item svg { flex-shrink: 0; }
+  .nav-item.active {
+    background: #1d1d20;
+    border: 1px solid rgba(255,255,255,0.1);
+    border-radius: 9px;
+    color: #f0f0f2;
+  }
+
+  .divider {
+    height: 1px;
+    background: rgba(255,255,255,0.06);
+    margin: 12px 0;
+  }
+
+  .sidebar .spacer { flex: 1 1 auto; min-height: 16px; }
+
+  .upgrade-card {
+    border-radius: 14px;
+    border: 1px solid rgba(255,255,255,0.09);
+    background: #141416;
+    padding: 16px;
+    position: relative;
+  }
+  .upgrade-card .close {
+    position: absolute;
+    top: 10px;
+    right: 13px;
+    color: #6f6f76;
+    font-size: 14px;
+    line-height: 1;
+  }
+  .upgrade-card .tile {
+    width: 40px;
+    height: 40px;
+    border-radius: 10px;
+    background: #1c1c20;
+    border: 1px solid rgba(255,255,255,0.07);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: #8b8b92;
+  }
+  .upgrade-card h3 {
+    margin-top: 12px;
+    color: #f0f0f2;
+    font-size: 14px;
+    font-weight: 600;
+  }
+  .upgrade-card p {
+    margin-top: 6px;
+    color: #8b8b92;
+    font-size: 12px;
+    line-height: 1.5;
+  }
+  .upgrade-card .btn-upgrade {
+    margin-top: 12px;
+    width: 100%;
+    background: #232326;
+    border: 1px solid rgba(255,255,255,0.1);
+    border-radius: 9px;
+    padding: 9px;
+    color: #f0f0f2;
+    font-size: 13px;
+    font-weight: 500;
+    font-family: inherit;
+    text-align: center;
+  }
+
+  /* ============ MAIN ============ */
+  .main {
+    padding: 22px 28px;
+    min-width: 0;
+  }
+
+  .topbar {
+    display: flex;
+    align-items: center;
+  }
+  .topbar .crumb {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    color: #8b8b92;
+    font-size: 14px;
+    font-weight: 500;
+  }
+  .topbar .right {
+    margin-left: auto;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+  }
+  .topbar .updated {
+    color: #77777e;
+    font-size: 11.5px;
+  }
+  .avatar-stack {
+    display: flex;
+    align-items: center;
+  }
+  .avatar-stack .avatar {
+    border: 2px solid #0f0f10;
+  }
+  .avatar-stack .avatar + .avatar {
+    margin-left: -8px;
+  }
+  .icon-btn {
+    width: 30px;
+    height: 30px;
+    border-radius: 8px;
+    border: 1px solid rgba(255,255,255,0.1);
+    background: transparent;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    color: #c9c9cf;
+  }
+
+  /* Header row */
+  .header-row {
+    margin-top: 18px;
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-end;
+  }
+  .header-row h1 {
+    color: #f2f2f3;
+    font-size: 24px;
+    font-weight: 600;
+    letter-spacing: -0.01em;
+  }
+  .header-row .stats {
+    margin-top: 6px;
+    font-size: 13px;
+    color: #8b8b92;
+  }
+  .header-row .stats b {
+    color: #f2f2f3;
+    font-weight: 600;
+  }
+  .header-actions {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+  .btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 7px;
+    background: #1a1a1d;
+    border: 1px solid rgba(255,255,255,0.1);
+    border-radius: 9px;
+    padding: 9px 14px;
+    color: #f0f0f2;
+    font-size: 13px;
+    font-weight: 500;
+    font-family: inherit;
+    white-space: nowrap;
+  }
+  .btn-primary-sliver {
+    width: 40px;
+    height: 36px;
+    background: #5b6cff;
+    border-radius: 9px;
+    margin-right: -44px;
+    flex-shrink: 0;
+  }
+
+  /* KPI row */
+  .kpi-row {
+    margin-top: 20px;
+    display: grid;
+    grid-template-columns: repeat(4, 253px);
+    gap: 14px;
+  }
+  .kpi-card {
+    position: relative;
+    background: #141416;
+    border: 1px solid rgba(255,255,255,0.08);
+    border-radius: 12px;
+    padding: 16px;
+  }
+  .kpi-card .label {
+    color: #8b8b92;
+    font-size: 12.5px;
+  }
+  .kpi-card .value {
+    margin-top: 10px;
+    color: #f2f2f3;
+    font-size: 32px;
+    font-weight: 600;
+    line-height: 1;
+  }
+  .kpi-card .delta {
+    margin-top: 8px;
+    font-size: 11.5px;
+    color: #77777e;
+  }
+  .kpi-card .delta b {
+    color: #c9c9cf;
+    font-weight: 600;
+  }
+  .kpi-card .picto {
+    position: absolute;
+    right: 16px;
+    top: 50%;
+    transform: translateY(-50%);
+    width: 44px;
+    height: 44px;
+  }
+
+  /* Middle row */
+  .middle-row {
+    margin-top: 16px;
+    display: grid;
+    grid-template-columns: 1fr 296px;
+    gap: 14px;
+  }
+
+  .card {
+    background: #141416;
+    border: 1px solid rgba(255,255,255,0.08);
+    border-radius: 12px;
+  }
+
+  .card-header {
+    padding: 14px 16px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+  }
+  .card-header .title {
+    color: #f0f0f2;
+    font-size: 14.5px;
+    font-weight: 600;
+  }
+  .card-header .tools {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+  .search {
+    width: 150px;
+    background: #0f0f10;
+    border: 1px solid rgba(255,255,255,0.09);
+    border-radius: 8px;
+    padding: 7px 10px;
+    display: flex;
+    align-items: center;
+    gap: 7px;
+    color: #6f6f76;
+  }
+  .search input {
+    background: transparent;
+    border: none;
+    outline: none;
+    width: 100%;
+    font-family: inherit;
+    font-size: 12px;
+    color: #dcdcde;
+    padding: 0;
+  }
+  .search input::placeholder { color: #6f6f76; }
+  .btn.sm { font-size: 12.5px; padding: 8px 12px; }
+
+  /* Today's Tasks table */
+  .tasks-head, .task-row {
+    display: grid;
+    grid-template-columns: 1fr 200px 90px;
+    align-items: center;
+  }
+  .tasks-head {
+    padding: 8px 16px;
+    color: #6f6f76;
+    font-size: 11px;
+  }
+  .task-row {
+    padding: 12px 16px;
+    border-top: 1px solid rgba(255,255,255,0.05);
+  }
+  .task-row .name-cell {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+  }
+  .checkbox {
+    width: 16px;
+    height: 16px;
+    border: 1.5px solid #3a3a3f;
+    border-radius: 5px;
+    flex-shrink: 0;
+  }
+  .task-row .task-name {
+    color: #dcdcde;
+    font-size: 13px;
+  }
+  .project-cell {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    color: #c9c9cf;
+    font-size: 12.5px;
+  }
+  .project-cell svg { flex-shrink: 0; }
+  .due-cell {
+    color: #8b8b92;
+    font-size: 12px;
+  }
+
+  /* Performance card */
+  .perf-card { padding: 16px; }
+  .perf-card .title {
+    color: #f0f0f2;
+    font-size: 14.5px;
+    font-weight: 600;
+  }
+  .perf-big {
+    margin-top: 12px;
+    display: flex;
+    align-items: baseline;
+    gap: 8px;
+  }
+  .perf-big .pct {
+    color: #f2f2f3;
+    font-size: 34px;
+    font-weight: 600;
+    line-height: 1;
+  }
+  .perf-big .vs {
+    color: #77777e;
+    font-size: 11px;
+  }
+  .chart {
+    margin-top: 16px;
+    display: flex;
+    gap: 12px;
+    height: 170px;
+    align-items: flex-end;
+  }
+  .bar-track {
+    flex: 1;
+    height: 100%;
+    border-radius: 8px;
+    background: repeating-linear-gradient(0deg, #1c1c20 0 6px, transparent 6px 9px);
+    position: relative;
+    overflow: hidden;
+  }
+  .bar-fill {
+    position: absolute;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: repeating-linear-gradient(0deg, #26262b 0 6px, transparent 6px 9px);
+  }
+  .bar-fill.hi {
+    background: repeating-linear-gradient(0deg, #3a3a41 0 6px, transparent 6px 9px);
+  }
+  .chart-labels {
+    margin-top: 8px;
+    display: flex;
+    gap: 12px;
+  }
+  .chart-labels .cl {
+    flex: 1;
+    text-align: center;
+  }
+  .chart-labels .val {
+    color: #a9a9b0;
+    font-size: 10.5px;
+    font-weight: 600;
+  }
+  .chart-labels .day {
+    margin-top: 2px;
+    color: #6f6f76;
+    font-size: 10.5px;
+  }
+
+  /* List Projects */
+  .projects-card { margin-top: 16px; }
+  .proj-head, .proj-row {
+    display: grid;
+    grid-template-columns: 240px 130px 140px 120px 120px 1fr;
+    align-items: center;
+  }
+  .proj-head {
+    padding: 10px 16px;
+    color: #6f6f76;
+    font-size: 11px;
+  }
+  .proj-row {
+    padding: 13px 16px;
+    border-top: 1px solid rgba(255,255,255,0.05);
+  }
+  .proj-name {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    color: #dcdcde;
+    font-size: 13px;
+  }
+  .proj-name svg { flex-shrink: 0; }
+
+  .pill {
+    display: inline-flex;
+    align-items: center;
+    gap: 5px;
+    border-radius: 999px;
+    padding: 4px 10px;
+    font-size: 11.5px;
+    font-weight: 500;
+    white-space: nowrap;
+  }
+  .pill svg { flex-shrink: 0; }
+  .pill.progress {
+    border: 1px solid #3b4a8f;
+    background: rgba(91,108,255,0.12);
+    color: #8f9bff;
+  }
+  .pill.completed {
+    border: 1px solid #2c5a44;
+    background: rgba(46,160,103,0.12);
+    color: #4ade80;
+  }
+  .pill.hold {
+    border: 1px solid #3a3a3f;
+    background: #1a1a1d;
+    color: #a9a9b0;
+  }
+
+  .progress-cell {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+  .ticks {
+    display: flex;
+    gap: 2px;
+  }
+  .tick {
+    width: 3px;
+    height: 12px;
+    border-radius: 1px;
+    background: #2a2a2e;
+  }
+  .tick.f-blue { background: #8f9bff; }
+  .tick.f-green { background: #4ade80; }
+  .tick.f-gray { background: #a9a9b0; }
+  .progress-cell .pct {
+    color: #c9c9cf;
+    font-size: 12px;
+  }
+
+  .count-cell {
+    font-size: 12.5px;
+    color: #dcdcde;
+  }
+  .count-cell span { color: #6f6f76; }
+  .date-cell {
+    color: #8b8b92;
+    font-size: 12px;
+  }
+  .owner-cell {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    color: #c9c9cf;
+    font-size: 12.5px;
+  }
+</style>
+</head>
+<body>
+<div class="window">
+
+  <!-- ============ SIDEBAR ============ -->
+  <aside class="sidebar">
+    <div class="brand">
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="#ffffff"><path d="M12 3c.72 5.55 2.7 7.53 8.25 8.25v1.5c-5.55.72-7.53 2.7-8.25 8.25h-1.5c-.72-5.55-2.7-7.53-8.25-8.25v-1.5c5.55-.72 7.53-2.7 8.25-8.25z"/></svg>
+      <span class="wordmark">Taskplus</span>
+      <span class="avatar sz-26" style="background:#7a5c49;">JC</span>
+    </div>
+
+    <nav class="nav utility">
+      <a class="nav-item">
+        <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="7"/><path d="M21 21l-4.35-4.35"/></svg>
+        Search
+      </a>
+      <a class="nav-item">
+        <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M16.6 3.4a2.1 2.1 0 0 1 3 3L8 18l-4.5 1.5L5 15z"/><path d="M18.5 12.5v4M16.5 14.5h4"/></svg>
+        Taskplus AI
+      </a>
+      <a class="nav-item">
+        <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><rect x="3.5" y="3.5" width="17" height="17" rx="2.5"/><path d="M3.5 9.5h17M9.5 9.5v11"/></svg>
+        Templates
+      </a>
+      <a class="nav-item">
+        <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M18 8a6 6 0 0 0-12 0c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.7 21a2 2 0 0 1-3.4 0"/></svg>
+        Notification
+      </a>
+    </nav>
+
+    <div class="divider"></div>
+
+    <nav class="nav">
+      <a class="nav-item active">
+        <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><polygon points="15.5 8.5 13.6 13.6 8.5 15.5 10.4 10.4"/></svg>
+        Dashboard
+      </a>
+      <a class="nav-item">
+        <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="22 12 16 12 14 15 10 15 8 12 2 12"/><path d="M5.45 5.11 2 12v6a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2v-6l-3.45-6.89A2 2 0 0 0 16.76 4H7.24a2 2 0 0 0-1.79 1.11z"/></svg>
+        Inbox
+      </a>
+      <a class="nav-item">
+        <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M22 19a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h5l2 3h9a2 2 0 0 1 2 2z"/></svg>
+        Project
+      </a>
+      <a class="nav-item">
+        <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="18" rx="2"/><path d="M16 2v4M8 2v4M3 10h18"/></svg>
+        Calendar
+      </a>
+      <a class="nav-item">
+        <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M18 20V10M12 20V4M6 20v-6"/></svg>
+        Reports
+      </a>
+      <a class="nav-item">
+        <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><path d="M12 16v-4"/><path d="M12 8h.01"/></svg>
+        Help &amp; Center
+      </a>
+      <a class="nav-item">
+        <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 1 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 1 1-4 0v-.09a1.65 1.65 0 0 0-1-1.51 1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 1 1-2.83-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 1 1 0-4h.09a1.65 1.65 0 0 0 1.51-1 1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 1 1 2.83-2.83l.06.06a1.65 1.65 0 0 0 1.82.33h.01a1.65 1.65 0 0 0 1-1.51V3a2 2 0 1 1 4 0v.09a1.65 1.65 0 0 0 1 1.51h.01a1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 1 1 2.83 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82v.01a1.65 1.65 0 0 0 1.51 1H21a2 2 0 1 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg>
+        Settings
+      </a>
+    </nav>
+
+    <div class="spacer"></div>
+
+    <div class="upgrade-card">
+      <span class="close">&times;</span>
+      <div class="tile">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"/><polyline points="3.27 6.96 12 12.01 20.73 6.96"/><line x1="12" y1="22.08" x2="12" y2="12"/></svg>
+      </div>
+      <h3>Upgrade to Pro!</h3>
+      <p>Unlock Premium Features and Manage Unlimited projects</p>
+      <div class="btn-upgrade">Upgrade Now</div>
+    </div>
+  </aside>
+
+  <!-- ============ MAIN ============ -->
+  <main class="main">
+
+    <!-- Topbar -->
+    <div class="topbar">
+      <div class="crumb">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><circle cx="12" cy="12" r="3"/></svg>
+        Dashboard
+      </div>
+      <div class="right">
+        <span class="updated">Last Updated 12 May 2025</span>
+        <div class="avatar-stack">
+          <span class="avatar sz-26" style="background:#8a6f52;">DJ</span>
+          <span class="avatar sz-26" style="background:#56617a;">JC</span>
+          <span class="avatar sz-26" style="background:#6f5a7d;">MM</span>
+        </div>
+        <span class="icon-btn">
+          <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M4 12v8a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-8"/><polyline points="16 6 12 2 8 6"/><line x1="12" y1="2" x2="12" y2="15"/></svg>
+        </span>
+      </div>
+    </div>
+
+    <!-- Header row -->
+    <div class="header-row">
+      <div>
+        <h1>Welcome Back, John Cornor! &#x1F44B;</h1>
+        <div class="stats"><b>4</b> Tasks Due Today, <b>2</b> Overdue Tasks, <b>8</b> Upcoming Deadlines (This Week)</div>
+      </div>
+      <div class="header-actions">
+        <span class="btn">
+          <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/></svg>
+          Export
+        </span>
+        <span class="btn-primary-sliver"></span>
+      </div>
+    </div>
+
+    <!-- KPI row -->
+    <div class="kpi-row">
+      <div class="kpi-card">
+        <div class="label">Total Projects</div>
+        <div class="value">15</div>
+        <div class="delta"><b>+5</b> vs last month</div>
+        <svg class="picto" viewBox="0 0 44 44" fill="none"><path d="M5 13a4 4 0 0 1 4-4h8.5l3.5 5H35a4 4 0 0 1 4 4v13a4 4 0 0 1-4 4H9a4 4 0 0 1-4-4z" fill="#2a2a2e" stroke="#3a3a3f" stroke-width="1.5"/></svg>
+      </div>
+      <div class="kpi-card">
+        <div class="label">Total Task</div>
+        <div class="value">10</div>
+        <div class="delta"><b>+2</b> vs last month</div>
+        <svg class="picto" viewBox="0 0 44 44" fill="none"><rect x="10" y="6" width="24" height="32" rx="4" fill="#2a2a2e" stroke="#3a3a3f" stroke-width="1.5"/><path d="M16 16h12M16 22h12M16 28h8" stroke="#3a3a3f" stroke-width="2" stroke-linecap="round"/></svg>
+      </div>
+      <div class="kpi-card">
+        <div class="label">In Reviews</div>
+        <div class="value">23</div>
+        <div class="delta"><b>+12</b> vs last month</div>
+        <svg class="picto" viewBox="0 0 44 44" fill="none"><rect x="9" y="8" width="26" height="30" rx="4" fill="#2a2a2e" stroke="#3a3a3f" stroke-width="1.5"/><rect x="16.5" y="4" width="11" height="8" rx="2.5" fill="#2a2a2e" stroke="#3a3a3f" stroke-width="1.5"/><circle cx="22" cy="24" r="6" stroke="#3a3a3f" stroke-width="1.5"/><path d="M26.5 28.5l3 3" stroke="#3a3a3f" stroke-width="1.5" stroke-linecap="round"/></svg>
+      </div>
+      <div class="kpi-card">
+        <div class="label">Completed Tasks</div>
+        <div class="value">50</div>
+        <div class="delta"><b>+15</b> vs last month</div>
+        <svg class="picto" viewBox="0 0 44 44" fill="none"><path d="M22 5 38 13v18L22 39 6 31V13z" fill="#2a2a2e" stroke="#3a3a3f" stroke-width="1.5" stroke-linejoin="round"/><path d="M6 13l16 8 16-8M22 21v18" stroke="#3a3a3f" stroke-width="1.5" stroke-linejoin="round"/></svg>
+      </div>
+    </div>
+
+    <!-- Middle row -->
+    <div class="middle-row">
+
+      <!-- Today's Tasks -->
+      <div class="card">
+        <div class="card-header">
+          <span class="title">Today's Tasks</span>
+          <div class="tools">
+            <div class="search">
+              <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="7"/><path d="M21 21l-4.35-4.35"/></svg>
+              <input type="text" placeholder="Search here..">
+            </div>
+            <span class="btn sm">
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><polygon points="22 3 2 3 10 12.46 10 19 14 21 14 12.46 22 3"/></svg>
+              Filter
+            </span>
+          </div>
+        </div>
+        <div class="tasks-head">
+          <span>Task Name</span>
+          <span>Project</span>
+          <span>Due</span>
+        </div>
+        <div class="task-row">
+          <div class="name-cell"><span class="checkbox"></span><span class="task-name">Prepare Q2 report</span></div>
+          <div class="project-cell">
+            <svg width="15" height="15" viewBox="0 0 24 24"><path d="M2 6.5A2.5 2.5 0 0 1 4.5 4h4.2l2 2.5h8.8A2.5 2.5 0 0 1 22 9v8.5a2.5 2.5 0 0 1-2.5 2.5h-15A2.5 2.5 0 0 1 2 17.5z" fill="#5b6cff"/></svg>
+            Fintech Project
+          </div>
+          <div class="due-cell">12 Mar 2024</div>
+        </div>
+        <div class="task-row">
+          <div class="name-cell"><span class="checkbox"></span><span class="task-name">Finalize homepage design</span></div>
+          <div class="project-cell">
+            <svg width="15" height="15" viewBox="0 0 24 24"><path d="M2 6.5A2.5 2.5 0 0 1 4.5 4h4.2l2 2.5h8.8A2.5 2.5 0 0 1 22 9v8.5a2.5 2.5 0 0 1-2.5 2.5h-15A2.5 2.5 0 0 1 2 17.5z" fill="#8b5cf6"/></svg>
+            Brodo Redesign
+          </div>
+          <div class="due-cell">12 Mar 2024</div>
+        </div>
+        <div class="task-row">
+          <div class="name-cell"><span class="checkbox"></span><span class="task-name">Review onboarding checklist</span></div>
+          <div class="project-cell">
+            <svg width="15" height="15" viewBox="0 0 24 24"><path d="M2 6.5A2.5 2.5 0 0 1 4.5 4h4.2l2 2.5h8.8A2.5 2.5 0 0 1 22 9v8.5a2.5 2.5 0 0 1-2.5 2.5h-15A2.5 2.5 0 0 1 2 17.5z" fill="#2dd4bf"/></svg>
+            HR Setup
+          </div>
+          <div class="due-cell">12 Mar 2024</div>
+        </div>
+        <div class="task-row">
+          <div class="name-cell"><span class="checkbox"></span><span class="task-name">Finalize homepage design</span></div>
+          <div class="project-cell">
+            <svg width="15" height="15" viewBox="0 0 24 24"><path d="M2 6.5A2.5 2.5 0 0 1 4.5 4h4.2l2 2.5h8.8A2.5 2.5 0 0 1 22 9v8.5a2.5 2.5 0 0 1-2.5 2.5h-15A2.5 2.5 0 0 1 2 17.5z" fill="#5b6cff"/></svg>
+            Lucas Projects
+          </div>
+          <div class="due-cell">12 Mar 2024</div>
+        </div>
+        <div class="task-row">
+          <div class="name-cell"><span class="checkbox"></span><span class="task-name">Finalize homepage design</span></div>
+          <div class="project-cell">
+            <svg width="15" height="15" viewBox="0 0 24 24"><path d="M2 6.5A2.5 2.5 0 0 1 4.5 4h4.2l2 2.5h8.8A2.5 2.5 0 0 1 22 9v8.5a2.5 2.5 0 0 1-2.5 2.5h-15A2.5 2.5 0 0 1 2 17.5z" fill="#d946ef"/></svg>
+            All in One Project
+          </div>
+          <div class="due-cell">12 Mar 2024</div>
+        </div>
+      </div>
+
+      <!-- Performance -->
+      <div class="card perf-card">
+        <div class="title">Performance</div>
+        <div class="perf-big">
+          <span class="pct">86%</span>
+          <span class="vs">+15% vs last Week</span>
+        </div>
+        <div class="chart">
+          <div class="bar-track"><div class="bar-fill" style="height:82%;"></div></div>
+          <div class="bar-track"><div class="bar-fill" style="height:51%;"></div></div>
+          <div class="bar-track"><div class="bar-fill hi" style="height:86%;"></div></div>
+          <div class="bar-track"><div class="bar-fill" style="height:45%;"></div></div>
+          <div class="bar-track"><div class="bar-fill" style="height:82%;"></div></div>
+        </div>
+        <div class="chart-labels">
+          <div class="cl"><div class="val">+82%</div><div class="day">Mon</div></div>
+          <div class="cl"><div class="val">+51%</div><div class="day">Tue</div></div>
+          <div class="cl"><div class="val">+86%</div><div class="day">Wed</div></div>
+          <div class="cl"><div class="val">+45%</div><div class="day">Thu</div></div>
+          <div class="cl"><div class="val">+82%</div><div class="day">Fri</div></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- List Projects -->
+    <div class="card projects-card">
+      <div class="card-header">
+        <span class="title">List Projects</span>
+        <div class="tools">
+          <div class="search">
+            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="7"/><path d="M21 21l-4.35-4.35"/></svg>
+            <input type="text" placeholder="Search here..">
+          </div>
+          <span class="btn sm">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><polygon points="22 3 2 3 10 12.46 10 19 14 21 14 12.46 22 3"/></svg>
+            Filter
+          </span>
+        </div>
+      </div>
+      <div class="proj-head">
+        <span>Project Name</span>
+        <span>Status</span>
+        <span>Progress</span>
+        <span>Total Tasks</span>
+        <span>Due Date</span>
+        <span>Owner</span>
+      </div>
+
+      <div class="proj-row">
+        <div class="proj-name">
+          <svg width="15" height="15" viewBox="0 0 24 24"><path d="M2 6.5A2.5 2.5 0 0 1 4.5 4h4.2l2 2.5h8.8A2.5 2.5 0 0 1 22 9v8.5a2.5 2.5 0 0 1-2.5 2.5h-15A2.5 2.5 0 0 1 2 17.5z" fill="#5b6cff"/></svg>
+          Fintech Project
+        </div>
+        <div>
+          <span class="pill progress">
+            <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><path d="M21 12a9 9 0 1 1-4.2-7.6"/></svg>
+            In Progress
+          </span>
+        </div>
+        <div class="progress-cell">
+          <span class="ticks">
+            <span class="tick f-blue"></span><span class="tick f-blue"></span><span class="tick f-blue"></span><span class="tick f-blue"></span><span class="tick f-blue"></span><span class="tick f-blue"></span><span class="tick f-blue"></span><span class="tick"></span><span class="tick"></span><span class="tick"></span>
+          </span>
+          <span class="pct">70%</span>
+        </div>
+        <div class="count-cell">14 <span>/ 20</span></div>
+        <div class="date-cell">12 Mar 2024</div>
+        <div class="owner-cell">
+          <span class="avatar sz-22" style="background:#6f5a7d;">MM</span>
+          Michael M
+        </div>
+      </div>
+
+      <div class="proj-row">
+        <div class="proj-name">
+          <svg width="15" height="15" viewBox="0 0 24 24"><path d="M2 6.5A2.5 2.5 0 0 1 4.5 4h4.2l2 2.5h8.8A2.5 2.5 0 0 1 22 9v8.5a2.5 2.5 0 0 1-2.5 2.5h-15A2.5 2.5 0 0 1 2 17.5z" fill="#8b5cf6"/></svg>
+          Brodo Redesign
+        </div>
+        <div>
+          <span class="pill completed">
+            <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
+            Completed
+          </span>
+        </div>
+        <div class="progress-cell">
+          <span class="ticks">
+            <span class="tick f-green"></span><span class="tick f-green"></span><span class="tick f-green"></span><span class="tick f-green"></span><span class="tick f-green"></span><span class="tick f-green"></span><span class="tick f-green"></span><span class="tick f-green"></span><span class="tick f-green"></span><span class="tick f-green"></span>
+          </span>
+          <span class="pct">100%</span>
+        </div>
+        <div class="count-cell">25 <span>/ 25</span></div>
+        <div class="date-cell">16 Mar 2024</div>
+        <div class="owner-cell">
+          <span class="avatar sz-22" style="background:#56617a;">JC</span>
+          Jhon Cena
+        </div>
+      </div>
+
+      <div class="proj-row">
+        <div class="proj-name">
+          <svg width="15" height="15" viewBox="0 0 24 24"><path d="M2 6.5A2.5 2.5 0 0 1 4.5 4h4.2l2 2.5h8.8A2.5 2.5 0 0 1 22 9v8.5a2.5 2.5 0 0 1-2.5 2.5h-15A2.5 2.5 0 0 1 2 17.5z" fill="#2dd4bf"/></svg>
+          HR Setup
+        </div>
+        <div>
+          <span class="pill hold">
+            <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><path d="M21 12a9 9 0 1 1-4.2-7.6"/></svg>
+            On Hold
+          </span>
+        </div>
+        <div class="progress-cell">
+          <span class="ticks">
+            <span class="tick f-gray"></span><span class="tick f-gray"></span><span class="tick f-gray"></span><span class="tick f-gray"></span><span class="tick f-gray"></span><span class="tick f-gray"></span><span class="tick f-gray"></span><span class="tick"></span><span class="tick"></span><span class="tick"></span>
+          </span>
+          <span class="pct">70%</span>
+        </div>
+        <div class="count-cell">8 <span>/ 20</span></div>
+        <div class="date-cell">18 May 2024</div>
+        <div class="owner-cell">
+          <span class="avatar sz-22" style="background:#8a6f52;">DJ</span>
+          Dawne Jay
+        </div>
+      </div>
+    </div>
+
+  </main>
+</div>
+</body>
+</html>

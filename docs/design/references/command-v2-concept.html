@@ -1,0 +1,451 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Loc8 Command — v2 concept (product-grade shell)</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet">
+<style>
+/* ============================================================
+   Loc8 Command v2 — synthesis concept
+   Shell density + chrome: Kravio · cards/tables: Taskplus ·
+   window framing + quiet monochrome: Lunor.
+   Kept from our system: tactical semantics (green/amber/red/blue
+   ONLY as meaning), Space Mono for machine data, the map, comms.
+   Dropped: display-font headlines, gradients, glows (except SOS).
+   ============================================================ */
+:root{
+  --desk:#232325;         /* desktop behind the app window */
+  --win:#0f0f11;          /* app window */
+  --card:#151517;
+  --card2:#17171a;
+  --line:rgba(255,255,255,.06);
+  --line2:rgba(255,255,255,.09);
+  --ink:#ececef;
+  --mut:#8b8b92;
+  --dim:#616168;
+  --lab:#55555c;
+  --ok:#3fd68f;
+  --amber:#f0b34e;
+  --red:#f4655f;
+  --blue:#7aa2ff;
+  --mono:'Space Mono',ui-monospace,monospace;
+}
+*{box-sizing:border-box;margin:0;padding:0}
+body{background:var(--desk);font-family:Inter,-apple-system,sans-serif;font-size:12px;color:var(--ink);-webkit-font-smoothing:antialiased;padding:36px 16px}
+svg{display:block}
+.mono{font-family:var(--mono)}
+
+/* ---- window (Lunor) ---- */
+.win{max-width:1240px;margin:0 auto;background:var(--win);border:1px solid rgba(255,255,255,.07);border-radius:14px;overflow:hidden;display:grid;grid-template-columns:236px 1fr}
+
+/* ---- sidebar (Kravio density, Lunor switcher) ---- */
+.side{border-right:1px solid var(--line);display:flex;flex-direction:column;padding:14px 12px;min-height:960px}
+.ws{display:flex;align-items:center;gap:9px;padding:8px 9px;background:var(--card);border:1px solid var(--line2);border-radius:10px}
+.ws .tile{width:28px;height:28px;border-radius:7px;background:#0a0a0c;border:1px solid var(--line2);display:grid;place-items:center;font-weight:700;font-size:11px}
+.ws .tile b{color:var(--ok)}
+.ws .n{font-size:12.5px;font-weight:600}
+.ws .s{font-size:10px;color:var(--dim);margin-top:1px}
+.ws .chev{margin-left:auto;color:var(--dim)}
+.search{margin-top:12px;display:flex;align-items:center;gap:8px;background:var(--card);border:1px solid var(--line);border-radius:8px;padding:8px 10px;color:var(--dim)}
+.search .kbd{margin-left:auto;font-size:10px;border:1px solid var(--line2);border-radius:5px;padding:1px 5px;color:var(--dim)}
+.sec{font-size:9.5px;letter-spacing:1.2px;color:var(--lab);font-weight:600;padding:0 10px;margin:16px 0 6px}
+.nav a{display:flex;align-items:center;gap:10px;padding:8px 10px;border-radius:7px;color:#9a9aa1;font-size:12.5px;font-weight:500;text-decoration:none;border:1px solid transparent}
+.nav a:hover{color:var(--ink)}
+.nav a.on{background:#1e1e22;border-color:var(--line2);color:var(--ink)}
+.nav .badge{margin-left:auto;font-family:var(--mono);font-size:9.5px;font-weight:700;color:var(--red);background:rgba(244,101,95,.12);border:1px solid rgba(244,101,95,.3);border-radius:6px;padding:1px 6px}
+.nav .chev{margin-left:auto;color:var(--dim)}
+.grow{flex:1}
+/* comms — our wedge, promoted into the chrome */
+.comms{border:1px solid var(--line);border-radius:9px;background:var(--card);padding:10px 11px;display:flex;flex-direction:column;gap:7px;margin-bottom:10px}
+.comms .t{font-size:9.5px;letter-spacing:1.2px;color:var(--lab);font-weight:600}
+.crow{display:flex;align-items:center;gap:7px;font-family:var(--mono);font-size:10px}
+.crow .d{width:6px;height:6px;border-radius:50%}
+.crow .l{color:var(--mut);letter-spacing:.5px;width:64px}
+.crow .v{font-weight:700}
+.crow .m{margin-left:auto;color:var(--dim);font-size:9px}
+.user{display:flex;align-items:center;gap:9px;border:1px solid var(--line);border-radius:9px;background:var(--card);padding:8px 10px}
+.av{width:28px;height:28px;border-radius:50%;display:grid;place-items:center;font-size:10.5px;font-weight:600;color:#0d0d0f;flex:none}
+.user .nm{font-size:12px;font-weight:600}
+.user .em{font-size:10.5px;color:var(--dim)}
+.user .chev{margin-left:auto;color:var(--dim)}
+
+/* ---- topbar (Kravio) ---- */
+.top{height:46px;display:flex;align-items:center;gap:8px;padding:0 18px;border-bottom:1px solid var(--line);color:var(--mut)}
+.top .crumb b{color:var(--ink);font-weight:500}
+.top .sp{margin-left:auto;display:flex;align-items:center;gap:12px}
+.clock{font-family:var(--mono);font-size:12px;color:var(--ink)}
+.sel{display:flex;align-items:center;gap:7px;border:1px solid var(--line);border-radius:7px;padding:6px 10px;font-size:11.5px;color:#c9c9cf}
+.iconbtn{width:28px;height:28px;border:1px solid var(--line);border-radius:7px;display:grid;place-items:center;color:var(--mut);position:relative}
+.iconbtn .dot{position:absolute;top:5px;right:5px;width:6px;height:6px;border-radius:50%;background:var(--red)}
+
+/* ---- content ---- */
+.main{padding:16px 18px 22px}
+.hd{display:flex;align-items:flex-end;justify-content:space-between}
+.hd h1{font-size:19px;font-weight:600;letter-spacing:-.2px}
+.hd .sub{margin-top:4px;color:var(--mut);font-size:12px}
+.hd .sub b{color:var(--ink);font-weight:600}
+.hd .sub .r{color:var(--red);font-weight:600}
+.btn{display:inline-flex;align-items:center;gap:7px;border:1px solid var(--line2);border-radius:8px;background:var(--card);color:var(--ink);font-size:12.5px;font-weight:500;padding:8px 13px;cursor:pointer}
+.btn.amber{color:var(--amber);border-color:rgba(240,179,78,.35);background:rgba(240,179,78,.08)}
+.actions{display:flex;gap:8px}
+
+/* ---- stat cards (Taskplus values + Kravio chips/sparks) ---- */
+.kpis{display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin-top:14px}
+.kpi{background:var(--card);border:1px solid var(--line);border-radius:10px;padding:13px 14px}
+.kpi .h{display:flex;align-items:center;justify-content:space-between;color:var(--mut);font-size:12px}
+.kpi .chip{width:24px;height:24px;border:1px solid var(--line);border-radius:6px;display:grid;place-items:center;color:var(--mut)}
+.kpi .v{font-size:26px;font-weight:600;margin-top:8px}
+.kpi .v.red{color:var(--red)}
+.kpi .v.amber{color:var(--amber)}
+.kpi .f{display:flex;align-items:center;justify-content:space-between;margin-top:6px;font-size:10.5px;color:var(--dim)}
+.kpi .f b{font-weight:600}
+.up{color:var(--ok)} .dn{color:var(--red)} .wn{color:var(--amber)}
+
+/* ---- grid ---- */
+.grid{display:grid;grid-template-columns:1fr 1fr 1fr 300px;gap:12px;margin-top:12px}
+.card{background:var(--card);border:1px solid var(--line);border-radius:10px;overflow:hidden}
+.chd{display:flex;align-items:center;gap:8px;padding:12px 14px}
+.chd .t{font-size:13px;font-weight:600}
+.chd .sp{margin-left:auto;display:flex;align-items:center;gap:8px}
+.seg{display:flex;border:1px solid var(--line);border-radius:7px;background:var(--win);padding:2px}
+.seg span{padding:4px 10px;border-radius:5px;font-size:11px;color:var(--mut)}
+.seg .on{background:#232327;color:var(--ink)}
+.leg{display:flex;gap:10px;font-size:10.5px;color:var(--mut)}
+.leg i{width:7px;height:7px;border-radius:50%;display:inline-block;margin-right:5px}
+
+/* ---- map ---- */
+.mapcard{grid-column:1/4}
+.map{position:relative;height:296px;background:#0c0c0e;border-top:1px solid var(--line);
+  background-image:linear-gradient(rgba(255,255,255,.025) 1px,transparent 1px),linear-gradient(90deg,rgba(255,255,255,.025) 1px,transparent 1px);
+  background-size:34px 34px}
+.zone{position:absolute;border:1px solid rgba(255,255,255,.07);border-radius:8px;background:rgba(255,255,255,.012)}
+.zlab{position:absolute;font-family:var(--mono);font-size:9px;color:var(--dim);letter-spacing:1px}
+.gd{position:absolute;width:22px;height:22px;border-radius:50%;display:grid;place-items:center;font-family:var(--mono);font-weight:700;font-size:9.5px;color:#0c0c0e;transform:translate(-50%,-50%);border:2px solid #0c0c0e}
+.gd.ok{background:var(--ok)} .gd.am{background:var(--amber);border-radius:7px}
+.sos{position:absolute;transform:translate(-50%,-50%)}
+.sos .core{width:26px;height:26px;border-radius:50%;background:var(--red);display:grid;place-items:center;color:#fff;position:relative;z-index:2}
+.sos .ring{position:absolute;left:50%;top:50%;width:26px;height:26px;border:1.5px solid var(--red);border-radius:50%;transform:translate(-50%,-50%);animation:ping 2s ease-out infinite}
+@keyframes ping{0%{width:26px;height:26px;opacity:.7}100%{width:74px;height:74px;opacity:0}}
+.soslab{position:absolute;left:50%;top:22px;transform:translateX(-50%);white-space:nowrap;font-family:var(--mono);font-size:9px;color:var(--red);background:#141416;border:1px solid rgba(244,101,95,.35);border-radius:5px;padding:2px 7px;z-index:3}
+
+/* ---- feed (Kravio activity) ---- */
+.feedcard{grid-column:4/5;grid-row:1/2;display:flex;flex-direction:column}
+.feed{padding:0 13px 13px;overflow:hidden}
+.fi{display:flex;gap:10px;align-items:flex-start;padding:9px 0;border-top:1px solid var(--line)}
+.fi:first-child{border-top:none}
+.fi .ic{width:26px;height:26px;border-radius:50%;border:1px solid var(--line);background:#1a1a1d;display:grid;place-items:center;color:#9a9aa1;flex:none}
+.fi .ic.red{color:var(--red);border-color:rgba(244,101,95,.3)}
+.fi .ic.ok{color:var(--ok)}
+.fi .ic.am{color:var(--amber)}
+.fi .tt{font-size:11.5px;font-weight:500;color:#d6d6da}
+.fi .ss{font-size:10.5px;color:var(--dim);margin-top:2px}
+.fi .tm{margin-left:auto;font-family:var(--mono);font-size:9.5px;color:var(--dim);padding-top:2px}
+
+/* ---- incidents table (Kravio SLA) ---- */
+.tblcard{grid-column:1/5}
+table{width:100%;border-collapse:collapse;table-layout:fixed}
+th{font-size:10.5px;font-weight:600;color:var(--dim);text-align:left;padding:9px 14px;border-top:1px solid var(--line);white-space:nowrap;overflow:hidden}
+td{font-size:12px;padding:11px 14px;border-top:1px solid var(--line);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+tr.rowsel td{background:#17171a}
+.tid{font-family:var(--mono);font-size:11px;color:#c9c9cf}
+.prio{display:flex;align-items:center;gap:7px;color:#c9c9cf}
+.bars{display:flex;align-items:flex-end;gap:1.5px}
+.bars i{width:3px;border-radius:1px;background:#2e2e33}
+.bars i:nth-child(1){height:5px}.bars i:nth-child(2){height:8px}.bars i:nth-child(3){height:11px}
+.bars.red i:nth-child(3){background:var(--red)} .bars.red i:nth-child(2){background:var(--red)} .bars.red i:nth-child(1){background:var(--red)}
+.bars.am i:nth-child(1),.bars.am i:nth-child(2){background:var(--amber)}
+.bars.ok i:nth-child(1){background:var(--ok)}
+.st{display:flex;align-items:center;gap:7px;color:#c9c9cf}
+.st i{width:7px;height:7px;border-radius:50%}
+.avs{display:flex}
+.avs .av{width:22px;height:22px;font-size:9px;border:2px solid var(--card);margin-left:-7px}
+.avs .av:first-child{margin-left:0}
+.left{font-family:var(--mono);font-size:11px}
+.left.red{color:var(--red);font-weight:700}
+.left.am{color:var(--amber)}
+.dots{color:var(--dim)}
+
+/* ---- roster strip ---- */
+.roster{margin-top:12px}
+.pill{display:inline-flex;align-items:center;gap:6px;border:1px solid var(--line2);border-radius:999px;padding:3.5px 10px;font-size:11px;color:#c9c9cf}
+.pill i{width:6px;height:6px;border-radius:50%}
+.pill.ok{border-color:rgba(63,214,143,.3);color:var(--ok)} .pill.ok i{background:var(--ok)}
+.pill.am{border-color:rgba(240,179,78,.35);color:var(--amber)} .pill.am i{background:var(--amber)}
+.pill.red{border-color:rgba(244,101,95,.4);color:var(--red);background:rgba(244,101,95,.08)} .pill.red i{background:var(--red)}
+.floor{font-family:var(--mono);font-size:10px;border:1px solid var(--line2);border-radius:5px;padding:1px 6px;color:var(--mut)}
+.namecell{display:flex;align-items:center;gap:9px;font-weight:500;color:#dcdcde}
+.viewall{padding:10px 14px;border-top:1px solid var(--line);font-size:11.5px;color:var(--mut)}
+</style>
+</head>
+<body>
+
+<div class="win">
+  <!-- ================= SIDEBAR ================= -->
+  <aside class="side">
+    <div class="ws">
+      <div class="tile">L<b>8</b></div>
+      <div><div class="n">Loc8 Command</div><div class="s">Ministry of Sound</div></div>
+      <svg class="chev" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M7 9l5-5 5 5M7 15l5 5 5-5"/></svg>
+    </div>
+
+    <div class="search">
+      <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><circle cx="11" cy="11" r="7"/><path d="M20 20l-3.5-3.5"/></svg>
+      Search anything
+      <span class="kbd">⌘ K</span>
+    </div>
+
+    <div class="sec">OPERATIONS</div>
+    <nav class="nav">
+      <a class="on" href="#">
+        <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><rect x="3.5" y="3.5" width="7" height="7" rx="1.5"/><rect x="13.5" y="3.5" width="7" height="7" rx="1.5"/><rect x="3.5" y="13.5" width="7" height="7" rx="1.5"/><rect x="13.5" y="13.5" width="7" height="7" rx="1.5"/></svg>
+        Overview</a>
+      <a href="#">
+        <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><circle cx="12" cy="12" r="9"/><path d="M12 8v5M12 16.5v.01"/></svg>
+        Incidents <span class="badge">2</span></a>
+      <a href="#">
+        <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M16 19v-1a4 4 0 0 0-4-4H7a4 4 0 0 0-4 4v1"/><circle cx="9.5" cy="8" r="3"/><path d="M21 19v-1a4 4 0 0 0-3-3.8"/></svg>
+        Muster</a>
+      <a href="#">
+        <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M4 12l16-8-6 16-3-6-7-2z"/></svg>
+        Dispatch log</a>
+    </nav>
+
+    <div class="sec">PEOPLE</div>
+    <nav class="nav">
+      <a href="#">
+        <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><rect x="5" y="4" width="14" height="17" rx="2"/><path d="M9 9h6M9 13h6M9 17h3"/></svg>
+        Roster &amp; shift</a>
+      <a href="#">
+        <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><rect x="3.5" y="3.5" width="17" height="17" rx="2"/><path d="M3.5 9.2h17M9.2 3.5v17"/></svg>
+        Coverage map</a>
+    </nav>
+
+    <div class="sec">GOVERNANCE</div>
+    <nav class="nav">
+      <a href="#">
+        <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><circle cx="11" cy="11" r="6"/><path d="M20 20l-4-4"/></svg>
+        Assisted search</a>
+      <a href="#">
+        <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M12 3l7 3v5c0 4.5-3 8-7 10-4-2-7-5.5-7-10V6z"/><path d="M9.5 12l2 2 3.5-3.5"/></svg>
+        Audit trail</a>
+    </nav>
+
+    <div class="grow"></div>
+
+    <!-- the wedge, promoted into chrome -->
+    <div class="comms">
+      <div class="t">COMMS</div>
+      <div class="crow"><span class="d" style="border:1.5px solid var(--red)"></span><span class="l">CELLULAR</span><span class="v" style="color:var(--red);text-decoration:line-through">DOWN</span><span class="m">no service</span></div>
+      <div class="crow"><span class="d" style="border:1.5px solid var(--red)"></span><span class="l">VENUE WIFI</span><span class="v" style="color:var(--red);text-decoration:line-through">DOWN</span><span class="m">unavailable</span></div>
+      <div class="crow"><span class="d" style="background:var(--ok)"></span><span class="l">MESH</span><span class="v" style="color:var(--ok)">LIVE</span><span class="m">15 nodes</span></div>
+      <div class="crow"><span class="d" style="background:var(--ok)"></span><span class="l">BRIDGE</span><span class="v" style="color:var(--ok)">LIVE</span><span class="m">gateway 07</span></div>
+    </div>
+
+    <div class="user">
+      <div class="av" style="background:#7a5c49;color:#fff">NC</div>
+      <div><div class="nm">Night Control</div><div class="em">SUP · on since 22:00</div></div>
+      <svg class="chev" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M7 9l5-5 5 5M7 15l5 5 5-5"/></svg>
+    </div>
+  </aside>
+
+  <!-- ================= MAIN ================= -->
+  <div>
+    <div class="top">
+      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><rect x="3.5" y="3.5" width="7" height="7" rx="1.5"/><rect x="13.5" y="3.5" width="7" height="7" rx="1.5"/><rect x="3.5" y="13.5" width="7" height="7" rx="1.5"/><rect x="13.5" y="13.5" width="7" height="7" rx="1.5"/></svg>
+      <span class="crumb">Operations / <b>Overview</b></span>
+      <div class="sp">
+        <span class="clock">23:47:52</span>
+        <span class="sel">Night Shift
+          <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M6 9l6 6 6-6"/></svg></span>
+        <span class="iconbtn"><span class="dot"></span>
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M18 9a6 6 0 1 0-12 0c0 6-2 7-2 7h16s-2-1-2-7"/><path d="M10 20a2 2 0 0 0 4 0"/></svg></span>
+        <span class="iconbtn">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><circle cx="12" cy="12" r="3"/><path d="M19 12a7 7 0 0 0-.1-1.2l2-1.5-2-3.4-2.3 1a7 7 0 0 0-2-1.2L14.2 3h-4.4l-.4 2.7a7 7 0 0 0-2 1.2l-2.3-1-2 3.4 2 1.5A7 7 0 0 0 5 12c0 .4 0 .8.1 1.2l-2 1.5 2 3.4 2.3-1a7 7 0 0 0 2 1.2l.4 2.7h4.4l.4-2.7a7 7 0 0 0 2-1.2l2.3 1 2-3.4-2-1.5c.1-.4.1-.8.1-1.2z"/></svg></span>
+      </div>
+    </div>
+
+    <div class="main">
+      <div class="hd">
+        <div>
+          <h1>Ministry of Sound — Night Shift</h1>
+          <div class="sub"><b class="r">1 active SOS</b>, <b>2</b> responding, <b>12</b> on duty · <span class="mono" style="font-size:10.5px">network-independent · mesh</span></div>
+        </div>
+        <div class="actions">
+          <button class="btn">
+            <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M7 3h7l4 4v14H7z"/><path d="M14 3v4h4"/></svg>
+            Export report</button>
+          <button class="btn amber">
+            <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M16 19v-1a4 4 0 0 0-4-4H7a4 4 0 0 0-4 4v1"/><circle cx="9.5" cy="8" r="3"/></svg>
+            Call muster</button>
+        </div>
+      </div>
+
+      <!-- KPIs -->
+      <div class="kpis">
+        <div class="kpi">
+          <div class="h">On duty <span class="chip"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M16 19v-1a4 4 0 0 0-4-4H7a4 4 0 0 0-4 4v1"/><circle cx="9.5" cy="8" r="3"/></svg></span></div>
+          <div class="v">12</div>
+          <div class="f"><span><b class="up">+2</b> vs last shift</span>
+            <svg width="60" height="20" viewBox="0 0 60 20"><polyline points="0,14 10,13 20,15 30,10 40,11 50,7 60,6" fill="none" stroke="#3fd68f" stroke-width="1.5" opacity=".8"/></svg></div>
+        </div>
+        <div class="kpi">
+          <div class="h">Responding <span class="chip"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M4 12l16-8-6 16-3-6-7-2z"/></svg></span></div>
+          <div class="v amber">2</div>
+          <div class="f"><span>both to <b>Gate C</b></span>
+            <svg width="60" height="20" viewBox="0 0 60 20"><polyline points="0,16 12,16 22,9 34,10 46,5 60,6" fill="none" stroke="#f0b34e" stroke-width="1.5" opacity=".8"/></svg></div>
+        </div>
+        <div class="kpi">
+          <div class="h">SOS active <span class="chip" style="color:var(--red);border-color:rgba(244,101,95,.3)"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><circle cx="12" cy="12" r="9"/><path d="M12 8v5M12 16.5v.01"/></svg></span></div>
+          <div class="v red">1</div>
+          <div class="f"><span class="mono" style="color:var(--red)">01:43 elapsed</span><span class="mono">panic hold</span></div>
+        </div>
+        <div class="kpi">
+          <div class="h">Coverage <span class="chip"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><rect x="3.5" y="3.5" width="17" height="17" rx="2"/><path d="M3.5 9.2h17M9.2 3.5v17"/></svg></span></div>
+          <div class="v">83%</div>
+          <div class="f"><span><b class="wn">-9%</b> perimeter thin</span>
+            <svg width="60" height="20" viewBox="0 0 60 20"><polyline points="0,6 12,7 24,6 36,9 48,12 60,11" fill="none" stroke="#f0b34e" stroke-width="1.5" opacity=".8"/></svg></div>
+        </div>
+      </div>
+
+      <!-- map + feed -->
+      <div class="grid">
+        <div class="card mapcard">
+          <div class="chd">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" style="color:var(--mut)"><path d="M12 21s-6-5.2-6-10a6 6 0 1 1 12 0c0 4.8-6 10-6 10z"/><circle cx="12" cy="11" r="2.2"/></svg>
+            <span class="t">Tactical map</span>
+            <div class="sp">
+              <span class="leg"><span><i style="background:var(--ok)"></i>on post</span><span><i style="background:var(--amber)"></i>responding</span><span><i style="background:var(--red)"></i>SOS</span></span>
+              <div class="seg"><span class="on">G</span><span>L1</span><span>L2</span><span>B1</span></div>
+            </div>
+          </div>
+          <div class="map">
+            <div class="zone" style="left:4%;top:8%;width:34%;height:44%"></div><div class="zlab" style="left:5.5%;top:12%">MAIN ROOM</div>
+            <div class="zone" style="left:44%;top:8%;width:26%;height:34%"></div><div class="zlab" style="left:45.5%;top:12%">BAR</div>
+            <div class="zone" style="left:4%;top:60%;width:26%;height:32%"></div><div class="zlab" style="left:5.5%;top:64%">SMOKING</div>
+            <div class="zone" style="left:76%;top:14%;width:20%;height:30%"></div><div class="zlab" style="left:77.5%;top:18%">GATE C</div>
+            <div class="zone" style="left:60%;top:58%;width:36%;height:34%"></div><div class="zlab" style="left:61.5%;top:62%">CAR PARK</div>
+            <div class="gd ok" style="left:16%;top:26%">01</div>
+            <div class="gd ok" style="left:30%;top:38%">08</div>
+            <div class="gd ok" style="left:52%;top:22%">02</div>
+            <div class="gd ok" style="left:60%;top:32%">04</div>
+            <div class="gd ok" style="left:13%;top:76%">06</div>
+            <div class="gd ok" style="left:22%;top:84%">11</div>
+            <div class="gd am" style="left:72%;top:44%">05</div>
+            <div class="gd am" style="left:68%;top:52%">03</div>
+            <div class="gd am" style="left:80%;top:74%">09</div>
+            <div class="sos" style="left:85%;top:26%">
+              <span class="ring"></span>
+              <span class="core"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2"><path d="M12 4l9 16H3z"/><path d="M12 10v4M12 17v.01"/></svg></span>
+              <span class="soslab">SOS · G-07 · 01:43</span>
+            </div>
+          </div>
+        </div>
+
+        <div class="card feedcard">
+          <div class="chd"><span class="t">Live feed</span>
+            <div class="sp"><div class="seg"><span class="on">All</span><span>SOS</span><span>Comms</span></div></div>
+          </div>
+          <div class="feed">
+            <div class="fi"><span class="ic red"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M12 4l9 16H3z"/><path d="M12 10v4M12 17v.01"/></svg></span>
+              <span><span class="tt">SOS raised — Guard 07</span><span class="ss" style="display:block">Gate C · panic hold · mesh-confirmed</span></span><span class="tm">23:47</span></div>
+            <div class="fi"><span class="ic"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M4 12l16-8-6 16-3-6-7-2z"/></svg></span>
+              <span><span class="tt">Dispatch sent — cordon Gate C</span><span class="ss" style="display:block">3 frames · team broadcast</span></span><span class="tm">23:48</span></div>
+            <div class="fi"><span class="ic am"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M12 8v5M12 16.5v.01"/><circle cx="12" cy="12" r="9"/></svg></span>
+              <span><span class="tt">Status: On scene — Marcus</span><span class="ss" style="display:block">quick reply · 56 m from incident</span></span><span class="tm">23:49</span></div>
+            <div class="fi"><span class="ic red"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M12 3l7 3v5c0 4.5-3 8-7 10-4-2-7-5.5-7-10V6z"/></svg></span>
+              <span><span class="tt">Silent duress decoded</span><span class="ss" style="display:block">covert · no device acknowledgment</span></span><span class="tm">23:46</span></div>
+            <div class="fi"><span class="ic ok"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M4 12l5 5L20 6"/></svg></span>
+              <span><span class="tt">Lone check-in OK — Sofia</span><span class="ss" style="display:block">auto · Car Park · B1</span></span><span class="tm">23:44</span></div>
+            <div class="fi"><span class="ic"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M16 19v-1a4 4 0 0 0-4-4H7a4 4 0 0 0-4 4v1"/><circle cx="9.5" cy="8" r="3"/></svg></span>
+              <span><span class="tt">Muster stood down</span><span class="ss" style="display:block">9/12 accounted · drill</span></span><span class="tm">23:20</span></div>
+          </div>
+        </div>
+
+        <!-- incidents table -->
+        <div class="card tblcard">
+          <div class="chd">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" style="color:var(--mut)"><path d="M12 3l7 3v5c0 4.5-3 8-7 10-4-2-7-5.5-7-10V6z"/><path d="M9.5 12l2 2 3.5-3.5"/></svg>
+            <span class="t">Open incidents</span>
+            <div class="sp">
+              <span class="sel" style="padding:6px 10px"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M4 6h16M7 12h10M10 18h4"/></svg> Filter</span>
+            </div>
+          </div>
+          <table>
+            <tr><th style="width:90px">ID</th><th style="width:110px">Kind</th><th style="width:90px">Zone</th><th>Subject</th><th style="width:110px">Responders</th><th style="width:130px">Status</th><th style="width:80px">Raised</th><th style="width:80px">Elapsed</th><th style="width:36px"></th></tr>
+            <tr class="rowsel">
+              <td class="tid">#SOS-0442</td>
+              <td><span class="prio"><span class="bars red"><i></i><i></i><i></i></span>SOS</span></td>
+              <td class="mono" style="font-size:11px;color:var(--mut)">GATE C</td>
+              <td style="color:#d6d6da">Priya Okafor · panic hold</td>
+              <td><span class="avs"><span class="av" style="background:#56617a;color:#fff">M</span><span class="av" style="background:#6f5a7d;color:#fff">P</span></span></td>
+              <td><span class="st"><i style="background:var(--red)"></i>Active</span></td>
+              <td class="mono" style="font-size:11px;color:var(--mut)">23:47</td>
+              <td class="left red">01:43</td>
+              <td class="dots">⋮</td>
+            </tr>
+            <tr>
+              <td class="tid">#DUR-7710</td>
+              <td><span class="prio"><span class="bars red"><i></i><i></i><i></i></span>Duress</span></td>
+              <td class="mono" style="font-size:11px;color:var(--mut)">BAR</td>
+              <td style="color:#d6d6da">Luca Bianchi · covert signal</td>
+              <td><span class="avs"><span class="av" style="background:#7a5c49;color:#fff">J</span></span></td>
+              <td><span class="st"><i style="background:#8f9bff"></i>Acknowledged</span></td>
+              <td class="mono" style="font-size:11px;color:var(--mut)">23:46</td>
+              <td class="left am">02:51</td>
+              <td class="dots">⋮</td>
+            </tr>
+            <tr>
+              <td class="tid">#LW-0091</td>
+              <td><span class="prio"><span class="bars am"><i></i><i></i><i></i></span>Lone</span></td>
+              <td class="mono" style="font-size:11px;color:var(--mut)">CAR PARK</td>
+              <td style="color:#d6d6da">Sofia Delgado · check-in</td>
+              <td><span class="avs"><span class="av" style="background:#56617a;color:#fff">—</span></span></td>
+              <td><span class="st"><i style="background:var(--ok)"></i>Resolved</span></td>
+              <td class="mono" style="font-size:11px;color:var(--mut)">23:44</td>
+              <td class="left" style="color:var(--dim)">00:02</td>
+              <td class="dots">⋮</td>
+            </tr>
+          </table>
+        </div>
+      </div>
+
+      <!-- roster strip -->
+      <div class="card roster">
+        <div class="chd"><span class="t">Roster · Team B</span>
+          <div class="sp"><span style="font-size:11px;color:var(--dim)">12 on shift</span></div>
+        </div>
+        <table>
+          <tr><th>Guard</th><th style="width:70px">Badge</th><th style="width:110px">Zone</th><th style="width:70px">Floor</th><th style="width:140px">Status</th><th style="width:90px">Last ping</th><th style="width:36px"></th></tr>
+          <tr>
+            <td><span class="namecell"><span class="av" style="background:#6f5a7d;color:#fff">P</span>Priya Okafor</span></td>
+            <td class="mono" style="font-size:11px">07</td><td style="color:var(--mut)">Gate C</td><td><span class="floor">G</span></td>
+            <td><span class="pill red"><i></i>SOS</span></td><td class="mono" style="font-size:11px;color:var(--mut)">23:47</td><td class="dots">⋮</td>
+          </tr>
+          <tr>
+            <td><span class="namecell"><span class="av" style="background:#56617a;color:#fff">M</span>Marcus Reyes</span></td>
+            <td class="mono" style="font-size:11px">05</td><td style="color:var(--mut)">→ Gate C</td><td><span class="floor">G</span></td>
+            <td><span class="pill am"><i></i>RESPONDING</span></td><td class="mono" style="font-size:11px;color:var(--mut)">23:49</td><td class="dots">⋮</td>
+          </tr>
+          <tr>
+            <td><span class="namecell"><span class="av" style="background:#7a5c49;color:#fff">K</span>Kofi Adeyemi</span></td>
+            <td class="mono" style="font-size:11px">01</td><td style="color:var(--mut)">Main Room</td><td><span class="floor">G</span></td>
+            <td><span class="pill ok"><i></i>ON POST</span></td><td class="mono" style="font-size:11px;color:var(--mut)">23:52</td><td class="dots">⋮</td>
+          </tr>
+          <tr>
+            <td><span class="namecell"><span class="av" style="background:#8a6f52;color:#fff">S</span>Sofia Delgado</span></td>
+            <td class="mono" style="font-size:11px">09</td><td style="color:var(--mut)">Car Park</td><td><span class="floor">B1</span></td>
+            <td><span class="pill am"><i></i>LONE</span></td><td class="mono" style="font-size:11px;color:var(--mut)">23:44</td><td class="dots">⋮</td>
+          </tr>
+        </table>
+        <div class="viewall">View all 12 →</div>
+      </div>
+
+    </div>
+  </div>
+</div>
+
+</body>
+</html>

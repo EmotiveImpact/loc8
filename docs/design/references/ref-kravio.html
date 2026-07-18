@@ -1,0 +1,731 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Kravio — Support Dashboard</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --white:#ececef;
+    --gray:#8b8b92;
+    --faint:#616168;
+    --hair:rgba(255,255,255,0.06);
+    --card:#151517;
+    --main:#0f0f11;
+    --green:#4ade80;
+    --red:#f87171;
+  }
+  *{margin:0;padding:0;box-sizing:border-box;}
+  body{
+    background:#232325;
+    font-family:'Inter',-apple-system,BlinkMacSystemFont,sans-serif;
+    font-size:12px;
+    line-height:1.4;
+    color:var(--gray);
+    -webkit-font-smoothing:antialiased;
+  }
+  /* icons */
+  svg.ic{
+    fill:none;stroke:currentColor;stroke-width:2.25;
+    stroke-linecap:round;stroke-linejoin:round;
+    width:16px;height:16px;flex-shrink:0;
+  }
+  svg.ic14{width:14px;height:14px;stroke-width:2.5;}
+  svg.ic12{width:12px;height:12px;stroke-width:2.5;}
+  svg.dots{fill:currentColor;stroke:none;width:14px;height:14px;flex-shrink:0;}
+  svg.sortg{fill:none;stroke:#55555c;stroke-width:2.5;stroke-linecap:round;stroke-linejoin:round;width:9px;height:9px;flex-shrink:0;}
+
+  .app{
+    max-width:1240px;
+    margin:36px auto;
+    border-radius:14px;
+    background:var(--main);
+    border:1px solid rgba(255,255,255,0.07);
+    overflow:hidden;
+    display:grid;
+    grid-template-columns:236px 1fr;
+  }
+
+  /* ============ SIDEBAR ============ */
+  .side{
+    border-right:1px solid var(--hair);
+    padding:14px 12px;
+    display:flex;
+    flex-direction:column;
+  }
+  .logo-row{display:flex;align-items:center;gap:9px;padding:0 2px;}
+  .logo-tile{
+    width:26px;height:26px;border-radius:7px;background:#232327;
+    display:flex;align-items:center;justify-content:center;
+    color:#fff;font-size:13px;font-weight:700;
+  }
+  .logo-name{color:var(--white);font-size:14px;font-weight:600;}
+  .collapse{margin-left:auto;color:var(--faint);display:flex;}
+
+  .search{
+    display:flex;align-items:center;gap:8px;
+    background:var(--card);
+    border:1px solid var(--hair);
+    border-radius:8px;
+    padding:8px 10px;
+    color:var(--faint);
+    font-size:12px;
+  }
+  .side .search{margin-top:12px;}
+  .kbd{
+    margin-left:auto;
+    font-size:10.5px;color:var(--faint);
+    border:1px solid var(--hair);
+    border-radius:5px;
+    padding:1px 5px;
+    white-space:nowrap;
+  }
+
+  .slabel{
+    font-size:9.5px;letter-spacing:1.2px;color:#55555c;font-weight:600;
+    padding-left:10px;
+    margin:16px 0 6px;
+  }
+  .nav{display:flex;flex-direction:column;gap:1px;}
+  .nitem{
+    display:flex;align-items:center;gap:10px;
+    padding:8px 10px;border-radius:7px;
+    font-size:12.5px;font-weight:500;color:#9a9aa1;
+    border:1px solid transparent;
+  }
+  .nitem.on{
+    background:#1e1e22;
+    border-color:rgba(255,255,255,0.09);
+    color:var(--white);
+  }
+  .nitem .chev{margin-left:auto;color:var(--faint);display:flex;}
+  .subnav{
+    margin-left:17px;
+    border-left:1px solid #2a2a2e;
+    display:flex;flex-direction:column;
+  }
+  .subnav .sitem{
+    padding:6px 10px 6px 9px;
+    font-size:12px;color:var(--gray);
+  }
+  .spacer{flex:1 1 auto;}
+
+  .usercard{
+    margin-top:12px;
+    border-radius:9px;
+    border:1px solid var(--hair);
+    background:var(--card);
+    padding:8px 10px;
+    display:flex;align-items:center;gap:9px;
+  }
+  .uav{
+    width:28px;height:28px;border-radius:50%;background:#7a5c49;
+    display:flex;align-items:center;justify-content:center;
+    color:#fff;font-size:10.5px;font-weight:600;flex-shrink:0;
+  }
+  .uname{color:var(--white);font-size:12px;font-weight:600;line-height:1.25;}
+  .umail{color:var(--faint);font-size:10.5px;line-height:1.25;}
+  .usercard .chev{margin-left:auto;color:var(--faint);display:flex;}
+
+  /* ============ MAIN ============ */
+  .topbar{
+    height:46px;
+    padding:0 18px;
+    display:flex;align-items:center;gap:10px;
+    border-bottom:1px solid var(--hair);
+  }
+  .crumb-a{color:var(--gray);font-size:12.5px;}
+  .crumb-sep{color:#55555c;font-size:12.5px;}
+  .crumb-b{color:var(--white);font-size:12.5px;font-weight:500;}
+  .topbar-right{margin-left:auto;display:flex;align-items:center;gap:12px;color:var(--gray);}
+  .topbar-right svg{display:block;}
+
+  .content{padding:16px 18px;}
+
+  .head-row{display:flex;align-items:flex-start;justify-content:space-between;}
+  .hello{color:var(--white);font-size:19px;font-weight:600;}
+  .hello-sub{color:var(--gray);font-size:12px;margin-top:4px;}
+  .head-actions{display:flex;align-items:center;gap:8px;}
+  .select{
+    display:inline-flex;align-items:center;gap:8px;
+    border:1px solid var(--hair);border-radius:7px;
+    padding:7px 11px;font-size:12px;color:#c9c9cf;
+    white-space:nowrap;
+  }
+  .select .chev{color:var(--gray);display:flex;}
+  .select.sm{padding:5px 9px;font-size:11px;}
+  .icobtn{
+    width:28px;height:28px;
+    border:1px solid var(--hair);border-radius:7px;
+    display:inline-flex;align-items:center;justify-content:center;
+    color:var(--gray);flex-shrink:0;
+  }
+
+  /* ---- top grid ---- */
+  .topgrid{
+    margin-top:14px;
+    display:grid;
+    grid-template-columns:1fr 1fr 1fr 300px;
+    grid-template-rows:auto auto;
+    gap:12px;
+  }
+  .card{
+    background:var(--card);
+    border:1px solid var(--hair);
+    border-radius:10px;
+  }
+  .stat{padding:13px 14px;}
+  .stat-h{display:flex;align-items:center;justify-content:space-between;color:var(--gray);font-size:12px;}
+  .chip24{
+    width:24px;height:24px;
+    border:1px solid var(--hair);border-radius:6px;
+    display:flex;align-items:center;justify-content:center;
+    color:var(--gray);
+  }
+  .stat-v{margin-top:8px;color:var(--white);font-size:26px;font-weight:600;line-height:1.1;}
+  .stat-d{margin-top:6px;display:flex;align-items:flex-end;justify-content:space-between;font-size:10.5px;color:var(--faint);}
+  .up{color:var(--green);}
+  .down{color:var(--red);}
+  .spark{flex-shrink:0;}
+
+  /* volume card */
+  .volume{grid-column:1 / 4;grid-row:2;}
+  .vol-h{padding:13px 14px;display:flex;align-items:center;gap:8px;}
+  .vol-h .t{color:var(--white);font-size:13px;font-weight:600;}
+  .vol-h .right{margin-left:auto;}
+  .vol-body{padding:0 14px 14px;}
+  .vol-num{display:flex;align-items:baseline;gap:8px;}
+  .vol-num .big{color:var(--white);font-size:24px;font-weight:600;}
+  .vol-num .d{font-size:10.5px;color:var(--faint);}
+  .chartwrap{display:flex;gap:12px;margin-top:14px;}
+  .plot{flex:1;position:relative;height:150px;}
+  .gl{position:absolute;left:0;right:0;border-top:1px dashed rgba(255,255,255,0.05);}
+  .bars{position:absolute;inset:0;display:flex;gap:10px;align-items:flex-end;}
+  .bcol{flex:1;height:100%;position:relative;display:flex;align-items:flex-end;}
+  .bar{
+    width:100%;
+    border-radius:6px 6px 0 0;
+    background:repeating-linear-gradient(90deg,#26262b 0 3px,transparent 3px 6px),#202024;
+  }
+  .bar.hot{
+    background:repeating-linear-gradient(90deg,#45454d 0 3px,transparent 3px 6px),#3a3a41;
+  }
+  .tip{
+    position:absolute;
+    bottom:calc(73% + 8px);
+    left:50%;transform:translateX(-50%);
+    background:#232327;border:1px solid var(--hair);
+    border-radius:6px;padding:3px 8px;
+    font-size:10.5px;color:var(--white);
+    white-space:nowrap;
+  }
+  .yaxis{width:26px;height:150px;position:relative;flex-shrink:0;}
+  .yaxis span{
+    position:absolute;right:0;transform:translateY(-50%);
+    font-size:9.5px;color:#55555c;
+  }
+  .days-row{display:flex;gap:12px;margin-top:8px;}
+  .days{flex:1;display:flex;gap:10px;}
+  .days span{flex:1;text-align:center;font-size:10px;color:var(--faint);}
+  .days-pad{width:26px;flex-shrink:0;}
+
+  /* latest updates */
+  .updates{grid-column:4;grid-row:1 / 3;padding:13px;display:flex;flex-direction:column;}
+  .upd-h{display:flex;align-items:center;justify-content:space-between;}
+  .upd-h .t{color:var(--white);font-size:13px;font-weight:600;}
+  .upd-h .cal{color:var(--gray);display:flex;}
+  .seg{
+    margin-top:10px;
+    display:flex;
+    border:1px solid var(--hair);border-radius:7px;
+    background:var(--main);
+    padding:2px;
+  }
+  .seg span{
+    flex:1;text-align:center;
+    padding:5px 10px;font-size:11px;color:var(--gray);
+    border-radius:5px;white-space:nowrap;
+  }
+  .seg .on{background:#232327;color:var(--white);}
+  .updates .search{margin-top:10px;}
+  .upd-count{margin-top:10px;font-size:10.5px;color:var(--faint);}
+  .feed{margin-top:4px;}
+  .arow{
+    display:flex;align-items:flex-start;gap:10px;
+    padding:9px 0;
+    border-top:1px solid var(--hair);
+  }
+  .feed .arow:first-child{border-top:0;}
+  .achip{
+    width:26px;height:26px;border-radius:50%;
+    border:1px solid var(--hair);background:#1a1a1d;
+    display:flex;align-items:center;justify-content:center;
+    color:#9a9aa1;flex-shrink:0;
+  }
+  .abody{flex:1;min-width:0;}
+  .atitle{color:#d6d6da;font-size:11.5px;font-weight:500;line-height:1.3;}
+  .asub{color:var(--faint);font-size:10.5px;line-height:1.3;margin-top:1px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;}
+  .atime{color:var(--faint);font-size:10px;padding-top:2px;flex-shrink:0;}
+
+  /* ---- SLA table ---- */
+  .sla{margin-top:12px;}
+  .sla-h{padding:12px 14px;display:flex;align-items:center;gap:8px;}
+  .sla-h .t{color:var(--white);font-size:13px;font-weight:600;}
+  .sla-h .right{margin-left:auto;display:flex;align-items:center;gap:8px;}
+  .sla-h .search{width:180px;padding:7px 10px;}
+  .btn{
+    display:inline-flex;align-items:center;gap:7px;
+    border:1px solid var(--hair);border-radius:7px;
+    padding:7px 11px;font-size:12px;color:#c9c9cf;
+  }
+  .tgrid{
+    display:grid;
+    grid-template-columns:34px 90px 1fr 110px 160px 130px 120px 90px 40px;
+    align-items:center;
+    padding:11px 14px;
+    border-top:1px solid var(--hair);
+    font-size:12px;
+  }
+  .tgrid.thead{
+    padding:9px 14px;
+    font-size:10.5px;font-weight:600;color:var(--faint);
+  }
+  .tgrid.sel{background:#17171a;}
+  .th{display:flex;align-items:center;gap:5px;}
+  .cb{
+    width:15px;height:15px;
+    border:1px solid rgba(255,255,255,0.16);
+    border-radius:4px;
+    flex-shrink:0;
+  }
+  .cb.on{
+    background:var(--white);border-color:var(--white);
+    display:flex;align-items:center;justify-content:center;
+  }
+  .c-id{color:#c9c9cf;}
+  .c-subj{color:#d6d6da;}
+  .c-prio{display:flex;align-items:center;gap:7px;color:#c9c9cf;}
+  .c-asg{display:flex;align-items:center;gap:8px;color:#c9c9cf;}
+  .av{
+    width:22px;height:22px;border-radius:50%;
+    display:inline-flex;align-items:center;justify-content:center;
+    color:#fff;font-size:9px;font-weight:600;flex-shrink:0;
+  }
+  .c-status{display:flex;align-items:center;gap:7px;color:#c9c9cf;}
+  .dot{width:7px;height:7px;border-radius:50%;flex-shrink:0;}
+  .c-date{color:var(--gray);}
+  .c-sla{color:#c9c9cf;}
+  .c-more{display:flex;justify-content:center;color:var(--gray);}
+</style>
+</head>
+<body>
+<div class="app">
+
+  <!-- ================= SIDEBAR ================= -->
+  <aside class="side">
+
+    <div class="logo-row">
+      <div class="logo-tile">K</div>
+      <div class="logo-name">Kravio</div>
+      <span class="collapse">
+        <svg class="ic" viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="16" rx="2"/><path d="M9 4v16"/></svg>
+      </span>
+    </div>
+
+    <div class="search">
+      <svg class="ic14" viewBox="0 0 24 24"><circle cx="11" cy="11" r="7"/><path d="m20 20-3.8-3.8"/></svg>
+      <span>Search anything</span>
+      <span class="kbd">&#8984; K</span>
+    </div>
+
+    <div class="slabel">MAIN NAVIGATION</div>
+    <nav class="nav">
+      <div class="nitem on">
+        <svg class="ic" viewBox="0 0 24 24"><rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="14" y="14" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/></svg>
+        Overview
+      </div>
+      <div class="nitem">
+        <svg class="ic" viewBox="0 0 24 24"><path d="M2 9a3 3 0 0 1 0 6v2a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2v-2a3 3 0 0 1 0-6V7a2 2 0 0 0-2-2H4a2 2 0 0 0-2 2Z"/><path d="M13 5v2M13 11v2M13 17v2"/></svg>
+        Tickets
+        <span class="chev"><svg class="ic12" viewBox="0 0 24 24"><path d="m6 9 6 6 6-6"/></svg></span>
+      </div>
+      <div class="subnav">
+        <div class="sitem">All / My Queue</div>
+        <div class="sitem">SLA Breach Risk</div>
+        <div class="sitem">Escalations</div>
+      </div>
+      <div class="nitem">
+        <svg class="ic" viewBox="0 0 24 24"><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M22 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
+        Clients
+      </div>
+      <div class="nitem">
+        <svg class="ic" viewBox="0 0 24 24"><rect x="2" y="5" width="20" height="14" rx="2"/><circle cx="9" cy="11" r="2"/><path d="M6.17 15a3 3 0 0 1 5.66 0"/><path d="M16 10h2M16 14h2"/></svg>
+        Agents &amp; Teams
+        <span class="chev"><svg class="ic12" viewBox="0 0 24 24"><path d="m6 9 6 6 6-6"/></svg></span>
+      </div>
+      <div class="nitem">
+        <svg class="ic" viewBox="0 0 24 24"><path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z"/><path d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z"/></svg>
+        Knowledge Base
+        <span class="chev"><svg class="ic12" viewBox="0 0 24 24"><path d="m6 9 6 6 6-6"/></svg></span>
+      </div>
+      <div class="nitem">
+        <svg class="ic" viewBox="0 0 24 24"><path d="M12 22v-5"/><path d="M9 8V2"/><path d="M15 8V2"/><path d="M18 8v5a4 4 0 0 1-4 4h-4a4 4 0 0 1-4-4V8Z"/></svg>
+        Integrations
+      </div>
+    </nav>
+
+    <div class="slabel">ANALYTICS &amp; INSIGHTS</div>
+    <nav class="nav">
+      <div class="nitem">
+        <svg class="ic" viewBox="0 0 24 24"><path d="m12 14 4-4"/><path d="M3.34 19a10 10 0 1 1 17.32 0"/></svg>
+        SLA Compliance
+      </div>
+      <div class="nitem">
+        <svg class="ic" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><path d="M8 14s1.5 2 4 2 4-2 4-2"/><path d="M9 9h.01M15 9h.01"/></svg>
+        CSAT &amp; NPS
+      </div>
+      <div class="nitem">
+        <svg class="ic" viewBox="0 0 24 24"><path d="M12 20V10"/><path d="M18 20V4"/><path d="M6 20v-4"/></svg>
+        Workload Analytics
+      </div>
+      <div class="nitem">
+        <svg class="ic" viewBox="0 0 24 24"><path d="M15 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V7Z"/><path d="M14 2v4a2 2 0 0 0 2 2h4"/><path d="M8 13h8M8 17h5"/></svg>
+        Reports
+      </div>
+    </nav>
+
+    <div class="spacer"></div>
+
+    <div class="slabel">SUPPORT</div>
+    <nav class="nav">
+      <div class="nitem">
+        <svg class="ic" viewBox="0 0 24 24"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>
+        Feedback
+      </div>
+      <div class="nitem">
+        <svg class="ic" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><circle cx="12" cy="12" r="4"/><path d="m4.93 4.93 4.24 4.24"/><path d="m14.83 14.83 4.24 4.24"/><path d="m14.83 9.17 4.24-4.24"/><path d="m9.17 14.83-4.24 4.24"/></svg>
+        Help &amp; Support
+      </div>
+      <div class="nitem">
+        <svg class="ic" viewBox="0 0 24 24"><path d="M12.22 2h-.44a2 2 0 0 0-2 2v.18a2 2 0 0 1-1 1.73l-.43.25a2 2 0 0 1-2 0l-.15-.08a2 2 0 0 0-2.73.73l-.22.38a2 2 0 0 0 .73 2.73l.15.1a2 2 0 0 1 1 1.72v.51a2 2 0 0 1-1 1.74l-.15.09a2 2 0 0 0-.73 2.73l.22.38a2 2 0 0 0 2.73.73l.15-.08a2 2 0 0 1 2 0l.43.25a2 2 0 0 1 1 1.73V20a2 2 0 0 0 2 2h.44a2 2 0 0 0 2-2v-.18a2 2 0 0 1 1-1.73l.43-.25a2 2 0 0 1 2 0l.15.08a2 2 0 0 0 2.73-.73l.22-.39a2 2 0 0 0-.73-2.73l-.15-.08a2 2 0 0 1-1-1.74v-.5a2 2 0 0 1 1-1.74l.15-.09a2 2 0 0 0 .73-2.73l-.22-.38a2 2 0 0 0-2.73-.73l-.15.08a2 2 0 0 1-2 0l-.43-.25a2 2 0 0 1-1-1.73V4a2 2 0 0 0-2-2z"/><circle cx="12" cy="12" r="3"/></svg>
+        Settings
+      </div>
+    </nav>
+
+    <div class="usercard">
+      <div class="uav">SW</div>
+      <div>
+        <div class="uname">Samantha Walker</div>
+        <div class="umail">samanwalker@gmail.com</div>
+      </div>
+      <span class="chev"><svg class="ic14" viewBox="0 0 24 24"><path d="m7 15 5 5 5-5"/><path d="m7 9 5-5 5 5"/></svg></span>
+    </div>
+
+  </aside>
+
+  <!-- ================= MAIN ================= -->
+  <main>
+
+    <div class="topbar">
+      <svg class="ic14" viewBox="0 0 24 24" style="color:var(--gray)"><rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="14" y="14" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/></svg>
+      <span class="crumb-a">Overview</span>
+      <span class="crumb-sep">/</span>
+      <span class="crumb-b">Dashboard</span>
+      <div class="topbar-right">
+        <svg class="ic" viewBox="0 0 24 24"><path d="M6 8a6 6 0 0 1 12 0c0 7 3 9 3 9H3s3-2 3-9"/><path d="M10.3 21a1.94 1.94 0 0 0 3.4 0"/></svg>
+        <svg class="ic" viewBox="0 0 24 24"><path d="M12.22 2h-.44a2 2 0 0 0-2 2v.18a2 2 0 0 1-1 1.73l-.43.25a2 2 0 0 1-2 0l-.15-.08a2 2 0 0 0-2.73.73l-.22.38a2 2 0 0 0 .73 2.73l.15.1a2 2 0 0 1 1 1.72v.51a2 2 0 0 1-1 1.74l-.15.09a2 2 0 0 0-.73 2.73l.22.38a2 2 0 0 0 2.73.73l.15-.08a2 2 0 0 1 2 0l.43.25a2 2 0 0 1 1 1.73V20a2 2 0 0 0 2 2h.44a2 2 0 0 0 2-2v-.18a2 2 0 0 1 1-1.73l.43-.25a2 2 0 0 1 2 0l.15.08a2 2 0 0 0 2.73-.73l.22-.39a2 2 0 0 0-.73-2.73l-.15-.08a2 2 0 0 1-1-1.74v-.5a2 2 0 0 1 1-1.74l.15-.09a2 2 0 0 0 .73-2.73l-.22-.38a2 2 0 0 0-2.73-.73l-.15.08a2 2 0 0 1-2 0l-.43-.25a2 2 0 0 1-1-1.73V4a2 2 0 0 0-2-2z"/><circle cx="12" cy="12" r="3"/></svg>
+      </div>
+    </div>
+
+    <div class="content">
+
+      <div class="head-row">
+        <div>
+          <div class="hello">Hello, Samantha Walker &#128075;</div>
+          <div class="hello-sub">Here are the latest insights from your customer interactions.</div>
+        </div>
+        <div class="head-actions">
+          <span class="select">Last week
+            <span class="chev"><svg class="ic12" viewBox="0 0 24 24"><path d="m6 9 6 6 6-6"/></svg></span>
+          </span>
+          <span class="icobtn">
+            <svg class="dots" viewBox="0 0 24 24"><circle cx="12" cy="5" r="1.6"/><circle cx="12" cy="12" r="1.6"/><circle cx="12" cy="19" r="1.6"/></svg>
+          </span>
+        </div>
+      </div>
+
+      <div class="topgrid">
+
+        <!-- stat 1 -->
+        <div class="card stat">
+          <div class="stat-h">
+            <span>Total Tickets</span>
+            <span class="chip24"><svg class="ic12" viewBox="0 0 24 24"><path d="M2 9a3 3 0 0 1 0 6v2a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2v-2a3 3 0 0 1 0-6V7a2 2 0 0 0-2-2H4a2 2 0 0 0-2 2Z"/><path d="M13 5v2M13 11v2M13 17v2"/></svg></span>
+          </div>
+          <div class="stat-v">3,484</div>
+          <div class="stat-d">
+            <span><span class="up">+71%</span> vs last week</span>
+            <svg class="spark" width="60" height="22" viewBox="0 0 60 22" fill="none">
+              <polyline points="1,17 9,14 17,15.5 25,10 33,12 41,7.5 49,9 59,4" stroke="#4ade80" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" opacity="0.85"/>
+            </svg>
+          </div>
+        </div>
+
+        <!-- stat 2 -->
+        <div class="card stat">
+          <div class="stat-h">
+            <span>Active Tickets</span>
+            <span class="chip24"><svg class="ic12" viewBox="0 0 24 24"><path d="M13 2 3 14h9l-1 8 10-12h-9l1-8Z"/></svg></span>
+          </div>
+          <div class="stat-v">486</div>
+          <div class="stat-d">
+            <span><span class="up">+71%</span> vs last week</span>
+            <svg class="spark" width="60" height="22" viewBox="0 0 60 22" fill="none">
+              <polyline points="1,14 9,15.5 17,11 25,13 33,9 41,10.5 49,6 59,7.5" stroke="#4ade80" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" opacity="0.85"/>
+            </svg>
+          </div>
+        </div>
+
+        <!-- stat 3 -->
+        <div class="card stat">
+          <div class="stat-h">
+            <span>SLA Compliance</span>
+            <span class="chip24"><svg class="ic12" viewBox="0 0 24 24"><path d="m12 14 4-4"/><path d="M3.34 19a10 10 0 1 1 17.32 0"/></svg></span>
+          </div>
+          <div class="stat-v">92%</div>
+          <div class="stat-d">
+            <span><span class="down">-13%</span> vs last week</span>
+            <svg class="spark" width="60" height="22" viewBox="0 0 60 22" fill="none">
+              <polyline points="1,5 9,7 17,6 25,10 33,9 41,13 49,12 59,17.5" stroke="#f87171" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" opacity="0.85"/>
+            </svg>
+          </div>
+        </div>
+
+        <!-- volume trend (row 2, spans stat columns) -->
+        <div class="card volume">
+          <div class="vol-h">
+            <svg class="ic14" viewBox="0 0 24 24" style="color:var(--gray)"><path d="M3 3v18h18"/><path d="m7 14 4-4 3 3 5-6"/></svg>
+            <span class="t">Ticket Volume Trend</span>
+            <span class="select sm right">Last week
+              <span class="chev"><svg class="ic12" viewBox="0 0 24 24"><path d="m6 9 6 6 6-6"/></svg></span>
+            </span>
+          </div>
+          <div class="vol-body">
+            <div class="vol-num">
+              <span class="big">4,790</span>
+              <span class="d"><span class="up">+8%</span> vs last week</span>
+            </div>
+            <div class="chartwrap">
+              <div class="plot">
+                <i class="gl" style="top:0"></i>
+                <i class="gl" style="top:25%"></i>
+                <i class="gl" style="top:50%"></i>
+                <i class="gl" style="top:75%"></i>
+                <i class="gl" style="top:calc(100% - 1px)"></i>
+                <div class="bars">
+                  <div class="bcol"><div class="bar" style="height:45%"></div></div>
+                  <div class="bcol"><div class="bar" style="height:55%"></div></div>
+                  <div class="bcol">
+                    <div class="bar hot" style="height:73%"></div>
+                    <span class="tip">Tue : 584</span>
+                  </div>
+                  <div class="bcol"><div class="bar" style="height:60%"></div></div>
+                  <div class="bcol"><div class="bar" style="height:66%"></div></div>
+                  <div class="bcol"><div class="bar" style="height:52%"></div></div>
+                  <div class="bcol"><div class="bar" style="height:42%"></div></div>
+                </div>
+              </div>
+              <div class="yaxis">
+                <span style="top:0">800</span>
+                <span style="top:25%">600</span>
+                <span style="top:50%">400</span>
+                <span style="top:75%">200</span>
+                <span style="top:100%">0</span>
+              </div>
+            </div>
+            <div class="days-row">
+              <div class="days">
+                <span>Sun</span><span>Mon</span><span>Tue</span><span>Wed</span><span>Thu</span><span>Fri</span><span>Sat</span>
+              </div>
+              <div class="days-pad"></div>
+            </div>
+          </div>
+        </div>
+
+        <!-- latest updates (spans both rows) -->
+        <div class="card updates">
+          <div class="upd-h">
+            <span class="t">Latest Updates</span>
+            <span class="cal"><svg class="ic14" viewBox="0 0 24 24"><path d="M8 2v4M16 2v4"/><rect x="3" y="4" width="18" height="18" rx="2"/><path d="M3 10h18"/></svg></span>
+          </div>
+          <div class="seg">
+            <span class="on">Today</span>
+            <span>Yesterday</span>
+            <span>This week</span>
+          </div>
+          <div class="search">
+            <svg class="ic14" viewBox="0 0 24 24"><circle cx="11" cy="11" r="7"/><path d="m20 20-3.8-3.8"/></svg>
+            <span>Search activities</span>
+          </div>
+          <div class="upd-count">8 new activities today</div>
+          <div class="feed">
+            <div class="arow">
+              <span class="achip"><svg class="ic12" viewBox="0 0 24 24"><path d="M2 9a3 3 0 0 1 0 6v2a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2v-2a3 3 0 0 1 0-6V7a2 2 0 0 0-2-2H4a2 2 0 0 0-2 2Z"/><path d="M13 5v2M13 11v2M13 17v2"/></svg></span>
+              <div class="abody">
+                <div class="atitle">Ticket Updated</div>
+                <div class="asub">Ticket #2319 SLA updated</div>
+              </div>
+              <span class="atime">11:20 AM</span>
+            </div>
+            <div class="arow">
+              <span class="achip"><svg class="ic12" viewBox="0 0 24 24"><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M19 8v6M22 11h-6"/></svg></span>
+              <div class="abody">
+                <div class="atitle">New Client Added</div>
+                <div class="asub">PT. Alpha Indonesia registered</div>
+              </div>
+              <span class="atime">11:15 AM</span>
+            </div>
+            <div class="arow">
+              <span class="achip"><svg class="ic12" viewBox="0 0 24 24"><path d="m16 3 4 4-4 4"/><path d="M20 7H4"/><path d="m8 21-4-4 4-4"/><path d="M4 17h16"/></svg></span>
+              <div class="abody">
+                <div class="atitle">Agent Reassigned</div>
+                <div class="asub">Ticket #2322 moved to Michael Wong</div>
+              </div>
+              <span class="atime">11:00 AM</span>
+            </div>
+            <div class="arow">
+              <span class="achip"><svg class="ic12" viewBox="0 0 24 24"><path d="m21.73 18-8-14a2 2 0 0 0-3.48 0l-8 14A2 2 0 0 0 4 21h16a2 2 0 0 0 1.73-3Z"/><path d="M12 9v4"/><path d="M12 17h.01"/></svg></span>
+              <div class="abody">
+                <div class="atitle">SLA Breach Risk</div>
+                <div class="asub">Ticket #2320 &lsquo;Login issue&rsquo;</div>
+              </div>
+              <span class="atime">10:45 AM</span>
+            </div>
+            <div class="arow">
+              <span class="achip"><svg class="ic12" viewBox="0 0 24 24"><path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z"/><path d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z"/></svg></span>
+              <div class="abody">
+                <div class="atitle">Knowledge Base</div>
+                <div class="asub">New article published: &lsquo;Login Troubleshooting&rsquo;</div>
+              </div>
+              <span class="atime">10:30 AM</span>
+            </div>
+            <div class="arow">
+              <span class="achip"><svg class="ic12" viewBox="0 0 24 24"><path d="M19 14c1.49-1.46 3-3.21 3-5.5A5.5 5.5 0 0 0 16.5 3c-1.76 0-3 .5-4.5 2-1.5-1.5-2.74-2-4.5-2A5.5 5.5 0 0 0 3 8.5c0 2.3 1.5 4.05 3 5.5l6 6Z"/></svg></span>
+              <div class="abody">
+                <div class="atitle">Customer Feedback</div>
+                <div class="asub">&lsquo;Great support response, thanks Sarah!&rsquo;</div>
+              </div>
+              <span class="atime">10:30 AM</span>
+            </div>
+          </div>
+        </div>
+
+      </div><!-- /topgrid -->
+
+      <!-- ================= SLA MONITORING ================= -->
+      <div class="card sla">
+        <div class="sla-h">
+          <svg class="ic" viewBox="0 0 24 24" style="color:var(--gray)"><path d="M20 13c0 5-3.5 7.5-7.66 8.95a1 1 0 0 1-.67-.01C7.5 20.5 4 18 4 13V6a1 1 0 0 1 1-1c2 0 4.5-1.2 6.24-2.72a1 1 0 0 1 1.52 0C14.5 3.8 17 5 19 5a1 1 0 0 1 1 1z"/><path d="m9 12 2 2 4-4"/></svg>
+          <span class="t">SLA Monitoring</span>
+          <div class="right">
+            <div class="search">
+              <svg class="ic14" viewBox="0 0 24 24"><circle cx="11" cy="11" r="7"/><path d="m20 20-3.8-3.8"/></svg>
+              <span>Ticket</span>
+            </div>
+            <span class="btn">
+              <svg class="ic14" viewBox="0 0 24 24"><path d="M22 3H2l8 9.46V19l4 2v-8.54Z"/></svg>
+              Filter
+            </span>
+            <span class="icobtn">
+              <svg class="dots" viewBox="0 0 24 24"><circle cx="12" cy="5" r="1.6"/><circle cx="12" cy="12" r="1.6"/><circle cx="12" cy="19" r="1.6"/></svg>
+            </span>
+          </div>
+        </div>
+
+        <div class="tgrid thead">
+          <span class="cb"></span>
+          <span class="th">ID <svg class="sortg" viewBox="0 0 24 24"><path d="m7 15 5 5 5-5"/><path d="m7 9 5-5 5 5"/></svg></span>
+          <span class="th">Subject <svg class="sortg" viewBox="0 0 24 24"><path d="m7 15 5 5 5-5"/><path d="m7 9 5-5 5 5"/></svg></span>
+          <span class="th">Priority <svg class="sortg" viewBox="0 0 24 24"><path d="m7 15 5 5 5-5"/><path d="m7 9 5-5 5 5"/></svg></span>
+          <span class="th">Assigned To <svg class="sortg" viewBox="0 0 24 24"><path d="m7 15 5 5 5-5"/><path d="m7 9 5-5 5 5"/></svg></span>
+          <span class="th">Status <svg class="sortg" viewBox="0 0 24 24"><path d="m7 15 5 5 5-5"/><path d="m7 9 5-5 5 5"/></svg></span>
+          <span class="th">Created <svg class="sortg" viewBox="0 0 24 24"><path d="m7 15 5 5 5-5"/><path d="m7 9 5-5 5 5"/></svg></span>
+          <span class="th">SLA Due <svg class="sortg" viewBox="0 0 24 24"><path d="m7 15 5 5 5-5"/><path d="m7 9 5-5 5 5"/></svg></span>
+          <span></span>
+        </div>
+
+        <!-- row 1 : selected -->
+        <div class="tgrid sel">
+          <span class="cb on"><svg width="9" height="9" viewBox="0 0 24 24" fill="none" stroke="#0f0f11" stroke-width="3.5" stroke-linecap="round" stroke-linejoin="round"><path d="m4 12 5 5L20 6"/></svg></span>
+          <span class="c-id">#2319</span>
+          <span class="c-subj">Payment failed on invoice</span>
+          <span class="c-prio">
+            <svg width="13" height="13" viewBox="0 0 13 13"><rect x="0.5" y="8.5" width="2.6" height="4" rx="1" fill="#f87171" opacity="0.45"/><rect x="5" y="5.5" width="2.6" height="7" rx="1" fill="#f87171" opacity="0.7"/><rect x="9.5" y="1.5" width="2.6" height="11" rx="1" fill="#f87171"/></svg>
+            High
+          </span>
+          <span class="c-asg"><span class="av" style="background:#56617a">JD</span>John Doe</span>
+          <span class="c-status"><span class="dot" style="background:#8f9bff"></span>In Review</span>
+          <span class="c-date">2025-08-18</span>
+          <span class="c-sla">2h left</span>
+          <span class="c-more"><svg class="dots" viewBox="0 0 24 24"><circle cx="12" cy="5" r="1.6"/><circle cx="12" cy="12" r="1.6"/><circle cx="12" cy="19" r="1.6"/></svg></span>
+        </div>
+
+        <!-- row 2 -->
+        <div class="tgrid">
+          <span class="cb"></span>
+          <span class="c-id">#2320</span>
+          <span class="c-subj">Login issue</span>
+          <span class="c-prio">
+            <svg width="13" height="13" viewBox="0 0 13 13"><rect x="0.5" y="8.5" width="2.6" height="4" rx="1" fill="#f0b34e" opacity="0.75"/><rect x="5" y="5.5" width="2.6" height="7" rx="1" fill="#f0b34e"/><rect x="9.5" y="1.5" width="2.6" height="11" rx="1" fill="#3a3a41"/></svg>
+            Medium
+          </span>
+          <span class="c-asg"><span class="av" style="background:#7a5c49">SL</span>Sarah Lee</span>
+          <span class="c-status"><span class="dot" style="background:#4ade80"></span>Delivered</span>
+          <span class="c-date">2025-08-19</span>
+          <span class="c-sla">1h left</span>
+          <span class="c-more"><svg class="dots" viewBox="0 0 24 24"><circle cx="12" cy="5" r="1.6"/><circle cx="12" cy="12" r="1.6"/><circle cx="12" cy="19" r="1.6"/></svg></span>
+        </div>
+
+        <!-- row 3 -->
+        <div class="tgrid">
+          <span class="cb"></span>
+          <span class="c-id">#2321</span>
+          <span class="c-subj">Feature request export</span>
+          <span class="c-prio">
+            <svg width="13" height="13" viewBox="0 0 13 13"><rect x="0.5" y="8.5" width="2.6" height="4" rx="1" fill="#7dab8a"/><rect x="5" y="5.5" width="2.6" height="7" rx="1" fill="#3a3a41"/><rect x="9.5" y="1.5" width="2.6" height="11" rx="1" fill="#3a3a41"/></svg>
+            Low
+          </span>
+          <span class="c-asg"><span class="av" style="background:#56617a">JD</span>John Doe</span>
+          <span class="c-status"><span class="dot" style="background:#f0b34e"></span>In Progress</span>
+          <span class="c-date">2025-08-19</span>
+          <span class="c-sla">1d left</span>
+          <span class="c-more"><svg class="dots" viewBox="0 0 24 24"><circle cx="12" cy="5" r="1.6"/><circle cx="12" cy="12" r="1.6"/><circle cx="12" cy="19" r="1.6"/></svg></span>
+        </div>
+
+        <!-- row 4 -->
+        <div class="tgrid">
+          <span class="cb"></span>
+          <span class="c-id">#2322</span>
+          <span class="c-subj">Contract renewal issue</span>
+          <span class="c-prio">
+            <svg width="13" height="13" viewBox="0 0 13 13"><rect x="0.5" y="8.5" width="2.6" height="4" rx="1" fill="#f0b34e" opacity="0.75"/><rect x="5" y="5.5" width="2.6" height="7" rx="1" fill="#f0b34e"/><rect x="9.5" y="1.5" width="2.6" height="11" rx="1" fill="#3a3a41"/></svg>
+            Medium
+          </span>
+          <span class="c-asg"><span class="av" style="background:#6f5a7d">MW</span>Michael Wong</span>
+          <span class="c-status"><span class="dot" style="background:#f0b34e"></span>In Progress</span>
+          <span class="c-date">2025-08-20</span>
+          <span class="c-sla">9h left</span>
+          <span class="c-more"><svg class="dots" viewBox="0 0 24 24"><circle cx="12" cy="5" r="1.6"/><circle cx="12" cy="12" r="1.6"/><circle cx="12" cy="19" r="1.6"/></svg></span>
+        </div>
+
+      </div><!-- /sla -->
+
+    </div><!-- /content -->
+  </main>
+
+</div>
+</body>
+</html>
