@@ -1,0 +1,547 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Loc8 Command — Control Room Gallery</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Unbounded:wght@400;600;800&family=Sora:wght@300;400;500;600;700&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet">
+<style>
+  *{box-sizing:border-box;margin:0;padding:0}
+  :root{
+    --bg:#06070d;--panel:rgba(255,255,255,.04);--panel2:rgba(255,255,255,.02);--line:rgba(255,255,255,.09);
+    --ink:#fff;--muted:rgba(255,255,255,.55);--faint:rgba(255,255,255,.3);
+    --ok:#46e0a0;--caution:#ffb43a;--alert:#ff4053;--info:#7aa2ff;
+    --disp:'Unbounded',sans-serif;--body:'Sora',-apple-system,sans-serif;--mono:'Space Mono',monospace;
+  }
+  body{font-family:var(--body);color:var(--ink);min-height:100vh;
+    background:
+      radial-gradient(700px 500px at 85% -5%, rgba(255,64,83,.10), transparent 60%),
+      radial-gradient(700px 500px at 10% 5%, rgba(70,224,160,.08), transparent 60%),
+      linear-gradient(180deg,#080a12,#05060b 70%);
+    padding:36px 16px 90px;-webkit-font-smoothing:antialiased;position:relative;overflow-x:hidden}
+  body::after{content:'';position:fixed;inset:0;pointer-events:none;opacity:.05;z-index:999;mix-blend-mode:overlay;
+    background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='120' height='120'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.9'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E")}
+
+  /* header */
+  .head{max-width:1120px;margin:0 auto 30px;text-align:center}
+  .kicker{font-family:var(--mono);font-size:11px;letter-spacing:3px;text-transform:uppercase;color:var(--alert);font-weight:700}
+  .head h1{font-family:var(--disp);font-size:34px;font-weight:800;letter-spacing:-1px;margin-top:10px}
+  .head h1 b{color:var(--ok)}
+  .head p{color:var(--muted);font-size:13px;margin-top:12px;max-width:640px;margin-inline:auto;line-height:1.6}
+
+  /* section labels + captions */
+  .sect{max-width:1120px;margin:0 auto}
+  .slab{font-family:var(--mono);font-size:11px;letter-spacing:2px;text-transform:uppercase;color:var(--faint);margin:52px 0 16px;text-align:center}
+  .slab b{color:var(--ok)}
+  .cap{max-width:640px;margin:14px auto 0;text-align:center}
+  .cap h3{font-family:var(--disp);font-size:14px;font-weight:600}
+  .cap p{color:var(--muted);font-size:12px;margin-top:4px;line-height:1.5}
+
+  .icn{width:18px;height:18px;stroke:currentColor;stroke-width:2;fill:none;stroke-linecap:round;stroke-linejoin:round}
+
+  /* ===== Command console shell ===== */
+  .console{max-width:1120px;margin:0 auto;border-radius:20px;overflow:hidden;border:1px solid var(--line);
+    background:#080a11;box-shadow:0 40px 90px rgba(0,0,0,.6)}
+  .ctop{display:flex;align-items:center;gap:14px;padding:14px 18px;border-bottom:1px solid var(--line);background:rgba(255,255,255,.02)}
+  .ctop .logo{font-family:var(--disp);font-weight:800;font-size:16px}.ctop .logo b{color:var(--ok)}
+  .ctop .site{font-size:13px;color:var(--muted)}.ctop .site b{color:#fff}
+  .ctop .right{margin-left:auto;display:flex;align-items:center;gap:12px}
+  .ctag{font-family:var(--mono);font-size:10px;font-weight:700;color:var(--ok);background:rgba(70,224,160,.1);border:1px solid rgba(70,224,160,.25);padding:6px 10px;border-radius:9px}
+  .ctag.red{color:var(--alert);background:rgba(255,64,83,.12);border-color:rgba(255,64,83,.4)}
+  .ctag.amber{color:var(--caution);background:rgba(255,180,58,.1);border-color:rgba(255,180,58,.3)}
+  .ctime{font-family:var(--mono);font-size:13px;color:#fff}
+
+  .cbody{display:grid;grid-template-columns:230px 1fr 250px;min-height:460px}
+  .cleft,.cright{padding:14px;display:flex;flex-direction:column;gap:10px}
+  .cleft{border-right:1px solid var(--line)}.cright{border-left:1px solid var(--line)}
+
+  /* tiles */
+  .tiles{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+  .tile{background:var(--panel);border:1px solid var(--line);border-radius:12px;padding:11px}
+  .tile .n{font-family:var(--disp);font-size:24px;font-weight:800}
+  .tile .l{font-size:10px;color:var(--muted);margin-top:2px}
+  .tile.alert{background:rgba(255,64,83,.12);border-color:rgba(255,64,83,.4)}.tile.alert .n{color:var(--alert)}
+  .tile.ok .n{color:var(--ok)}
+  .tile.amber .n{color:var(--caution)}
+
+  .feedttl{font-family:var(--mono);font-size:10px;letter-spacing:1.5px;text-transform:uppercase;color:var(--faint);margin-top:4px}
+  .feed{display:flex;flex-direction:column;gap:7px;overflow:auto}
+  .fitem{display:flex;gap:9px;font-size:12px;padding:9px;border-radius:10px;background:var(--panel2);border:1px solid var(--line)}
+  .fitem.hot{background:rgba(255,64,83,.1);border-color:rgba(255,64,83,.35)}
+  .fitem .fdot{width:8px;height:8px;border-radius:50%;margin-top:4px;flex:none}
+  .fitem .ft{line-height:1.35}
+  .fitem .ft small{display:block;font-family:var(--mono);font-size:9px;color:var(--faint);margin-top:2px}
+
+  /* console map */
+  .cmap{position:relative;overflow:hidden;background:
+      linear-gradient(rgba(255,255,255,.03) 1px,transparent 1px) 0 0/34px 34px,
+      linear-gradient(90deg,rgba(255,255,255,.03) 1px,transparent 1px) 0 0/34px 34px,#0a0d15}
+  .zone{position:absolute;border:1px solid rgba(255,255,255,.06);border-radius:8px;background:rgba(255,255,255,.015)}
+  .zlab{position:absolute;font-family:var(--mono);font-size:8px;color:var(--faint);z-index:2}
+  .dot{position:absolute;width:26px;height:26px;border-radius:50%;display:flex;align-items:center;justify-content:center;
+    font-family:var(--disp);font-weight:700;font-size:11px;color:#06070d;transform:translate(-50%,-50%);box-shadow:0 0 0 3px #0a0d15;z-index:6}
+  .dot.ok{background:var(--ok)}
+  .dot.info{background:var(--info);box-shadow:0 0 0 3px #0a0d15,0 0 16px var(--info)}
+  .dot.caution{background:var(--caution)}
+  .dot.sos{background:var(--alert);color:#fff;box-shadow:0 0 0 3px #0a0d15,0 0 18px rgba(255,64,83,.7)}
+  .dot.off{background:rgba(255,255,255,.16);color:rgba(255,255,255,.55);box-shadow:0 0 0 3px #0a0d15}
+
+  .inc{position:absolute;transform:translate(-50%,-50%);z-index:8}
+  .inc .core{width:30px;height:30px;border-radius:50%;background:var(--alert);display:flex;align-items:center;justify-content:center;box-shadow:0 0 22px rgba(255,64,83,.7)}
+  .inc .r{position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);width:30px;height:30px;border-radius:50%;border:2px solid var(--alert);animation:ping2 1.8s ease-out infinite}
+  @keyframes ping2{0%{width:30px;height:30px;opacity:.8}100%{width:82px;height:82px;opacity:0}}
+  .inclab{position:absolute;top:34px;left:50%;transform:translateX(-50%);font-family:var(--mono);font-size:8px;font-weight:700;color:var(--alert);white-space:nowrap;background:rgba(6,7,13,.8);padding:2px 6px;border-radius:6px}
+
+  /* assembly point marker */
+  .assembly{position:absolute;transform:translate(-50%,-50%);z-index:7;display:flex;flex-direction:column;align-items:center}
+  .assembly .core{width:34px;height:34px;border-radius:9px;background:rgba(70,224,160,.16);border:1.5px solid var(--ok);display:flex;align-items:center;justify-content:center;color:var(--ok)}
+  .assembly .lab{margin-top:5px;font-family:var(--mono);font-size:8px;font-weight:700;color:var(--ok);white-space:nowrap;background:rgba(6,7,13,.8);padding:2px 6px;border-radius:6px}
+
+  /* dispatch dotted paths (svg overlay) */
+  .paths{position:absolute;inset:0;z-index:5;pointer-events:none}
+  .paths path{stroke:var(--info);stroke-width:1.6;fill:none;stroke-dasharray:5 5;opacity:.7;animation:dash 1.2s linear infinite}
+  @keyframes dash{to{stroke-dashoffset:-20}}
+
+  /* roster */
+  .roster{display:flex;flex-direction:column;gap:6px;overflow:auto}
+  .ritem{display:flex;align-items:center;gap:9px;padding:8px;border-radius:10px;background:var(--panel2);border:1px solid var(--line)}
+  .ritem .rd{width:8px;height:8px;border-radius:50%;flex:none}
+  .ritem .rn{flex:1;font-size:12px;font-weight:600}
+  .ritem .rz{font-family:var(--mono);font-size:10px;color:var(--muted)}
+
+  /* generic buttons */
+  .btn{padding:12px;border-radius:13px;background:var(--panel);border:1px solid var(--line);text-align:center;font-weight:700;font-size:13px;display:flex;align-items:center;justify-content:center;gap:8px;cursor:default}
+  .btn.mt{margin-top:auto}
+  .btn.primary{background:linear-gradient(135deg,#ff4053,#c81f30);border-color:transparent;box-shadow:0 12px 30px rgba(255,64,83,.3)}
+  .btn.go{background:rgba(70,224,160,.12);border-color:rgba(70,224,160,.4);color:var(--ok)}
+  .btn.amber{background:rgba(255,180,58,.1);border-color:rgba(255,180,58,.35);color:var(--caution)}
+  .btn.ghost{color:var(--muted)}
+  .btnrow{display:flex;flex-direction:column;gap:8px}
+
+  /* ===== Incident detail specifics ===== */
+  .sosbanner{display:flex;align-items:center;gap:14px;padding:16px 20px;background:linear-gradient(90deg,rgba(255,64,83,.22),rgba(255,64,83,.05));border-bottom:1px solid rgba(255,64,83,.4)}
+  .sosbanner .bcore{width:44px;height:44px;border-radius:50%;background:var(--alert);display:flex;align-items:center;justify-content:center;flex:none;box-shadow:0 0 24px rgba(255,64,83,.6)}
+  .sosbanner h2{font-family:var(--disp);font-size:20px;font-weight:800;letter-spacing:.5px}
+  .sosbanner .meta{margin-left:auto;text-align:right;font-family:var(--mono);font-size:11px;color:var(--muted);line-height:1.7}
+  .sosbanner .meta b{color:#fff}
+
+  .timeline{display:flex;flex-direction:column;gap:0;position:relative;padding-left:6px}
+  .tl{display:flex;gap:11px;padding:0 0 14px}
+  .tl .rail{display:flex;flex-direction:column;align-items:center;flex:none}
+  .tl .rn{width:12px;height:12px;border-radius:50%;border:2px solid var(--line);background:#080a11;flex:none;margin-top:2px}
+  .tl .rn.alert{border-color:var(--alert);background:var(--alert)}
+  .tl .rn.info{border-color:var(--info);background:var(--info)}
+  .tl .rn.ok{border-color:var(--ok);background:var(--ok)}
+  .tl .line{width:2px;flex:1;background:var(--line);margin-top:2px}
+  .tl:last-child .line{display:none}
+  .tl .txt{font-size:12px;line-height:1.4;padding-bottom:2px}
+  .tl .txt small{display:block;font-family:var(--mono);font-size:9px;color:var(--faint);margin-top:2px}
+
+  .resp{display:flex;align-items:center;gap:10px;background:var(--panel);border:1px solid var(--line);border-radius:12px;padding:10px}
+  .resp .ra{width:30px;height:30px;border-radius:50%;background:var(--ok);color:#06070d;display:flex;align-items:center;justify-content:center;font-weight:700;font-size:12px;font-family:var(--disp);flex:none}
+  .resp .ra.info{background:var(--info)}
+  .resp .rn{flex:1;font-size:12px;font-weight:600}
+  .resp .rd{font-family:var(--mono);font-size:10px;color:var(--ok)}
+
+  /* ===== Muster board ===== */
+  .musterbanner{display:flex;align-items:center;gap:12px;padding:14px 20px;background:linear-gradient(90deg,rgba(255,180,58,.2),rgba(255,180,58,.04));border-bottom:1px solid rgba(255,180,58,.4)}
+  .musterbanner .pulse{width:12px;height:12px;border-radius:50%;background:var(--caution);box-shadow:0 0 0 0 rgba(255,180,58,.6);animation:mpulse 1.6s ease-out infinite}
+  @keyframes mpulse{0%{box-shadow:0 0 0 0 rgba(255,180,58,.5)}100%{box-shadow:0 0 0 14px rgba(255,180,58,0)}}
+  .musterbanner h2{font-family:var(--disp);font-size:18px;font-weight:800;letter-spacing:1px;color:var(--caution)}
+  .musterbanner .sub{font-family:var(--mono);font-size:11px;color:var(--muted);margin-left:6px}
+  .musterbanner .clock{margin-left:auto;font-family:var(--mono);font-size:13px;color:var(--caution)}
+
+  .countwrap{padding:18px 20px;border-bottom:1px solid var(--line);display:flex;align-items:center;gap:22px}
+  .bignum{font-family:var(--disp);font-weight:800;font-size:44px;letter-spacing:-1px;line-height:1;white-space:nowrap}
+  .bignum b{color:var(--ok)}.bignum small{font-size:20px;color:var(--muted)}
+  .bignum .cl{display:block;font-family:var(--mono);font-size:10px;letter-spacing:1.5px;color:var(--faint);margin-top:8px;font-weight:400}
+  .prog{flex:1}
+  .prog .bar{height:14px;border-radius:8px;background:var(--panel);border:1px solid var(--line);overflow:hidden}
+  .prog .fill{height:100%;width:75%;background:linear-gradient(90deg,var(--ok),#2fbf85);border-radius:8px}
+  .prog .lbls{display:flex;justify-content:space-between;margin-top:7px;font-family:var(--mono);font-size:10px;color:var(--muted)}
+
+  .mustergrid{display:grid;grid-template-columns:repeat(4,1fr);gap:8px}
+  .gcard{border:1px solid var(--line);border-radius:12px;padding:11px;background:var(--panel2);display:flex;flex-direction:column;gap:5px}
+  .gcard.acc{background:rgba(70,224,160,.1);border-color:rgba(70,224,160,.35)}
+  .gcard.out{background:rgba(255,64,83,.08);border-color:rgba(255,64,83,.3)}
+  .gcard .gid{font-family:var(--disp);font-weight:700;font-size:14px}
+  .gcard .gname{font-size:11px;color:var(--muted)}
+  .gcard .gstat{display:flex;align-items:center;gap:5px;font-family:var(--mono);font-size:9px;font-weight:700;margin-top:1px}
+  .gcard.acc .gstat{color:var(--ok)}.gcard.out .gstat{color:var(--alert)}
+  .gcard .gs-dot{width:7px;height:7px;border-radius:50%}
+  .gcard.acc .gs-dot{background:var(--ok)}.gcard.out .gs-dot{background:var(--alert)}
+
+  .musterbody{display:grid;grid-template-columns:1fr 340px;min-height:340px}
+  .musterbody .left{padding:16px;border-right:1px solid var(--line)}
+
+  /* ===== Roster table ===== */
+  .rosterbody{padding:16px}
+  .tblwrap{overflow-x:auto;border:1px solid var(--line);border-radius:14px}
+  table.rt{width:100%;border-collapse:collapse;min-width:640px}
+  table.rt th{font-family:var(--mono);font-size:9px;letter-spacing:1.5px;text-transform:uppercase;color:var(--faint);text-align:left;padding:11px 14px;border-bottom:1px solid var(--line);font-weight:700}
+  table.rt td{padding:11px 14px;border-bottom:1px solid var(--line);font-size:12px;vertical-align:middle}
+  table.rt tr:last-child td{border-bottom:none}
+  table.rt .mono{font-family:var(--mono);font-size:11px;color:var(--muted)}
+  table.rt .name{font-weight:600}
+  .pill{display:inline-flex;align-items:center;gap:6px;font-family:var(--mono);font-size:9px;font-weight:700;padding:4px 9px;border-radius:20px}
+  .pill .pd{width:7px;height:7px;border-radius:50%}
+  .pill.ok{color:var(--ok);background:rgba(70,224,160,.1)}.pill.ok .pd{background:var(--ok)}
+  .pill.amber{color:var(--caution);background:rgba(255,180,58,.1)}.pill.amber .pd{background:var(--caution)}
+  .pill.alert{color:var(--alert);background:rgba(255,64,83,.12)}.pill.alert .pd{background:var(--alert)}
+  .pill.off{color:var(--muted);background:rgba(255,255,255,.05)}.pill.off .pd{background:rgba(255,255,255,.3)}
+
+  .rostergrid{display:grid;grid-template-columns:1fr 300px;gap:16px;margin-top:16px}
+  .card{border:1px solid var(--line);border-radius:14px;background:var(--panel2);padding:14px}
+  .card h4{font-family:var(--mono);font-size:10px;letter-spacing:1.5px;text-transform:uppercase;color:var(--faint);font-weight:700;margin-bottom:12px}
+  .zcov{display:flex;flex-direction:column;gap:9px}
+  .zrow{display:flex;align-items:center;gap:10px;font-size:12px}
+  .zrow .zn{width:96px;font-weight:600}
+  .zrow .zbar{flex:1;height:9px;border-radius:6px;background:var(--panel);border:1px solid var(--line);overflow:hidden}
+  .zrow .zf{height:100%;border-radius:6px}
+  .zrow .zc{font-family:var(--mono);font-size:10px;color:var(--muted);width:52px;text-align:right}
+  .assignrow{display:flex;gap:8px;margin-bottom:9px}
+  .sel{flex:1;background:var(--panel);border:1px solid var(--line);border-radius:10px;padding:9px 11px;font-size:12px;color:#fff;font-family:var(--body);display:flex;align-items:center;justify-content:space-between}
+  .sel span.v{color:var(--muted);font-family:var(--mono);font-size:11px}
+
+  /* ===== Heatmap ===== */
+  .heatbody{display:grid;grid-template-columns:1fr 250px;min-height:460px}
+  .heatmap{position:relative;overflow:hidden;background:#0a0d15}
+  .heatgrid{position:absolute;inset:0;background:
+      linear-gradient(rgba(255,255,255,.03) 1px,transparent 1px) 0 0/34px 34px,
+      linear-gradient(90deg,rgba(255,255,255,.03) 1px,transparent 1px) 0 0/34px 34px;z-index:2}
+  .blob{position:absolute;border-radius:50%;transform:translate(-50%,-50%);z-index:1;filter:blur(2px)}
+  .blob.good{background:radial-gradient(circle,rgba(70,224,160,.5),rgba(70,224,160,.12) 55%,transparent 72%)}
+  .blob.mid{background:radial-gradient(circle,rgba(255,180,58,.42),rgba(255,180,58,.1) 55%,transparent 72%)}
+  .blob.gap{background:radial-gradient(circle,rgba(255,64,83,.42),rgba(255,64,83,.1) 55%,transparent 72%)}
+  .heatmap .zone{z-index:3}
+  .heatmap .zlab{z-index:4}
+  .gaplab{position:absolute;z-index:4;font-family:var(--mono);font-size:8px;font-weight:700;color:var(--alert);background:rgba(6,7,13,.75);padding:2px 6px;border-radius:6px;transform:translate(-50%,-50%);white-space:nowrap}
+  .heatright{padding:16px;display:flex;flex-direction:column;gap:14px;border-left:1px solid var(--line)}
+  .covbig{text-align:center;padding:16px;border:1px solid var(--line);border-radius:14px;background:var(--panel2)}
+  .covbig .n{font-family:var(--disp);font-weight:800;font-size:40px;color:var(--ok)}
+  .covbig .l{font-family:var(--mono);font-size:10px;letter-spacing:1.5px;color:var(--faint);margin-top:4px}
+  .legend{display:flex;flex-direction:column;gap:9px}
+  .lrow{display:flex;align-items:center;gap:10px;font-size:12px}
+  .lrow .sw{width:26px;height:12px;border-radius:5px;flex:none}
+  .lrow small{display:block;font-family:var(--mono);font-size:9px;color:var(--faint)}
+  .privacy{font-size:11px;color:var(--muted);line-height:1.5;padding:11px;border:1px solid var(--line);border-radius:12px;background:var(--panel2);display:flex;gap:9px}
+  .privacy svg{flex:none;stroke:var(--info);width:16px;height:16px}
+
+  @media (max-width:760px){
+    .cbody,.musterbody,.rostergrid,.heatbody{grid-template-columns:1fr}
+    .cleft,.cright,.musterbody .left{border-right:none;border-left:none;border-bottom:1px solid var(--line)}
+    .cmap,.heatmap{min-height:320px}
+    .mustergrid{grid-template-columns:repeat(2,1fr)}
+  }
+</style>
+</head>
+<body>
+  <div class="head">
+    <div class="kicker">Loc8 Command · control room</div>
+    <h1>Mission control for the <b>night shift</b></h1>
+    <p>The supervisor's dashboard for security ops — live team map, incident feed, muster headcount and coverage — running on the same offline mesh as every guard's phone. Five views of one control room, network-independent by design.</p>
+  </div>
+
+  <!-- ============ 1 · OPERATIONS OVERVIEW ============ -->
+  <div class="sect">
+    <div class="slab">— <b>01</b> · operations overview —</div>
+    <div class="console">
+      <div class="ctop">
+        <div class="logo">Loc<b>8</b> Command</div>
+        <div class="site">· <b>Ministry of Sound</b> · Night Shift</div>
+        <div class="right"><span class="ctag">◈ MESH · NETWORK-INDEPENDENT</span><span class="ctime" data-clock>23:47:52</span></div>
+      </div>
+      <div class="cbody">
+        <div class="cleft">
+          <div class="tiles">
+            <div class="tile ok"><div class="n">12</div><div class="l">On duty</div></div>
+            <div class="tile amber"><div class="n">2</div><div class="l">Responding</div></div>
+            <div class="tile alert"><div class="n">1</div><div class="l">SOS active</div></div>
+            <div class="tile ok"><div class="n">94%</div><div class="l">Coverage</div></div>
+          </div>
+          <div class="feedttl">Live feed</div>
+          <div class="feed">
+            <div class="fitem hot"><span class="fdot" style="background:var(--alert)"></span><div class="ft">SOS — Guard 07 at Gate C<small>23:47 · 2 dispatched</small></div></div>
+            <div class="fitem"><span class="fdot" style="background:var(--caution)"></span><div class="ft">Guard 09 lone in Car Park<small>23:44 · auto check-in ok</small></div></div>
+            <div class="fitem"><span class="fdot" style="background:var(--info)"></span><div class="ft">Ejection logged — Bar<small>23:39 · Guard 05</small></div></div>
+            <div class="fitem"><span class="fdot" style="background:var(--info)"></span><div class="ft">Capacity check — Main Room<small>23:20 · 78% full</small></div></div>
+            <div class="fitem"><span class="fdot" style="background:var(--ok)"></span><div class="ft">Shift start — 12 checked in<small>22:00</small></div></div>
+          </div>
+        </div>
+        <div class="cmap">
+          <div class="zone" style="top:30px;left:34px;width:180px;height:130px"></div><div class="zlab" style="top:36px;left:42px">MAIN ROOM</div>
+          <div class="zone" style="top:30px;right:40px;width:150px;height:170px"></div><div class="zlab" style="top:36px;right:48px">BAR</div>
+          <div class="zone" style="bottom:40px;left:40px;width:150px;height:120px"></div><div class="zlab" style="bottom:150px;left:48px">SMOKING TERRACE</div>
+          <div class="zone" style="bottom:40px;right:46px;width:160px;height:110px"></div><div class="zlab" style="bottom:140px;right:54px">CAR PARK</div>
+          <div class="inc" style="top:120px;right:120px"><div class="r"></div><div class="core"><svg class="icn" style="stroke:#fff" viewBox="0 0 24 24"><path d="M12 9v4M12 17h.01M10.3 3.9 1.8 18a2 2 0 0 0 1.7 3h17a2 2 0 0 0 1.7-3L13.7 3.9a2 2 0 0 0-3.4 0z"/></svg></div><div class="inclab">SOS · Guard 07 · Gate C</div></div>
+          <div class="dot ok" style="top:90px;left:120px">03</div>
+          <div class="dot caution" style="top:170px;left:230px">05</div>
+          <div class="dot ok" style="top:250px;left:150px">01</div>
+          <div class="dot ok" style="top:300px;left:320px">04</div>
+          <div class="dot caution" style="bottom:90px;right:110px">09</div>
+          <div class="dot ok" style="top:200px;left:400px">02</div>
+          <div class="dot ok" style="bottom:120px;left:200px">06</div>
+          <div class="dot ok" style="top:130px;left:300px">08</div>
+        </div>
+        <div class="cright">
+          <div class="feedttl" style="margin-top:0">Roster · 12</div>
+          <div class="roster">
+            <div class="ritem"><span class="rd" style="background:var(--alert)"></span><span class="rn">Guard 07 · SOS</span><span class="rz">Gate C</span></div>
+            <div class="ritem"><span class="rd" style="background:var(--caution)"></span><span class="rn">Guard 05 · resp</span><span class="rz">→ Gate C</span></div>
+            <div class="ritem"><span class="rd" style="background:var(--caution)"></span><span class="rn">Guard 03 · resp</span><span class="rz">→ Gate C</span></div>
+            <div class="ritem"><span class="rd" style="background:var(--caution)"></span><span class="rn">Guard 09 · lone</span><span class="rz">Car Park</span></div>
+            <div class="ritem"><span class="rd" style="background:var(--ok)"></span><span class="rn">Guard 01</span><span class="rz">Main</span></div>
+            <div class="ritem"><span class="rd" style="background:var(--ok)"></span><span class="rn">Guard 02</span><span class="rz">Bar</span></div>
+            <div class="ritem"><span class="rd" style="background:var(--ok)"></span><span class="rn">Guard 04</span><span class="rz">Bar</span></div>
+            <div class="ritem"><span class="rd" style="background:var(--ok)"></span><span class="rn">Guard 06</span><span class="rz">Terrace</span></div>
+            <div class="ritem"><span class="rd" style="background:var(--ok)"></span><span class="rn">Guard 08</span><span class="rz">Main</span></div>
+          </div>
+          <div class="btn primary mt"><svg class="icn" style="width:16px;height:16px;stroke:#fff" viewBox="0 0 24 24"><path d="M16 21v-2a4 4 0 00-4-4H6a4 4 0 00-4 4v2M9 7a4 4 0 100 8 4 4 0 000-8M22 21v-2a4 4 0 00-3-3.9M16 3.1a4 4 0 010 7.8"/></svg> Call muster</div>
+        </div>
+      </div>
+    </div>
+    <div class="cap"><h3>Operations overview</h3><p>The main board — status tiles, live incident feed with the active SOS flagged, every guard on the venue map, the full roster, and a one-tap muster. Mission control at a glance.</p></div>
+  </div>
+
+  <!-- ============ 2 · INCIDENT DETAIL ============ -->
+  <div class="sect">
+    <div class="slab">— <b>02</b> · incident detail · SOS drill-down —</div>
+    <div class="console">
+      <div class="ctop">
+        <div class="logo">Loc<b>8</b> Command</div>
+        <div class="site">· <b>Incident</b> · #SOS-0442</div>
+        <div class="right"><span class="ctag red">◈ SOS ACTIVE · MESH-CONFIRMED</span><span class="ctime" data-clock>23:48:11</span></div>
+      </div>
+      <div class="sosbanner">
+        <div class="bcore"><svg class="icn" style="width:24px;height:24px;stroke:#fff;stroke-width:2.4" viewBox="0 0 24 24"><path d="M12 2a10 10 0 100 20 10 10 0 000-20zM12 8v5M12 16h.01"/></svg></div>
+        <div><h2>SOS · GUARD 07 · GATE C</h2><div style="font-size:12px;color:var(--muted);margin-top:2px">Priya Okafor · Zone 4 · panic hold triggered</div></div>
+        <div class="meta">RAISED <b>23:47:03</b><br>ELAPSED <b data-elapsed>01:08</b><br>COORD <b>51.4924, -0.1003</b></div>
+      </div>
+      <div class="cbody" style="grid-template-columns:250px 1fr 270px">
+        <div class="cleft">
+          <div class="feedttl" style="margin-top:0">Incident timeline</div>
+          <div class="timeline">
+            <div class="tl"><div class="rail"><div class="rn alert"></div><div class="line"></div></div><div class="txt">SOS raised — Guard 07<small>23:47:03 · panic hold · Gate C</small></div></div>
+            <div class="tl"><div class="rail"><div class="rn info"></div><div class="line"></div></div><div class="txt">Location broadcast over mesh<small>23:47:04 · 6 nodes relayed</small></div></div>
+            <div class="tl"><div class="rail"><div class="rn info"></div><div class="line"></div></div><div class="txt">Nearest 2 auto-dispatched<small>23:47:06 · Guard 05, Guard 03</small></div></div>
+            <div class="tl"><div class="rail"><div class="rn info"></div><div class="line"></div></div><div class="txt">Guard 05 acknowledged — en route<small>23:47:19 · ETA 40m</small></div></div>
+            <div class="tl"><div class="rail"><div class="rn info"></div><div class="line"></div></div><div class="txt">Guard 03 acknowledged — en route<small>23:47:24 · ETA 85m</small></div></div>
+            <div class="tl"><div class="rail"><div class="rn ok"></div><div class="line"></div></div><div class="txt">Control room notified<small>23:47:25 · supervisor viewing</small></div></div>
+          </div>
+        </div>
+        <div class="cmap">
+          <div class="zone" style="top:40px;left:60px;width:200px;height:150px"></div><div class="zlab" style="top:46px;left:68px">MAIN CONCOURSE</div>
+          <div class="zone" style="top:60px;right:70px;width:150px;height:130px"></div><div class="zlab" style="top:66px;right:78px">GATE C</div>
+          <div class="zone" style="bottom:50px;left:80px;width:170px;height:110px"></div><div class="zlab" style="bottom:150px;left:88px">FOYER</div>
+          <svg class="paths" viewBox="0 0 640 460" preserveAspectRatio="none">
+            <path d="M170 330 C 300 300, 380 230, 470 150"/>
+            <path d="M120 200 C 250 180, 360 180, 470 150"/>
+          </svg>
+          <div class="inc" style="top:150px;right:100px"><div class="r"></div><div class="core"><svg class="icn" style="stroke:#fff" viewBox="0 0 24 24"><path d="M12 9v4M12 17h.01M10.3 3.9 1.8 18a2 2 0 0 0 1.7 3h17a2 2 0 0 0 1.7-3L13.7 3.9a2 2 0 0 0-3.4 0z"/></svg></div><div class="inclab">GUARD 07 · SOS</div></div>
+          <div class="dot sos" style="top:150px;right:100px;position:absolute;transform:translate(50%,-50%);display:none"></div>
+          <div class="dot caution" style="top:330px;left:170px">05</div>
+          <div class="dot caution" style="top:200px;left:120px">03</div>
+          <div class="zlab" style="top:345px;left:150px;color:var(--caution)">05 · 40m</div>
+          <div class="zlab" style="top:215px;left:100px;color:var(--caution)">03 · 85m</div>
+        </div>
+        <div class="cright">
+          <div class="feedttl" style="margin-top:0">Responders · 2</div>
+          <div class="btnrow">
+            <div class="resp"><div class="ra">M</div><div class="rn">Marcus · Guard 05</div><div class="rd">40m · en route</div></div>
+            <div class="resp"><div class="ra">P</div><div class="rn">Priya · Guard 03</div><div class="rd">85m · en route</div></div>
+            <div class="resp"><div class="ra info">C</div><div class="rn">Control room</div><div class="rd" style="color:var(--info)">viewing</div></div>
+          </div>
+          <div class="feedttl">Actions</div>
+          <div class="btnrow">
+            <div class="btn go"><svg class="icn" style="width:15px;height:15px" viewBox="0 0 24 24"><path d="M20 6 9 17l-5-5"/></svg> Acknowledge</div>
+            <div class="btn primary"><svg class="icn" style="width:15px;height:15px;stroke:#fff" viewBox="0 0 24 24"><path d="M12 9v4M12 17h.01M10.3 3.9 1.8 18a2 2 0 0 0 1.7 3h17a2 2 0 0 0 1.7-3L13.7 3.9a2 2 0 0 0-3.4 0z"/></svg> Escalate to police</div>
+            <div class="btn ghost"><svg class="icn" style="width:15px;height:15px" viewBox="0 0 24 24"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z M14 2v6h6 M16 13H8 M16 17H8"/></svg> Log resolution</div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="cap"><h3>Incident detail</h3><p>One SOS, drilled in — a full mesh-timestamped timeline on the left, the zoomed map showing Guard 07 with both responders converging on dotted paths, and the acknowledge / escalate / log actions on the right.</p></div>
+  </div>
+
+  <!-- ============ 3 · MUSTER / EVACUATION BOARD ============ -->
+  <div class="sect">
+    <div class="slab">— <b>03</b> · muster / evacuation board —</div>
+    <div class="console">
+      <div class="ctop">
+        <div class="logo">Loc<b>8</b> Command</div>
+        <div class="site">· <b>Muster</b> · Assembly Point A</div>
+        <div class="right"><span class="ctag amber">◈ HEADCOUNT · MESH-LIVE</span><span class="ctime" data-clock>23:52:40</span></div>
+      </div>
+      <div class="musterbanner">
+        <span class="pulse"></span>
+        <h2>MUSTER IN PROGRESS</h2>
+        <span class="sub">initiated 23:50 · all staff to Assembly Point A</span>
+        <span class="clock" data-elapsed="150">02:40</span>
+      </div>
+      <div class="countwrap">
+        <div class="bignum"><b>9</b> <small>/ 12</small><span class="cl">ACCOUNTED FOR</span></div>
+        <div class="prog">
+          <div class="bar"><div class="fill"></div></div>
+          <div class="lbls"><span>9 checked in</span><span>3 outstanding · 25%</span></div>
+        </div>
+      </div>
+      <div class="musterbody">
+        <div class="left">
+          <div class="feedttl" style="margin-top:0;margin-bottom:12px">All staff · 12</div>
+          <div class="mustergrid">
+            <div class="gcard acc"><div class="gid">01</div><div class="gname">Adeyemi</div><div class="gstat"><span class="gs-dot"></span>ACCOUNTED</div></div>
+            <div class="gcard acc"><div class="gid">02</div><div class="gname">Bianchi</div><div class="gstat"><span class="gs-dot"></span>ACCOUNTED</div></div>
+            <div class="gcard acc"><div class="gid">03</div><div class="gname">Okafor</div><div class="gstat"><span class="gs-dot"></span>ACCOUNTED</div></div>
+            <div class="gcard acc"><div class="gid">04</div><div class="gname">Novak</div><div class="gstat"><span class="gs-dot"></span>ACCOUNTED</div></div>
+            <div class="gcard acc"><div class="gid">05</div><div class="gname">Reyes</div><div class="gstat"><span class="gs-dot"></span>ACCOUNTED</div></div>
+            <div class="gcard acc"><div class="gid">06</div><div class="gname">Haddad</div><div class="gstat"><span class="gs-dot"></span>ACCOUNTED</div></div>
+            <div class="gcard out"><div class="gid">07</div><div class="gname">Okafor P.</div><div class="gstat"><span class="gs-dot"></span>SOS · GATE C</div></div>
+            <div class="gcard acc"><div class="gid">08</div><div class="gname">Larsson</div><div class="gstat"><span class="gs-dot"></span>ACCOUNTED</div></div>
+            <div class="gcard out"><div class="gid">09</div><div class="gname">Delgado</div><div class="gstat"><span class="gs-dot"></span>CAR PARK</div></div>
+            <div class="gcard acc"><div class="gid">10</div><div class="gname">Ferreira</div><div class="gstat"><span class="gs-dot"></span>ACCOUNTED</div></div>
+            <div class="gcard acc"><div class="gid">11</div><div class="gname">Nguyen</div><div class="gstat"><span class="gs-dot"></span>ACCOUNTED</div></div>
+            <div class="gcard out"><div class="gid">12</div><div class="gname">Osei</div><div class="gstat"><span class="gs-dot"></span>NO SIGNAL</div></div>
+          </div>
+        </div>
+        <div class="cmap" style="border-left:none">
+          <div class="zone" style="top:34px;left:40px;width:150px;height:120px"></div><div class="zlab" style="top:40px;left:48px">VENUE</div>
+          <div class="zone" style="top:34px;right:40px;width:150px;height:110px"></div><div class="zlab" style="top:40px;right:48px">GATE C</div>
+          <div class="assembly" style="bottom:70px;left:50%"><div class="core"><svg class="icn" style="width:18px;height:18px" viewBox="0 0 24 24"><path d="M16 21v-2a4 4 0 00-4-4H6a4 4 0 00-4 4v2M9 7a4 4 0 100 8 4 4 0 000-8M22 21v-2a4 4 0 00-3-3.9M16 3.1a4 4 0 010 7.8"/></svg></div><div class="lab">ASSEMBLY POINT A · 9</div></div>
+          <div class="inc" style="top:95px;right:100px"><div class="r"></div><div class="core"><svg class="icn" style="stroke:#fff" viewBox="0 0 24 24"><path d="M12 9v4M12 17h.01M10.3 3.9 1.8 18a2 2 0 0 0 1.7 3h17a2 2 0 0 0 1.7-3L13.7 3.9a2 2 0 0 0-3.4 0z"/></svg></div><div class="inclab">07 · still out</div></div>
+          <div class="dot caution" style="bottom:130px;left:120px">09</div>
+          <div class="dot off" style="top:150px;left:110px">12</div>
+          <div class="zlab" style="bottom:145px;left:100px;color:var(--caution)">09 · car park</div>
+          <div class="zlab" style="top:165px;left:90px;color:var(--faint)">12 · no signal</div>
+        </div>
+      </div>
+    </div>
+    <div class="cap"><h3>Muster / evacuation board</h3><p>Headcount mode — a running clock, the big accounted-for count with progress bar, all twelve staff as tiles (green in, red still out), and a map showing the assembly point and exactly who hasn't made it.</p></div>
+  </div>
+
+  <!-- ============ 4 · ROSTER & SHIFT MANAGEMENT ============ -->
+  <div class="sect">
+    <div class="slab">— <b>04</b> · roster & shift management —</div>
+    <div class="console">
+      <div class="ctop">
+        <div class="logo">Loc<b>8</b> Command</div>
+        <div class="site">· <b>Roster</b> · Night Shift · Team B</div>
+        <div class="right"><span class="ctag">◈ MESH · NETWORK-INDEPENDENT</span><span class="ctime" data-clock>23:53:02</span></div>
+      </div>
+      <div class="rosterbody">
+        <div class="tblwrap">
+          <table class="rt">
+            <thead><tr><th>ID</th><th>Name</th><th>Zone</th><th>Status</th><th>On since</th><th>Last ping</th></tr></thead>
+            <tbody>
+              <tr><td class="mono">07</td><td class="name">Priya Okafor</td><td class="mono">Gate C</td><td><span class="pill alert"><span class="pd"></span>SOS</span></td><td class="mono">22:00</td><td class="mono">23:47</td></tr>
+              <tr><td class="mono">05</td><td class="name">Marcus Reyes</td><td class="mono">→ Gate C</td><td><span class="pill amber"><span class="pd"></span>RESPONDING</span></td><td class="mono">22:00</td><td class="mono">23:48</td></tr>
+              <tr><td class="mono">03</td><td class="name">P. Okafor</td><td class="mono">→ Gate C</td><td><span class="pill amber"><span class="pd"></span>RESPONDING</span></td><td class="mono">22:00</td><td class="mono">23:48</td></tr>
+              <tr><td class="mono">09</td><td class="name">Sofia Delgado</td><td class="mono">Car Park</td><td><span class="pill amber"><span class="pd"></span>LONE</span></td><td class="mono">22:00</td><td class="mono">23:44</td></tr>
+              <tr><td class="mono">01</td><td class="name">Kofi Adeyemi</td><td class="mono">Main Room</td><td><span class="pill ok"><span class="pd"></span>ON POST</span></td><td class="mono">22:00</td><td class="mono">23:52</td></tr>
+              <tr><td class="mono">02</td><td class="name">Luca Bianchi</td><td class="mono">Bar</td><td><span class="pill ok"><span class="pd"></span>ON POST</span></td><td class="mono">22:00</td><td class="mono">23:52</td></tr>
+              <tr><td class="mono">04</td><td class="name">Jan Novak</td><td class="mono">Bar</td><td><span class="pill ok"><span class="pd"></span>ON POST</span></td><td class="mono">22:00</td><td class="mono">23:51</td></tr>
+              <tr><td class="mono">06</td><td class="name">Rami Haddad</td><td class="mono">Terrace</td><td><span class="pill ok"><span class="pd"></span>ON POST</span></td><td class="mono">22:00</td><td class="mono">23:52</td></tr>
+              <tr><td class="mono">08</td><td class="name">Erik Larsson</td><td class="mono">Main Room</td><td><span class="pill ok"><span class="pd"></span>ON POST</span></td><td class="mono">22:00</td><td class="mono">23:52</td></tr>
+              <tr><td class="mono">10</td><td class="name">Ana Ferreira</td><td class="mono">Foyer</td><td><span class="pill ok"><span class="pd"></span>ON POST</span></td><td class="mono">22:00</td><td class="mono">23:50</td></tr>
+              <tr><td class="mono">11</td><td class="name">Minh Nguyen</td><td class="mono">Terrace</td><td><span class="pill ok"><span class="pd"></span>ON POST</span></td><td class="mono">22:00</td><td class="mono">23:51</td></tr>
+              <tr><td class="mono">12</td><td class="name">Kwame Osei</td><td class="mono">Perimeter</td><td><span class="pill off"><span class="pd"></span>NO SIGNAL</span></td><td class="mono">22:00</td><td class="mono">23:38</td></tr>
+            </tbody>
+          </table>
+        </div>
+        <div class="rostergrid">
+          <div class="card">
+            <h4>Zone coverage</h4>
+            <div class="zcov">
+              <div class="zrow"><span class="zn">Main Room</span><span class="zbar"><span class="zf" style="width:100%;background:var(--ok)"></span></span><span class="zc">2 · 100%</span></div>
+              <div class="zrow"><span class="zn">Bar</span><span class="zbar"><span class="zf" style="width:100%;background:var(--ok)"></span></span><span class="zc">2 · 100%</span></div>
+              <div class="zrow"><span class="zn">Terrace</span><span class="zbar"><span class="zf" style="width:100%;background:var(--ok)"></span></span><span class="zc">2 · 100%</span></div>
+              <div class="zrow"><span class="zn">Gate C</span><span class="zbar"><span class="zf" style="width:88%;background:var(--caution)"></span></span><span class="zc">1 · SOS</span></div>
+              <div class="zrow"><span class="zn">Car Park</span><span class="zbar"><span class="zf" style="width:55%;background:var(--caution)"></span></span><span class="zc">1 · lone</span></div>
+              <div class="zrow"><span class="zn">Perimeter</span><span class="zbar"><span class="zf" style="width:20%;background:var(--alert)"></span></span><span class="zc">0 · gap</span></div>
+            </div>
+          </div>
+          <div class="card">
+            <h4>Assign / reassign zone</h4>
+            <div class="assignrow"><div class="sel">Guard 01 · Adeyemi <span class="v">▾</span></div></div>
+            <div class="assignrow"><div class="sel">→ Perimeter <span class="v">▾</span></div></div>
+            <div class="btn go" style="width:100%"><svg class="icn" style="width:15px;height:15px" viewBox="0 0 24 24"><path d="M5 12h14M12 5l7 7-7 7"/></svg> Reassign zone</div>
+            <div class="btn" style="width:100%;margin-top:8px"><svg class="icn" style="width:15px;height:15px" viewBox="0 0 24 24"><path d="M12 5v14M5 12h14"/></svg> Add guard to shift</div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="cap"><h3>Roster & shift management</h3><p>The whole shift in one table — ID, name, zone, live status and mesh ping times — with a zone-coverage summary that surfaces the perimeter gap, plus reassign and add-guard controls.</p></div>
+  </div>
+
+  <!-- ============ 5 · COVERAGE HEATMAP ============ -->
+  <div class="sect">
+    <div class="slab">— <b>05</b> · coverage heatmap —</div>
+    <div class="console">
+      <div class="ctop">
+        <div class="logo">Loc<b>8</b> Command</div>
+        <div class="site">· <b>Coverage</b> · aggregate density</div>
+        <div class="right"><span class="ctag">◈ MESH · ANONYMISED</span><span class="ctime" data-clock>23:53:20</span></div>
+      </div>
+      <div class="heatbody">
+        <div class="heatmap">
+          <div class="blob good" style="top:120px;left:150px;width:230px;height:230px"></div>
+          <div class="blob good" style="top:150px;right:120px;width:210px;height:210px"></div>
+          <div class="blob good" style="bottom:110px;left:190px;width:200px;height:200px"></div>
+          <div class="blob mid" style="bottom:130px;right:150px;width:170px;height:170px"></div>
+          <div class="blob gap" style="top:60px;left:60px;width:140px;height:140px"></div>
+          <div class="blob gap" style="bottom:60px;right:60px;width:130px;height:130px"></div>
+          <div class="heatgrid"></div>
+          <div class="zone" style="top:30px;left:34px;width:180px;height:130px"></div><div class="zlab" style="top:36px;left:42px">MAIN ROOM</div>
+          <div class="zone" style="top:30px;right:40px;width:150px;height:170px"></div><div class="zlab" style="top:36px;right:48px">BAR</div>
+          <div class="zone" style="bottom:40px;left:40px;width:150px;height:120px"></div><div class="zlab" style="bottom:150px;left:48px">SMOKING TERRACE</div>
+          <div class="zone" style="bottom:40px;right:46px;width:160px;height:110px"></div><div class="zlab" style="bottom:140px;right:54px">CAR PARK</div>
+          <div class="gaplab" style="top:100px;left:90px">GAP · NW PERIMETER</div>
+          <div class="gaplab" style="bottom:95px;right:100px">GAP · SE CAR PARK</div>
+        </div>
+        <div class="heatright">
+          <div class="covbig"><div class="n">94%</div><div class="l">VENUE COVERAGE</div></div>
+          <div>
+            <div class="feedttl" style="margin-top:0;margin-bottom:10px">Density legend</div>
+            <div class="legend">
+              <div class="lrow"><span class="sw" style="background:linear-gradient(90deg,rgba(70,224,160,.8),rgba(70,224,160,.3))"></span><div>Well covered<small>guard within 20m</small></div></div>
+              <div class="lrow"><span class="sw" style="background:linear-gradient(90deg,rgba(255,180,58,.8),rgba(255,180,58,.3))"></span><div>Thin<small>single guard · 20–40m</small></div></div>
+              <div class="lrow"><span class="sw" style="background:linear-gradient(90deg,rgba(255,64,83,.8),rgba(255,64,83,.3))"></span><div>Gap<small>no guard nearby</small></div></div>
+            </div>
+          </div>
+          <div class="privacy">
+            <svg viewBox="0 0 24 24"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
+            <span>Aggregate coverage only — this heatmap shows <b>zone density</b>, not any individual's location or movement history.</span>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="cap"><h3>Coverage heatmap</h3><p>The venue rendered as anonymised density — green where guards blanket the floor, amber where cover is thin, red where there's a real gap (NW perimeter, SE car park). A supervisor's blind-spot finder, not a tracker.</p></div>
+  </div>
+
+<script>
+  // live clocks — tick from each element's own seed time
+  function tick(){
+    document.querySelectorAll('[data-clock]').forEach(el=>{
+      if(!el._t){
+        var p=(el.textContent.trim()||'23:47:52').split(':').map(Number);
+        el._t=new Date(); el._t.setHours(p[0],p[1],p[2]||0,0);
+      }
+      el._t=new Date(el._t.getTime()+1000);
+      el.textContent=el._t.toTimeString().slice(0,8);
+    });
+    document.querySelectorAll('[data-elapsed]').forEach(el=>{
+      if(el._s===undefined){
+        var seed=el.getAttribute('data-elapsed');
+        if(seed && !isNaN(+seed)){ el._s=+seed; }
+        else { var q=(el.textContent.trim()||'0:0').split(':').map(Number); el._s=q[0]*60+(q[1]||0); }
+      }
+      el._s++;
+      var m=Math.floor(el._s/60), s=el._s%60;
+      el.textContent=String(m).padStart(2,'0')+':'+String(s).padStart(2,'0');
+    });
+  }
+  tick(); setInterval(tick,1000);
+</script>
+</body>
+</html>

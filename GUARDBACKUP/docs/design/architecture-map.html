@@ -1,0 +1,129 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Loc8 — Product Architecture</title>
+<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Unbounded:wght@600;800&family=Sora:wght@300;400;600&family=Space+Mono:wght@700&display=swap" rel="stylesheet">
+<style>
+  *{box-sizing:border-box;margin:0;padding:0}
+  :root{--ink:#fff;--muted:rgba(255,255,255,.55);--faint:rgba(255,255,255,.3);--line:rgba(255,255,255,.1);
+    --sunset:linear-gradient(135deg,#ff4d7d,#ff7a45,#ffb038);--mint:#5ef2c8;--peri:#7aa2ff;--amber:#ffb43a;--red:#ff4053;
+    --disp:'Unbounded',sans-serif;--body:'Sora',sans-serif;--mono:'Space Mono',monospace}
+  body{font-family:var(--body);color:var(--ink);min-height:100vh;
+    background:radial-gradient(800px 600px at 50% -5%,#1a1030,#08070d 62%);padding:34px 16px 60px;-webkit-font-smoothing:antialiased}
+  .head{max-width:920px;margin:0 auto 26px;text-align:center}
+  .kicker{font-family:var(--mono);font-size:11px;letter-spacing:3px;text-transform:uppercase;color:var(--mint)}
+  h1{font-family:var(--disp);font-size:28px;font-weight:800;margin-top:8px;letter-spacing:-.5px}
+  h1 b{background:var(--sunset);-webkit-background-clip:text;background-clip:text;color:transparent}
+  .head p{color:var(--muted);font-size:13px;margin-top:10px;line-height:1.6;max-width:560px;margin-inline:auto}
+
+  .map{max-width:920px;margin:0 auto}
+  /* engine */
+  .engine{margin:0 auto;width:280px;text-align:center;background:radial-gradient(circle at 50% 30%,rgba(94,242,200,.14),rgba(255,255,255,.02));
+    border:1px solid rgba(94,242,200,.3);border-radius:22px;padding:20px;position:relative;box-shadow:0 0 50px rgba(94,242,200,.12)}
+  .engine .ring{width:56px;height:56px;margin:0 auto 10px;border-radius:50%;border:2px solid var(--mint);position:relative;
+    box-shadow:0 0 22px rgba(94,242,200,.5)}
+  .engine .ring::after{content:'';position:absolute;inset:0;margin:auto;width:12px;height:12px;border-radius:50%;background:var(--mint);box-shadow:0 0 14px var(--mint)}
+  .engine .sweep{position:absolute;inset:0;margin:auto;width:56px;height:56px;border-radius:50%;
+    background:conic-gradient(from 0deg,rgba(94,242,200,.4),transparent 45%);animation:spin 3.5s linear infinite;top:20px}
+  @keyframes spin{to{transform:rotate(360deg)}}
+  .engine h2{font-family:var(--disp);font-size:16px;font-weight:600}
+  .engine p{font-family:var(--mono);font-size:10px;color:var(--muted);margin-top:5px;line-height:1.5}
+
+  .stems{height:34px;position:relative}
+  .stems::before{content:'';position:absolute;top:0;left:50%;width:1px;height:16px;background:var(--line)}
+  .stems::after{content:'';position:absolute;top:16px;left:12.5%;right:12.5%;height:1px;background:var(--line)}
+  .drops{display:flex;justify-content:space-around}
+  .drop{width:1px;height:16px;background:var(--line);position:absolute;top:16px}
+
+  .doors{display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin-top:0}
+  .door{background:rgba(255,255,255,.03);border:1px solid var(--line);border-radius:16px;padding:15px 13px;text-align:center;position:relative}
+  .door .badge{width:38px;height:38px;border-radius:12px;margin:0 auto 9px;display:flex;align-items:center;justify-content:center}
+  .door .ic{width:20px;height:20px;stroke:#08070d;stroke-width:2;fill:none;stroke-linecap:round;stroke-linejoin:round}
+  .door h3{font-family:var(--disp);font-size:13px;font-weight:600}
+  .door .who{font-size:10px;color:var(--mint);font-weight:600;margin-top:3px;text-transform:uppercase;letter-spacing:.5px}
+  .door p{font-size:11px;color:var(--muted);margin-top:6px;line-height:1.45}
+  .d1 .badge{background:var(--sunset)} .d2 .badge{background:var(--peri)} .d3 .badge{background:var(--mint)} .d4 .badge{background:#fff}
+  .d2 .who{color:var(--peri)} .d3 .who,.d4 .who{color:var(--mint)}
+
+  .matrix{margin-top:26px;background:rgba(255,255,255,.02);border:1px solid var(--line);border-radius:18px;overflow:hidden}
+  .mrow{display:grid;grid-template-columns:1.6fr repeat(4,1fr);align-items:center;border-top:1px solid var(--line)}
+  .mrow:first-child{border-top:none;background:rgba(255,255,255,.03)}
+  .mrow>div{padding:11px 10px;text-align:center;font-size:12px}
+  .mrow .setting{text-align:left;font-weight:600;display:flex;align-items:center;gap:8px}
+  .mhead>div{font-family:var(--mono);font-size:9px;letter-spacing:.5px;text-transform:uppercase;color:var(--faint)}
+  .mhead .setting{color:var(--faint)}
+  .yes{display:inline-block;width:9px;height:9px;border-radius:50%}
+  .y1{background:#ff7a45}.y2{background:var(--peri)}.y3{background:var(--mint)}.y4{background:#fff}
+  .dash{color:var(--faint)}
+  .foot{max-width:920px;margin:20px auto 0;text-align:center;color:var(--muted);font-size:12px;line-height:1.6}
+  .foot b{color:#fff}
+</style>
+</head>
+<body>
+  <div class="head">
+    <div class="kicker">Product architecture</div>
+    <h1>One engine, <b>four doors</b></h1>
+    <p>Everything is built on the same offline mesh. The "versions" are just different front doors for different people — and each setting switches on whichever doors it needs.</p>
+  </div>
+
+  <div class="map">
+    <!-- engine -->
+    <div class="engine">
+      <div class="ring"><div class="sweep"></div></div>
+      <h2>Loc8 mesh engine</h2>
+      <p>OFFLINE LOCATION · ONE PROTOCOL<br>Bluetooth phone-to-phone (+ LoRa anchors)</p>
+    </div>
+
+    <div class="stems"><div class="drops">
+      <div class="drop" style="left:12.5%"></div><div class="drop" style="left:37.5%"></div>
+      <div class="drop" style="left:62.5%"></div><div class="drop" style="left:87.5%"></div>
+    </div></div>
+
+    <!-- 4 doors -->
+    <div class="doors">
+      <div class="door d1">
+        <div class="badge"><svg class="ic" viewBox="0 0 24 24"><path d="M22 12A10 10 0 1112 2M12 12l6-3"/></svg></div>
+        <h3>Loc8</h3><div class="who">the public</div>
+        <p>Consumer app — find your own crew. Free, App Store.</p>
+      </div>
+      <div class="door d2">
+        <div class="badge"><svg class="ic" viewBox="0 0 24 24"><path d="M16 3h5v5M21 3l-9 9M4 21l8-8M9 21H3v-6"/></svg></div>
+        <h3>SDK</h3><div class="who">inside partner apps</div>
+        <p>Drop the finder into the cruise / park app guests already have.</p>
+      </div>
+      <div class="door d3">
+        <div class="badge"><svg class="ic" viewBox="0 0 24 24"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg></div>
+        <h3>Loc8 Guard</h3><div class="who">field staff</div>
+        <p>Guards, stewards, medics, workers, crew. Team map + SOS.</p>
+      </div>
+      <div class="door d4">
+        <div class="badge"><svg class="ic" viewBox="0 0 24 24"><rect x="3" y="3" width="18" height="14" rx="2"/><path d="M8 21h8M12 17v4"/></svg></div>
+        <h3>Loc8 Command</h3><div class="who">control room</div>
+        <p>Supervisor dashboard — everyone live, incidents, muster.</p>
+      </div>
+    </div>
+
+    <!-- settings matrix -->
+    <div class="matrix">
+      <div class="mrow mhead"><div class="setting">Setting</div><div>Loc8</div><div>SDK</div><div>Guard</div><div>Command</div></div>
+      <div class="mrow"><div class="setting">🎪 Festival</div><div><span class="yes y1"></span></div><div class="dash">–</div><div><span class="yes y3"></span></div><div><span class="yes y4"></span></div></div>
+      <div class="mrow"><div class="setting">🍸 Nightclub / bar</div><div class="dash">·</div><div class="dash">–</div><div><span class="yes y3"></span></div><div><span class="yes y4"></span></div></div>
+      <div class="mrow"><div class="setting">🚢 Cruise ship</div><div class="dash">–</div><div><span class="yes y2"></span></div><div><span class="yes y3"></span></div><div><span class="yes y4"></span></div></div>
+      <div class="mrow"><div class="setting">🎢 Theme park</div><div class="dash">–</div><div><span class="yes y2"></span></div><div><span class="yes y3"></span></div><div><span class="yes y4"></span></div></div>
+      <div class="mrow"><div class="setting">🏟️ Stadium / arena</div><div><span class="yes y1"></span></div><div class="dash">–</div><div><span class="yes y3"></span></div><div><span class="yes y4"></span></div></div>
+      <div class="mrow"><div class="setting">🛍️ Mall · 🏥 hospital</div><div class="dash">–</div><div class="dash">–</div><div><span class="yes y3"></span></div><div><span class="yes y4"></span></div></div>
+      <div class="mrow"><div class="setting">🏗️ Construction / warehouse</div><div class="dash">–</div><div class="dash">–</div><div><span class="yes y3"></span> <span style="font-size:9px;color:var(--faint)">"Worker"</span></div><div><span class="yes y4"></span></div></div>
+      <div class="mrow"><div class="setting">🎓 University</div><div><span class="yes y1"></span></div><div class="dash">–</div><div><span class="yes y3"></span></div><div><span class="yes y4"></span></div></div>
+      <div class="mrow"><div class="setting">⛷️ Ski resort</div><div><span class="yes y1"></span></div><div class="dash">–</div><div><span class="yes y3"></span></div><div><span class="yes y4"></span></div></div>
+    </div>
+  </div>
+
+  <div class="foot">
+    <b>Read it as:</b> version = <b>who you are</b> · setting = <b>which mix of doors is switched on</b> · engine = <b>always the same mesh.</b><br>
+    Festivals use all of it. Nightclubs use Guard + Command. Cruise & parks slip the finder into their own app via the SDK.
+  </div>
+</body>
+</html>
