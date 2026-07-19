@@ -46,6 +46,8 @@ export default function Shift() {
 
   const endShift = () => {
     haptics.tap();
+    // Consent ends with the shift: stop broadcasting the moment you clock out.
+    useCrewStore.getState().endSession();
     goOffDuty();
     router.replace(CLOCKIN);
   };

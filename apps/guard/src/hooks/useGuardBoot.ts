@@ -16,6 +16,7 @@ import {
   stopFloorService,
 } from '@loc8/engine';
 import { bootGuardTeam } from '../state/guardTeam';
+import { bootOpsInbox } from '../state/opsInbox';
 import { useGuardStore } from '../state/guardStore';
 
 /** Seed one demo incident (reported by Marcus · Guard 05) ~55 m NE of you. */
@@ -38,6 +39,7 @@ function seedDemoIncident(): void {
 export function useGuardBoot(): void {
   useEffect(() => {
     bootGuardTeam();
+    bootOpsInbox(); // dispatch orders + muster sync over the shared ops grammar
     const mesh = getMeshService();
     let cancelled = false;
     (async () => {

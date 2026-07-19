@@ -10,6 +10,7 @@ export * from './core/trustLayer';
 export * from './core/packetCodec';
 export * from './core/textFragments';
 export * from './core/guardStatus';
+export * from './core/opsMessages';
 export * from './core/proximity';
 export * from './core/floorMath';
 export * from './core/floorTracker';

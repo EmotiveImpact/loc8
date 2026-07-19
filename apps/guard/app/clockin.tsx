@@ -37,6 +37,9 @@ export default function ClockIn() {
     // The clock-in anchor: "I'm on this level right now." From here the
     // barometer tracks movement; every floor the app shows traces back to this.
     anchorFloor(startLevel);
+    // On-duty consent = the shift: start the broadcast session so THIS device's
+    // position actually rides the mesh (the engine's broadcastTick gates on it).
+    useCrewStore.getState().startSession(8);
     goOnDuty();
     router.replace(TABS);
   };

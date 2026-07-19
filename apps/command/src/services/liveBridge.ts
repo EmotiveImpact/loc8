@@ -8,7 +8,7 @@
 //
 // Enable with ?bridge=ws://<host>:8787 (or ?bridge=1 for localhost).
 
-import { BridgedTransport, TextReassembler, DURESS_CODE, type Packet } from '../engine';
+import { BridgedTransport, TextReassembler, DURESS_CODE, parseOpsMessage, type Packet } from '../engine';
 import { setFrameSink, useCommandStore } from '../store/commandStore';
 
 let bridge: BridgedTransport | null = null;
@@ -53,7 +53,12 @@ export function connectLiveBridge(url: string): void {
       }
       case 'text': {
         const done = inbox.add(p);
-        if (done) store.receiveTeamText(done.senderId, done.text);
+        if (!done) break;
+        // Ops-grammar messages become structured state (muster check-ins,
+        // field reports, stand-downs); plain chat stays a toast + timeline.
+        const ev = parseOpsMessage(done.text);
+        if (ev) store.applyOpsEvent(done.senderId, ev);
+        store.receiveTeamText(done.senderId, done.text);
         break;
       }
       default:

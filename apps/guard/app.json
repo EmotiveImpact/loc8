@@ -14,7 +14,10 @@
         "NSLocationAlwaysAndWhenInUseUsageDescription": "Loc8 Guard keeps you on the team map and can broadcast an SOS with your position while on shift, even in the background.",
         "NSBluetoothAlwaysUsageDescription": "Loc8 Guard uses Bluetooth to keep your team connected phone-to-phone when the network is jammed or dead.",
         "ITSAppUsesNonExemptEncryption": false,
-        "UIBackgroundModes": ["bluetooth-central", "bluetooth-peripheral"]
+        "UIBackgroundModes": [
+          "bluetooth-central",
+          "bluetooth-peripheral"
+        ]
       },
       "bundleIdentifier": "com.emotiveimpact.loc8guard"
     },
@@ -27,7 +30,9 @@
         "BLUETOOTH_ADVERTISE",
         "BLUETOOTH_CONNECT",
         "FOREGROUND_SERVICE",
-        "FOREGROUND_SERVICE_CONNECTED_DEVICE"
+        "FOREGROUND_SERVICE_CONNECTED_DEVICE",
+        "android.permission.ACCESS_COARSE_LOCATION",
+        "android.permission.ACCESS_FINE_LOCATION"
       ],
       "package": "com.emotiveimpact.loc8guard"
     },
@@ -57,7 +62,11 @@
       "reactCompiler": true
     },
     "extra": {
-      "router": {}
-    }
+      "router": {},
+      "eas": {
+        "projectId": "b700136e-a472-4e0d-8448-c9569e1a3e18"
+      }
+    },
+    "owner": "emotiveimpact"
   }
 }

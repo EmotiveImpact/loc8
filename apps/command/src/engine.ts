@@ -30,3 +30,7 @@ export {
 // Live mode: the console becomes a bridge client and renders REAL mesh frames
 // relayed from a Guard gateway phone (pure module — WebSocket is platform-global).
 export { BridgedTransport } from '@loc8/engine/transport/BridgedTransport';
+// The shared ops-event grammar (dispatch, muster, field reports) — built and
+// parsed by the same module Guard uses, so the doors cannot drift.
+export { opsMsg, parseOpsMessage } from '@loc8/engine/core/opsMessages';
+export type { OpsEvent } from '@loc8/engine/core/opsMessages';

@@ -11,7 +11,16 @@ import { encodeDispatch, GUARD_STATUS } from '../domain/dispatch';
 import { assistedSearch, type SearchableSubject } from '../domain/privacy';
 import { nowSec } from '../domain/time';
 import { venueCoverage } from '../domain/zones';
-import { getHaversineDistance, STATUS_CLEAR, STATUS_EN_ROUTE, type Coordinate } from '../engine';
+import {
+  encodePacket,
+  getHaversineDistance,
+  opsMsg,
+  STATUS_CLEAR,
+  STATUS_EN_ROUTE,
+  type Coordinate,
+  type OpsEvent,
+  type Packet,
+} from '../engine';
 import { nearestResponders } from '../domain/coverage';
 import {
   buildIncidents,
@@ -94,6 +103,8 @@ interface CommandState {
   receiveTeamText(fromId: number, text: string): void;
   /** covert emergency (DURESS_CODE quickReply) — never acknowledged to the device */
   raiseDuress(staffId: number, atSec: number): void;
+  /** a parsed ops-grammar event from the live mesh (muster, field reports, …) */
+  applyOpsEvent(fromId: number, ev: OpsEvent): void;
   /** man-down watchdog: raise + auto-dispatch for on-duty devices gone silent */
   runWatchdog(nowSec: number): void;
   callMuster(): void;
@@ -143,6 +154,19 @@ export const MAN_DOWN_AFTER_SEC = 15 * 60;
 let frameSink: ((frames: ArrayBuffer[]) => void) | null = null;
 export function setFrameSink(sink: ((frames: ArrayBuffer[]) => void) | null): void {
   frameSink = sink;
+}
+
+/** Broadcast an ops-grammar message over the live bridge (no-op when sim-only). */
+function broadcastOps(text: string): void {
+  if (!frameSink) return;
+  const frames = encodeDispatch({
+    fromId: COMMAND_ID,
+    toTag: TEAM_TAG,
+    text,
+    msgId: (dispatchMsgSeq = (dispatchMsgSeq + 1) & 0xffff),
+    nowSec: nowSec(),
+  });
+  frameSink(frames);
 }
 
 function audit(prev: AuditEntry[], e: Omit<AuditEntry, 'id'>): AuditEntry[] {
@@ -313,17 +337,39 @@ export const useCommandStore = create<CommandState>((set, get) => ({
       const toTag = opts?.toTag ?? TEAM_TAG;
       const at = nowSec();
       // Reuse the shared engine wire codec — these are the actual mesh frames.
+      // The wire text rides the shared ops grammar (DISPATCH — …) so Guard's
+      // inbox parses it into the RESPOND flow instead of plain chat.
       // msgId is a true monotonic counter: the receiver's TextReassembler keys
       // buffers by (senderId, msgId), so a clock-derived id would merge two
       // same-second dispatches into one corrupted message.
       const frames = encodeDispatch({
         fromId: COMMAND_ID,
         toTag,
-        text,
+        text: opsMsg.dispatch(text),
         msgId: (dispatchMsgSeq = (dispatchMsgSeq + 1) & 0xffff),
         nowSec: at,
       });
       frameSink?.(frames); // live bridge up → the order actually leaves the console
+      // Dispatching TO an incident with a known location also drops a rally
+      // frame there — Guard's converge target: the map marker, the RESPOND bar
+      // and the navigate arrow all key off it. Order + destination, one gesture.
+      const target = opts?.incidentId
+        ? st.incidents.find((i) => i.id === opts.incidentId)?.location
+        : undefined;
+      if (target && frameSink) {
+        const rally: Packet = {
+          type: 'rally',
+          senderId: COMMAND_ID,
+          targetId: toTag,
+          latitude: target.latitude,
+          longitude: target.longitude,
+          headingDeg: 0,
+          batteryPct: 100,
+          timestampSec: at,
+          accuracyM: 10,
+        };
+        frameSink([encodePacket(rally)]);
+      }
       const log: DispatchLogEntry = {
         atSec: at,
         toTag,
@@ -384,17 +430,21 @@ export const useCommandStore = create<CommandState>((set, get) => ({
     }),
 
   callMuster: () =>
-    set((st) => ({
-      muster: { ...st.muster, active: true, startedAtSec: nowSec() },
-      auditLog: audit(st.auditLog, {
-        atSec: nowSec(),
-        operatorId: st.operatorId,
-        action: 'muster',
-        reason: 'muster / evacuation called',
-        subjectIds: [],
-        detail: st.muster.assemblyPoint,
-      }),
-    })),
+    set((st) => {
+      // Live bridge up → the whole team's phones enter muster mode.
+      broadcastOps(opsMsg.musterCall(st.muster.assemblyPoint));
+      return {
+        muster: { ...st.muster, active: true, startedAtSec: nowSec() },
+        auditLog: audit(st.auditLog, {
+          atSec: nowSec(),
+          operatorId: st.operatorId,
+          action: 'muster',
+          reason: 'muster / evacuation called',
+          subjectIds: [],
+          detail: st.muster.assemblyPoint,
+        }),
+      };
+    }),
 
   endMuster: () => set((st) => ({ muster: { ...st.muster, active: false } })),
 
@@ -551,6 +601,132 @@ export const useCommandStore = create<CommandState>((set, get) => ({
       };
     }),
 
+  applyOpsEvent: (fromId, ev) =>
+    set((st) => {
+      const at = nowSec();
+      const sender = st.staff[fromId];
+      const name = sender?.name ?? `Guard ${String(fromId % 100).padStart(2, '0')}`;
+
+      switch (ev.kind) {
+        case 'muster_call': {
+          // A guard declared an evacuation in the field — the board activates.
+          if (st.muster.active) return {};
+          return {
+            muster: { ...st.muster, active: true, startedAtSec: at, assemblyPoint: ev.assembly || st.muster.assemblyPoint },
+            auditLog: audit(st.auditLog, {
+              atSec: at,
+              operatorId: `field · ${name}`,
+              action: 'muster',
+              reason: 'muster declared in the field',
+              subjectIds: [fromId],
+              detail: ev.assembly,
+            }),
+          };
+        }
+
+        case 'muster_safe': {
+          // Sender id is the identity (the badge in the text is display-only).
+          // An unknown sender reporting safe on the shift channel is an on-duty
+          // consented guard — register them like a position frame would.
+          const cur = st.staff[fromId];
+          if (cur?.mustered) return {};
+          const member: StaffMember = cur
+            ? { ...cur, mustered: true, lastPingSec: at }
+            : {
+                id: fromId,
+                name,
+                zoneId: 'perimeter',
+                status: 'on_post',
+                onSinceSec: at,
+                lastPingSec: at,
+                consent: 'on_duty_staff',
+                mustered: true,
+              };
+          return { staff: { ...st.staff, [fromId]: member } };
+        }
+
+        case 'muster_clear':
+          if (!st.muster.active) return {};
+          return { muster: { ...st.muster, active: false } };
+
+        case 'sos_clear': {
+          // The raiser stood their own SOS down in the field.
+          const open = st.incidents.find(
+            (i) => i.kind === 'sos' && i.raisedByStaffId === fromId && i.status !== 'resolved',
+          );
+          if (!open) return {};
+          let staff = st.staff;
+          if (st.staff[fromId]?.status === 'sos') {
+            staff = { ...st.staff, [fromId]: { ...st.staff[fromId], status: 'on_post', lastPingSec: at } };
+          }
+          return {
+            staff,
+            incidents: patchIncident(st.incidents, open.id, (i) => ({
+              ...i,
+              status: 'resolved',
+              closedAtSec: at,
+              timeline: [...i.timeline, { atSec: at, tone: 'ok', text: `Stood down in the field — ${name}`, sub: 'ops message · mesh' }],
+            })),
+          };
+        }
+
+        case 'incident': {
+          // A guard's logged report becomes a real (informational) incident.
+          const id = `RPT-${String((at + fromId) % 10000).padStart(4, '0')}`;
+          const incident: Incident = {
+            id,
+            kind: 'field_report',
+            status: 'active',
+            raisedByStaffId: fromId,
+            subjectName: name,
+            zoneId: sender?.zoneId ?? 'perimeter',
+            location: sender?.location,
+            consentBasis: 'on_duty_staff',
+            raisedAtSec: at,
+            meshConfirmed: true,
+            feedText: `${ev.type} — reported by ${name}`,
+            feedSub: `${ev.level} · ${ev.zone}`,
+            responders: [],
+            timeline: [
+              { atSec: at, tone: 'info', text: `${ev.type} reported`, sub: `${ev.level} · ${ev.zone} · ${name}` },
+            ],
+          };
+          return { incidents: [incident, ...st.incidents] };
+        }
+
+        case 'lone_overdue': {
+          // Missed check-in: raise a lone-worker incident at last known position
+          // (the guard's device also escalates to SOS — that arrives separately).
+          if (st.incidents.some((i) => i.kind === 'lone_worker' && i.raisedByStaffId === fromId && i.status !== 'resolved'))
+            return {};
+          const id = `LW-${String((at + fromId) % 10000).padStart(4, '0')}`;
+          const incident: Incident = {
+            id,
+            kind: 'lone_worker',
+            status: 'active',
+            raisedByStaffId: fromId,
+            subjectName: name,
+            zoneId: sender?.zoneId ?? 'perimeter',
+            location: sender?.location,
+            consentBasis: 'on_duty_staff',
+            raisedAtSec: at,
+            meshConfirmed: true,
+            feedText: `Lone-worker overdue — ${name}`,
+            feedSub: ev.plusCode ? `last position ${ev.plusCode}` : 'no position reported',
+            responders: [],
+            timeline: [
+              { atSec: at, tone: 'alert', text: `Check-in missed — ${name}`, sub: ev.plusCode ? `last known @ ${ev.plusCode}` : 'auto-escalation' },
+            ],
+          };
+          return { incidents: [incident, ...st.incidents] };
+        }
+
+        default:
+          // sos_text rides alongside the sos packet; dispatch echoes are ours.
+          return {};
+      }
+    }),
+
   runWatchdog: (now) =>
     set((st) => {
       // A device that was reporting and has gone silent past the threshold is
@@ -628,6 +804,9 @@ export const useCommandStore = create<CommandState>((set, get) => ({
   standDownMuster: () =>
     set((st) => {
       if (!st.muster.active) return {};
+      const accounted = Object.values(st.staff).filter((s) => s.mustered).length;
+      // Live bridge up → release every phone from muster mode.
+      broadcastOps(opsMsg.musterClear(accounted, Object.keys(st.staff).length));
       return {
         muster: { ...st.muster, active: false },
         auditLog: audit(st.auditLog, {

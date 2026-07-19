@@ -6,7 +6,7 @@ import { View, Text, Pressable, StyleSheet } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useRouter } from 'expo-router';
 import { MapPin, TriangleAlert } from 'lucide-react-native';
-import { haptics } from '@loc8/engine';
+import { encodePlusCode, getMeshService, haptics, opsMsg, useCrewStore } from '@loc8/engine';
 import { ops, fonts, tint } from '../src/ui/opsTheme';
 import { useGuardStore, LONE_CHECKIN_SEC } from '../src/state/guardStore';
 import { raiseSosNow } from '../src/state/sos';
@@ -29,7 +29,14 @@ export default function LoneCheckIn() {
         if (r <= 1 && !escalatedRef.current) {
           escalatedRef.current = true;
           setEscalated(true);
-          raiseSosNow(); // silence → auto-escalate to control with last position
+          // Silence → tell control WHY (lone-worker overdue, last position as a
+          // plus code), then escalate to a full SOS.
+          const g = useGuardStore.getState();
+          const loc = useCrewStore.getState().myLocation;
+          getMeshService().sendCrewMessage(
+            opsMsg.loneOverdue(g.badge, loc ? encodePlusCode(loc.latitude, loc.longitude) : undefined),
+          );
+          raiseSosNow();
           return 0;
         }
         return Math.max(0, r - 1);

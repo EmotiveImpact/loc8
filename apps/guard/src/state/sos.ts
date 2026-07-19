@@ -6,7 +6,7 @@
 //   2. a rally pin — the team's converge-here target (dispatch arrow, map marker);
 //   3. a fragmented free-text alert — human-readable in every activity feed.
 // The un-missable haptic is the engine's haptics.sos(). No forked transport.
-import { getMeshService, getTransport, useCrewStore, haptics, type Packet } from '@loc8/engine';
+import { getMeshService, getTransport, useCrewStore, haptics, opsMsg, type Packet } from '@loc8/engine';
 import { useGuardStore, badgeLabel } from './guardStore';
 
 /** Broadcast the first-class 'sos' packet (Command's live-mode trigger). */
@@ -39,7 +39,7 @@ export function raiseSosNow(): string {
   // dropRally broadcasts our position as the shared converge target + sets the pin.
   mesh.dropRally();
   // A human-readable alert rides the same mesh as free-text; echoes to activity.
-  mesh.sendCrewMessage(`SOS — Guard ${badgeLabel(g.badge)} needs help · ${zone}`);
+  mesh.sendCrewMessage(opsMsg.sos(g.badge, zone));
   g.raiseSos(label);
   haptics.sos();
   return label;
@@ -49,7 +49,7 @@ export function raiseSosNow(): string {
 export function standDownSos(): void {
   const g = useGuardStore.getState();
   useCrewStore.getState().clearRally();
-  getMeshService().sendCrewMessage(`Stood down — Guard ${badgeLabel(g.badge)} is OK`);
+  getMeshService().sendCrewMessage(opsMsg.sosClear(g.badge));
   g.cancelSos();
   g.setDispatch(null);
   haptics.success();

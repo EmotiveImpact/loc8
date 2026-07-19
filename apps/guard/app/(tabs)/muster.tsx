@@ -5,7 +5,7 @@ import { View, Text, Pressable, StyleSheet } from 'react-native';
 import { LinearGradient } from 'expo-linear-gradient';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { Users, ShieldAlert } from 'lucide-react-native';
-import { getMeshService, haptics, useCrewStore } from '@loc8/engine';
+import { getMeshService, haptics, opsMsg, useCrewStore } from '@loc8/engine';
 import { ops, fonts, opsGradients, tint } from '../../src/ui/opsTheme';
 import { OpsBackground } from '../../src/ui/OpsBackground';
 import { HoldButton } from '../../src/ui/HoldButton';
@@ -39,12 +39,23 @@ export default function Muster() {
   byFloor[myFloor] = (byFloor[myFloor] ?? 0) + 1;
   const floorRows = Object.keys(byFloor).map(Number).sort((a, b) => b - a);
 
+  const badge = useGuardStore.getState().badge;
   const declare = () => {
     haptics.warning();
     callMuster();
-    getMeshService().sendCrewMessage('MUSTER — evacuate to the assembly point now');
+    // Shared ops grammar — Command activates its muster board off this.
+    getMeshService().sendCrewMessage(opsMsg.musterCall('Assembly Point A'));
   };
-  const confirmSafe = () => { haptics.success(); markSafe(); };
+  const confirmSafe = () => {
+    haptics.success();
+    markSafe();
+    // Command's live muster board counts this check-in (sender id is identity).
+    getMeshService().sendCrewMessage(opsMsg.musterSafe(badge, 'Assembly Point A'));
+  };
+  const standDown = () => {
+    endMuster();
+    getMeshService().sendCrewMessage(opsMsg.musterClear(accounted, total));
+  };
 
   if (!musterActive) {
     return (
@@ -103,7 +114,7 @@ export default function Muster() {
         </View>
       </View>
 
-      <Pressable style={st.end} onPress={() => { haptics.tap(); endMuster(); }}>
+      <Pressable style={st.end} onPress={() => { haptics.tap(); standDown(); }}>
         <Text style={st.endTxt}>End muster</Text>
       </Pressable>
     </View>

@@ -178,6 +178,65 @@ describe('man-down watchdog', () => {
   });
 });
 
+describe('ops-grammar ingest (applyOpsEvent)', () => {
+  it('a field muster call activates the board and audits the declarer', () => {
+    useCommandStore.getState().applyOpsEvent(5, { kind: 'muster_call', assembly: 'Assembly Point A' });
+    const st = useCommandStore.getState();
+    expect(st.muster.active).toBe(true);
+    expect(st.auditLog[0].action).toBe('muster');
+    expect(st.auditLog[0].operatorId).toMatch(/field/);
+    expect(st.auditLog[0].subjectIds).toContain(5);
+  });
+
+  it('MUSTER SAFE checks the sender in by mesh id, not the badge text', () => {
+    expect(useCommandStore.getState().staff[9].mustered).toBe(false); // Sofia
+    useCommandStore.getState().applyOpsEvent(9, { kind: 'muster_safe', badge: 42, assembly: 'A' });
+    expect(useCommandStore.getState().staff[9].mustered).toBe(true);
+  });
+
+  it('a field stand-down resolves the open SOS and clears the person', () => {
+    useCommandStore.getState().applyOpsEvent(7, { kind: 'sos_clear', badge: 7 });
+    const st = useCommandStore.getState();
+    const inc = st.incidents.find((i) => i.id === 'SOS-0442')!;
+    expect(inc.status).toBe('resolved');
+    expect(inc.timeline.at(-1)!.text).toMatch(/Stood down in the field/);
+    expect(st.staff[7].status).toBe('on_post');
+    expect(st.sosCount()).toBe(0);
+  });
+
+  it('an incident report becomes a real field_report incident', () => {
+    useCommandStore.getState().applyOpsEvent(2, { kind: 'incident', type: 'Fight', level: 'Main Floor', zone: 'Zone 2' });
+    const inc = useCommandStore.getState().incidents.find((i) => i.kind === 'field_report')!;
+    expect(inc).toBeDefined();
+    expect(inc.raisedByStaffId).toBe(2);
+    expect(inc.feedText).toMatch(/Fight — reported by/);
+    expect(inc.feedSub).toBe('Main Floor · Zone 2');
+  });
+
+  it('lone_overdue raises one lone-worker incident, idempotently', () => {
+    // Staff 2 has no seeded lone incident (staff 9 does — and the guard
+    // correctly refuses a duplicate while one is open).
+    useCommandStore.getState().applyOpsEvent(2, { kind: 'lone_overdue', badge: 2, plusCode: '9C3XGV00+' });
+    useCommandStore.getState().applyOpsEvent(2, { kind: 'lone_overdue', badge: 2, plusCode: '9C3XGV00+' });
+    const open = useCommandStore
+      .getState()
+      .incidents.filter((i) => i.kind === 'lone_worker' && i.raisedByStaffId === 2 && i.status !== 'resolved');
+    expect(open).toHaveLength(1);
+    expect(open[0].feedSub).toMatch(/9C3XGV00\+/);
+    // and the seeded open incident for staff 9 blocks a duplicate there too
+    useCommandStore.getState().applyOpsEvent(9, { kind: 'lone_overdue', badge: 9 });
+    expect(
+      useCommandStore.getState().incidents.filter((i) => i.kind === 'lone_worker' && i.raisedByStaffId === 9),
+    ).toHaveLength(1);
+  });
+
+  it('muster_clear from the field releases the board', () => {
+    useCommandStore.getState().callMuster();
+    useCommandStore.getState().applyOpsEvent(5, { kind: 'muster_clear', accounted: 9, total: 12 });
+    expect(useCommandStore.getState().muster.active).toBe(false);
+  });
+});
+
 describe('assisted search through the store', () => {
   it('a valid search logs one assisted_search entry', () => {
     const res = useCommandStore.getState().runAssistedSearch('Priya', 'lost-child report at Gate C');

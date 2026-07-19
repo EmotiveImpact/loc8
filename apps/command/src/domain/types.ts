@@ -72,6 +72,7 @@ export type IncidentKind =
   | 'capacity'
   | 'lone_worker'
   | 'medical'
+  | 'field_report' // a guard's logged incident, arrived over the ops grammar
   | 'shift';
 export type IncidentStatus = 'active' | 'acknowledged' | 'escalated' | 'resolved';
 

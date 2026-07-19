@@ -16,6 +16,8 @@ export default defineConfig({
       '@loc8/engine/': `${enginePath}/`,
     },
   },
-  server: { port: 5182 },
+  // Port comes from the environment when a runner assigns one (PORT), with a
+  // stable default for manual `npm run dev`.
+  server: { port: Number(process.env.PORT) || 5182 },
   build: { outDir: 'dist', sourcemap: true },
 });

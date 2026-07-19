@@ -5,7 +5,7 @@ import { useState } from 'react';
 import { View, Text, Pressable, StyleSheet, ScrollView } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { MapPin } from 'lucide-react-native';
-import { useCrewStore, getMeshService, haptics } from '@loc8/engine';
+import { useCrewStore, getMeshService, haptics, opsMsg } from '@loc8/engine';
 import { ops, fonts, tint } from '../../src/ui/opsTheme';
 import { OpsBackground } from '../../src/ui/OpsBackground';
 import { GuardHeader } from '../../src/ui/GuardHeader';
@@ -44,7 +44,7 @@ export default function Incidents() {
   const log = () => {
     haptics.warning();
     logIncident(type, locLabel, `Guard ${badgeLabel(badge)}`, myFloor, now);
-    getMeshService().sendCrewMessage(`INCIDENT · ${type} · ${levelName(myFloor)} · ${locLabel}`);
+    getMeshService().sendCrewMessage(opsMsg.incident(type, levelName(myFloor), locLabel));
   };
 
   return (

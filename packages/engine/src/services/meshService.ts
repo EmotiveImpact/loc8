@@ -23,6 +23,13 @@ export interface MeshService {
   sendQuickReply(targetId: number, code: number): void;
   /** Fragment `text` across mesh packets and broadcast it to the crew. */
   sendCrewMessage(text: string): void;
+  /**
+   * Register a listener for fully-reassembled inbound crew messages
+   * (senderId, text). Additive hook for door-specific handling — e.g. Guard
+   * parses ops events (dispatch orders, muster) out of the same stream the
+   * Activity feed shows. Listeners persist across start/stop.
+   */
+  onMessage(cb: (senderId: number, text: string) => void): void;
   dropRally(): void;
 }
 
@@ -39,6 +46,8 @@ export function createMeshService(
   let appStateSub: NativeEventSubscription | null = null;
   // Reassembles inbound 'text' fragments; one per service instance.
   const reassembler = new TextReassembler();
+  // Door-specific listeners for completed inbound messages (see onMessage).
+  const messageCbs: Array<(senderId: number, text: string) => void> = [];
   // Separate reassembler for inbound 'profile' (name) fragments — kept apart so
   // its (senderId,msgId) keyspace never collides with chat text.
   const profileReassembler = new TextReassembler();
@@ -109,6 +118,7 @@ export function createMeshService(
           const done = reassembler.add(p);
           if (done && firstCompletion(`text:${p.senderId}:${p.msgId}`)) {
             s.receiveMessage(done.senderId, done.text);
+            for (const cb of messageCbs) cb(done.senderId, done.text);
             haptics.pingReceived();
           }
           return;
@@ -220,6 +230,10 @@ export function createMeshService(
       for (const f of frags) transport.broadcast(f);
       // Echo my own message into the timeline immediately.
       s.addLocalMessage(trimmed);
+    },
+
+    onMessage(cb) {
+      messageCbs.push(cb);
     },
 
     dropRally() {
