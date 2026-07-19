@@ -72,10 +72,12 @@
     ],
     "testPathIgnorePatterns": [
       "<rootDir>/node_modules/",
-      "<rootDir>/.claude/"
+      "<rootDir>/.claude/",
+      "<rootDir>/GUARDBACKUP/"
     ],
     "modulePathIgnorePatterns": [
-      "<rootDir>/.claude/"
+      "<rootDir>/.claude/",
+      "<rootDir>/GUARDBACKUP/"
     ],
     "moduleNameMapper": {
       "^@loc8/engine$": "<rootDir>/packages/engine/src/index.ts",
