@@ -61,6 +61,11 @@ it. Updated 2026-07-20.*
    (from Feb 2027) likely forces a user-replaceable pack design anyway.
 6. **eas-builds.md is partially stale** — flagged in-file 2026-07-20; reconcile
    with `eas.json` when next touched (part of gate 2).
+7. ~~**Gateway vs Anchor ambiguity**~~ — RESOLVED 2026-07-20: one family, two
+   products. Gateway = Pi-class brain running Loc8OS, one per site; Anchor =
+   ESP32-class stateless radio translator (~£30–40), many per site, Phase 3.
+   Recorded in `hardware/loc8-gateway.md` §2 "The hardware family". Anchor
+   firmware itself remains 🔴 unbuilt (correctly — gated on the field test).
 
 ## Standing corrections (do not re-introduce these)
 

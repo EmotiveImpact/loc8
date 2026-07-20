@@ -68,9 +68,25 @@ off-the-shelf HAT meets the requirement anyway. See §9.*
 ### Add-on modules (any tier)
 - **LTE dongle + SIM (~$25 + data):** the box brings its own internet. A venue
   with no wifi and jammed cell still appears live on HQ's dashboard.
-- **LoRa concentrator (~$40–80):** the same chassis becomes the long-range
-  anchor from `docs/strategy/coverage-maps.html`. One hardware line, growing
-  radios.
+- **LoRa concentrator (~$40–80):** makes this Gateway the **head-end of the
+  LoRa trunk** — every anchor's long-range traffic funnels into the box that
+  already holds the site database.
+
+### The hardware family — one brain, many ears
+
+To prevent drift between this doc and `../strategy/anchors-hardware.md`:
+
+| Product | Class | Runs | Per site | Job |
+|---|---|---|---|---|
+| **Loc8 Gateway** (this doc) | Pi-class | **Loc8OS** | **one** | Site brain: DB, audit, relay, sync, PKI, best mesh node. Tiers A/B/C are build qualities of *this* product. |
+| **Loc8 Anchor** (strategy doc, Phase 3) | ESP32-class, ~£30–40 | tiny firmware, **not** Loc8OS | 0–dozens | Dumb radio translator (BLE re-broadcast / BLE⟷LoRa). Stateless: if one dies, coverage shrinks and nothing is lost. Battery/solar, pole-mounted. |
+
+Same 25-byte protocol everywhere; consumer crews and Guard staff share the
+same mesh through the same hardware (crew codes / team tags separate them on
+the wire, as today). Deployment patterns: guarded venue = Gateway only ·
+festival = Gateway (+LoRa +LTE) in production + anchors on the empty seams ·
+cruise/industrial = Tier C + anchors in the steel. Anchors stay **Phase 3**:
+build them only after the field test locks the phone protocol.
 
 **Economics:** ~$100 BOM at Tier B → sell at $299–399 or bundle free with
 per-guard SaaS. Competitors' site infrastructure (RTLS, lone-worker hardware)
