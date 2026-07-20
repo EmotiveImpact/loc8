@@ -40,6 +40,9 @@ This folder is the **dev-ready knowledge base**: everything decided so far, so a
 
 ## Index
 
+### 🗺 [SYSTEM.md](SYSTEM.md) — the complete system on one page
+Every device, every piece of software, the protocol, five message walkthroughs, deployment recipes per venue, the security table, and the confusion-killer FAQ. **Read this first if you're lost.**
+
 ### ✅ [MASTER-CHECKLIST.md](MASTER-CHECKLIST.md) — start here when returning
 Every open item across the whole system in dependency order: the five gates, door status, gateway/OS items, newly identified gaps (RTC, multi-gateway, box-swap DR, fleet health), and the standing corrections that must not be re-introduced.
 
