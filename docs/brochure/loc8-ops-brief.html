@@ -1,0 +1,870 @@
+<title>Loc8 — Operations Master Brief</title>
+<style>
+  :root{
+    --ground:#08090c; --panel:#0f1115; --raised:#14171e; --line:#1e222b; --line-soft:#171b22;
+    --ink:#e8eaed; --dim:#8b929e; --faint:#5d646f;
+    --ok:#46e0a0; --warn:#ffb43a; --alert:#ff4053; --info:#7aa2ff;
+    --mono: ui-monospace, "SF Mono", Menlo, "DejaVu Sans Mono", monospace;
+    --grot: -apple-system, "Helvetica Neue", "Segoe UI", Roboto, system-ui, sans-serif;
+    --rail: 132px;
+  }
+  *{box-sizing:border-box;}
+  body,.doc{background:var(--ground);}
+  .doc{
+    color:var(--ink); font-family:var(--grot);
+    font-size:16px; line-height:1.62; margin:0;
+    -webkit-font-smoothing:antialiased;
+    background-image:
+      radial-gradient(900px 480px at 12% -8%, rgba(70,224,160,.05), transparent 62%),
+      radial-gradient(760px 420px at 92% 3%, rgba(122,162,255,.045), transparent 60%);
+  }
+  .wrap{max-width:1180px; margin:0 auto; padding:0 32px 128px;}
+
+  /* ── rail layout ───────────────────────────────────────── */
+  section.sec{
+    display:grid; grid-template-columns:var(--rail) minmax(0,1fr);
+    gap:0 40px; padding:72px 0 8px; border-top:1px solid var(--line);
+  }
+  section.sec:first-of-type{border-top:0;}
+  .rail{position:sticky; top:24px; align-self:start; padding-top:4px;}
+  .rail .num{
+    font-family:var(--mono); font-size:11px; letter-spacing:.16em;
+    color:var(--faint); display:block; margin-bottom:14px;
+  }
+  .aud{display:flex; flex-direction:column; gap:5px; align-items:flex-start;}
+  .aud b{
+    font-family:var(--mono); font-size:9.5px; font-weight:500; letter-spacing:.13em;
+    color:var(--dim); border:1px solid var(--line); border-radius:2px;
+    padding:3px 7px; background:var(--panel); text-transform:uppercase;
+  }
+  .body{min-width:0;}
+
+  /* ── type ──────────────────────────────────────────────── */
+  h2{
+    font-size:clamp(28px,3.4vw,42px); line-height:1.04; margin:0 0 20px;
+    font-weight:800; letter-spacing:-.028em; text-wrap:balance;
+  }
+  h3{
+    font-size:19px; margin:44px 0 12px; font-weight:700; letter-spacing:-.012em;
+  }
+  h3:first-child{margin-top:0;}
+  h4{
+    font-family:var(--mono); font-size:10.5px; letter-spacing:.16em; text-transform:uppercase;
+    color:var(--dim); font-weight:500; margin:34px 0 12px;
+  }
+  p{margin:0 0 15px; max-width:70ch; color:#cfd4dc;}
+  p.lede{font-size:19px; line-height:1.55; color:var(--ink); max-width:64ch;}
+  strong{color:var(--ink); font-weight:650;}
+  em{color:var(--dim); font-style:italic;}
+  a{color:var(--info); text-decoration:none; border-bottom:1px solid rgba(122,162,255,.3);}
+  code, .m{font-family:var(--mono); font-size:.88em; color:var(--ok);}
+  ul,ol{margin:0 0 16px; padding-left:20px; max-width:70ch; color:#cfd4dc;}
+  li{margin-bottom:8px;}
+  li::marker{color:var(--faint);}
+
+  /* ── cover ─────────────────────────────────────────────── */
+  .cover{padding:96px 0 76px; border-bottom:1px solid var(--line);}
+  .brandline{
+    display:flex; align-items:baseline; gap:16px; flex-wrap:wrap;
+    font-family:var(--mono); font-size:10.5px; letter-spacing:.2em;
+    color:var(--faint); text-transform:uppercase; margin-bottom:44px;
+  }
+  .brandline .cls{color:var(--warn); border:1px solid rgba(255,180,58,.3); padding:3px 8px; border-radius:2px;}
+  .wordmark{
+    font-size:clamp(60px,10vw,124px); font-weight:850; letter-spacing:-.05em;
+    line-height:.86; margin:0 0 6px;
+  }
+  .wordmark .eight{color:var(--ok);}
+  .sub{
+    font-family:var(--mono); font-size:clamp(11px,1.5vw,14px); letter-spacing:.34em;
+    color:var(--dim); text-transform:uppercase; margin:0 0 40px;
+  }
+  .thesis{
+    font-size:clamp(21px,2.5vw,30px); line-height:1.34; font-weight:600;
+    letter-spacing:-.02em; max-width:23ch; margin:0 0 24px; text-wrap:balance;
+  }
+  .thesis .hl{color:var(--ok);}
+  .covergrid{display:grid; grid-template-columns:1.15fr 1fr; gap:56px; align-items:start;}
+  .coverwhy{border-left:2px solid var(--line); padding-left:22px;}
+  .coverwhy p{font-size:15px; color:var(--dim); max-width:44ch;}
+
+  /* ── status ledger ─────────────────────────────────────── */
+  .ledger{
+    display:grid; grid-template-columns:repeat(auto-fit,minmax(168px,1fr));
+    gap:1px; background:var(--line); border:1px solid var(--line);
+    border-radius:3px; overflow:hidden; margin:34px 0 8px;
+  }
+  .cell{background:var(--panel); padding:18px 18px 16px; position:relative;}
+  .cell::before{content:""; position:absolute; inset:0 auto 0 0; width:2px; background:var(--faint);}
+  .cell.ok::before{background:var(--ok);}
+  .cell.warn::before{background:var(--warn);}
+  .cell.alert::before{background:var(--alert);}
+  .cell .v{
+    font-family:var(--mono); font-size:26px; font-weight:600; letter-spacing:-.03em;
+    display:block; line-height:1.1; font-variant-numeric:tabular-nums;
+  }
+  .cell.ok .v{color:var(--ok);} .cell.warn .v{color:var(--warn);} .cell.alert .v{color:var(--alert);}
+  .cell .l{
+    font-family:var(--mono); font-size:9.5px; letter-spacing:.13em; text-transform:uppercase;
+    color:var(--dim); display:block; margin-top:8px; line-height:1.5;
+  }
+  .cell .n{font-size:12px; color:var(--faint); display:block; margin-top:7px; line-height:1.45;}
+
+  /* ── callout ───────────────────────────────────────────── */
+  .call{
+    background:var(--panel); border:1px solid var(--line); border-left:2px solid var(--info);
+    border-radius:3px; padding:20px 22px; margin:26px 0;
+  }
+  .call.risk{border-left-color:var(--alert);}
+  .call.good{border-left-color:var(--ok);}
+  .call.plan{border-left-color:var(--warn);}
+  .call h5{
+    font-family:var(--mono); font-size:10px; letter-spacing:.16em; text-transform:uppercase;
+    margin:0 0 10px; color:var(--dim); font-weight:500;
+  }
+  .call.risk h5{color:var(--alert);}
+  .call.good h5{color:var(--ok);}
+  .call.plan h5{color:var(--warn);}
+  .call p:last-child{margin-bottom:0;}
+
+  /* ── tables ────────────────────────────────────────────── */
+  .tw{overflow-x:auto; margin:22px 0 26px; border:1px solid var(--line); border-radius:3px;}
+  table{border-collapse:collapse; width:100%; min-width:520px; font-size:14px;}
+  th{
+    text-align:left; font-family:var(--mono); font-size:9.5px; letter-spacing:.14em;
+    text-transform:uppercase; color:var(--dim); font-weight:500;
+    padding:12px 16px; background:var(--raised); border-bottom:1px solid var(--line);
+    white-space:nowrap;
+  }
+  td{padding:13px 16px; border-bottom:1px solid var(--line-soft); vertical-align:top; color:#cfd4dc;}
+  tr:last-child td{border-bottom:0;}
+  td.mono, th.mono{font-family:var(--mono); font-variant-numeric:tabular-nums; white-space:nowrap;}
+  td strong{color:var(--ink);}
+
+  /* ── status pill ───────────────────────────────────────── */
+  .pill{
+    font-family:var(--mono); font-size:9.5px; letter-spacing:.11em; text-transform:uppercase;
+    padding:3px 8px; border-radius:2px; white-space:nowrap; display:inline-block;
+    border:1px solid currentColor; font-weight:500;
+  }
+  .pill.built{color:var(--ok);}
+  .pill.spec{color:var(--warn);}
+  .pill.open{color:var(--alert);}
+  .pill.part{color:var(--info);}
+
+  /* ── figure ────────────────────────────────────────────── */
+  figure{margin:30px 0; background:var(--panel); border:1px solid var(--line); border-radius:3px; padding:26px 24px 18px;}
+  figure svg{width:100%; height:auto; display:block;}
+  figcaption{
+    font-family:var(--mono); font-size:10.5px; letter-spacing:.06em; color:var(--faint);
+    margin-top:18px; padding-top:14px; border-top:1px solid var(--line-soft); line-height:1.6;
+  }
+
+  /* ── steps ─────────────────────────────────────────────── */
+  ol.steps{list-style:none; padding:0; counter-reset:s; max-width:74ch;}
+  ol.steps>li{
+    counter-increment:s; position:relative; padding-left:44px; margin-bottom:20px;
+  }
+  ol.steps>li::before{
+    content:counter(s,decimal-leading-zero); position:absolute; left:0; top:1px;
+    font-family:var(--mono); font-size:11px; color:var(--ok); letter-spacing:.06em;
+    border:1px solid var(--line); border-radius:2px; padding:2px 7px; background:var(--panel);
+  }
+  ol.steps>li b{display:block; color:var(--ink); font-weight:650; margin-bottom:3px;}
+
+  /* ── glossary ──────────────────────────────────────────── */
+  dl.gloss{margin:22px 0; display:grid; grid-template-columns:200px minmax(0,1fr); gap:0; border-top:1px solid var(--line-soft);}
+  dl.gloss dt{
+    font-family:var(--mono); font-size:12px; color:var(--ok); padding:12px 16px 12px 0;
+    border-bottom:1px solid var(--line-soft);
+  }
+  dl.gloss dd{margin:0; padding:12px 0; border-bottom:1px solid var(--line-soft); color:#cfd4dc; font-size:14px;}
+
+  /* ── footer ────────────────────────────────────────────── */
+  .foot{
+    border-top:1px solid var(--line); margin-top:72px; padding-top:26px;
+    font-family:var(--mono); font-size:10.5px; letter-spacing:.1em; color:var(--faint);
+    text-transform:uppercase; display:flex; justify-content:space-between; gap:20px; flex-wrap:wrap;
+  }
+
+  @media (max-width:880px){
+    :root{--rail:0px;}
+    .wrap{padding:0 20px 80px;}
+    section.sec{grid-template-columns:1fr; gap:0; padding:52px 0 4px;}
+    .rail{position:static; display:flex; align-items:center; gap:12px; margin-bottom:18px; flex-wrap:wrap;}
+    .rail .num{margin-bottom:0;}
+    .aud{flex-direction:row; flex-wrap:wrap;}
+    .covergrid{grid-template-columns:1fr; gap:34px;}
+    dl.gloss{grid-template-columns:1fr;}
+    dl.gloss dt{border-bottom:0; padding-bottom:2px;}
+    dl.gloss dd{padding-top:0;}
+  }
+  @media (prefers-reduced-motion:reduce){*{animation:none!important; transition:none!important;}}
+</style>
+
+<div class="doc"><div class="wrap">
+
+<!-- ══════════════ COVER ══════════════ -->
+<header class="cover">
+  <div class="brandline">
+    <span>Operations Master Brief</span>
+    <span>Rev. 2026-07-20</span>
+    <span class="cls">Internal &amp; Prospective Partners</span>
+  </div>
+
+  <div class="covergrid">
+    <div>
+      <h1 class="wordmark">LOC<span class="eight">8</span></h1>
+      <p class="sub">Find your people when the network is dead</p>
+      <p class="thesis">A live map of your team on ordinary phones — over <span class="hl">Bluetooth</span>, with no cell signal, no wifi, and no special hardware.</p>
+    </div>
+    <div class="coverwhy">
+      <h4>Why this exists</h4>
+      <p>The moments you most need to know where your people are — a crush, an evacuation, a jammed or overloaded cell site, a basement, a tunnel, a ship — are exactly the moments every existing tool stops working.</p>
+      <p>Radios carry voice but no location. Guard-tour systems only look backwards. Lone-worker devices depend on the very cellular network that fails in the dead zones those workers occupy.</p>
+      <p>Loc8 removes the dependency entirely.</p>
+    </div>
+  </div>
+
+  <div class="ledger">
+    <div class="cell ok"><span class="v">274</span><span class="l">Tests passing</span><span class="n">27 suites, all green. Run in this repo, not quoted from a doc.</span></div>
+    <div class="cell ok"><span class="v">25 B</span><span class="l">Mesh packet</span><span class="n">8 message types. Free text fragments at 11 B/packet and reassembles.</span></div>
+    <div class="cell ok"><span class="v">7</span><span class="l">Hop limit</span><span class="n">TTL starts at 7, clamps to 5 in dense conditions.</span></div>
+    <div class="cell warn"><span class="v">3 of 4</span><span class="l">Doors built</span><span class="n">Consumer, Guard, Command built. Partner SDK unwritten.</span></div>
+    <div class="cell alert"><span class="v">0</span><span class="l">Lines of encryption</span><span class="n">AEAD is designed in the Gateway spec. It is not implemented.</span></div>
+    <div class="cell warn"><span class="v">$93–113</span><span class="l">Gateway parts cost</span><span class="n">Tier B bill of materials. No unit has been built.</span></div>
+  </div>
+</header>
+
+<!-- ══════════════ 01 ══════════════ -->
+<section class="sec">
+  <div class="rail">
+    <span class="num">01</span>
+    <div class="aud"><b>Investor</b><b>CEO</b></div>
+  </div>
+  <div class="body">
+    <h2>Executive summary</h2>
+
+    <p class="lede">Phones already carry Bluetooth Low Energy radios. Loc8 turns a group of phones into a mesh: each phone relays small 25-byte messages for the others, so a position can travel several hops to reach someone out of direct range. No tower, no router, no subscription to a network.</p>
+
+    <h4>The problem</h4>
+    <p>Security teams, stewards, medics and industrial crews coordinate over tools that each fail in a specific way. Two-way radio carries voice but not position. Guard-tour platforms record where someone <em>was</em> when they tapped a checkpoint. Lone-worker devices phone home over cellular or satellite — precisely the link that drops in a basement, a plant room, a car park or a congested crowd. When comms degrade, <strong>"where are you?" becomes a guess</strong>.</p>
+
+    <h4>The invention</h4>
+    <p>A phone-to-phone relay network with a deliberately tiny wire format. Everything a person's position needs — who, where, which floor, which way they're facing, battery, time, accuracy — is packed into 25 bytes so it survives a hostile radio environment and costs almost nothing in power. This is built and tested: <strong>274 automated tests pass across 27 suites</strong>.</p>
+
+    <h4>Four doors, one engine</h4>
+    <p>A single shared codebase (<code>@loc8/engine</code>) powers all products, and is never forked. The consumer finder, a partner SDK, <strong>Loc8 Guard</strong> (the field-staff phone app: team map, one-tap SOS, dispatch, lone-worker check-in, muster) and <strong>Loc8 Command</strong> (the control-room console). Guard and Command are built and running; they currently render mostly seeded demo data, with a working code path to render real mesh frames.</p>
+
+    <h4>The appliance</h4>
+    <p><strong>Loc8 Gateway</strong> is a specified — not yet built — wall-mounted box that joins the mesh natively, holds the site database, and syncs to head office when any internet exists. It converts the software from an app into infrastructure a venue installs and keeps.</p>
+
+    <h4>The moat</h4>
+    <p>Privacy by architecture. Locations live on devices, not on a central server, so there is no honeypot to breach and no browsable map of individuals to subpoena or abuse. The crowd view is anonymous per-zone counts only — <strong>there is no attendee identity store in the system to protect</strong>, because one was never built.</p>
+
+    <div class="call risk">
+      <h5>The one honest caveat, stated up front</h5>
+      <p>The make-or-break test — the real Bluetooth mesh running between physical phones in the field — <strong>is not confirmed complete</strong>. The repository contradicts itself: <code>CHANGELOG.md</code> line 10 claims "mesh proven on 2 real iPhones", while line 87 of that same file lists the on-device test matrix as "Not yet run", and the device-build runbook shows the Guard build pipeline still being set up as of 2026-07-12.</p>
+      <p>Until that is resolved with a witnessed test, this brief treats the field proof as <span class="pill open">Open</span>. Everything else in this document is either verified in code or explicitly marked as plan.</p>
+    </div>
+  </div>
+</section>
+
+<!-- ══════════════ 02 ══════════════ -->
+<section class="sec">
+  <div class="rail">
+    <span class="num">02</span>
+    <div class="aud"><b>Everyone</b></div>
+  </div>
+  <div class="body">
+    <h2>How it works, in plain language</h2>
+
+    <p class="lede">If you understand how a rumour crosses a crowded room, you understand Loc8.</p>
+
+    <p>Every phone running Loc8 does three things, over and over, using the Bluetooth radio that is already in it:</p>
+
+    <ol class="steps">
+      <li><b>It says where it is.</b> A few times a minute, the phone broadcasts a tiny message: my ID, my position, my floor, my heading, my battery, the time. Twenty-five bytes — about the length of this sentence fragment.</li>
+      <li><b>It listens for everyone else.</b> Any Loc8 phone in Bluetooth range hears that broadcast and puts the person on the map.</li>
+      <li><b>It passes on what it hears.</b> This is the part that matters. Your phone re-broadcasts other people's messages, so a message from someone far away can travel <em>through</em> the phones in between and still reach you.</li>
+    </ol>
+
+    <p>That third behaviour — relaying for someone else's benefit, not your own — is what turns a scattered group of phones into a network. Nobody is in charge of it. There is no hub to knock out.</p>
+
+    <figure>
+      <svg viewBox="0 0 760 250" role="img" aria-label="Diagram: a message relaying across four phones through three hops to reach the control room, while a direct link is blocked by a wall">
+        <defs>
+          <marker id="ar" markerWidth="8" markerHeight="8" refX="7" refY="4" orient="auto">
+            <path d="M0,0 L8,4 L0,8 z" fill="#46e0a0"/>
+          </marker>
+          <marker id="arx" markerWidth="8" markerHeight="8" refX="7" refY="4" orient="auto">
+            <path d="M0,0 L8,4 L0,8 z" fill="#ff4053"/>
+          </marker>
+        </defs>
+        <!-- blocked direct path -->
+        <path d="M78,74 C260,20 500,20 672,74" stroke="#ff4053" stroke-width="1.4" fill="none" stroke-dasharray="5 5" opacity=".65" marker-end="url(#arx)"/>
+        <rect x="352" y="30" width="46" height="26" rx="2" fill="#08090c" stroke="#ff4053" stroke-width="1" opacity=".9"/>
+        <text x="375" y="47" fill="#ff4053" font-family="ui-monospace,monospace" font-size="10" text-anchor="middle">WALL</text>
+        <text x="375" y="16" fill="#ff4053" font-family="ui-monospace,monospace" font-size="10" text-anchor="middle" letter-spacing="1.4">DIRECT LINK FAILS — OUT OF RANGE</text>
+
+        <!-- nodes -->
+        <g font-family="ui-monospace,monospace" font-size="10.5">
+          <g>
+            <circle cx="78" cy="140" r="24" fill="#0f1115" stroke="#ff4053" stroke-width="1.6"/>
+            <circle cx="78" cy="140" r="33" fill="none" stroke="#ff4053" stroke-width="1" opacity=".28"/>
+            <text x="78" y="144" fill="#ff4053" text-anchor="middle" font-size="11">SOS</text>
+            <text x="78" y="196" fill="#8b929e" text-anchor="middle">Guard 07</text>
+            <text x="78" y="212" fill="#5d646f" text-anchor="middle" font-size="9.5">Gate C · basement</text>
+          </g>
+          <g>
+            <circle cx="276" cy="140" r="20" fill="#0f1115" stroke="#1e222b" stroke-width="1.4"/>
+            <text x="276" y="144" fill="#8b929e" text-anchor="middle" font-size="10">◆</text>
+            <text x="276" y="192" fill="#8b929e" text-anchor="middle">Guard 05</text>
+            <text x="276" y="208" fill="#5d646f" text-anchor="middle" font-size="9.5">relays</text>
+          </g>
+          <g>
+            <circle cx="474" cy="140" r="20" fill="#0f1115" stroke="#1e222b" stroke-width="1.4"/>
+            <text x="474" y="144" fill="#8b929e" text-anchor="middle" font-size="10">◆</text>
+            <text x="474" y="192" fill="#8b929e" text-anchor="middle">Guard 02</text>
+            <text x="474" y="208" fill="#5d646f" text-anchor="middle" font-size="9.5">relays</text>
+          </g>
+          <g>
+            <rect x="646" y="116" width="52" height="48" rx="3" fill="#0f1115" stroke="#46e0a0" stroke-width="1.6"/>
+            <text x="672" y="145" fill="#46e0a0" text-anchor="middle" font-size="11">◈</text>
+            <text x="672" y="192" fill="#46e0a0" text-anchor="middle">Command</text>
+            <text x="672" y="208" fill="#5d646f" text-anchor="middle" font-size="9.5">control room</text>
+          </g>
+        </g>
+
+        <!-- hops -->
+        <g stroke="#46e0a0" stroke-width="1.6" fill="none">
+          <path d="M112,140 L248,140" marker-end="url(#ar)"/>
+          <path d="M300,140 L446,140" marker-end="url(#ar)"/>
+          <path d="M498,140 L638,140" marker-end="url(#ar)"/>
+        </g>
+        <g font-family="ui-monospace,monospace" font-size="9.5" fill="#46e0a0" text-anchor="middle" letter-spacing="1">
+          <text x="180" y="130">TTL 7 → 6</text>
+          <text x="373" y="130">TTL 6 → 5</text>
+          <text x="568" y="130">TTL 5 → 4</text>
+        </g>
+      </svg>
+      <figcaption>One SOS, three hops, zero infrastructure. Each relay decrements the TTL counter carried inside the packet; at zero the packet stops, so messages cannot circle the network forever. Every phone also remembers what it has already seen and refuses to forward it twice — that dedup rule is what stops a relay network flooding itself.</figcaption>
+    </figure>
+
+    <h3>What that gets you on a shift</h3>
+    <p>A supervisor sees every member of the team on one map, live. A guard in trouble holds one button and the whole team — and the control room — sees who and where, instantly, without needing a signal. When an evacuation is called, the console shows a headcount that fills in as people confirm, and <strong>names the ones who have not</strong>. Afterwards there is a timestamped record of every action and who took it.</p>
+  </div>
+</section>
+
+<!-- ══════════════ 03 ══════════════ -->
+<section class="sec">
+  <div class="rail">
+    <span class="num">03</span>
+    <div class="aud"><b>Technician</b><b>Engineer</b></div>
+  </div>
+  <div class="body">
+    <h2>The technology</h2>
+
+    <h3>The wire format</h3>
+    <p>Everything rides a fixed 25-byte frame (<code>PACKET_SIZE = 25</code>). Fixed size means no length negotiation, predictable airtime, and a codec that is trivially fuzzable — the packet codec alone carries the largest share of the engine's test suite.</p>
+
+    <figure>
+      <svg viewBox="0 0 760 210" role="img" aria-label="Byte map of the 25-byte Loc8 packet showing field offsets">
+        <g font-family="ui-monospace,monospace" font-size="10">
+          <!-- ruler -->
+          <text x="0" y="14" fill="#5d646f" font-size="9.5" letter-spacing="1.4">BYTE OFFSET</text>
+          <!-- base frame -->
+          <g transform="translate(0,26)">
+            <rect x="0"   y="0" width="28"  height="46" fill="#14171e" stroke="#7aa2ff" stroke-width="1.2"/>
+            <rect x="28"  y="0" width="112" height="46" fill="#14171e" stroke="#1e222b"/>
+            <rect x="140" y="0" width="112" height="46" fill="#14171e" stroke="#1e222b"/>
+            <rect x="252" y="0" width="112" height="46" fill="#14171e" stroke="#46e0a0" stroke-width="1.2"/>
+            <rect x="364" y="0" width="112" height="46" fill="#14171e" stroke="#46e0a0" stroke-width="1.2"/>
+            <rect x="476" y="0" width="56"  height="46" fill="#14171e" stroke="#ffb43a" stroke-width="1.2"/>
+            <rect x="532" y="0" width="28"  height="46" fill="#14171e" stroke="#1e222b"/>
+            <rect x="560" y="0" width="112" height="46" fill="#14171e" stroke="#1e222b"/>
+            <rect x="672" y="0" width="28"  height="46" fill="#14171e" stroke="#1e222b"/>
+
+            <g fill="#e8eaed" text-anchor="middle" font-size="10">
+              <text x="14"  y="21">type</text>
+              <text x="84"  y="21">senderId</text>
+              <text x="196" y="21">targetId</text>
+              <text x="308" y="21" fill="#46e0a0">latitude</text>
+              <text x="420" y="21" fill="#46e0a0">longitude</text>
+              <text x="504" y="21" fill="#ffb43a">hdg+flr</text>
+              <text x="546" y="21">bat</text>
+              <text x="616" y="21">timestamp</text>
+              <text x="686" y="21">acc</text>
+            </g>
+            <g fill="#5d646f" text-anchor="middle" font-size="9">
+              <text x="14"  y="36">u8</text>
+              <text x="84"  y="36">u32</text>
+              <text x="196" y="36">u32</text>
+              <text x="308" y="36">i32 ×1e7</text>
+              <text x="420" y="36">i32 ×1e7</text>
+              <text x="504" y="36">u16</text>
+              <text x="546" y="36">u8</text>
+              <text x="616" y="36">u32 epoch</text>
+              <text x="686" y="36">u8</text>
+            </g>
+            <g fill="#5d646f" text-anchor="middle" font-size="9" letter-spacing=".6">
+              <text x="14"  y="62">0</text>
+              <text x="84"  y="62">1–4</text>
+              <text x="196" y="62">5–8</text>
+              <text x="308" y="62">9–12</text>
+              <text x="420" y="62">13–16</text>
+              <text x="504" y="62">17–18</text>
+              <text x="546" y="62">19</text>
+              <text x="616" y="62">20–23</text>
+              <text x="686" y="62">24</text>
+            </g>
+          </g>
+
+          <!-- overlay -->
+          <text x="0" y="120" fill="#5d646f" font-size="9.5" letter-spacing="1.4">TEXT / PROFILE OVERLAY — BYTES 9–24 REPURPOSED</text>
+          <g transform="translate(252,132)">
+            <rect x="0"   y="0" width="56"  height="40" fill="#0f1115" stroke="#7aa2ff" stroke-width="1.2"/>
+            <rect x="56"  y="0" width="28"  height="40" fill="#0f1115" stroke="#7aa2ff" stroke-width="1.2"/>
+            <rect x="84"  y="0" width="28"  height="40" fill="#0f1115" stroke="#7aa2ff" stroke-width="1.2"/>
+            <rect x="112" y="0" width="28"  height="40" fill="#0f1115" stroke="#7aa2ff" stroke-width="1.2"/>
+            <rect x="140" y="0" width="308" height="40" fill="#0f1115" stroke="#46e0a0" stroke-width="1.4"/>
+            <g fill="#e8eaed" text-anchor="middle" font-size="10">
+              <text x="28"  y="18">msgId</text>
+              <text x="70"  y="18">seq</text>
+              <text x="98"  y="18">tot</text>
+              <text x="126" y="18">len</text>
+              <text x="294" y="18" fill="#46e0a0">fragment payload — 11 bytes UTF-8</text>
+            </g>
+            <g fill="#5d646f" text-anchor="middle" font-size="9">
+              <text x="28"  y="33">9–10</text>
+              <text x="70"  y="33">11</text>
+              <text x="98"  y="33">12</text>
+              <text x="126" y="33">13</text>
+              <text x="294" y="33">14–24</text>
+            </g>
+          </g>
+          <path d="M252,116 L252,130" stroke="#1e222b" stroke-width="1"/>
+          <path d="M700,116 L700,132 L448,132" stroke="#1e222b" stroke-width="1" fill="none"/>
+        </g>
+      </svg>
+      <figcaption>Verified against <code>packages/engine/src/core/packetCodec.ts</code>. Position rides bytes 9–18; text and profile packets overlay that whole region with fragmentation metadata plus 11 payload bytes. Quick-reply packets zero the geo region and stash a canned-reply code at byte 17.</figcaption>
+    </figure>
+
+    <h4>Two pieces of deliberate frugality worth calling out</h4>
+    <ul>
+      <li><strong>Floor rides inside heading.</strong> Heading needs 9 bits (0–359°). The slot at bytes 17–18 is a <code>uint16</code>, so the spare top 7 bits carry a signed floor number (−64 to +63). Vertical position therefore costs <strong>zero extra bytes</strong> and rides existing position, rally and ping packets. In a multi-storey venue, knowing someone is two floors up is often the whole answer.</li>
+      <li><strong>Text is fragmented, not truncated.</strong> Free text splits into 11-byte fragments (<code>TEXT_FRAG_BYTES = 11</code>) up to a 160-byte message, reassembled by a receiver that tolerates out-of-order arrival, caps how much it will buffer, and evicts stale partial messages. On a lossy relay network, fragments genuinely do arrive out of order.</li>
+    </ul>
+
+    <h3>The message vocabulary</h3>
+    <p>Eight packet types cover the whole protocol: position, ping-where, ping-come-find, rally, quick-reply, text, profile, and SOS. On top of those sits a shared ops grammar (<code>core/opsMessages.ts</code>) that both Guard and Command speak — human-readable sentences with machine-parseable prefixes, so the same string is legible to a person reading a feed and to the console parsing it.</p>
+
+    <div class="tw"><table>
+      <thead><tr><th>Wire</th><th>Meaning</th><th class="mono">Code</th></tr></thead>
+      <tbody>
+        <tr><td class="mono">DISPATCH — {label}</td><td>Supervisor sends a named person to a named place; Guard turns it into a bearing</td><td class="mono">text + rally</td></tr>
+        <tr><td class="mono">MUSTER — evacuate to {point}</td><td>Evacuation called; every Guard screen switches to muster mode</td><td class="mono">text</td></tr>
+        <tr><td class="mono">MUSTER SAFE — {badge}</td><td>A person confirms they have reached the assembly point</td><td class="mono">text</td></tr>
+        <tr><td class="mono">SOS — {badge} at {zone}</td><td>Emergency raised; carries position</td><td class="mono">type 7</td></tr>
+        <tr><td>Status replies</td><td>En route · On scene · Need backup · Clear</td><td class="mono">20–23</td></tr>
+        <tr><td>Duress</td><td>Silent alarm — nothing on the sender's screen acknowledges it</td><td class="mono">9</td></tr>
+      </tbody>
+    </table></div>
+
+    <div class="call">
+      <h5>Why status codes start at 20</h5>
+      <p>Consumer quick-replies occupy codes 1–7 on the same wire. Ops statuses were deliberately moved to 20–23 so a festival-goer's "on my way" can never be decoded by a control room as a guard's "en route". One shared radio, two vocabularies, no collision.</p>
+    </div>
+
+    <h3>Transports are swappable</h3>
+    <p>The engine never talks to a radio directly. It talks to a <em>transport</em> interface, and there are three implementations behind it: a simulated transport for development and tests, a real BLE transport backed by the native module, and a <strong>bridged transport</strong> that mirrors mesh frames to a WebSocket so a laptop console can join a mesh it has no radio for. Same codec, same protocol, same tests, three ways of moving bytes.</p>
+
+    <div class="tw"><table>
+      <thead><tr><th>Component</th><th>What exists</th><th>Status</th></tr></thead>
+      <tbody>
+        <tr><td><strong>Engine + codec</strong></td><td>Shared package, 214 tests across 20 suites</td><td><span class="pill built">Built · tested</span></td></tr>
+        <tr><td><strong>Native BLE module</strong></td><td>2,525 lines of Swift + Kotlin. iOS adapts bitchat (Unlicense/public domain); Android is clean-room to avoid GPL contamination</td><td><span class="pill open">Never compiled or run on hardware</span></td></tr>
+        <tr><td><strong>Bridged transport</strong></td><td>Gateway mode and console mode, reconnect, frame mirroring</td><td><span class="pill part">Verified with simulated transport, not real BLE</span></td></tr>
+        <tr><td><strong>Payload encryption</strong></td><td>Specified in the Gateway document (AEAD, per-shift keys via HKDF)</td><td><span class="pill open">Zero lines written</span></td></tr>
+      </tbody>
+    </table></div>
+
+    <div class="call risk">
+      <h5>Say this plainly to any technical diligence</h5>
+      <p>Frames are <strong>plaintext on air and plaintext on the relay socket</strong>. The live bridge has been verified in software with a simulated transport bridged end to end — <em>not</em> with real Bluetooth between physical handsets. These two facts are the difference between a working prototype and a shippable product, and they are the top two items on the engineering plan.</p>
+    </div>
+  </div>
+</section>
+
+<!-- ══════════════ 04 ══════════════ -->
+<section class="sec">
+  <div class="rail">
+    <span class="num">04</span>
+    <div class="aud"><b>CEO</b><b>Investor</b><b>Technician</b></div>
+  </div>
+  <div class="body">
+    <h2>One engine, four doors</h2>
+
+    <p class="lede">The engine is built once and never forked. Every product is a surface on top of it, so a capability built for one door is inherited by all four.</p>
+
+    <div class="tw"><table>
+      <thead><tr><th>Door</th><th>Who opens it</th><th>What it does</th><th>Status</th></tr></thead>
+      <tbody>
+        <tr>
+          <td><strong>Consumer</strong></td><td>Festival-goers, families, hikers</td>
+          <td>Radar → Compass → Proximity → found. A crew is a private code; no account, no server.</td>
+          <td><span class="pill built">Built</span></td>
+        </tr>
+        <tr>
+          <td><strong>Partner SDK</strong></td><td>A festival or venue app team</td>
+          <td>Drop-in finder inside someone else's app, so their users don't download a second one.</td>
+          <td><span class="pill open">Unwritten</span></td>
+        </tr>
+        <tr>
+          <td><strong>Loc8 Guard</strong></td><td>Field staff — stewards, security, medics</td>
+          <td>Team map, hold-to-fire SOS, dispatch with bearing, lone-worker check-in, muster confirm.</td>
+          <td><span class="pill built">Built · Expo SDK 57</span></td>
+        </tr>
+        <tr>
+          <td><strong>Loc8 Command</strong></td><td>Control room supervisor</td>
+          <td>Operations overview, incident detail with timeline, muster board, coverage heatmap, audit log.</td>
+          <td><span class="pill built">Built · React 19</span></td>
+        </tr>
+      </tbody>
+    </table></div>
+
+    <h3>Guard — what a shift actually looks like</h3>
+    <ol class="steps">
+      <li><b>Clock in.</b> The consent moment. Scanning in starts a broadcast session — the device's own position begins riding the mesh — and nothing before that point transmits anything.</li>
+      <li><b>On post.</b> The team map is live. Position, floor, heading and battery for everyone on the crew tag.</li>
+      <li><b>Dispatch.</b> A supervisor sends you somewhere; the app turns the instruction into a bearing and distance, and you answer with one tap: en route, on scene, need backup, clear.</li>
+      <li><b>Trouble.</b> Tap SOS to open the emergency screen; hold the button for one second to fire it. Hold the SOS control in the nav bar and you skip straight there. Both paths exist because a person in trouble should not have to remember which one they learned.</li>
+      <li><b>Working alone.</b> A check-in timer runs; miss it and the console raises a lone-worker overdue event against your name and last known position.</li>
+      <li><b>Evacuation.</b> Every screen switches to muster. Confirm safe once and the control room's headcount ticks up.</li>
+      <li><b>End shift.</b> The broadcast session ends. The device stops transmitting position.</li>
+    </ol>
+
+    <div class="call plan">
+      <h5>Two limitations a technician must know</h5>
+      <p>The lone-worker timer is currently a <strong>foreground-only</strong> timer scoped to its screen — there is no background monitoring, so it does not survive the app being backgrounded. Separately, the console's man-down watchdog (15 minutes without a ping) is <strong>console-side only</strong>: it raises an alert in Command and never transmits a frame back to the field. Both are honest gaps, not bugs, and both matter for a duty-of-care claim.</p>
+    </div>
+
+    <h3>Command — what the control room holds</h3>
+    <p>Coverage figures and responder distances are computed, not authored: zones project from real latitude/longitude to canvas coordinates, required staffing derives from a ratio (one guard per 150 attendees), and "nearest responders" is a real haversine calculation over actual positions. The map and the numbers cannot disagree, because they are the same arithmetic.</p>
+    <p>Every operator action lands in a durable audit log persisted to local storage. <strong>That log is bounded at 2,000 entries and older entries are dropped, not archived</strong> — acceptable for a shift, insufficient as a legal record, and the reason site-side persistence moves into the Gateway.</p>
+  </div>
+</section>
+
+<!-- ══════════════ 05 ══════════════ -->
+<section class="sec">
+  <div class="rail">
+    <span class="num">05</span>
+    <div class="aud"><b>CEO</b><b>Investor</b><b>Technician</b></div>
+  </div>
+  <div class="body">
+    <h2>Loc8 Gateway — the venue appliance</h2>
+
+    <p class="lede">Plug it into power-over-Ethernet and the venue has a control-room backbone that works with zero internet, survives power cuts, and appears on head office's dashboard the moment it finds a pipe out.</p>
+
+    <div class="call plan">
+      <h5>Status</h5>
+      <p>The Gateway is <strong>fully specified and entirely unbuilt</strong>. Every figure in this section is drawn from the bill of materials in <code>docs/hardware/loc8-gateway.md</code>. No unit exists. Treat costs as estimates to be re-quoted at order time.</p>
+    </div>
+
+    <h3>Why a box at all</h3>
+    <p>Today's fallback arrangement makes an operator's laptop into the app, the server, the database, the router and the security perimeter simultaneously. That works for a demo and fails as infrastructure: it dies when the laptop sleeps, anyone on the network can reach the relay, and state is lost on reload. The Gateway puts each job in its right place — screwed to a wall, on PoE, battery-backed, with authenticated access and a real database.</p>
+
+    <p>The laptop chain <em>survives as a deliberate fallback mode</em>, and it is a selling point: the control room can run out of a car park. It is simply no longer the design.</p>
+
+    <figure>
+      <svg viewBox="0 0 760 300" role="img" aria-label="Gateway enclosure with dimensions and site topology">
+        <g font-family="ui-monospace,monospace" font-size="10">
+          <!-- box front -->
+          <text x="0" y="14" fill="#5d646f" font-size="9.5" letter-spacing="1.4">TIER B REFERENCE ENCLOSURE</text>
+          <rect x="14" y="34" width="180" height="135" rx="6" fill="#0f1115" stroke="#2b313c" stroke-width="1.6"/>
+          <rect x="26" y="46" width="156" height="111" rx="3" fill="none" stroke="#171b22"/>
+          <circle cx="104" cy="92" r="13" fill="none" stroke="#46e0a0" stroke-width="1.5"/>
+          <text x="104" y="97" fill="#46e0a0" text-anchor="middle" font-size="12">◈</text>
+          <text x="104" y="128" fill="#8b929e" text-anchor="middle" font-size="11" letter-spacing="2.6">LOC8</text>
+          <!-- antenna -->
+          <path d="M104,34 L104,16" stroke="#2b313c" stroke-width="3"/>
+          <text x="118" y="20" fill="#5d646f" font-size="9">antenna +50mm</text>
+          <!-- dims -->
+          <path d="M14,182 L194,182" stroke="#5d646f" stroke-width="1"/>
+          <path d="M14,178 L14,186 M194,178 L194,186" stroke="#5d646f" stroke-width="1"/>
+          <text x="104" y="197" fill="#8b929e" text-anchor="middle">120 mm</text>
+          <path d="M206,34 L206,169" stroke="#5d646f" stroke-width="1"/>
+          <path d="M202,34 L210,34 M202,169 L210,169" stroke="#5d646f" stroke-width="1"/>
+          <text x="216" y="105" fill="#8b929e">90 mm</text>
+          <text x="14" y="219" fill="#5d646f" font-size="9.5">35 mm deep · ~250 g · wall plate + DIN clip</text>
+
+          <!-- status grammar -->
+          <text x="14" y="248" fill="#5d646f" font-size="9.5" letter-spacing="1.4">STATUS LENS GRAMMAR</text>
+          <g font-size="9.5">
+            <circle cx="20" cy="266" r="4" fill="#46e0a0"/><text x="32" y="270" fill="#8b929e">breathing green — mesh live &amp; synced</text>
+            <circle cx="20" cy="284" r="4" fill="#ffb43a"/><text x="32" y="288" fill="#8b929e">amber pulse — mesh live, uplink down</text>
+          </g>
+
+          <!-- topology -->
+          <g transform="translate(300,30)">
+            <text x="0" y="-16" fill="#5d646f" font-size="9.5" letter-spacing="1.4">SITE TOPOLOGY</text>
+            <!-- phones -->
+            <g>
+              <circle cx="34" cy="34" r="15" fill="#0f1115" stroke="#1e222b"/><text x="34" y="38" fill="#8b929e" text-anchor="middle" font-size="9">◆</text>
+              <circle cx="34" cy="94" r="15" fill="#0f1115" stroke="#1e222b"/><text x="34" y="98" fill="#8b929e" text-anchor="middle" font-size="9">◆</text>
+              <circle cx="34" cy="154" r="15" fill="#0f1115" stroke="#1e222b"/><text x="34" y="158" fill="#8b929e" text-anchor="middle" font-size="9">◆</text>
+              <text x="34" y="184" fill="#5d646f" text-anchor="middle" font-size="9.5">guard phones</text>
+            </g>
+            <g stroke="#46e0a0" stroke-width="1.3" fill="none" opacity=".8">
+              <path d="M52,38 L136,80"/><path d="M52,94 L136,92"/><path d="M52,150 L136,104"/>
+            </g>
+            <text x="86" y="70" fill="#46e0a0" font-size="9" text-anchor="middle">BLE mesh</text>
+
+            <!-- gateway -->
+            <rect x="140" y="66" width="86" height="56" rx="4" fill="#0f1115" stroke="#46e0a0" stroke-width="1.5"/>
+            <text x="183" y="90" fill="#46e0a0" text-anchor="middle" font-size="10">◈ GATEWAY</text>
+            <text x="183" y="105" fill="#5d646f" text-anchor="middle" font-size="9">SQLite · relay</text>
+
+            <!-- console -->
+            <path d="M226,84 L292,60" stroke="#7aa2ff" stroke-width="1.3" fill="none"/>
+            <text x="262" y="58" fill="#7aa2ff" font-size="9" text-anchor="middle">mTLS LAN</text>
+            <rect x="296" y="38" width="80" height="44" rx="3" fill="#0f1115" stroke="#7aa2ff" stroke-width="1.4"/>
+            <text x="336" y="60" fill="#7aa2ff" text-anchor="middle" font-size="10">COMMAND</text>
+            <text x="336" y="74" fill="#5d646f" text-anchor="middle" font-size="9">control room</text>
+
+            <!-- cloud -->
+            <path d="M226,110 L292,140" stroke="#ffb43a" stroke-width="1.3" fill="none" stroke-dasharray="4 4"/>
+            <text x="262" y="136" fill="#ffb43a" font-size="9" text-anchor="middle">store &amp; forward</text>
+            <rect x="296" y="120" width="80" height="44" rx="3" fill="#0f1115" stroke="#ffb43a" stroke-width="1.2" stroke-dasharray="4 4"/>
+            <text x="336" y="142" fill="#ffb43a" text-anchor="middle" font-size="10">HQ PORTFOLIO</text>
+            <text x="336" y="156" fill="#5d646f" text-anchor="middle" font-size="9">when a pipe exists</text>
+            <text x="336" y="184" fill="#5d646f" text-anchor="middle" font-size="9">dashed = specified, unbuilt</text>
+          </g>
+        </g>
+      </svg>
+      <figcaption>The mesh below the Gateway never depends on the uplink above it. Losing internet is invisible on site; head office simply sees an honest "last synced" timestamp and receives a backfill on reconnect.</figcaption>
+    </figure>
+
+    <h3>Build tiers</h3>
+    <div class="tw"><table>
+      <thead><tr><th>Tier</th><th>What it is</th><th class="mono">Parts</th><th>Where it goes</th></tr></thead>
+      <tbody>
+        <tr><td><strong>A — Demo</strong></td><td>Pi Zero 2 W, microSD, USB PSU, printed case. Wi-Fi only.</td><td class="mono">~$40</td><td>The sales bag. Powers a tabletop pilot.</td></tr>
+        <tr><td><strong>B — Standard</strong></td><td>Pi 4 (2GB) or CM4, PoE+ HAT, industrial microSD, external BLE antenna, wall enclosure, status lens.</td><td class="mono">$93–113</td><td>The pilot workhorse.</td></tr>
+        <tr><td><strong>C — Ruggedized</strong></td><td>Soldered eMMC (no SD to corrupt), metal wide-temp enclosure, UPS battery HAT, dual BLE radios, tamper switch.</td><td class="mono">$180–240</td><td>Permanent install. Rides out a venue power cut.</td></tr>
+      </tbody>
+    </table></div>
+
+    <p><strong>Add-ons, any tier.</strong> An LTE dongle (~$25 plus data) means the box brings its own internet — a venue with no wifi and jammed cell still appears live at HQ. A LoRa concentrator (~$40–80) turns the same chassis into the long-range anchor from the coverage roadmap: one hardware line, growing radios.</p>
+
+    <p><strong>Economics.</strong> Roughly $100 of parts at Tier B against a $299–399 sale price, or bundled free with per-guard subscription. Competing site infrastructure — RTLS beacon networks, dedicated lone-worker hardware — runs to thousands per site.</p>
+
+    <h3>The software is an appliance image, not an operating system</h3>
+    <p>We do not write an OS. We ship a locked-down appliance image: minimal Linux with our services baked in, flashed at manufacture. Calling it "Loc8 OS" is marketing truth — to the customer the box has one purpose and no visible Linux.</p>
+
+    <div class="tw"><table>
+      <thead><tr><th class="mono">Daemon</th><th>Job</th></tr></thead>
+      <tbody>
+        <tr><td class="mono">loc8-meshd</td><td><strong>The Linux port of the BLE mesh</strong> over BlueZ — scans, advertises, relays, dedups, speaking the exact same 25-byte frames the phones speak. <em>This is the critical path.</em> Because the codec and protocol are already shared and unit-tested, it is a port, not a redesign.</td></tr>
+        <tr><td class="mono">loc8-relayd</td><td>Authenticated WebSocket fan-out to consoles and gateway phones. Stays a dumb pipe for frames.</td></tr>
+        <tr><td class="mono">loc8-sited</td><td>Site state and SQLite persistence: incidents, roster, muster, hash-chained audit log. Consoles become stateless viewers.</td></tr>
+        <tr><td class="mono">loc8-syncd</td><td>Store-and-forward cloud sync over any uplink; backfills after outages.</td></tr>
+        <tr><td class="mono">loc8-provisiond</td><td>First-boot identity, mDNS advertisement, claiming, certificate issuance for enrolling devices.</td></tr>
+      </tbody>
+    </table></div>
+  </div>
+</section>
+
+<!-- ══════════════ 06 ══════════════ -->
+<section class="sec">
+  <div class="rail">
+    <span class="num">06</span>
+    <div class="aud"><b>Everyone</b><b>Legal</b></div>
+  </div>
+  <div class="body">
+    <h2>Privacy is the architecture, not a policy</h2>
+
+    <p class="lede">The strongest privacy claim a system can make is that the dangerous capability was never built. Loc8 has no browsable live map of individuals, because there is no data store from which one could be assembled.</p>
+
+    <h3>The consent ladder</h3>
+    <p>Every position the system holds is attached to a stated legal basis. The type that expresses this in code is a closed union with <strong>no god-mode member</strong> — there is no value an operator can set that means "show me everyone".</p>
+
+    <div class="tw"><table>
+      <thead><tr><th>Basis</th><th>Who</th><th>What the console may see</th></tr></thead>
+      <tbody>
+        <tr><td class="mono">on_duty_staff</td><td>Staff clocked in for a shift</td><td>Live position, floor, status, battery — for the duration of the shift only. Clock-out ends it.</td></tr>
+        <tr><td class="mono">anonymous crowd</td><td>Attendees</td><td><strong>Per-zone counts and density only.</strong> No identity, no track, no individual dot. Ever.</td></tr>
+        <tr><td class="mono">assisted search</td><td>A named missing person</td><td>Narrow, reason-gated, and written to the audit log with the operator's name attached.</td></tr>
+      </tbody>
+    </table></div>
+
+    <div class="call good">
+      <h5>What this means commercially</h5>
+      <p>A venue operator asking "can you show me where a specific attendee is?" gets a <strong>no</strong> that is architectural rather than contractual. That is the answer that survives a data protection review, a journalist, and a subpoena — and it is a competitive position that any system built on a central location database cannot copy without a rewrite.</p>
+    </div>
+
+    <h3>Security layers — built vs. specified</h3>
+    <div class="tw"><table>
+      <thead><tr><th>Layer</th><th>Design</th><th>Status</th></tr></thead>
+      <tbody>
+        <tr><td>Network</td><td>WPA2/3 on the box's Wi-Fi; wired installs ride venue VLANs</td><td><span class="pill spec">Specified</span></td></tr>
+        <tr><td>Relay auth</td><td>Consoles and gateway phones present certificates (mTLS); strangers on the LAN hit a socket that rejects them</td><td><span class="pill spec">Specified</span></td></tr>
+        <tr><td>Payload encryption</td><td>AEAD with per-shift keys derived via HKDF from enrollment, applied <em>in the engine</em> before any transport, so all four doors inherit it at once</td><td><span class="pill open">Not implemented</span></td></tr>
+        <tr><td>Operator identity</td><td>Login on Command so audit entries name humans; hash-chained tamper-evident log</td><td><span class="pill open">No operator SSO yet</span></td></tr>
+        <tr><td>Privacy invariants</td><td>No attendee identity store exists to breach</td><td><span class="pill built">True today</span></td></tr>
+      </tbody>
+    </table></div>
+
+    <div class="call risk">
+      <h5>Two honest weaknesses in the current consent model</h5>
+      <p><strong>Consent is asserted at ingest.</strong> When Command receives a muster-safe message from a device it does not recognise, it auto-registers that device as <code>on_duty_staff</code> rather than rejecting it. That is the right behaviour for an evacuation — you do not drop a person saying "I'm safe" because their enrollment record is missing — but it means the consent basis is currently a claim the system trusts, not one it verifies. Enrollment PKI closes this.</p>
+      <p><strong>There is no encryption anywhere.</strong> Until AEAD lands, the privacy story is "no central store" — which is real and valuable — but it is not confidentiality on the wire.</p>
+    </div>
+  </div>
+</section>
+
+<!-- ══════════════ 07 ══════════════ -->
+<section class="sec">
+  <div class="rail">
+    <span class="num">07</span>
+    <div class="aud"><b>Technician</b><b>Employee</b></div>
+  </div>
+  <div class="body">
+    <h2>Deploying a site</h2>
+
+    <p class="lede">The target is an adopt flow people already know from consumer network gear: plug in, claim, enroll, operate. No manuals.</p>
+
+    <ol class="steps">
+      <li><b>Plug in.</b> PoE. Boots in under 30 seconds. The status lens breathes white, meaning unclaimed.</li>
+      <li><b>Claim.</b> Command on the same network discovers "Loc8 Gateway · unclaimed" over mDNS. The operator clicks Claim, names the site, and the box mints its device identity. Further claims require the organisation key.</li>
+      <li><b>Enroll staff.</b> Clock-in stays the consent moment. Command shows a QR code; the guard scans it once. Under the hood that issues a device certificate and the per-shift key — the QR is the friendly face of real PKI.</li>
+      <li><b>Operate.</b> Phones mesh over BLE as they already do. The Gateway is simply the strongest node: always on, wall-powered, big antenna. Consoles attach over the LAN. Everything that matters lands in the box's database.</li>
+      <li><b>Sync.</b> Any uplink and HQ's portfolio dashboard shows the site live. No uplink and the lens pulses amber while the box stores and forwards, backfilling later.</li>
+      <li><b>Update.</b> Signed image over the air, A/B slots, automatic rollback. USB-stick updates for sites with no connectivity at all.</li>
+    </ol>
+
+    <div class="call">
+      <h5>Nothing to configure on the phones</h5>
+      <p>Beyond normal enrollment, there is no phone-side setup. The mesh is the same protocol the handsets already speak; the Gateway is just another — excellent — peer. And if there is no Gateway at a site, any guard's phone bridges the mesh to a laptop console exactly as it does today. Both paths stay tested.</p>
+    </div>
+  </div>
+</section>
+
+<!-- ══════════════ 08 ══════════════ -->
+<section class="sec">
+  <div class="rail">
+    <span class="num">08</span>
+    <div class="aud"><b>Investor</b><b>CEO</b></div>
+  </div>
+  <div class="body">
+    <h2>Where this actually stands</h2>
+
+    <p class="lede">This section exists so that nothing later in diligence comes as a surprise. Everything marked green was executed in this repository, not quoted from a document.</p>
+
+    <div class="tw"><table>
+      <thead><tr><th>Claim</th><th>Evidence</th><th>Status</th></tr></thead>
+      <tbody>
+        <tr><td>274 tests pass across 27 suites</td><td>Engine 214/20 · Command 52/6 · Guard 8/1. Run, not quoted.</td><td><span class="pill built">Verified</span></td></tr>
+        <tr><td>Shared engine, never forked</td><td>One <code>@loc8/engine</code> workspace consumed by all doors via pure subpath imports</td><td><span class="pill built">Verified</span></td></tr>
+        <tr><td>25-byte protocol with 8 types</td><td><code>packetCodec.ts</code>, fuzz-tested. Note: the constant is hardcoded in four places, not defined once.</td><td><span class="pill built">Verified</span></td></tr>
+        <tr><td>Guard and Command exchange live ops events</td><td>Bridged transport, shared ops grammar, structured ingest</td><td><span class="pill part">Verified in software, simulated transport</span></td></tr>
+        <tr><td>Real BLE mesh between physical phones</td><td>Repo contradicts itself — see §01</td><td><span class="pill open">Open</span></td></tr>
+        <tr><td>Native module compiled and run</td><td>2,525 lines of Swift + Kotlin exist. Never built on hardware.</td><td><span class="pill open">Open</span></td></tr>
+        <tr><td>Gateway appliance</td><td>Full spec including BOM, daemons, lifecycle, security layers</td><td><span class="pill spec">Specified, unbuilt</span></td></tr>
+        <tr><td>Payload encryption</td><td>Designed. Zero lines written.</td><td><span class="pill open">Open</span></td></tr>
+        <tr><td>Cloud spine / HQ dashboard</td><td>Designed. No backend exists.</td><td><span class="pill spec">Specified, unbuilt</span></td></tr>
+      </tbody>
+    </table></div>
+
+    <h3>Market, honestly sized</h3>
+    <p>Our own strategy documents contain a total addressable market table with <strong>three arithmetic errors</strong>, overstating the total by roughly £48M. Corrected, the consolidated figure is approximately <strong>£1.13B</strong> with a reachable segment near <strong>£410M</strong>. A separate £240M security line that appears in the narrative is <em>not</em> part of that table and should not be added to it.</p>
+
+    <p>Treat all of it as directional. Per-guard pricing of £8–15 per month against a UK pool of roughly 350,000 licensed operatives is an arithmetic sketch, not a pipeline — and that operative count is currently unsourced in our own documents. Lone-worker monitoring is a general health-and-safety duty of care in the UK, EU and Australia; it is <strong>not</strong> a UK-specific statute, and any investor-facing claim needs the actual instrument cited.</p>
+
+    <h4>What is genuinely differentiated</h4>
+    <p>Be careful with the competitive claim. Motorola MOTOTRBO radios <em>do</em> ship GPS, and guard-tour platforms <em>do</em> offer live GPS. The defensible statement is narrower and stronger:</p>
+
+    <div class="call good">
+      <h5>The framing sentence</h5>
+      <p>Loc8 is the only live team map with SOS that is <strong>phone-based</strong>, needs <strong>no special hardware</strong>, and <strong>keeps working when the network is congested, jammed or dead</strong>. Each incumbent — radio, guard-tour, lone-worker device, RTLS — is missing at least one of those properties by design. The novelty is network-independent live location, not live location as such.</p>
+    </div>
+  </div>
+</section>
+
+<!-- ══════════════ 09 ══════════════ -->
+<section class="sec">
+  <div class="rail">
+    <span class="num">09</span>
+    <div class="aud"><b>Investor</b><b>CEO</b></div>
+  </div>
+  <div class="body">
+    <h2>The critical path</h2>
+
+    <p class="lede">Six steps, in this order. The first one gates everything else.</p>
+
+    <ol class="steps">
+      <li><b>Close the field proof.</b> Put the BLE build on two to three physical phones and run the go/no-go matrix: range, relay through a body and through a wall, hop count, latency, battery drain over a full shift, and iOS background behaviour. This is the single gate the entire thesis stands on.</li>
+      <li><b>Reconcile the record.</b> Our own documents disagree about whether that test has been run. <code>CHANGELOG.md</code>, <code>docs/README.md</code> and the build runbook must be resolved to one honest status line before this brief goes to anyone external.</li>
+      <li><b>Spike the Gateway mesh daemon.</b> The Linux port of the mesh is the appliance's critical path. Because the codec and protocol are already shared and tested, this is a port onto BlueZ rather than a redesign. Bench it on a single Raspberry Pi against two phones.</li>
+      <li><b>Implement payload encryption.</b> AEAD with per-shift keys, in the engine so all four doors inherit it at once. This must land before customer data rides a real site's mesh, and it is a prerequisite for any enterprise procurement conversation.</li>
+      <li><b>Land one pilot.</b> One nightclub group or one regional guarding firm. One site, one shift pattern. The measurable outcome is response time to an SOS and completeness of a muster — the two numbers a buyer already tracks — which produces the case study the national firms will ask for.</li>
+      <li><b>Then expand.</b> Consumer cloud accounts, the SDK door, the HQ portfolio dashboard and LoRa anchors are all specified and all deferred by choice. They are the growth story, not the starting line.</li>
+    </ol>
+
+    <div class="call">
+      <h5>What we are asking for</h5>
+      <p>Capital and runway to clear three gates in sequence: the two-phone field proof, the Gateway daemon spike, and one paying pilot with a named guarding firm or venue group. Each gate produces <strong>evidence rather than a promise</strong> — a witnessed field test, a working bench appliance, and a customer with a before-and-after response-time number.</p>
+      <p>We are deliberately not asking anyone to believe a market size. What is not a sketch is the engine: 274 passing tests, a 25-byte protocol, a working field app and a working control-room console, all on one codebase that has never been forked.</p>
+      <p><em>No funding amount, valuation or use-of-funds split is recorded in this repository. That number should be set jointly, sized to the three gates above and nothing further.</em></p>
+    </div>
+  </div>
+</section>
+
+<!-- ══════════════ 10 ══════════════ -->
+<section class="sec">
+  <div class="rail">
+    <span class="num">10</span>
+    <div class="aud"><b>Everyone</b></div>
+  </div>
+  <div class="body">
+    <h2>Glossary</h2>
+    <p>Every term used in this document, in one line each.</p>
+
+    <dl class="gloss">
+      <dt>Mesh</dt><dd>A network with no central hub, where each device passes messages along to the next until they reach whoever needs them.</dd>
+      <dt>BLE</dt><dd>Bluetooth Low Energy — the short-range radio built into every modern smartphone, designed to run for hours on very little battery.</dd>
+      <dt>Packet / frame</dt><dd>One small fixed-size chunk of data sent over the radio. Loc8's is 25 bytes, roughly the length of this phrase.</dd>
+      <dt>TTL / hop</dt><dd>A countdown carried inside every packet. Each device that passes it on subtracts one; at zero the packet stops, so messages cannot circle forever. One pass equals one hop.</dd>
+      <dt>Relay</dt><dd>Forwarding someone else's message for their benefit, not your own — the behaviour that turns a crowd of phones into a network.</dd>
+      <dt>Dedup</dt><dd>Recognising a message you have already seen and refusing to forward it twice, which is what keeps a relay network from flooding itself.</dd>
+      <dt>Gateway</dt><dd>The planned wall-mounted Loc8 box that joins the phone mesh directly, stores the site's records, and connects onward to the wider network.</dd>
+      <dt>PoE</dt><dd>Power over Ethernet — a single cable carrying both data and electricity, so a wall-mounted device needs no separate power socket.</dd>
+      <dt>mDNS</dt><dd>A way for devices on the same local network to discover each other by name, with no server and no internet.</dd>
+      <dt>mTLS / certificate</dt><dd>A certificate is a digital ID card issued to a device; mutual TLS means both sides must present their card before either will exchange data.</dd>
+      <dt>AEAD</dt><dd>Encryption that both scrambles a message and stamps it, so the recipient can detect if anyone altered it in transit. Designed for Loc8; not yet written.</dd>
+      <dt>Plus Code</dt><dd>A short letter-and-number string naming a small square of the earth's surface, readable and shareable with no map and no internet.</dd>
+      <dt>Haversine</dt><dd>The standard formula for straight-line distance between two latitude/longitude points, accounting for the curve of the earth.</dd>
+      <dt>Barometric anchoring</dt><dd>Using the phone's air-pressure sensor to track which floor someone is on, starting from a floor they confirmed by hand — because pressure alone cannot reliably give an absolute floor.</dd>
+      <dt>Muster</dt><dd>An evacuation headcount: everyone confirmed present at an assembly point, and the named list of who is still missing.</dd>
+      <dt>Duress</dt><dd>A silent alarm a worker can send when threatened and unable to be seen calling for help. By design, nothing on their screen acknowledges it.</dd>
+      <dt>Lone worker</dt><dd>A staff member working out of sight and earshot of colleagues, whom employers have a duty of care to check on.</dd>
+      <dt>SOS</dt><dd>The one-tap emergency alarm that broadcasts who and where to everyone on the team.</dd>
+      <dt>Dispatch</dt><dd>A supervisor sending a specific named person to a specific named place, and the field app turning that into directions.</dd>
+      <dt>RTLS</dt><dd>Real-Time Location System — fixed indoor tracking infrastructure wired permanently into one building. Accurate, expensive, useless outside that building.</dd>
+      <dt>Store-and-forward</dt><dd>Holding data locally while the connection is down and sending it the moment it returns, so an outage delays information rather than losing it.</dd>
+      <dt>LoRa</dt><dd>A low-power radio reaching kilometres instead of metres. Phones do not have it, which is why it appears only in optional Loc8 anchor hardware.</dd>
+      <dt>Crew code</dt><dd>A short shared string that privately groups a set of phones on the mesh, with no account and no server involved.</dd>
+      <dt>Engine</dt><dd>The single shared body of code that every Loc8 product is built on, and that is never forked per product.</dd>
+      <dt>Door</dt><dd>One of the four product surfaces on that engine: consumer app, partner SDK, Guard field app, Command console.</dd>
+      <dt>Transport</dt><dd>The swappable layer that actually moves packets — simulated for development, Bluetooth for the field, bridged for a console — behind one identical interface.</dd>
+      <dt>Audit log</dt><dd>A tamper-evident record of every action an operator took and why, exportable afterwards as the after-action account.</dd>
+    </dl>
+  </div>
+</section>
+
+<div class="foot">
+  <span>Loc8 — Operations Master Brief · Rev. 2026-07-20</span>
+  <span>Green = verified in code · Amber = specified · Red = open</span>
+</div>
+
+</div></div>

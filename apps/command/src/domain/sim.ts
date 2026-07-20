@@ -12,7 +12,9 @@ import { nowSec } from './time';
 import { computeZoneDensity, nearestResponders } from './coverage';
 import type { Incident, MusterState, StaffMember, Zone, ZoneDensity } from './types';
 
-export const SITE_NAME = 'Ministry of Sound';
+// An invented venue. Never ship a real, trademarked venue name in demo data —
+// it reads as an implied customer and it isn't ours to use.
+export const SITE_NAME = 'The Chapelgate Rooms';
 export const SHIFT_LABEL = 'Night Shift';
 /** The signed-in supervisor — every audited action is attributed to them. */
 export const OPERATOR_ID = 'SUP · Night Control';

@@ -120,7 +120,10 @@ interface CommandState {
 // entry), and the id sequence is seeded from what's already on disk. In a real
 // deployment this becomes a server-side append-only ledger; the shape is ready.
 const AUDIT_KEY = 'loc8.command.audit.v1';
-const AUDIT_MAX = 2000; // generous shift-scale bound; oldest archived off, never silently at 200
+// Shift-scale bound. NOTE: entries past this are DROPPED, not archived — there
+// is no second store. A true append-only ledger is the server-side production
+// form; do not describe this as append-only without that caveat.
+const AUDIT_MAX = 2000;
 
 function loadAudit(): AuditEntry[] {
   try {

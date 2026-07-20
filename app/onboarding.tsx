@@ -79,9 +79,12 @@ export default function Onboarding() {
       <View style={st.wrap}>
         <AuroraBackground />
         <Text style={st.h}>Loc8 can't work without location</Text>
+        {/* Claim only what ships: position rides the mesh device-to-device and
+            is never uploaded. Payload encryption is on the roadmap and MUST NOT
+            be promised here until it is implemented. */}
         <Text style={st.p}>
-          Your GPS position is how your crew finds you. It's end-to-end encrypted — it never
-          leaves your crew. Enable location in Settings to continue.
+          Your GPS position is how your crew finds you. It's shared only with your crew,
+          phone to phone — it never touches a server. Enable location in Settings to continue.
         </Text>
         <Pressable style={st.btn} onPress={() => Linking.openSettings()}>
           <LinearGradient colors={gradients.sunset} start={{ x: 0, y: 0 }} end={{ x: 1, y: 1 }} style={st.btnInner}>
@@ -153,9 +156,10 @@ export default function Onboarding() {
       <AuroraBackground />
       <MapPin size={56} color={colors.pink} strokeWidth={2} />
       <Text style={st.h}>Your location, your crew only</Text>
+      {/* See note above: no encryption claim until payload crypto ships. */}
       <Text style={st.p}>
         Loc8 uses your GPS to show your crew where you are — even with zero signal. Your
-        location is end-to-end encrypted and never touches a server.
+        location goes only to your crew, phone to phone, and never touches a server.
       </Text>
       <Pressable style={st.btn} onPress={requestLocation}>
         <LinearGradient colors={gradients.sunset} start={{ x: 0, y: 0 }} end={{ x: 1, y: 1 }} style={st.btnInner}>
