@@ -564,7 +564,7 @@
   <div class="body">
     <h2>Loc8 Gateway — the venue appliance</h2>
 
-    <p class="lede">Plug it into power-over-Ethernet and the venue has a control-room backbone that works with zero internet, survives power cuts, and appears on head office's dashboard the moment it finds a pipe out.</p>
+    <p class="lede">Plug it into power-over-Ethernet and the venue has a control-room backbone that works with zero internet and appears on head office's dashboard the moment it finds a pipe out.</p>
 
     <div class="call plan">
       <h5>Status</h5>
@@ -572,7 +572,7 @@
     </div>
 
     <h3>Why a box at all</h3>
-    <p>Today's fallback arrangement makes an operator's laptop into the app, the server, the database, the router and the security perimeter simultaneously. That works for a demo and fails as infrastructure: it dies when the laptop sleeps, anyone on the network can reach the relay, and state is lost on reload. The Gateway puts each job in its right place — screwed to a wall, on PoE, battery-backed, with authenticated access and a real database.</p>
+    <p>Today's fallback arrangement makes an operator's laptop into the app, the server, the database, the router and the security perimeter simultaneously. That works for a demo and fails as infrastructure: it dies when the laptop sleeps, anyone on the network can reach the relay, and state is lost on reload. The Gateway puts each job in its right place — screwed to a wall, on PoE, with authenticated access and a real database.</p>
 
     <p>The laptop chain <em>survives as a deliberate fallback mode</em>, and it is a selling point: the control room can run out of a car park. It is simply no longer the design.</p>
 
@@ -658,6 +658,29 @@
     <p><strong>Add-ons, any tier.</strong> An LTE dongle (~$25 plus data) means the box brings its own internet — a venue with no wifi and jammed cell still appears live at HQ. A LoRa concentrator (~$40–80) turns the same chassis into the long-range anchor from the coverage roadmap: one hardware line, growing radios.</p>
 
     <p><strong>Economics.</strong> Roughly $100 of parts at Tier B against a $299–399 sale price, or bundled free with per-guard subscription. Competing site infrastructure — RTLS beacon networks, dedicated lone-worker hardware — runs to thousands per site.</p>
+
+    <h3>What happens when the venue loses power</h3>
+
+    <p>The Gateway takes power and network from one PoE cable, which means a mains failure kills both unless the box carries its own cells. <strong>Battery backup is standard at Tier C and a priced option on Tier B</strong> — adding it to Tier B's base would take the parts cost to roughly $125–160 and break the sub-$100 BOM the pricing rests on.</p>
+
+    <p>The chemistry is <strong>LiFePO4, not the Li-ion 18650 cells the cheap Raspberry Pi UPS boards ship with</strong>. This is a float application, not a cycling one: the box sits at full charge for years in a warm enclosure and discharges perhaps thirty times in its service life. Conventional Li-ion held at 100% charge retains roughly 80% capacity after a year at 25&nbsp;°C and about 65% at 40&nbsp;°C — and a sealed box above a ceiling tile runs well above room ambient. So the box does <em>not</em> charge like a phone. It charges, stops, and re-tops from a coulomb count rather than holding a continuous float.</p>
+
+    <div class="tw"><table>
+      <thead><tr><th>Configuration</th><th class="mono">Pack</th><th class="mono">Runtime</th></tr></thead>
+      <tbody>
+        <tr><td>Tier B + backup option, load shed</td><td class="mono">2× LFP 26650 · 19.2 Wh</td><td class="mono">~2.6 h</td></tr>
+        <tr><td>Tier C standard, dual BLE radios</td><td class="mono">4× LFP 26650 · 38.4 Wh</td><td class="mono">~5.2 h</td></tr>
+        <tr><td>Tier C with LTE transmitting</td><td class="mono">4× LFP 26650 · 38.4 Wh</td><td class="mono">~4.0 h</td></tr>
+      </tbody>
+    </table></div>
+
+    <p class="m" style="font-size:12px;color:#5d646f;">38.4 Wh gross → ×0.78 usable derate → ×0.86 boost efficiency → 25.8 Wh delivered at 5 V, against a ~5 W load. <strong>Every figure here is an estimate against an unmeasured load</strong> — the draw of continuous BLE scan-and-advertise on this silicon has not been bench-measured, and it is the weakest number in the budget.</p>
+
+    <div class="call risk">
+      <h5>The limit worth stating plainly</h5>
+      <p>Battery-backing the Gateway does <strong>not</strong> deliver a working control room. The same power cut kills the PoE switch, so the box keeps running but loses its network — and the operator's console with it. What survives is the mesh relay, the site database still recording incidents and muster confirmations, and an LTE uplink if one is fitted, so head office gets a positive "site on battery" event rather than inferring an outage from silence.</p>
+      <p>That is genuinely worth having — the local record and the mesh are the point — but the honest sentence is "keeps the mesh and the site record alive through a power cut," <em>not</em> "the control room survives." Delivering the latter means the switch is on a UPS too.</p>
+    </div>
 
     <h3>The software is an appliance image, not an operating system</h3>
     <p>We do not write an OS. We ship a locked-down appliance image: minimal Linux with our services baked in, flashed at manufacture. Calling it "Loc8 OS" is marketing truth — to the customer the box has one purpose and no visible Linux.</p>
