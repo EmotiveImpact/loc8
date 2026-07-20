@@ -1,5 +1,13 @@
 # EAS Builds — getting Loc8 onto real phones
 
+> **Status note (2026-07-20):** parts of this runbook are stale — both apps are
+> now EAS-linked (Guard project `b700136e-a472-4e0d-8448-c9569e1a3e18`), so the
+> "not yet linked" steps below are already done. The *reasoning* (why Expo Go
+> can't run the mesh, why a dev build is the answer) still stands. Reconcile
+> this doc against `eas.json` before following it step-by-step — and note the
+> on-device field test itself is still **not confirmed run** (see
+> `brochure/loc8-ops-brief.html` §01 for the contradictory record).
+
 **Why this document exists.** Expo Go on the App Store is stuck behind Apple's
 review and doesn't support SDK 57, so scanning the dev-server QR from a real
 iPhone fails with "project is incompatible". More importantly, Expo Go could

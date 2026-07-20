@@ -6,7 +6,18 @@ This folder is the **dev-ready knowledge base**: everything decided so far, so a
 
 ---
 
-## Where things stand (2026-07-08 · v0.4.0)
+## Where things stand (2026-07-20)
+
+> **274 tests green · 27 suites** (engine 214/20 · Command 52/6 · Guard 8/1) · tsc clean.
+
+- **Guard + Command — BUILT.** Guard (Expo SDK 57): team map, hold-to-fire SOS, dispatch + status replies, lone-worker, muster. Command (Vite/React 19): operations, incident detail, muster board, coverage heatmap, durable audit. Two-way ops grammar (`core/opsMessages.ts`) closes the Guard↔Command loop; live bridge verified in software (simulated transport bridged — **not yet real BLE**).
+- **Gateway appliance — SPECIFIED, unbuilt.** [hardware/loc8-gateway.md](hardware/loc8-gateway.md): BOM tiers, §9 power & battery (LFP, adversarially verified). Software: [software/loc8os.md](software/loc8os.md).
+- **Master brief — SHIPPED.** [brochure/loc8-ops-brief.html](brochure/loc8-ops-brief.html) — one document for investors/CEO/technicians/staff, every claim graded verified/specified/open.
+- **Still open:** the 2–3 phone field test (the make-or-break gate — the repo record on it is contradictory, see the brief §01), payload encryption (zero lines), operator SSO, cloud spine, SDK door.
+
+---
+
+## Where things stood (2026-07-08 · v0.4.0)
 
 > Full commit-by-commit log: [`CHANGELOG.md`](../CHANGELOG.md) (repo root). **82 tests green · tsc clean · bundles clean.**
 
@@ -29,6 +40,21 @@ This folder is the **dev-ready knowledge base**: everything decided so far, so a
 
 ## Index
 
+### 📄 The brochure (`docs/brochure/`)
+| Doc | What it covers |
+|---|---|
+| [brochure/loc8-ops-brief.html](brochure/loc8-ops-brief.html) | **The Operations Master Brief** — one matte-black document for four audiences (investor / CEO / technician / staff), routed by a margin rail. Colour is load-bearing: green = verified in this repo, amber = specified, red = open. Custom SVG diagrams (mesh relay, 25-byte byte-map from the real codec offsets, Gateway topology). The single best "explain everything" artifact. |
+
+### 📦 Hardware (`docs/hardware/`)
+| Doc | What it covers |
+|---|---|
+| [hardware/loc8-gateway.md](hardware/loc8-gateway.md) | **The Gateway appliance** — why a box, BOM tiers A/B/C, physical spec, daemons summary, plug-and-play lifecycle, security layers, off-site sync, engineering order. **§9 Power & battery** is normative: LFP float behaviour, runtime arithmetic, the PoE-switch limit, load-shedding + shutdown contract, compliance increment, bench-measurement list. |
+
+### 💽 Software (`docs/software/`)
+| Doc | What it covers |
+|---|---|
+| [software/loc8os.md](software/loc8os.md) | **Loc8OS — the appliance image.** Base-system decisions, the six-daemon stack (`meshd`/`relayd`/`sited`/`syncd`/`provisiond`/`supervisord`), device states → status lens, power contract, storage layout, A/B signed updates, §7a local service portal + recovery mode, provisioning lifecycle, build order. |
+
 ### 📐 Product & strategy (`docs/strategy/`)
 | Doc | What it covers |
 |---|---|
@@ -49,6 +75,9 @@ This folder is the **dev-ready knowledge base**: everything decided so far, so a
 | ui-upgrade-v1.html · ui-upgrade-nav.html · rally.html | Consumer visual upgrade + bottom-nav + Rally. |
 | gallery-consumer.html (15) · gallery-guard.html (7) · gallery-command.html (5) | Full screen galleries across all three products. |
 | loc8-ops.html · anchor-hop.html | Ops intro; animated BLE→LoRa→BLE hop. |
+| [loc8os-gallery.html](design/loc8os-gallery.html) | **Loc8OS reflected in the products:** animated status-lens states, bench `loc8 status` consoles (normal vs mid-power-cut), journald at mains loss, Command claim/health cards, HQ portfolio tiles. |
+| [loc8os-ui.html](design/loc8os-ui.html) | **Loc8OS's own three faces:** the serial boot sequence, the local service portal (health + org-key maintenance), recovery mode. |
+| references/ (ref-lunor · ref-taskplus · ref-kravio · command-v2-concept) | Pixel-replication studies of reference UIs + the Command v2 shading concept derived from them. |
 
 ### 🛠 Build specs & plans (`docs/superpowers/`)
 | Doc | What it covers |

@@ -188,7 +188,6 @@ dashboard**: one tile per site, drill-in to the live feed, "last synced 00:40".
 *Fallback modes preserved throughout:* no gateway → any guard phone bridges to
 a laptop console exactly as today; both paths stay tested.
 
-
 ## 9. Power & battery backup
 
 *Researched and adversarially verified 2026-07-20. Prices are a July 2026

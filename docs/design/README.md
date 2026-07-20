@@ -114,6 +114,11 @@ All files are in `docs/design/` unless noted. Market-model files live in `docs/s
 | `../strategy/coverage-maps.html` | **Coverage — Victoria Park / All Points East** — 3 coverage options: Just the app, Relay grid, Trunk + last-hop (the case for anchors). |
 | `../strategy/market-model.html` | **Interactive market model** — live, adjustable revenue/adoption model. |
 | `../strategy/market-model-simple.html` | **"The money, in plain English"** — the plain-language version of the market model. |
+| `loc8os-gallery.html` | **Loc8OS in the products** — animated status-lens states, bench `loc8 status` consoles (normal + mid-power-cut), journald at mains loss, Command claim/health cards, HQ tiles. Spec: `../software/loc8os.md`. |
+| `loc8os-ui.html` | **Loc8OS's own faces** — serial boot sequence, local service portal (unauthenticated health + org-key maintenance), recovery mode. Spec: `../software/loc8os.md` §7a. |
+| `references/ref-lunor.html` · `ref-taskplus.html` · `ref-kravio.html` | Pixel-replication studies of three reference UIs (the "less AI-web, more app" exercise). |
+| `references/command-v2-concept.html` | The Command v2 shading/depth concept synthesized from the three references. |
+| `../brochure/loc8-ops-brief.html` | **The Operations Master Brief** — the four-audience matte-black document; custom SVG diagrams; every claim graded. |
 
 ---
 
