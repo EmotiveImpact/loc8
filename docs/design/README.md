@@ -116,6 +116,7 @@ All files are in `docs/design/` unless noted. Market-model files live in `docs/s
 | `../strategy/market-model-simple.html` | **"The money, in plain English"** — the plain-language version of the market model. |
 | `loc8os-gallery.html` | **Loc8OS in the products** — animated status-lens states, bench `loc8 status` consoles (normal + mid-power-cut), journald at mains loss, Command claim/health cards, HQ tiles. Spec: `../software/loc8os.md`. |
 | `loc8os-ui.html` | **Loc8OS's own faces** — serial boot sequence, local service portal (unauthenticated health + org-key maintenance), recovery mode. Spec: `../software/loc8os.md` §7a. |
+| `loc8os-simulator.html` | **Interactive Loc8OS simulator** — every function workable: cut mains (shed + shutdown ladder), kill uplink (store-and-forward), signed A/B update with the on-battery interlock, SOS, enrollment, factory reset → claim, live audit chain. |
 | `references/ref-lunor.html` · `ref-taskplus.html` · `ref-kravio.html` | Pixel-replication studies of three reference UIs (the "less AI-web, more app" exercise). |
 | `references/command-v2-concept.html` | The Command v2 shading/depth concept synthesized from the three references. |
 | `../brochure/loc8-ops-brief.html` | **The Operations Master Brief** — the four-audience matte-black document; custom SVG diagrams; every claim graded. |

@@ -1,0 +1,503 @@
+<title>Loc8OS — interactive simulator</title>
+<style>
+  :root{
+    --ground:#08090c; --panel:#0f1115; --raised:#14171e; --line:#1e222b; --line-soft:#171b22;
+    --ink:#e8eaed; --dim:#8b929e; --faint:#5d646f;
+    --ok:#46e0a0; --warn:#ffb43a; --alert:#ff4053; --info:#7aa2ff;
+    --mono: ui-monospace, "SF Mono", Menlo, monospace;
+    --grot: -apple-system, "Helvetica Neue", "Segoe UI", Roboto, system-ui, sans-serif;
+  }
+  *{box-sizing:border-box;}
+  body,.doc{background:var(--ground);}
+  .doc{color:var(--ink); font-family:var(--grot); font-size:14px; line-height:1.55; margin:0; -webkit-font-smoothing:antialiased;}
+  .wrap{max-width:1180px; margin:0 auto; padding:34px 24px 100px;}
+  .hd{display:flex; align-items:baseline; gap:16px; flex-wrap:wrap; margin-bottom:6px;}
+  h1{font-size:clamp(24px,3.4vw,38px); font-weight:850; letter-spacing:-.03em; margin:0;}
+  h1 .g{color:var(--ok);}
+  .hd .tag{font-family:var(--mono); font-size:10px; letter-spacing:.2em; color:var(--warn); border:1px solid rgba(255,180,58,.35); padding:3px 9px; border-radius:2px; text-transform:uppercase;}
+  .intro{color:var(--dim); font-size:13px; max-width:78ch; margin:0 0 22px;}
+  .intro b{color:var(--ink);}
+
+  /* device bar */
+  .devbar{display:flex; align-items:center; gap:16px; background:var(--panel); border:1px solid var(--line);
+    border-radius:6px; padding:14px 18px; margin-bottom:14px; flex-wrap:wrap;}
+  .lens{width:36px; height:36px; border-radius:50%; background:#0a0c10; border:1px solid var(--line); flex:none;
+    display:flex; align-items:center; justify-content:center; font-size:13px; color:var(--faint);}
+  @keyframes breath{0%,100%{box-shadow:0 0 3px 0 currentColor; opacity:.55;} 50%{box-shadow:0 0 18px 4px currentColor; opacity:1;}}
+  @keyframes chase{0%{opacity:.3;} 18%{opacity:1; box-shadow:0 0 16px 4px currentColor;} 40%,100%{opacity:.3; box-shadow:0 0 4px 1px currentColor;}}
+  @keyframes fastpulse{0%,100%{opacity:.35;} 50%{opacity:1; box-shadow:0 0 14px 3px currentColor;}}
+  .lens.st-LIVE{color:var(--ok); animation:breath 2.8s infinite;}
+  .lens.st-IDLE{color:var(--ok); animation:breath 5s infinite;}
+  .lens.st-NOSYNC{color:var(--warn); animation:fastpulse 2.2s infinite;}
+  .lens.st-BATTERY{color:var(--warn); animation:breath 1.6s infinite;}
+  .lens.st-BATTLOW{color:var(--warn); animation:breath .8s infinite;}
+  .lens.st-UNCLAIMED{color:#e8eaed; animation:chase 1.6s infinite;}
+  .lens.st-UPDATING{color:#e8eaed; animation:fastpulse 1s infinite;}
+  .lens.st-RECOVERY{color:var(--warn); animation:fastpulse 1.2s infinite;}
+  .lens.st-FAULT{color:var(--alert); opacity:1; box-shadow:0 0 16px 3px var(--alert); animation:none;}
+  .lens.st-OFF{color:#2b313c; animation:none;}
+  .devid{min-width:170px;}
+  .devid .nm{font-weight:750; font-size:15px;} .devid .nm em{font-style:normal; color:var(--ok);}
+  .devid .sn{font-family:var(--mono); font-size:10px; color:var(--faint); letter-spacing:.08em;}
+  .statechip{font-family:var(--mono); font-size:10.5px; letter-spacing:.14em; padding:5px 12px; border-radius:2px; border:1px solid currentColor;}
+  .devstats{display:flex; gap:22px; margin-left:auto; flex-wrap:wrap;}
+  .ds{font-family:var(--mono); font-size:11px; color:var(--dim); font-variant-numeric:tabular-nums;}
+  .ds b{display:block; font-size:9px; letter-spacing:.13em; color:var(--faint); font-weight:500; text-transform:uppercase; margin-bottom:2px;}
+  .ds span{color:var(--ink);}
+
+  /* scenario rail */
+  .rail{display:flex; gap:8px; flex-wrap:wrap; margin-bottom:16px;}
+  .sb{font-family:var(--mono); font-size:10.5px; letter-spacing:.1em; text-transform:uppercase; padding:8px 13px;
+    border-radius:3px; border:1px solid var(--line); color:var(--dim); background:var(--panel); cursor:pointer; user-select:none;}
+  .sb:hover{border-color:var(--dim); color:var(--ink);}
+  .sb.warn{border-color:rgba(255,180,58,.4); color:var(--warn);}
+  .sb.danger{border-color:rgba(255,64,83,.45); color:var(--alert);}
+  .sb.pri{border-color:var(--ok); color:var(--ok);}
+  .sb[disabled]{opacity:.35; pointer-events:none;}
+
+  /* banner */
+  #banner{display:none; border:1px solid rgba(255,180,58,.4); border-left:3px solid var(--warn); border-radius:4px;
+    background:rgba(255,180,58,.05); padding:11px 16px; margin-bottom:14px; font-size:13px; color:#ffd58a;}
+  #banner.alert{border-color:rgba(255,64,83,.45); border-left-color:var(--alert); background:rgba(255,64,83,.05); color:#ff9aa4;}
+
+  /* tabs */
+  .tabs{display:flex; gap:2px; flex-wrap:wrap; border-bottom:1px solid var(--line); margin-bottom:0;}
+  .tab{font-family:var(--mono); font-size:10.5px; letter-spacing:.12em; text-transform:uppercase; padding:10px 15px;
+    color:var(--faint); cursor:pointer; border:1px solid transparent; border-bottom:none; border-radius:4px 4px 0 0; user-select:none;}
+  .tab:hover{color:var(--dim);}
+  .tab.on{color:var(--ok); background:var(--panel); border-color:var(--line);}
+  .pane{display:none; background:var(--panel); border:1px solid var(--line); border-top:none; border-radius:0 0 6px 6px; padding:22px;}
+  .pane.on{display:block;}
+  .pane h3{font-family:var(--mono); font-size:10px; letter-spacing:.16em; text-transform:uppercase; color:var(--dim); font-weight:500; margin:22px 0 10px;}
+  .pane h3:first-child{margin-top:0;}
+
+  .grid{display:grid; grid-template-columns:repeat(auto-fit,minmax(180px,1fr)); gap:1px; background:var(--line-soft); border:1px solid var(--line-soft); border-radius:4px; overflow:hidden;}
+  .cell{background:var(--raised); padding:14px 16px;}
+  .cell .l{font-family:var(--mono); font-size:9px; letter-spacing:.13em; text-transform:uppercase; color:var(--faint); display:block; margin-bottom:6px;}
+  .cell .v{font-family:var(--mono); font-size:15px; font-variant-numeric:tabular-nums;}
+  .cell .s{font-size:11px; color:var(--faint); display:block; margin-top:3px;}
+  .g{color:var(--ok);} .a{color:var(--warn);} .r{color:var(--alert);} .b{color:var(--info);}
+
+  table.t{border-collapse:collapse; width:100%; font-size:12.5px;}
+  .t th{text-align:left; font-family:var(--mono); font-size:9px; letter-spacing:.13em; text-transform:uppercase; color:var(--faint);
+    font-weight:500; padding:8px 12px; border-bottom:1px solid var(--line);}
+  .t td{padding:9px 12px; border-bottom:1px solid var(--line-soft); font-family:var(--mono); font-size:12px; font-variant-numeric:tabular-nums; color:#c6ccd6;}
+  .t tr:last-child td{border-bottom:0;}
+  .pill{font-family:var(--mono); font-size:9px; letter-spacing:.1em; padding:2px 8px; border-radius:2px; border:1px solid currentColor; text-transform:uppercase;}
+  .mini{font-family:var(--mono); font-size:9.5px; letter-spacing:.08em; padding:5px 10px; border-radius:3px; border:1px solid var(--line);
+    color:var(--dim); cursor:pointer; background:none; text-transform:uppercase;}
+  .mini:hover{color:var(--ink); border-color:var(--dim);}
+
+  .feed{background:#070809; border:1px solid var(--line-soft); border-radius:4px; padding:12px 14px; font-family:var(--mono);
+    font-size:11.5px; line-height:1.7; height:230px; overflow-y:auto; color:#c6ccd6;}
+  .feed div{white-space:nowrap;}
+  .k{color:var(--faint);}
+
+  .meter{height:7px; border-radius:4px; background:var(--line-soft); overflow:hidden; margin-top:8px;}
+  .meter i{display:block; height:100%; border-radius:4px; background:var(--ok); transition:width .5s;}
+  .shed{display:flex; gap:8px; flex-wrap:wrap; margin-top:10px;}
+  .shed span{font-family:var(--mono); font-size:10px; letter-spacing:.08em; padding:4px 10px; border-radius:2px; border:1px solid var(--line); color:var(--faint);}
+  .shed span.off{border-color:rgba(255,180,58,.4); color:var(--warn); text-decoration:line-through;}
+  .shed span.keep{border-color:rgba(70,224,160,.4); color:var(--ok);}
+
+  .slots{display:grid; grid-template-columns:1fr 1fr; gap:12px; max-width:620px;}
+  .slot{border:1px solid var(--line); border-radius:4px; padding:14px 16px; font-family:var(--mono); font-size:12px;}
+  .slot b{display:block; font-size:9px; letter-spacing:.14em; color:var(--faint); margin-bottom:7px; font-weight:500;}
+  .slot.active{border-color:rgba(70,224,160,.45);}
+  .prog{height:6px; border-radius:3px; background:var(--line-soft); overflow:hidden; margin-top:10px; display:none;}
+  .prog i{display:block; height:100%; background:var(--info); width:0%; transition:width .3s;}
+
+  /* overlays */
+  .overlay{display:none; position:fixed; inset:0; background:rgba(5,6,8,.94); z-index:50; align-items:center; justify-content:center; padding:24px;}
+  .overlay.on{display:flex;}
+  .obox{max-width:640px; width:100%;}
+  .obox pre{background:#070809; border:1px solid var(--line); border-radius:6px; padding:20px 22px; font-family:var(--mono);
+    font-size:12px; line-height:1.8; color:#c6ccd6; margin:0; overflow-x:auto;}
+  .obox .big{font-family:var(--mono); text-align:center; padding:50px 20px; border:1px solid var(--line); border-radius:6px; background:#070809;}
+  .obox .big .st{font-size:22px; letter-spacing:.2em; display:block; margin-bottom:14px;}
+  .obox .big p{color:var(--dim); font-size:13px; font-family:var(--grot); margin:0 0 20px;}
+  .foot{margin-top:26px; font-family:var(--mono); font-size:9.5px; letter-spacing:.12em; color:var(--faint); text-transform:uppercase;}
+  @media (max-width:760px){ .devstats{margin-left:0;} .wrap{padding:22px 14px 70px;} .slots{grid-template-columns:1fr;} }
+  @media (prefers-reduced-motion:reduce){ *{animation:none!important;} }
+</style>
+
+<div class="doc"><div class="wrap">
+  <div class="hd"><h1>LOC<span class="g">8</span>OS</h1><span class="tag">Interactive simulator · design mock — none of this is real code</span></div>
+  <p class="intro">Every function of the appliance image, workable. Use the <b>scenario buttons</b> to do things to the box — cut the mains, kill the uplink, push an update, fire an SOS on the mesh, factory-reset it — and watch every tab react the way the spec (<span style="font-family:var(--mono);font-size:.92em;">docs/software/loc8os.md</span>) says it must. Time is accelerated ~100× so a 5-hour battery runs down in about 3 minutes.</p>
+
+  <div class="devbar">
+    <div class="lens st-LIVE" id="lens">◈</div>
+    <div class="devid"><div class="nm">LOC<em>8</em> GATEWAY</div><div class="sn" id="devsn">GW-7C2A91 · The Chapelgate Rooms · loc8os 0.4.2 (slot A)</div></div>
+    <span class="statechip" id="statechip">LIVE</span>
+    <div class="devstats">
+      <div class="ds"><b>Battery</b><span id="dsBatt">97%</span></div>
+      <div class="ds"><b>Mesh</b><span id="dsMesh">14 nodes</span></div>
+      <div class="ds"><b>Uplink</b><span id="dsUp">HQ · ok</span></div>
+      <div class="ds"><b>Uptime</b><span id="dsUt">00:00</span></div>
+    </div>
+  </div>
+
+  <div class="rail">
+    <span class="sb warn" id="bMains">⚡ Cut mains</span>
+    <span class="sb warn" id="bUplink">🌐 Kill uplink</span>
+    <span class="sb" id="bSos">🚨 SOS on the mesh</span>
+    <span class="sb" id="bEnroll">➕ Enroll a guard (QR)</span>
+    <span class="sb pri" id="bUpdate">⬆ Push signed update 0.4.3</span>
+    <span class="sb" id="bReboot">↻ Reboot</span>
+    <span class="sb danger" id="bReset">✕ Factory reset</span>
+  </div>
+
+  <div id="banner"></div>
+
+  <div class="tabs">
+    <span class="tab on" data-p="overview">Overview</span>
+    <span class="tab" data-p="daemons">Daemons</span>
+    <span class="tab" data-p="mesh">Mesh</span>
+    <span class="tab" data-p="power">Power</span>
+    <span class="tab" data-p="storage">Storage</span>
+    <span class="tab" data-p="updates">Updates</span>
+    <span class="tab" data-p="prov">Provisioning</span>
+    <span class="tab" data-p="audit">Audit chain</span>
+  </div>
+
+  <div class="pane on" id="p-overview">
+    <div class="grid">
+      <div class="cell"><span class="l">State</span><span class="v" id="ovState">LIVE</span><span class="s" id="ovLensTxt">lens: green breath</span></div>
+      <div class="cell"><span class="l">Mesh</span><span class="v g" id="ovMesh">14 nodes</span><span class="s" id="ovFrames">312 frames/min · dedup 41%</span></div>
+      <div class="cell"><span class="l">Uplink</span><span class="v g" id="ovUp">HQ · 41 s</span><span class="s" id="ovSpool">spool empty</span></div>
+      <div class="cell"><span class="l">Battery</span><span class="v" id="ovBatt">97%</span><span class="s" id="ovBattS">LFP 38.4 Wh · resting · mains</span></div>
+      <div class="cell"><span class="l">Consoles</span><span class="v" id="ovCons">3</span><span class="s">mTLS · 2 command · 1 gw-phone</span></div>
+      <div class="cell"><span class="l">Image</span><span class="v" id="ovImg">0.4.2 A</span><span class="s" id="ovImgS">slot B: 0.4.1 · rollback ready</span></div>
+    </div>
+    <h3>Live event feed</h3>
+    <div class="feed" id="ovFeed"></div>
+  </div>
+
+  <div class="pane" id="p-daemons">
+    <table class="t"><thead><tr><th>Unit</th><th>Job</th><th>State</th><th></th></tr></thead>
+      <tbody id="dtable"></tbody></table>
+    <p style="color:var(--faint);font-size:12px;margin:14px 0 0;">Dependency order: provisiond → meshd + relayd → sited → syncd. supervisord is independent and first. On battery, only <b style="color:var(--warn)">claiming</b> and housekeeping suspend — cert/shift-key issuance stays up so a guard can clock on mid-blackout.</p>
+  </div>
+
+  <div class="pane" id="p-mesh">
+    <div class="grid">
+      <div class="cell"><span class="l">Nodes heard</span><span class="v g" id="mNodes">14</span><span class="s">25-byte frames · TTL 7 (clamp 5 dense)</span></div>
+      <div class="cell"><span class="l">Frames / min</span><span class="v" id="mFpm">312</span><span class="s" id="mDedup">dedup 41% · table warm</span></div>
+      <div class="cell"><span class="l">Radios</span><span class="v">2</span><span class="s">Tier C: concurrent scan + advertise</span></div>
+      <div class="cell"><span class="l">Relay clients</span><span class="v" id="mCli">3</span><span class="s" id="mCliS">over LAN (mTLS)</span></div>
+    </div>
+    <h3>Frame log (decoded)</h3>
+    <div class="feed" id="meshFeed"></div>
+  </div>
+
+  <div class="pane" id="p-power">
+    <div class="grid">
+      <div class="cell"><span class="l">Source</span><span class="v" id="pwSrc">Mains (PoE+)</span><span class="s" id="pwSrcS">charger: rest (LFP, re-top at 75%)</span></div>
+      <div class="cell"><span class="l">Pack</span><span class="v" id="pwPack">97% · 25.0 Wh usable</span><span class="s">4× LFP 26650 · 1S4P · 24°C</span></div>
+      <div class="cell"><span class="l">Load</span><span class="v" id="pwLoad">5.0 W</span><span class="s" id="pwLoadS">dual BLE · unshed</span></div>
+      <div class="cell"><span class="l">Runtime est.</span><span class="v" id="pwEst">—</span><span class="s">range, coulomb-counted — never SoC%</span></div>
+    </div>
+    <div class="meter"><i id="pwMeter" style="width:97%"></i></div>
+    <h3>Load shedding (spec §9.5)</h3>
+    <div class="shed" id="shedList">
+      <span class="keep" data-s="keep">mesh relay</span><span class="keep" data-s="keep">SOS/muster/incident writes</span>
+      <span class="keep" data-s="keep">status lens</span><span class="keep" data-s="keep">supervisor</span>
+      <span data-s="shed">gateway claiming</span><span data-s="shed">VACUUM / log rotation</span>
+      <span data-s="shed">full position track → coarse 45 s</span><span data-s="shed">sync → 15-min bursts</span>
+      <span data-s="shed">OTA + USB updates (hard interlock)</span>
+    </div>
+    <h3>Shutdown ladder</h3>
+    <table class="t"><thead><tr><th>Stage</th><th>Trigger</th><th>Action</th><th>Status</th></tr></thead><tbody>
+      <tr><td>Warning</td><td>25% usable reserve</td><td>broadcast on mesh · breath quickens</td><td id="lad25"><span class="pill" style="color:var(--faint)">armed</span></td></tr>
+      <tr><td>Shutdown begins</td><td>15% reserve</td><td>stop new writes · final WAL checkpoint · remount ro</td><td id="lad15"><span class="pill" style="color:var(--faint)">armed</span></td></tr>
+      <tr><td>Halt by</td><td>10% reserve</td><td>supervisor floor protects the audit chain</td><td id="lad10"><span class="pill" style="color:var(--faint)">armed</span></td></tr>
+    </tbody></table>
+  </div>
+
+  <div class="pane" id="p-storage">
+    <div class="grid">
+      <div class="cell"><span class="l">Root</span><span class="v g">read-only</span><span class="s">overlayfs · slot A image</span></div>
+      <div class="cell"><span class="l">/var/lib/loc8</span><span class="v" id="stWr">rw · clean</span><span class="s">the one writable partition</span></div>
+      <div class="cell"><span class="l">site.db</span><span class="v" id="stSite">2.1 MB</span><span class="s">synchronous=FULL · <span id="stCkpt">ckpt 18 s ago</span></span></div>
+      <div class="cell"><span class="l">track.db</span><span class="v" id="stTrack">14.7 MB</span><span class="s" id="stTrackS">synchronous=NORMAL · full rate</span></div>
+      <div class="cell"><span class="l">audit.db</span><span class="v" id="stAudit">1,204 entries</span><span class="s" id="stChain">chain verified · head exported 12 m</span></div>
+      <div class="cell"><span class="l">sync spool</span><span class="v" id="stSpool">empty</span><span class="s">store-and-forward buffer</span></div>
+    </div>
+    <p style="color:var(--faint);font-size:12px;margin:16px 0 0;">tmpfs: /run /tmp /var/log · machine-id + DHCP + SSH host keys off the root · the DB split buys tunable durability, <b>not</b> corruption isolation (one FTL) · chain head + entry count exported off-box so tail truncation is detectable.</p>
+  </div>
+
+  <div class="pane" id="p-updates">
+    <div class="slots">
+      <div class="slot active" id="slotA"><b>SLOT A — ACTIVE</b><span id="slotAv">loc8os 0.4.2 · signed · confirmed good</span></div>
+      <div class="slot" id="slotB"><b>SLOT B</b><span id="slotBv">loc8os 0.4.1 · rollback target</span><div class="prog" id="upProg"><i></i></div></div>
+    </div>
+    <p style="color:var(--faint);font-size:12px;margin:16px 0 0;" id="upNote">Updates write the idle slot, verify signature, flip boot metadata, reboot; first boot must confirm within deadline or the watchdog flips back. <b style="color:var(--warn)">Hard interlock: never on battery</b> — the exposure is the slot-switch commit and the unconfirmed first boot, where rollback itself needs charge. USB-stick path uses the same signed image.</p>
+  </div>
+
+  <div class="pane" id="p-prov">
+    <div class="grid">
+      <div class="cell"><span class="l">Claim state</span><span class="v g" id="prClaim">claimed</span><span class="s" id="prClaimS">The Chapelgate Rooms · org-key locked</span></div>
+      <div class="cell"><span class="l">Device identity</span><span class="v">GW-7C2A91</span><span class="s">keypair minted at first boot</span></div>
+      <div class="cell"><span class="l">mDNS</span><span class="v">_loc8._tcp</span><span class="s" id="prMdns">advertising claimed=true</span></div>
+      <div class="cell"><span class="l">Portal</span><span class="v b">loc8-gw.local</span><span class="s">health public · maintenance = org key</span></div>
+    </div>
+    <h3>Enrolled devices (this shift)</h3>
+    <table class="t"><thead><tr><th>Device</th><th>Cert</th><th>Shift key</th><th>Enrolled</th></tr></thead><tbody id="enrollTable"></tbody></table>
+    <p style="color:var(--faint);font-size:12px;margin:14px 0 0;">Clock-in is the consent moment: Command shows a QR, the guard scans once — that issues the device cert + per-shift key. The QR is the friendly face of real PKI.</p>
+  </div>
+
+  <div class="pane" id="p-audit">
+    <p style="color:var(--faint);font-size:12px;margin:0 0 12px;">Append-only, hash-chained, every entry names an actor. Everything you have done in this simulator is here. Tail truncation is undetectable from inside — hence the periodic off-box head export.</p>
+    <div class="feed" id="auditFeed" style="height:300px"></div>
+  </div>
+
+  <div class="foot">Loc8OS interactive simulator · design mock, accelerated time · spec: docs/software/loc8os.md · hardware: docs/hardware/loc8-gateway.md §9</div>
+</div></div>
+
+<!-- overlays -->
+<div class="overlay" id="ovBoot"><div class="obox"><pre id="bootPre"></pre></div></div>
+<div class="overlay" id="ovOff"><div class="obox"><div class="big">
+  <span class="st" style="color:var(--faint)">— HALTED —</span>
+  <p id="offMsg">Battery reserve exhausted. The audit chain was checkpointed and the filesystem remounted read-only before halt. Nothing was lost.</p>
+  <span class="sb pri" id="bRestore2">⚡ Restore mains</span>&nbsp;<span class="sb" id="bForce">Long-press force-boot (degraded)</span>
+</div></div></div>
+<div class="overlay" id="ovUnclaimed"><div class="obox"><div class="big">
+  <span class="st" style="color:#e8eaed">UNCLAIMED</span>
+  <p>Factory state. /var/lib/loc8 wiped, identity re-minted. Advertising <span style="font-family:var(--mono)">_loc8._tcp claimed=false</span>. Lens: white chase. In the field, Loc8 Command discovers this box and claims it.</p>
+  <span class="sb pri" id="bClaim">Claim as “The Chapelgate Rooms”</span>
+</div></div></div>
+
+<script>
+(()=>{
+const $=id=>document.getElementById(id);
+const S={
+  mains:true, uplink:true, claimed:true, halted:false, updating:false, booted:true,
+  batt:97, usableWh:25.8, nodes:14, fpm:312, cli:3, spool:0, audit:1204,
+  siteMb:2.1, trackMb:14.7, upSecs:0, lastPush:41, ver:'0.4.2', slotB:'0.4.1',
+  warned:false, shut:false, guards:[['GRD-04 · K. Adeyemi','issued','active','22:04'],['GRD-07 · P. Okafor','issued','active','22:04'],['GRD-09 · S. Delgado','issued','active','22:06']],
+  t:0
+};
+const DAEMONS=[
+  ['loc8-supervisord','power states · watchdog · lens'],
+  ['loc8-provisiond','identity · mDNS · claim · certs + shift keys'],
+  ['loc8-meshd','BLE scan/advertise/relay/dedup — the 25-byte frames'],
+  ['loc8-relayd','mTLS WebSocket fan-out to consoles'],
+  ['loc8-sited','SQLite: incidents · roster · muster · audit'],
+  ['loc8-syncd','store-and-forward to HQ'],
+];
+const now=()=>{const d=Math.floor(S.t); const m=String(Math.floor(d/60)).padStart(2,'0'), s=String(d%60).padStart(2,'0'); return '00:'+m+':'+s;};
+function feed(el,msg,cls){const d=document.createElement('div'); d.innerHTML='<span class="k">'+now()+'</span> '+msg; if(cls)d.style.color=`var(--${cls})`; el.prepend(d); while(el.children.length>60)el.lastChild.remove();}
+function log(msg,cls){feed($('ovFeed'),msg,cls);}
+function audit(actor,msg){S.audit++; feed($('auditFeed'),'<span class="k">['+actor+']</span> '+msg); $('stAudit').textContent=S.audit.toLocaleString()+' entries';}
+function banner(msg,alert){const b=$('banner'); if(!msg){b.style.display='none';return;} b.style.display='block'; b.className=alert?'alert':''; b.id='banner'; b.innerHTML=msg;}
+
+function state(){
+  if(S.halted)return'OFF';
+  if(!S.claimed)return'UNCLAIMED';
+  if(S.updating)return'UPDATING';
+  if(!S.mains)return S.batt<28?'BATTLOW':'BATTERY';
+  if(!S.uplink)return'NOSYNC';
+  return'LIVE';
+}
+const LENSTXT={LIVE:'lens: green breath',NOSYNC:'lens: amber pulse (store-and-forward)',BATTERY:'lens: amber breath',BATTLOW:'lens: amber breath — quickening',UPDATING:'lens: white pulse',UNCLAIMED:'lens: white chase',OFF:'lens: dark',RECOVERY:'lens: white/amber alternate'};
+const CHIPC={LIVE:'ok',NOSYNC:'warn',BATTERY:'warn',BATTLOW:'warn',UPDATING:'ink',UNCLAIMED:'ink',OFF:'faint'};
+
+function render(){
+  const st=state();
+  $('lens').className='lens st-'+st;
+  const chip=$('statechip'); chip.textContent=st==='NOSYNC'?'LIVE-NOSYNC':st==='BATTERY'||st==='BATTLOW'?'ON-BATTERY':st;
+  chip.style.color=`var(--${CHIPC[st]==='ink'?'ink':CHIPC[st]==='faint'?'faint':CHIPC[st]})`;
+  $('ovState').textContent=chip.textContent; $('ovLensTxt').textContent=LENSTXT[st];
+  $('dsBatt').textContent=Math.round(S.batt)+'%';
+  $('dsMesh').textContent=S.nodes+' nodes'; $('ovMesh').textContent=S.nodes+' nodes'; $('mNodes').textContent=S.nodes;
+  $('dsUp').textContent=!S.uplink?(S.mains?'down':'LTE'):'HQ · ok';
+  $('dsUt').textContent=now().slice(3);
+  $('ovFrames').textContent=S.fpm+' frames/min · dedup 41%'; $('mFpm').textContent=S.fpm;
+  $('ovUp').textContent=S.uplink?('HQ · '+S.lastPush+' s'):(S.mains?'DOWN':'LTE up');
+  $('ovUp').className='v '+(S.uplink?'g':(S.mains?'r':'b'));
+  $('ovSpool').textContent=S.spool?('spool: '+S.spool+' events (will backfill)'):'spool empty';
+  $('stSpool').textContent=S.spool?S.spool+' events':'empty';
+  $('ovBatt').textContent=Math.round(S.batt)+'%';
+  $('ovBattS').textContent='LFP 38.4 Wh · '+(S.mains?(S.batt>=97?'resting':'charging')+' · mains':'discharging');
+  $('ovCons').textContent=S.mains?S.cli:0; $('mCli').textContent=S.mains?S.cli:0;
+  $('mCliS').textContent=S.mains?'over LAN (mTLS)':'LAN down — PoE switch dead';
+  $('ovImg').textContent=S.ver+' A'; $('ovImgS').textContent='slot B: '+S.slotB+(S.updating?' · writing…':' · rollback ready');
+  $('pwSrc').textContent=S.mains?'Mains (PoE+)':'Battery';
+  $('pwSrcS').textContent=S.mains?(S.batt>=97?'charger: rest (LFP, re-top at 75%)':'charger: bulk (DPM-limited)'):'boost 3.2→5 V · 86% eff';
+  const wh=(S.batt/100*25.8);
+  $('pwPack').textContent=Math.round(S.batt)+'% · '+wh.toFixed(1)+' Wh usable';
+  const load=!S.mains?4.7:5.0;
+  $('pwLoad').textContent=load.toFixed(1)+' W'; $('pwLoadS').textContent=!S.mains?'shed active (~1.3×, not 2×)':'dual BLE · unshed';
+  $('pwEst').textContent=!S.mains?( (wh/load*0.85).toFixed(1)+'–'+(wh/load*1.1).toFixed(1)+' h' ):'—';
+  $('pwMeter').style.width=S.batt+'%'; $('pwMeter').style.background=S.batt<28?'var(--warn)':'var(--ok)';
+  document.querySelectorAll('#shedList span[data-s="shed"]').forEach(e=>e.classList.toggle('off',!S.mains));
+  $('stTrackS').textContent='synchronous=NORMAL · '+(!S.mains?'coarse 45 s track':'full rate');
+  $('stWr').textContent=S.shut?'remounted ro':'rw · clean';
+  // daemons
+  const dt=$('dtable'); dt.innerHTML='';
+  DAEMONS.forEach(([n,j])=>{
+    let st2='active',c='ok';
+    if(!S.claimed&&n!=='loc8-provisiond'&&n!=='loc8-supervisord'){st2='waiting (unclaimed)';c='faint';}
+    if(!S.mains&&n==='loc8-provisiond'){st2='active · claiming suspended';c='warn';}
+    if(!S.mains&&n==='loc8-syncd'){st2=S.uplink?'batched 15 min':'batched · LTE';c='warn';}
+    if(!S.uplink&&S.mains&&n==='loc8-syncd'){st2='store-and-forward';c='warn';}
+    const tr=document.createElement('tr');
+    tr.innerHTML='<td>'+n+'</td><td style="font-family:var(--grot);color:var(--dim)">'+j+'</td><td><span class="pill" style="color:var(--'+c+')">'+st2+'</span></td><td><button class="mini" data-d="'+n+'">restart</button></td>';
+    dt.appendChild(tr);
+  });
+  dt.querySelectorAll('.mini').forEach(b=>b.onclick=()=>{audit('OP · A. Edem','restarted '+b.dataset.d); log(b.dataset.d+' restarted · watchdog re-armed','info');});
+  // provisioning
+  $('prClaim').textContent=S.claimed?'claimed':'unclaimed'; $('prClaim').className='v '+(S.claimed?'g':'a');
+  $('prClaimS').textContent=S.claimed?'The Chapelgate Rooms · org-key locked':'—';
+  $('prMdns').textContent='advertising claimed='+S.claimed;
+  const et=$('enrollTable'); et.innerHTML='';
+  S.guards.forEach(g=>{const tr=document.createElement('tr'); tr.innerHTML='<td>'+g[0]+'</td><td><span class="pill" style="color:var(--ok)">'+g[1]+'</span></td><td><span class="pill" style="color:var(--ok)">'+g[2]+'</span></td><td>'+g[3]+'</td>'; et.appendChild(tr);});
+  // buttons
+  $('bMains').textContent=S.mains?'⚡ Cut mains':'⚡ Restore mains';
+  $('bUplink').textContent=S.uplink?'🌐 Kill uplink':'🌐 Restore uplink';
+  $('bUpdate').toggleAttribute('disabled',!S.mains||S.updating||!S.claimed);
+  $('ovOff').classList.toggle('on',S.halted);
+  $('ovUnclaimed').classList.toggle('on',!S.claimed&&!S.halted);
+}
+
+// ── tick loop (accelerated ×100) ─────────────────────────
+setInterval(()=>{
+  if(S.halted||!S.booted)return;
+  S.t+=2; S.upSecs+=2;
+  S.fpm=300+Math.floor(Math.random()*30);
+  if(S.uplink){S.lastPush=(S.lastPush+2)%60||2;}
+  else if(Math.random()<.3){S.spool++;}
+  S.trackMb+=!S.mains?0.001:0.01; $('stTrack').textContent=S.trackMb.toFixed(1)+' MB';
+  if(S.t%20===0)$('stCkpt').textContent='ckpt just now'; else $('stCkpt').textContent='ckpt '+(S.t%20)+' s ago';
+  if(!S.mains){
+    S.batt=Math.max(0,S.batt-0.55); // ~100x accel
+    if(S.batt<=25&&!S.warned){S.warned=true;
+      $('lad25').innerHTML='<span class="pill" style="color:var(--warn)">FIRED</span>';
+      banner('⚠ <b>25% reserve (coulomb-counted)</b> — warning broadcast on the mesh · lens breath quickening · runtime reported as a range');
+      log('WARNING broadcast: reserve 25% · est range sent to consoles','warn');
+      audit('supervisord','25% reserve warning broadcast');}
+    if(S.batt<=15&&!S.shut){S.shut=true;
+      $('lad15').innerHTML='<span class="pill" style="color:var(--alert)">FIRED</span>';
+      banner('⛔ <b>Shutdown in progress</b> — new writes stopped · final WAL checkpoint · fsync · remounting read-only',true);
+      log('SHUTDOWN: writes stopped · wal_checkpoint(TRUNCATE) ok · remount ro','alert');
+      audit('supervisord','orderly shutdown began at 15% · watchdog disarmed');}
+    if(S.batt<=10){S.halted=true;
+      $('lad10').innerHTML='<span class="pill" style="color:var(--alert)">HALTED</span>';
+      audit('supervisord','halt — supervisor energy floor protected the chain');}
+  } else if(S.batt<97){
+    S.batt=Math.min(97,S.batt+(S.batt<75?0.8:0.3)); // bulk then top; rest at 97
+  }
+  if(Math.random()<.25)feed($('meshFeed'),'<span class="k">pos</span> GRD-'+String(1+Math.floor(Math.random()*12)).padStart(2,'0')+' · ttl '+(4+Math.floor(Math.random()*4))+' · floor 0 · batt '+(40+Math.floor(Math.random()*55))+'%');
+  render();
+},2000);
+
+// ── scenario actions ─────────────────────────────────────
+$('bMains').onclick=()=>{
+  if(S.mains){S.mains=false;
+    log('MAINS LOST → ON-BATTERY latched','warn');
+    log('sited: wal_checkpoint(TRUNCATE) ok 340 ms · fsync ok','info');
+    log('syncd: [LTE] "SITE ON BATTERY" delivered 1.2 s','ok');
+    log('updates interlocked (mains GPIO low) · claiming suspended · track → coarse','warn');
+    banner('⚡ <b>ON BATTERY</b> — mesh + critical writes protected · LAN (and consoles) down with the PoE switch · LTE reporting to HQ');
+    audit('supervisord','mains lost · ON-BATTERY · checkpoint + interlock + shed');
+  } else {S.mains=true; S.warned=false; S.shut=false;
+    ['lad25','lad15','lad10'].forEach(i=>$(i).innerHTML='<span class="pill" style="color:var(--faint)">armed</span>');
+    banner(null); log('MAINS RESTORED — charger: bulk (DPM) · shed lifted · LAN restored','ok');
+    audit('supervisord','mains restored · charging resumed · services unshed');}
+  render();
+};
+$('bUplink').onclick=()=>{
+  S.uplink=!S.uplink;
+  if(!S.uplink){log('uplink lost → store-and-forward · lens amber pulse','warn'); audit('syncd','uplink lost · spooling');}
+  else{log('uplink restored · backfilling '+S.spool+' spooled events → HQ','ok'); audit('syncd','uplink restored · backfilled '+S.spool+' events'); S.spool=0;}
+  render();
+};
+$('bSos').onclick=()=>{
+  feed($('meshFeed'),'<span style="color:var(--alert)">SOS</span> GRD-07 · Gate C · panic hold · relayed 6 nodes');
+  log('SOS — GRD-07 at Gate C · persisted synchronous=FULL · consoles notified','alert');
+  S.siteMb+=0.1; $('stSite').textContent=S.siteMb.toFixed(1)+' MB';
+  audit('sited','SOS persisted · GRD-07 · Gate C · mesh-confirmed');
+  render();
+};
+$('bEnroll').onclick=()=>{
+  const n='GRD-'+String(10+S.guards.length)+' · new guard';
+  S.guards.push([n,'issued','active',now().slice(3)]);
+  log('enrollment: QR scanned → device cert + per-shift key issued ('+n+')','ok');
+  audit('provisiond','cert + shift key issued · '+n+(S.mains?'':' · during blackout (issuance never sheds)'));
+  S.nodes++; render();
+};
+let upT=null;
+$('bUpdate').onclick=()=>{
+  if(!S.mains){banner('⛔ <b>Update refused</b> — hard interlock: never on battery.',true); audit('updater','update refused · on battery'); return;}
+  S.updating=true; audit('updater','signed image 0.4.3 accepted · signature verified · writing slot B');
+  log('update: signature OK → writing slot B (0.4.3)','info');
+  const p=$('upProg'); p.style.display='block'; let pc=0;
+  $('slotBv').textContent='loc8os 0.4.3 · writing…';
+  upT=setInterval(()=>{pc+=12; p.firstElementChild.style.width=Math.min(100,pc)+'%';
+    if(pc>=100){clearInterval(upT); p.style.display='none';
+      S.slotB=S.ver; S.ver='0.4.3';
+      $('slotAv').textContent='loc8os 0.4.3 · signed · confirmed good';
+      $('slotBv').textContent='loc8os '+S.slotB+' · rollback target';
+      log('slot flip → reboot → first boot confirmed → slot A locked good (0.4.3)','ok');
+      audit('updater','0.4.3 confirmed · rollback target '+S.slotB);
+      S.updating=false; boot(true); }
+  },500);
+  render();
+};
+$('bReboot').onclick=()=>{audit('OP · A. Edem','manual reboot'); boot(false);};
+$('bReset').onclick=()=>{
+  if(!confirm('Factory reset wipes /var/lib/loc8 including identity and returns the box to UNCLAIMED. The wipe is logged to the cloud on the way out. Proceed?'))return;
+  audit('provisiond','factory reset · wipe logged to cloud spine');
+  S.claimed=false; S.guards=[]; S.nodes=3; S.audit=1; $('auditFeed').innerHTML='';
+  feed($('auditFeed'),'<span class="k">[provisiond]</span> chain restarted · genesis entry · identity re-minted');
+  log('FACTORY RESET — unclaimed · identity re-minted · white chase','warn'); render();
+};
+$('bClaim').onclick=()=>{
+  S.claimed=true; S.guards=[]; log('claimed by Command as "The Chapelgate Rooms" · org key stored','ok');
+  audit('provisiond','claimed · site named · further claims require org key'); render();
+};
+$('bRestore2').onclick=()=>{S.mains=true; S.halted=false; S.warned=false; S.shut=false; S.batt=Math.max(S.batt,12);
+  ['lad25','lad15','lad10'].forEach(i=>$(i).innerHTML='<span class="pill" style="color:var(--faint)">armed</span>');
+  banner(null); audit('supervisord','mains stable 60–120 s → boot'); boot(false);};
+$('bForce').onclick=()=>{S.halted=false; banner('⚠ <b>Force-boot (degraded/read-only)</b> — mesh relay + critical persistence only. This box must never be unavailable during the incident it exists to record.');
+  audit('supervisord','physical force-boot · degraded read-only'); S.mains=false; render();};
+
+// ── boot sequence ────────────────────────────────────────
+const BOOTLINES=[
+  ['[0.000] ','Loc8OS VER (slot A, signed, verified)','hd'],
+  ['[0.412] ','root mounted read-only · overlay up · /var/lib/loc8 clean','ok'],
+  ['[0.9  ] ','loc8-supervisord started · watchdog armed','ok'],
+  ['[1.4  ] ','fuel gauge: LFP 4S1P · BATT% · charge: rest','k'],
+  ['[2.1  ] ','loc8-provisiond identity GW-7C2A91 · claimed','ok'],
+  ['[2.3  ] ','mDNS _loc8._tcp · portal https://loc8-gw.local','in'],
+  ['[3.0  ] ','loc8-meshd BlueZ ok · radio0+radio1 · codec warm','ok'],
+  ['[3.8  ] ','loc8-sited wal ok · audit chain verified','ok'],
+  ['[4.1  ] ','loc8-relayd mTLS :8787','k'],
+  ['[4.6  ] ','loc8-syncd uplink probe','k'],
+  ['[6.0  ] ','state → LIVE · lens green breath · slot locked good','ok'],
+];
+function boot(fromUpdate){
+  S.booted=false; const o=$('ovBoot'), pre=$('bootPre'); pre.innerHTML=''; o.classList.add('on');
+  let i=0; const iv=setInterval(()=>{
+    if(i>=BOOTLINES.length){clearInterval(iv); setTimeout(()=>{o.classList.remove('on'); S.booted=true; log('boot complete ≤ 30 s'+(fromUpdate?' · first boot after update confirmed':''),'ok'); render();},600); return;}
+    const [t,txt,c]=BOOTLINES[i++];
+    const line=document.createElement('div');
+    line.innerHTML='<span class="k">'+t+'</span><span class="'+(c==='hd'?'hd':c)+'">'+txt.replace('VER',S.ver).replace('BATT%',Math.round(S.batt)+'%')+'</span>';
+    pre.appendChild(line);
+  },260);
+}
+
+// tabs
+document.querySelectorAll('.tab').forEach(t=>t.onclick=()=>{
+  document.querySelectorAll('.tab').forEach(x=>x.classList.remove('on'));
+  document.querySelectorAll('.pane').forEach(x=>x.classList.remove('on'));
+  t.classList.add('on'); $('p-'+t.dataset.p).classList.add('on');
+});
+
+// seed
+log('simulator ready — try “Cut mains” and watch Power, Daemons and the audit chain','info');
+feed($('meshFeed'),'<span class="k">pos</span> GRD-04 · ttl 6 · floor 0 · batt 81%');
+feed($('auditFeed'),'<span class="k">[sited]</span> chain verified at boot · 1,204 entries · head exported');
+render();
+})();
+</script>
