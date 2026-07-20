@@ -180,6 +180,27 @@ be unavailable during the incident it exists to record.
    including identity, returns to `UNCLAIMED`. The wipe is logged to the cloud
    spine on the way out if any uplink exists.
 
+## 7a. The local service portal
+
+The one place Loc8OS shows its own face. `loc8-provisiond` serves a read-mostly
+status page on the LAN (`https://loc8-gw.local`, self-signed until claimed,
+then the device cert). It is a **diagnostics surface, not a control panel** —
+operations stay in Command; the portal exists so an installer with a phone and
+no Loc8 software can prove the box healthy.
+
+- **Unauthenticated:** state, image version, mesh node count, uplink state,
+  battery. Nothing operational — no staff, no incidents, no map. Read-only.
+- **Org-key authenticated:** network config, log bundle download, signed-image
+  upload (the USB path's twin), factory reset. Every action lands in the audit
+  chain.
+- Visual language matches the apps: the ops palette, mono data, the ◈ lens
+  mirrored live at the top of the page.
+
+**Recovery mode** (held factory-reset pin at boot, or repeated boot failure
+after A/B rollback exhausts): the portal serves a minimal amber page — slot
+states, last panic, signed-image upload, wipe. Nothing else runs; the mesh is
+down and says so. Lens: white/amber alternating.
+
 ## 8. What it looks like
 
 The box is headless, so "what it looks like" is four surfaces: the lens (§3),

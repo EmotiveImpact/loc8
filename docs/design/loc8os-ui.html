@@ -1,0 +1,206 @@
+<title>Loc8OS — the OS itself</title>
+<style>
+  :root{
+    --ground:#08090c; --panel:#0f1115; --raised:#14171e; --line:#1e222b; --line-soft:#171b22;
+    --ink:#e8eaed; --dim:#8b929e; --faint:#5d646f;
+    --ok:#46e0a0; --warn:#ffb43a; --alert:#ff4053; --info:#7aa2ff;
+    --mono: ui-monospace, "SF Mono", Menlo, monospace;
+    --grot: -apple-system, "Helvetica Neue", "Segoe UI", Roboto, system-ui, sans-serif;
+  }
+  *{box-sizing:border-box;}
+  body,.doc{background:var(--ground);}
+  .doc{color:var(--ink); font-family:var(--grot); font-size:15px; line-height:1.6; margin:0; -webkit-font-smoothing:antialiased;}
+  .wrap{max-width:1120px; margin:0 auto; padding:64px 28px 120px;}
+  h1{font-size:clamp(30px,4.5vw,52px); font-weight:850; letter-spacing:-.035em; margin:0 0 6px; line-height:1.02;}
+  h1 .g{color:var(--ok);}
+  .sub{font-family:var(--mono); font-size:11px; letter-spacing:.28em; text-transform:uppercase; color:var(--dim); margin:0 0 8px;}
+  .note{color:var(--dim); max-width:66ch; margin:0 0 54px; font-size:14px;}
+  .note b{color:var(--warn); font-weight:600;}
+  h2{font-size:13px; font-family:var(--mono); letter-spacing:.18em; text-transform:uppercase; color:var(--dim);
+    font-weight:500; margin:58px 0 6px; display:flex; align-items:center; gap:12px;}
+  h2::after{content:""; flex:1; height:1px; background:var(--line);}
+  .cap{color:var(--faint); font-size:13px; max-width:66ch; margin:0 0 20px;}
+
+  /* terminal */
+  .term{background:#070809; border:1px solid var(--line); border-radius:5px; overflow:hidden; margin:0 0 16px;}
+  .tbar{display:flex; align-items:center; gap:8px; padding:9px 14px; background:var(--raised); border-bottom:1px solid var(--line);}
+  .tbar i{width:9px; height:9px; border-radius:50%; background:#2b313c; display:block;}
+  .tbar span{font-family:var(--mono); font-size:10.5px; color:var(--faint); letter-spacing:.08em; margin-left:6px;}
+  .term pre{margin:0; padding:16px 18px; font-family:var(--mono); font-size:12.5px; line-height:1.72; color:#c6ccd6; overflow-x:auto;}
+  .k{color:var(--faint);} .ok{color:var(--ok);} .wn{color:var(--warn);} .al{color:var(--alert);} .in{color:var(--info);} .hd{color:var(--ink); font-weight:600;}
+  @keyframes typeline{from{opacity:0;} to{opacity:1;}}
+  .boot pre span.row{display:block; opacity:0; animation:typeline .01s forwards;}
+  .boot pre span.row:nth-child(1){animation-delay:.2s;} .boot pre span.row:nth-child(2){animation-delay:.55s;}
+  .boot pre span.row:nth-child(3){animation-delay:.8s;} .boot pre span.row:nth-child(4){animation-delay:1.1s;}
+  .boot pre span.row:nth-child(5){animation-delay:1.5s;} .boot pre span.row:nth-child(6){animation-delay:1.8s;}
+  .boot pre span.row:nth-child(7){animation-delay:2.2s;} .boot pre span.row:nth-child(8){animation-delay:2.6s;}
+  .boot pre span.row:nth-child(9){animation-delay:3.0s;} .boot pre span.row:nth-child(10){animation-delay:3.4s;}
+  .boot pre span.row:nth-child(11){animation-delay:3.8s;} .boot pre span.row:nth-child(12){animation-delay:4.4s;}
+  .boot pre span.row:nth-child(13){animation-delay:5.0s;}
+
+  /* browser frame */
+  .bframe{background:var(--panel); border:1px solid var(--line); border-radius:6px; overflow:hidden; margin:0 0 16px;}
+  .burl{display:flex; align-items:center; gap:10px; padding:10px 14px; background:var(--raised); border-bottom:1px solid var(--line);}
+  .burl i{width:9px; height:9px; border-radius:50%; background:#2b313c; display:block;}
+  .burl .u{flex:1; font-family:var(--mono); font-size:11px; color:var(--dim); background:#0a0c10; border:1px solid var(--line-soft);
+    border-radius:4px; padding:6px 12px; letter-spacing:.03em;}
+  .burl .u b{color:var(--ok); font-weight:500;}
+  .page{padding:0;}
+
+  /* portal */
+  .phead{display:flex; align-items:center; justify-content:space-between; padding:18px 22px; border-bottom:1px solid var(--line-soft);}
+  .pbrand{display:flex; align-items:center; gap:14px;}
+  .plens{width:34px; height:34px; border-radius:50%; background:#0a0c10; border:1px solid var(--line);
+    display:flex; align-items:center; justify-content:center; color:var(--ok); font-size:13px;}
+  @keyframes breath{0%,100%{box-shadow:0 0 3px 0 currentColor; opacity:.55;} 50%{box-shadow:0 0 16px 3px currentColor; opacity:1;}}
+  .plens{animation:breath 2.8s infinite;}
+  .pbrand .nm{font-weight:750; font-size:16px; letter-spacing:-.01em;}
+  .pbrand .nm em{font-style:normal; color:var(--ok);}
+  .pbrand .sn{font-family:var(--mono); font-size:10px; color:var(--faint); letter-spacing:.1em; margin-top:1px;}
+  .pstate{font-family:var(--mono); font-size:10px; letter-spacing:.14em; color:var(--ok); border:1px solid var(--ok);
+    border-radius:2px; padding:4px 10px;}
+  .pgrid{display:grid; grid-template-columns:repeat(auto-fit,minmax(190px,1fr)); gap:1px; background:var(--line-soft);}
+  .pcell{background:var(--panel); padding:16px 20px;}
+  .pcell .l{font-family:var(--mono); font-size:9px; letter-spacing:.14em; text-transform:uppercase; color:var(--faint); display:block; margin-bottom:7px;}
+  .pcell .v{font-family:var(--mono); font-size:15px; font-variant-numeric:tabular-nums; color:var(--ink);}
+  .pcell .v.g{color:var(--ok);} .pcell .v.a{color:var(--warn);}
+  .pcell .s{font-size:11px; color:var(--faint); display:block; margin-top:4px;}
+  .pfoot{padding:13px 22px; border-top:1px solid var(--line-soft); display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:10px;}
+  .pfoot .m{font-family:var(--mono); font-size:10px; color:var(--faint); letter-spacing:.08em;}
+  .plock{font-family:var(--mono); font-size:10px; letter-spacing:.1em; color:var(--dim); border:1px solid var(--line);
+    border-radius:3px; padding:7px 14px; text-transform:uppercase;}
+  .plock b{color:var(--info); font-weight:500;}
+
+  /* authed extras */
+  .rowbtns{display:flex; gap:10px; flex-wrap:wrap; padding:16px 22px; border-top:1px solid var(--line-soft);}
+  .abtn{font-family:var(--mono); font-size:10.5px; letter-spacing:.12em; text-transform:uppercase; padding:9px 16px;
+    border-radius:3px; border:1px solid var(--line); color:var(--dim);}
+  .abtn.pri{border-color:var(--ok); color:var(--ok); background:rgba(70,224,160,.06);}
+  .abtn.danger{border-color:rgba(255,64,83,.5); color:var(--alert);}
+  .audnote{font-size:11px; color:var(--faint); padding:0 22px 16px; font-family:var(--mono); letter-spacing:.04em;}
+
+  /* recovery */
+  .rec .phead{border-bottom-color:rgba(255,180,58,.25);}
+  .rec .plens{color:var(--warn); animation:breath 1.2s infinite;}
+  .rec .pstate{color:var(--warn); border-color:var(--warn);}
+  .recbody{padding:20px 22px;}
+  .recbody p{margin:0 0 14px; color:#cfd4dc; font-size:13.5px; max-width:60ch;}
+  .slots{display:grid; grid-template-columns:1fr 1fr; gap:12px; margin:0 0 16px; max-width:560px;}
+  .slot{border:1px solid var(--line); border-radius:4px; padding:12px 14px; font-family:var(--mono); font-size:11.5px;}
+  .slot b{display:block; font-size:9.5px; letter-spacing:.14em; color:var(--faint); margin-bottom:6px; font-weight:500;}
+  .slot .sv{color:var(--ink);}
+  .slot.bad{border-color:rgba(255,64,83,.4);} .slot.bad .sv{color:var(--alert);}
+  .drop{border:1px dashed var(--line); border-radius:4px; padding:22px; text-align:center; font-family:var(--mono);
+    font-size:11px; color:var(--faint); letter-spacing:.08em; max-width:560px;}
+  .drop b{color:var(--warn); display:block; margin-bottom:4px; letter-spacing:.14em;}
+
+  .twocol{display:grid; grid-template-columns:1fr 1fr; gap:16px; align-items:start;}
+  .foot{border-top:1px solid var(--line); margin-top:70px; padding-top:22px; font-family:var(--mono); font-size:10px;
+    letter-spacing:.12em; color:var(--faint); text-transform:uppercase;}
+  @media (max-width:820px){ .twocol{grid-template-columns:1fr;} .wrap{padding:44px 16px 80px;} .slots{grid-template-columns:1fr;} }
+  @media (prefers-reduced-motion:reduce){ *{animation:none!important;} .boot pre span.row{opacity:1;} }
+</style>
+
+<div class="doc"><div class="wrap">
+
+<p class="sub">Loc8OS · The operating system's own face · design reference</p>
+<h1>The OS <span class="g">itself</span></h1>
+<p class="note">There is no desktop — Loc8OS is an appliance image and hides its Linux on purpose. But the OS does show its own face at three moments: <strong>boot</strong> (serial, factory/bench only), the <strong>local service portal</strong> any installer can reach from a phone browser, and <strong>recovery mode</strong>. <b>All mocks</b> — spec §7a in <code style="font-family:var(--mono);font-size:.9em;">docs/software/loc8os.md</code>.</p>
+
+<!-- BOOT -->
+<h2>01 · Boot — serial console, ≤30 seconds to LIVE</h2>
+<p class="cap">Only ever seen at the factory or on a bench. In the field the box boots silently; the lens does the talking.</p>
+<div class="term boot">
+  <div class="tbar"><i></i><i></i><i></i><span>serial 115200 · power applied</span></div>
+  <pre><span class="row"><span class="k">[0.000]</span> <span class="hd">Loc8OS 0.4.2</span> <span class="k">(slot A, signed, verified)</span></span>
+<span class="row"><span class="k">[0.412]</span> root mounted <span class="ok">read-only</span> · overlay up · /var/lib/loc8 <span class="ok">clean</span></span>
+<span class="row"><span class="k">[0.9  ]</span> loc8-supervisord  <span class="ok">started</span> · watchdog armed · mains <span class="ok">present</span></span>
+<span class="row"><span class="k">[1.4  ]</span> fuel gauge: LFP 4S1P · 97% · 38.1 Wh · 24°C · <span class="ok">charge: rest</span></span>
+<span class="row"><span class="k">[2.1  ]</span> loc8-provisiond   identity <span class="ok">GW-7C2A91</span> · claimed · org-key locked</span>
+<span class="row"><span class="k">[2.3  ]</span> mDNS: _loc8._tcp advertised · portal on <span class="in">https://loc8-gw.local</span></span>
+<span class="row"><span class="k">[3.0  ]</span> loc8-meshd        BlueZ ok · radio0 scan+adv · <span class="ok">25-byte codec vXX</span></span>
+<span class="row"><span class="k">[3.2  ]</span> loc8-meshd        radio1 (Tier C) concurrent scan · dedup table warm</span>
+<span class="row"><span class="k">[3.8  ]</span> loc8-sited        site.db · track.db · audit.db <span class="ok">wal ok</span> · chain <span class="ok">verified</span></span>
+<span class="row"><span class="k">[4.1  ]</span> loc8-relayd       mTLS listener :8787 · 0 clients</span>
+<span class="row"><span class="k">[4.6  ]</span> loc8-syncd        uplink eth0 · HQ reachable · spool empty</span>
+<span class="row"><span class="k">[5.2  ]</span> loc8-meshd        <span class="ok">first frame heard</span> · 3 nodes → 9 → 14</span>
+<span class="row"><span class="k">[6.0  ]</span> <span class="hd">state → </span><span class="ok">LIVE</span> · lens green breath · <span class="k">boot confirmed, slot A locked good</span></span></pre>
+</div>
+
+<!-- PORTAL -->
+<h2>02 · The service portal — https://loc8-gw.local</h2>
+<p class="cap">What an installer with nothing but a phone sees. Unauthenticated is read-only health — no staff, no incidents, no map. The org key unlocks maintenance, and every action lands in the audit chain.</p>
+
+<div class="bframe">
+  <div class="burl"><i></i><i></i><i></i><span class="u">https://<b>loc8-gw.local</b></span></div>
+  <div class="page">
+    <div class="phead">
+      <div class="pbrand">
+        <div class="plens">◈</div>
+        <div><div class="nm">LOC<em>8</em> GATEWAY</div><div class="sn">GW-7C2A91 · The Chapelgate Rooms · loc8os 0.4.2</div></div>
+      </div>
+      <span class="pstate">LIVE</span>
+    </div>
+    <div class="pgrid">
+      <div class="pcell"><span class="l">Mesh</span><span class="v g">14 nodes</span><span class="s">312 frames/min · dedup 41%</span></div>
+      <div class="pcell"><span class="l">Uplink</span><span class="v g">HQ · 41 s</span><span class="s">eth0 · store-and-forward armed</span></div>
+      <div class="pcell"><span class="l">Battery</span><span class="v">97%</span><span class="s">LFP 38.4 Wh · resting · 24°C</span></div>
+      <div class="pcell"><span class="l">Consoles</span><span class="v">3</span><span class="s">2 command · 1 gateway-phone</span></div>
+      <div class="pcell"><span class="l">Image</span><span class="v">0.4.2 A</span><span class="s">slot B: 0.4.1 · rollback ready</span></div>
+      <div class="pcell"><span class="l">Uptime</span><span class="v">19 d</span><span class="s">watchdog fed · 44°C</span></div>
+    </div>
+    <div class="pfoot">
+      <span class="m">read-only health view · no operational data is served on this page</span>
+      <span class="plock">🔒 <b>unlock with org key</b> for maintenance</span>
+    </div>
+  </div>
+</div>
+
+<div class="bframe">
+  <div class="burl"><i></i><i></i><i></i><span class="u">https://<b>loc8-gw.local</b>/maintenance · org-key session</span></div>
+  <div class="page">
+    <div class="phead">
+      <div class="pbrand">
+        <div class="plens">◈</div>
+        <div><div class="nm">MAINTENANCE</div><div class="sn">signed in with org key · session audited as OP · A. Edem</div></div>
+      </div>
+      <span class="pstate">LIVE</span>
+    </div>
+    <div class="rowbtns">
+      <a class="abtn pri">Upload signed image</a>
+      <a class="abtn">Download log bundle</a>
+      <a class="abtn">Network config</a>
+      <a class="abtn">Test status lens</a>
+      <a class="abtn danger">Factory reset…</a>
+    </div>
+    <div class="audnote">every action here is written to the audit chain · image uploads verify signature before touching slot B · reset requires the physical pin AND this session</div>
+  </div>
+</div>
+
+<!-- RECOVERY -->
+<h2>03 · Recovery mode</h2>
+<p class="cap">Reached by the held factory-reset pin at boot, or automatically when A/B rollback is exhausted. The mesh is down and the page says so plainly. Lens alternates white/amber.</p>
+<div class="bframe rec">
+  <div class="burl"><i></i><i></i><i></i><span class="u">https://<b>loc8-gw.local</b> · recovery</span></div>
+  <div class="page">
+    <div class="phead">
+      <div class="pbrand">
+        <div class="plens">◈</div>
+        <div><div class="nm">RECOVERY</div><div class="sn">GW-7C2A91 · minimal environment · mesh is NOT running</div></div>
+      </div>
+      <span class="pstate">RECOVERY</span>
+    </div>
+    <div class="recbody">
+      <p>Both image slots failed to confirm boot. The site database and audit chain are intact and untouched. Upload a signed Loc8OS image to repair, or contact support with the panic reference below.</p>
+      <div class="slots">
+        <div class="slot bad"><b>SLOT A · 0.4.3</b><span class="sv">2 boot attempts · watchdog reset · panic ref K7-2210</span></div>
+        <div class="slot bad"><b>SLOT B · 0.4.2</b><span class="sv">rollback target also failed to confirm</span></div>
+      </div>
+      <div class="drop"><b>UPLOAD SIGNED IMAGE (.l8img)</b>signature verified before writing · site data is never touched by an image repair</div>
+    </div>
+  </div>
+</div>
+
+<div class="foot">Loc8OS design reference · all data illustrative · spec: docs/software/loc8os.md §7a</div>
+
+</div></div>
