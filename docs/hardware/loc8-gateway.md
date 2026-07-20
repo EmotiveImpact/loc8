@@ -99,6 +99,11 @@ justify it) with our services baked in, flashed at "manufacture" (an afternoon
 per batch at pilot scale: flash, boot-test, label). Branding it "Loc8 OS" is
 marketing truth — to the customer the box has one purpose and no visible Linux.
 
+**Full software spec: [`../software/loc8os.md`](../software/loc8os.md)** —
+service stack, device states, power-state contract, storage layout, A/B
+updates, provisioning lifecycle, and bench console examples. The table below is
+the summary.
+
 **The services (systemd units):**
 
 | Daemon | Job |

@@ -1,0 +1,236 @@
+<title>Loc8OS — what it looks like</title>
+<style>
+  :root{
+    --ground:#08090c; --panel:#0f1115; --raised:#14171e; --line:#1e222b; --line-soft:#171b22;
+    --ink:#e8eaed; --dim:#8b929e; --faint:#5d646f;
+    --ok:#46e0a0; --warn:#ffb43a; --alert:#ff4053; --info:#7aa2ff;
+    --mono: ui-monospace, "SF Mono", Menlo, monospace;
+    --grot: -apple-system, "Helvetica Neue", "Segoe UI", Roboto, system-ui, sans-serif;
+  }
+  *{box-sizing:border-box;}
+  body,.doc{background:var(--ground);}
+  .doc{color:var(--ink); font-family:var(--grot); font-size:15px; line-height:1.6; margin:0;
+    -webkit-font-smoothing:antialiased;}
+  .wrap{max-width:1120px; margin:0 auto; padding:64px 28px 120px;}
+  h1{font-size:clamp(30px,4.5vw,52px); font-weight:850; letter-spacing:-.035em; margin:0 0 6px; line-height:1.02;}
+  h1 .g{color:var(--ok);}
+  .sub{font-family:var(--mono); font-size:11px; letter-spacing:.28em; text-transform:uppercase; color:var(--dim); margin:0 0 8px;}
+  .note{color:var(--dim); max-width:64ch; margin:0 0 54px; font-size:14px;}
+  .note b{color:var(--warn); font-weight:600;}
+  h2{font-size:13px; font-family:var(--mono); letter-spacing:.18em; text-transform:uppercase; color:var(--dim);
+    font-weight:500; margin:58px 0 6px; display:flex; align-items:center; gap:12px;}
+  h2::after{content:""; flex:1; height:1px; background:var(--line);}
+  .cap{color:var(--faint); font-size:13px; max-width:64ch; margin:0 0 20px;}
+
+  /* ── lens board ── */
+  .lensrow{display:grid; grid-template-columns:repeat(auto-fit,minmax(148px,1fr)); gap:14px;}
+  .lenscard{background:var(--panel); border:1px solid var(--line); border-radius:4px; padding:24px 14px 16px; text-align:center;}
+  .lens{width:44px; height:44px; border-radius:50%; margin:0 auto 16px; position:relative; background:#0a0c10;
+    border:1px solid var(--line); display:flex; align-items:center; justify-content:center;}
+  .lens::before{content:"◈"; font-size:15px;}
+  .lenscard .st{font-family:var(--mono); font-size:10px; letter-spacing:.12em; display:block; margin-bottom:6px;}
+  .lenscard .d{font-size:11.5px; color:var(--faint); line-height:1.45; display:block;}
+  @keyframes breath{0%,100%{box-shadow:0 0 4px 0 currentColor; opacity:.55;} 50%{box-shadow:0 0 22px 4px currentColor; opacity:1;}}
+  @keyframes chase{0%{box-shadow:0 0 6px 1px currentColor; opacity:.35;} 20%{opacity:1; box-shadow:0 0 20px 5px currentColor;} 40%,100%{opacity:.35; box-shadow:0 0 6px 1px currentColor;}}
+  @keyframes pulse{0%,100%{opacity:.4;} 12%{opacity:1;} 24%{opacity:.4;} 36%{opacity:1;} 48%,100%{opacity:.4;}}
+  .l-unclaimed .lens{color:#e8eaed;} .l-unclaimed .lens{animation:chase 1.6s infinite;}
+  .l-idle .lens{color:var(--ok); animation:breath 5s infinite;}
+  .l-live .lens{color:var(--ok); animation:breath 2.8s infinite;}
+  .l-nosync .lens{color:var(--warn); animation:pulse 2.4s infinite;}
+  .l-batt .lens{color:var(--warn); animation:breath 1.5s infinite;}
+  .l-fault .lens{color:var(--alert); opacity:1; box-shadow:0 0 18px 3px var(--alert);}
+  .l-update .lens{color:#e8eaed; animation:pulse 1.2s infinite;}
+  .l-unclaimed .st{color:#e8eaed;} .l-idle .st,.l-live .st{color:var(--ok);}
+  .l-nosync .st,.l-batt .st{color:var(--warn);} .l-fault .st{color:var(--alert);} .l-update .st{color:#e8eaed;}
+
+  /* ── terminal ── */
+  .term{background:#070809; border:1px solid var(--line); border-radius:5px; overflow:hidden; margin:0 0 14px;}
+  .tbar{display:flex; align-items:center; gap:8px; padding:9px 14px; background:var(--raised); border-bottom:1px solid var(--line);}
+  .tbar i{width:9px; height:9px; border-radius:50%; background:#2b313c; display:block;}
+  .tbar span{font-family:var(--mono); font-size:10.5px; color:var(--faint); letter-spacing:.08em; margin-left:6px;}
+  .term pre{margin:0; padding:16px 18px; font-family:var(--mono); font-size:12.5px; line-height:1.72;
+    color:#c6ccd6; overflow-x:auto;}
+  .term .k{color:var(--faint);}
+  .term .ok{color:var(--ok);} .term .wn{color:var(--warn);} .term .al{color:var(--alert);} .term .in{color:var(--info);}
+  .term .hd{color:var(--ink); font-weight:600;}
+  .twocol{display:grid; grid-template-columns:1fr 1fr; gap:16px; align-items:start;}
+
+  /* ── command cards ── */
+  .cardrow{display:grid; grid-template-columns:repeat(auto-fit,minmax(300px,1fr)); gap:16px;}
+  .ccard{background:var(--panel); border:1px solid var(--line); border-radius:5px; overflow:hidden;}
+  .chead{display:flex; align-items:center; justify-content:space-between; padding:13px 16px; border-bottom:1px solid var(--line-soft); background:var(--raised);}
+  .chead .t{font-family:var(--mono); font-size:10px; letter-spacing:.16em; text-transform:uppercase; color:var(--dim);}
+  .badge{font-family:var(--mono); font-size:9.5px; letter-spacing:.1em; padding:3px 8px; border-radius:2px; border:1px solid currentColor;}
+  .badge.w{color:#e8eaed;} .badge.g{color:var(--ok);} .badge.a{color:var(--warn);}
+  .cbody{padding:16px;}
+  .gwrow{display:flex; align-items:center; gap:14px;}
+  .gwbox{width:52px; height:40px; border-radius:4px; background:#0a0c10; border:1px solid var(--line); position:relative;
+    display:flex; align-items:center; justify-content:center; flex:none;}
+  .gwbox i{font-style:normal; font-size:13px;}
+  .gwname{font-weight:650; font-size:14.5px;}
+  .gwsub{font-family:var(--mono); font-size:10.5px; color:var(--faint); letter-spacing:.05em; margin-top:2px;}
+  .btn{display:inline-block; margin-top:14px; font-family:var(--mono); font-size:11px; letter-spacing:.14em; text-transform:uppercase;
+    padding:9px 18px; border-radius:3px; border:1px solid var(--ok); color:var(--ok); background:rgba(70,224,160,.06);}
+  .btn.ghost{border-color:var(--line); color:var(--dim); background:none; margin-left:8px;}
+  .kv{display:grid; grid-template-columns:auto 1fr; gap:5px 16px; font-size:12.5px; margin-top:4px;}
+  .kv b{font-family:var(--mono); font-size:10px; letter-spacing:.1em; text-transform:uppercase; color:var(--faint); font-weight:500; padding-top:2px;}
+  .kv span{color:#cfd4dc; font-variant-numeric:tabular-nums;}
+  .kv .g{color:var(--ok);} .kv .a{color:var(--warn);}
+  .meter{height:5px; border-radius:3px; background:var(--line-soft); margin-top:6px; overflow:hidden;}
+  .meter i{display:block; height:100%; border-radius:3px;}
+
+  /* ── HQ tiles ── */
+  .hq{display:grid; grid-template-columns:repeat(auto-fit,minmax(230px,1fr)); gap:14px;}
+  .tile{background:var(--panel); border:1px solid var(--line); border-radius:5px; padding:15px 16px; position:relative;}
+  .tile::before{content:""; position:absolute; inset:0 auto 0 0; width:2px; border-radius:2px 0 0 2px; background:var(--ok);}
+  .tile.a::before{background:var(--warn);} .tile.x::before{background:var(--faint);}
+  .tile .site{font-weight:650; font-size:14px; display:flex; justify-content:space-between; align-items:baseline;}
+  .tile .site em{font-style:normal; font-family:var(--mono); font-size:9.5px; letter-spacing:.1em; color:var(--ok);}
+  .tile.a .site em{color:var(--warn);} .tile.x .site em{color:var(--faint);}
+  .tile .row{display:flex; justify-content:space-between; font-family:var(--mono); font-size:11px; color:var(--dim);
+    margin-top:9px; font-variant-numeric:tabular-nums;}
+  .tile .row b{color:#cfd4dc; font-weight:500;}
+  .foot{border-top:1px solid var(--line); margin-top:70px; padding-top:22px; font-family:var(--mono); font-size:10px;
+    letter-spacing:.12em; color:var(--faint); text-transform:uppercase;}
+  @media (max-width:760px){ .twocol{grid-template-columns:1fr;} .wrap{padding:44px 16px 80px;} }
+  @media (prefers-reduced-motion:reduce){ .lens{animation:none!important;} }
+</style>
+
+<div class="doc"><div class="wrap">
+
+<p class="sub">Loc8OS · Appliance image · design reference</p>
+<h1>What the box looks like <span class="g">when it's alive</span></h1>
+<p class="note">The Gateway is headless — Loc8OS has no screen of its own. It is <em>seen</em> on four surfaces: the status lens on the enclosure, the bench serial console, the claim &amp; health cards inside Loc8 Command, and the HQ portfolio tile. <b>Everything below is a design mock</b> — the spec is <code style="font-family:var(--mono);font-size:.9em;">docs/software/loc8os.md</code>; none of these tools exist yet.</p>
+
+<!-- 1 · LENS -->
+<h2>01 · The status lens — the entire on-device UI</h2>
+<p class="cap">One light, printed on the quick-start card. State is encoded in the waveform (breath, pulse, chase), never hue alone — red/amber is the classic colour-vision confusion pair.</p>
+<div class="lensrow">
+  <div class="lenscard l-unclaimed"><div class="lens"></div><span class="st">UNCLAIMED</span><span class="d">white chase — fresh from factory, waiting to be claimed</span></div>
+  <div class="lenscard l-idle"><div class="lens"></div><span class="st">CLAIMED-IDLE</span><span class="d">green slow breath — mesh up, no shift running</span></div>
+  <div class="lenscard l-live"><div class="lens"></div><span class="st">LIVE</span><span class="d">green breath — shift live, consoles attached, synced</span></div>
+  <div class="lenscard l-nosync"><div class="lens"></div><span class="st">LIVE-NOSYNC</span><span class="d">amber pulse — uplink down, store-and-forward</span></div>
+  <div class="lenscard l-batt"><div class="lens"></div><span class="st">ON-BATTERY</span><span class="d">amber breath, quickening as reserve drains</span></div>
+  <div class="lenscard l-fault"><div class="lens"></div><span class="st">FAULT</span><span class="d">solid red — a service failed and did not recover</span></div>
+  <div class="lenscard l-update"><div class="lens"></div><span class="st">UPDATING</span><span class="d">white pulse — A/B slot write. Never on battery</span></div>
+</div>
+
+<!-- 2 · BENCH -->
+<h2>02 · The bench console — <code style="font-family:var(--mono)">loc8 status</code></h2>
+<p class="cap">Factory and bench only, over the serial header. Production boxes ship with no shell — the appliance contract.</p>
+<div class="twocol">
+  <div class="term">
+    <div class="tbar"><i></i><i></i><i></i><span>serial · GW-7C2A91 · normal operation</span></div>
+    <pre><span class="hd">LOC8 GATEWAY · GW-7C2A91 · Tier C</span>
+<span class="k">image   </span> loc8os 0.4.2 <span class="k">(slot A, confirmed) · B: 0.4.1</span>
+<span class="k">state   </span> <span class="ok">LIVE</span>            <span class="k">lens:</span> <span class="ok">green breath</span>
+<span class="k">power   </span> mains · batt <span class="ok">97%</span> <span class="k">(38.4 Wh LFP · 31°C)</span>
+<span class="k">mesh    </span> <span class="ok">14 nodes</span> · 312 frm/min · dedup 41%
+<span class="k">relay   </span> 3 clients <span class="k">(2 console, 1 gw-phone) ·</span> <span class="ok">mTLS ok</span>
+<span class="k">site.db </span> 2.1 MB · wal 40 KB · ckpt 18 s ago
+<span class="k">audit   </span> 1,204 entries · <span class="ok">chain head exported 12 m</span>
+<span class="k">sync    </span> <span class="ok">HQ reachable</span> · last push 41 s · spool 0
+<span class="k">uptime  </span> 19 d 04:12 · watchdog fed · 11% · 44°C</pre>
+  </div>
+  <div class="term">
+    <div class="tbar"><i></i><i></i><i></i><span>serial · GW-7C2A91 · 21 min into a power cut</span></div>
+    <pre><span class="hd">LOC8 GATEWAY · GW-7C2A91 · Tier C</span>
+<span class="k">state   </span> <span class="wn">ON-BATTERY (00:21:14)</span> <span class="k">lens:</span> <span class="wn">amber breath</span>
+<span class="k">power   </span> batt <span class="wn">71%</span> · 18.9 Wh usable · <span class="wn">est 3.4–4.1 h</span>
+<span class="k">shed    </span> claiming · vacuum · log-rotate
+<span class="k">mesh    </span> <span class="ok">14 nodes</span> · relay NORMAL · <span class="ok">sos/muster FULL</span>
+<span class="k">relay   </span> <span class="al">0 clients — LAN down (PoE switch dead)</span>
+<span class="k">sync    </span> <span class="in">LTE up</span> · <span class="ok">"SITE ON BATTERY" delivered</span>
+<span class="k">next    </span> warning bcast at 25% reserve <span class="k">(coulomb)</span></pre>
+  </div>
+</div>
+<div class="term">
+  <div class="tbar"><i></i><i></i><i></i><span>journald · the moment mains dropped</span></div>
+  <pre><span class="k">21:42:03</span> <span class="in">supervisord</span>  mains lost → <span class="wn">ON-BATTERY</span> latched
+<span class="k">21:42:03</span> <span class="in">sited</span>        wal_checkpoint(TRUNCATE) <span class="ok">ok 340 ms</span> · fsync <span class="ok">ok</span>
+<span class="k">21:42:04</span> <span class="in">syncd</span>        [LTE] SITE ON BATTERY queued → <span class="ok">delivered 1.2 s</span>
+<span class="k">21:42:04</span> <span class="in">supervisord</span>  updates <span class="wn">interlocked</span> (mains GPIO low)
+<span class="k">21:42:04</span> <span class="in">provisiond</span>   claiming suspended · cert/shift-key issuance <span class="ok">ACTIVE</span>
+<span class="k">21:42:05</span> <span class="in">sited</span>        position → coarse track (45 s interval)
+<span class="k">21:42:05</span> <span class="in">supervisord</span>  lens → amber breath · reserve 25.1 Wh <span class="k">(coulomb)</span></pre>
+</div>
+
+<!-- 3 · COMMAND -->
+<h2>03 · Inside Loc8 Command — claim &amp; health</h2>
+<p class="cap">The adopt flow people already know from UniFi and Sonos: the console discovers the box over mDNS, one click claims it. After that, the health card is the box's face in the control room.</p>
+<div class="cardrow">
+  <div class="ccard">
+    <div class="chead"><span class="t">Discovered on this network</span><span class="badge w">UNCLAIMED</span></div>
+    <div class="cbody">
+      <div class="gwrow">
+        <div class="gwbox l-unclaimed"><div class="lens" style="width:26px;height:26px;"></div></div>
+        <div><div class="gwname">Loc8 Gateway</div><div class="gwsub">GW-7C2A91 · loc8os 0.4.2 · _loc8._tcp · 10.0.8.31</div></div>
+      </div>
+      <a class="btn">Claim for this site</a><a class="btn ghost">Ignore</a>
+    </div>
+  </div>
+  <div class="ccard">
+    <div class="chead"><span class="t">Site gateway · The Chapelgate Rooms</span><span class="badge g">LIVE</span></div>
+    <div class="cbody">
+      <div class="gwrow">
+        <div class="gwbox l-live"><div class="lens" style="width:26px;height:26px;"></div></div>
+        <div><div class="gwname">GW-7C2A91</div><div class="gwsub">claimed 2026-06-30 · org-key locked</div></div>
+      </div>
+      <div class="kv" style="margin-top:14px;">
+        <b>Mesh</b><span class="g">14 nodes · 312 frames/min</span>
+        <b>Battery</b><span>97% · mains<div class="meter"><i style="width:97%;background:var(--ok);"></i></div></span>
+        <b>Sync</b><span class="g">HQ · 41 s ago</span>
+        <b>Audit</b><span>1,204 entries · chain verified</span>
+      </div>
+    </div>
+  </div>
+  <div class="ccard">
+    <div class="chead"><span class="t">Site gateway · The Chapelgate Rooms</span><span class="badge a">ON-BATTERY</span></div>
+    <div class="cbody">
+      <div class="gwrow">
+        <div class="gwbox l-batt"><div class="lens" style="width:26px;height:26px;"></div></div>
+        <div><div class="gwname">GW-7C2A91</div><div class="gwsub">mains lost 21 min ago · LAN down · via LTE</div></div>
+      </div>
+      <div class="kv" style="margin-top:14px;">
+        <b>Battery</b><span class="a">71% · est 3.4–4.1 h<div class="meter"><i style="width:71%;background:var(--warn);"></i></div></span>
+        <b>Mesh</b><span class="g">14 nodes · relaying</span>
+        <b>Recording</b><span class="g">SOS · muster · incidents — FULL</span>
+        <b>Shed</b><span>claiming · housekeeping · bulk track</span>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- 4 · HQ -->
+<h2>04 · The HQ portfolio — one tile per site</h2>
+<p class="cap">What a regional manager sees. Staleness is shown honestly; a site on battery reports itself rather than leaving HQ to infer an outage from silence.</p>
+<div class="hq">
+  <div class="tile">
+    <div class="site">Chapelgate Rooms <em>LIVE</em></div>
+    <div class="row"><span>staff on shift</span><b>12</b></div>
+    <div class="row"><span>open incidents</span><b>1 SOS</b></div>
+    <div class="row"><span>synced</span><b>41 s ago</b></div>
+  </div>
+  <div class="tile a">
+    <div class="site">Dockyard N4 <em>ON BATTERY</em></div>
+    <div class="row"><span>mains lost</span><b>21 min ago</b></div>
+    <div class="row"><span>reserve</span><b>71% · ~3.7 h</b></div>
+    <div class="row"><span>via</span><b>LTE · recording</b></div>
+  </div>
+  <div class="tile">
+    <div class="site">Arena South <em>LIVE</em></div>
+    <div class="row"><span>staff on shift</span><b>34</b></div>
+    <div class="row"><span>open incidents</span><b>0</b></div>
+    <div class="row"><span>synced</span><b>12 s ago</b></div>
+  </div>
+  <div class="tile x">
+    <div class="site">Granary Hall <em>LAST SYNC 06:40</em></div>
+    <div class="row"><span>uplink</span><b>down</b></div>
+    <div class="row"><span>store &amp; forward</span><b>assumed active</b></div>
+    <div class="row"><span>will backfill</span><b>on reconnect</b></div>
+  </div>
+</div>
+
+<div class="foot">Loc8OS design reference · all data illustrative · spec: docs/software/loc8os.md</div>
+
+</div></div>
