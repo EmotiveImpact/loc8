@@ -12,6 +12,12 @@ This folder is the **dev-ready knowledge base**: everything decided so far, so a
 Everything below this box is reference material — consult it when a decision
 arrives, don't read it end to end.*
 
+### If a word doesn't make sense
+**[GLOSSARY.md](GLOSSARY.md)** — every term in this repo in plain English:
+BLE, TLS, uplink vs downlink, capture effect, EIRP, dev boards, body-worn
+anchor, Martyn's Law tiers, TAM, the lot. If a term in any Loc8 document isn't
+in there, that's a bug — add it.
+
 ### If you read only one thing
 **[BUSINESS.md](BUSINESS.md) → the "THE PLAN, IN PLAIN ENGLISH" box at the top.**
 Four steps, the order of operations, and what the market research actually
