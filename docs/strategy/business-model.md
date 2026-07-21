@@ -41,7 +41,11 @@ Pricing logic: events = per-event kit + per-head + ops; permanent venues = insta
 >   festivals: ~7M attendees across ~400 show days, festival-grade density on
 >   greenfield sites, poor rural cellular, lost children as the dominant
 >   incident type, a Show Secretary with personal signing authority, and **no
->   vendor found serving the sector**.
+>   vendor found serving the sector**. ⚠️ *That last clause was itself refuted
+>   on 2026-07-21 by `../research/gtm-execution-report.md`: Alpha Omega
+>   Securities and ONYX already work the sector. It is the right beachhead, but
+>   contested — and its purpose is reference cases, not revenue (~£160–240k/yr
+>   at site-licence level).*
 > - The cruise-first priority is not supported: SOLAS muster is a regulated
 >   *process* already served by incumbent systems, and ATEX/marine
 >   certification is a multi-year gate.

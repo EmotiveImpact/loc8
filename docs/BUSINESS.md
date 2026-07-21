@@ -39,11 +39,25 @@ field test.** If you read nothing else in this repo, read this box.
 ### What the market research actually concluded (do not misread this)
 
 - ✅ **We can sell today.** Guard + Command are transport-agnostic and built.
-- ✅ **Nobody else names who is missing.** Not Halo, not 24/7 Software, not
-  Raven, not WeTrack. Radio structurally cannot. That capability *is* the
-  product; the mesh is one mechanism for delivering it.
-- ✅ **An unserved beachhead exists** — UK agricultural and county shows,
-  ~7m attendees over ~400 show days, no vendor found serving the sector.
+- ⚠️ **"Nobody else names who is missing" is FALSE — do not say it.**
+  *(Corrected by Round 2, 2026-07-21.)* Telaeris names missing people with
+  photo ID; friendlyway markets offline-first mustering, so "works with no
+  network" is not safe either. **The survivable claim is narrower and still
+  strong:** *no pre-installed hardware and no enrolled badge population* —
+  true against every event-control vendor (Halo has 0 of 7 modules doing it).
+  Say that instead; it survives contact with a buyer who knows the market.
+- ⚠️ **The beachhead is NOT unserved** — *(corrected by Round 2)*. ASAO's
+  directory holds four H&S suppliers, including **Alpha Omega Securities**
+  (already advertising drone pilots "searching for missing persons" at shows,
+  engaging organisers 24 months ahead) and **ONYX** (runs the Lincolnshire
+  Show control room). Round 1 inspected 18% of the directory and generalised.
+  UK agricultural and county shows remain the right beachhead — ~7m attendees
+  over ~400 show days — but as a **contested** market with a reference-case
+  purpose, not an empty one.
+- 🔴 **Delete the SAG lost-child pitch entirely.** Darlington's document —
+  Round 1's supporting evidence — actually *mandates a dedicated radio channel
+  for lost children*. Its only prohibition is on the PA system. An event
+  safety officer spots the conflation in ten seconds and the meeting is over.
 - ⚠️ **The old TAM was fiction**, not the market shrinking: `business-model.md`
   assumed 10,500 festivals ≥5k globally; there are 2,840 worldwide of all
   sizes. Festivals were never the market that document described.
@@ -55,8 +69,23 @@ field test.** If you read nothing else in this repo, read this box.
 - 🔴 **Front-line military is closed** (physics, procurement, certification —
   see report §6.1). Training exercises and DASA grants survive.
 
-**Source:** `research/market-expansion-report.md` — 210 agents, 30 research
-lines, 80 claims refuted or corrected by adversarial verification.
+### ⏰ The one date that matters
+
+**The 2026 agricultural-show pilot window has 86 shows left and shuts on
+26 September.** After that: a nine-month dead zone until the 2027 season.
+Everything on this page is academic if that window closes unused.
+
+Pricing for it, from Round 2: **£2,950 + £950 setup**, quoted into the
+**equipment hire** budget line (0.94% of Dorset's spend) — never into sundries
+(31%), where it competes with bin hire. And the real revenue unit is the
+**showground site licence** (~20 venues × £8–12k = £160–240k/yr), not the
+per-show fee: winning 100% of the top 100 shows caps out at £153k.
+
+**Source:** `research/market-expansion-report.md` (210 agents, 30 lines, 80
+claims corrected) and `research/gtm-execution-report.md` (61 agents, 12 lines,
+42 issues — **which refuted four of Round 1's load-bearing claims**, including
+one Round 1 ski citation that was outright fabricated). Round 2 wins where they
+conflict.
 
 ---
 

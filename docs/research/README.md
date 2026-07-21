@@ -4,6 +4,37 @@ Primary research output, preserved verbatim. **Do not delete these** — they ar
 the evidence behind specification numbers, and re-running the research costs
 millions of tokens and hours.
 
+## Go-to-market execution playbook (2026-07-21) — ⚠️ SUPERSEDES ROUND 1 WHERE THEY CONFLICT
+
+61 agents · 1,257 lines · 119 [HARD DATA] · 42 verification issues.
+
+[gtm-execution-report.md](gtm-execution-report.md) — how to actually reach and
+close the markets Round 1 picked: the agricultural-show playbook (who signs,
+when they buy, what to charge, which budget line), the security-contractor
+channel, price anchoring, the steelmanned ski and USA verdicts, missed
+industries, and a 12-month calendar.
+
+**It refuted four of Round 1's load-bearing claims.** Read §13 (refuted
+register) before quoting anything from the market report:
+- "No vendor serves agricultural shows" — false; Round 1 inspected 18% of the
+  ASAO directory. Alpha Omega Securities and ONYX are already there.
+- The SAG lost-child pitch — must be deleted; the cited document *mandates* a
+  radio channel for lost children.
+- "No competitor names who is missing" — false (Telaeris, friendlyway).
+- Halo's G-Cloud listing — withdrawn; cite their live cost page instead.
+
+Also found that **one Round 1 ski citation was fabricated**. The ski kill
+survives on better grounds, but treat Round 1 sources as needing a second look.
+
+## Market expansion / TAM (2026-07-20)
+
+[market-expansion-report.md](market-expansion-report.md) — 210 agents, 30 lines,
+80 claims corrected. Market sizing, the full vertical scoring rubric (Tier
+A/B/C with kill reasons), competitive landscape and graveyard, the defence and
+mobile-form-factor assessments (including the drone capture-effect analysis),
+and the product ladder. **Sections 3 and 6 remain the best work in the repo;
+sections 2 and 7 are partly superseded by the round above.**
+
 ## Arena connectivity / anchor radio reality (2026-07-21)
 
 External research (ChatGPT, un-briefed on the product) + our verification pass.
