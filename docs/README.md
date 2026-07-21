@@ -38,6 +38,8 @@ concluded. Five minutes.
 |---|---|
 | Run the field test | [testing/field-test-protocol.md](testing/field-test-protocol.md) |
 | Buy or place Anchors | [hardware/anchor-deployment.md](hardware/anchor-deployment.md) + [hardware/build-guide.md](hardware/build-guide.md) |
+| Know what hardware exists, what's in it, how it updates | [hardware/CATALOGUE.md](hardware/CATALOGUE.md) |
+| Write anchor firmware — **read first, it has 5 open decisions** | [software/mesh-network-design.md](software/mesh-network-design.md) |
 | Build hardware | [hardware/loc8-gateway.md](hardware/loc8-gateway.md), [software/loc8os.md](software/loc8os.md) |
 | Talk to a venue about compliance | [compliance.md](compliance.md) |
 | Discuss defence, or a drone/vehicle idea | market report §6 — both answered, mostly "no", with the physics |

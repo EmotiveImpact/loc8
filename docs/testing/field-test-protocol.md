@@ -92,6 +92,23 @@ strategy assumption) or background relay is partially viable. It cannot be
 filled from documentation — Apple's docs describe throttling qualitatively;
 the rates must be measured.
 
+## Phase 5 — the four measurements the network design depends on
+
+`../software/mesh-network-design.md` proposes an escalation ladder, message
+lifetimes and carried messages. **Every number in it is an estimate.** These
+four measurements decide how much of that design is actually needed:
+
+1. **Real hop distance in a crowd.** The single most important number in the
+   company. At 5 m, the local mesh reaches 35 m and the anchor tier is
+   essential. At 25 m, it reaches 175 m and half the design becomes optional.
+2. **Time for a flood to traverse N hops.** Sets the escalation timeout — how
+   long to wait locally before spending scarce LoRa airtime.
+3. **Does a moving phone's re-broadcast reach new peers?** Validates whether
+   carried messages (delay-tolerant networking) would work at all. Walk a phone
+   from one cluster to another and watch.
+4. **Duplicate suppression effectiveness.** Under the existing jitter scheme,
+   how many phones actually relay a given frame? Should be 2–3, not 50.
+
 ## The measurement sheet (record for every run)
 
 | Field | Record |
