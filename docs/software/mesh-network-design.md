@@ -74,6 +74,47 @@ can. Two candidate designs:
 This also gives rate-limiting and prioritisation for free — an anchor can refuse
 to escalate a hundred friend-finder pings while always escalating an SOS.
 
+### The phone never seeks an anchor
+
+Worth stating explicitly, because the mental model matters: **there is no
+discovery step.** BLE advertising is broadcast — a phone does not address
+anything, it simply transmits, and whatever is in range hears it. The anchor is
+already listening, always. So:
+
+1. Phone broadcasts a query. It floods the local crowd (~100 m).
+2. **Any anchor inside that radius hears it automatically.** No seeking, no
+   handshake, no connection, no effort from the phone.
+3. The anchor also listens for the *response*.
+4. No response within the step-3 window → the anchor escalates to LoRa.
+5. Far anchors re-broadcast locally; the reply floods back the same way.
+
+The phone did exactly one thing: shout. This is what keeps it dumb and cheap.
+
+### How the phone knows escalation is even possible
+
+Anchors already beacon their presence, so a phone can tell from that alone
+whether site-wide search exists here — **no new message type, no extra
+traffic**:
+
+| Phone hears an anchor beacon | UI |
+|---|---|
+| **Yes** | "Searching nearby…" → "Searching site-wide…" → result |
+| **No** | "Searching nearby…" → last known position (§9) |
+
+The phone therefore never claims to search site-wide at a venue with no anchors
+installed. An explicit "escalating" ack from the anchor would make this exact
+rather than inferred — worth adding, but polish; the inference is honest.
+
+### Two edge cases, both solved by existing mechanisms
+
+- **Several anchors hear the same query** and all escalate, wasting scarce LoRa
+  airtime. Fix: the **same jitter + dedup the phones already use**. First anchor
+  to put it on the trunk is heard by the others, which then stay quiet. Reused
+  pattern, no new invention.
+- **The response returned by a path the anchor did not hear**, so it escalates
+  unnecessarily. Not a correctness bug — wasted airtime only. Responses flood
+  too, so the anchor usually hears them; rate-limiting absorbs the remainder.
+
 ## 5. ✅ DECIDED: two budgets — hops and time (free, no format change)
 
 Today a message carries one budget: **hops**. That is sufficient for a live
