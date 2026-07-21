@@ -103,9 +103,9 @@ jittered relay timing — §11). The accurate principle is:
 
 ### Phone-side intelligence worth adding
 
-- **Answer on behalf of others.** If a phone heard Sam's position 30 s ago and a
-  nearby phone asks for Sam, it can answer *immediately* — no need to reach Sam
-  at all. Fewer hops, faster, and it works when Sam's phone is backgrounded or
+- **Answer on behalf of others.** If a phone heard Rella's position 30 s ago and a
+  nearby phone asks for Rella, it can answer *immediately* — no need to reach Rella
+  at all. Fewer hops, faster, and it works when Rella's phone is backgrounded or
   flat. This is decision 6's mechanism in a second form: phones as a distributed
   cache of recent knowledge, not merely repeaters. **Same privacy gate — needs
   encryption and rotating IDs first.**
@@ -243,7 +243,7 @@ This also extends reach: two 1–3 km LoRa hops cover a site no single link coul
 When every tier fails, do **not** show an error. Show the last known position
 with its age and decaying confidence:
 
-> **Sam** · 340 m north-east · **4 minutes ago**
+> **Rella** · 340 m north-east · **4 minutes ago**
 
 This is genuinely useful — it still points the right way — and it prevents the
 product feeling broken in exactly the moment it is most needed. It is also the
