@@ -1,11 +1,14 @@
 # Gate ① — the two-phone field test protocol
 
-*The written protocol for the single most important unproven thing in Loc8: the
-real BLE mesh has never run between two physical phones. Everything —
-every app, the Gateway thesis, the anchor programme — assumes this radio works
-as designed. This document turns "test the mesh" from a vibe into a procedure.
-Adapted 2026-07-21 from the arena dossier's test plan (§15–16), rewritten for
-phones-first (the dossier wrote it for fixed nodes). Evidence before promises.*
+*The written protocol for the most important partially-proven thing in Loc8.
+**Status 2026-07-21:** Phase 0 was informally passed on iOS — the founder ran
+two physical iPhones exchanging real frames over BLE (~2026-07-09). That proves
+the radios and the codec on hardware. It does not yet prove the **mesh**:
+relay through a third phone (Phase 2), background behaviour (Phase 4), Android,
+and measured ranges (Phase 1) remain open — two phones can prove radios; only
+three can prove relaying. This document turns the remaining gate from a vibe
+into a procedure. Adapted 2026-07-21 from the arena dossier's test plan
+(§15–16), rewritten phones-first. Evidence before promises.*
 
 **Prerequisites:** Xcode 26 or an EAS build; 2–3 physical iPhones + at least one
 physical Android; `EXPO_PUBLIC_TRANSPORT=ble`. Nothing else. Cost: £0.

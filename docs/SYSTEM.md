@@ -36,8 +36,8 @@ order is the core design promise.
 
 | Device | What it is | Runs | Per site | Status |
 |---|---|---|---|---|
-| **Consumer phone** | Any modern iPhone/Android with BLE | Loc8 app | crowds | app ✅ · BLE module 🔴 never run on hardware |
-| **Guard phone** | Same phones, staff-carried | Loc8 Guard | one per staff | app ✅ · same BLE caveat |
+| **Consumer phone** | Any modern iPhone/Android with BLE | Loc8 app | crowds | app ✅ · BLE 🟡 transport proven on iPhone pair (founder-run, 2026-07-09); relay/background/Android matrix 🔴 open |
+| **Guard phone** | Same phones, staff-carried | Loc8 Guard | one per staff | app ✅ · same BLE status |
 | **Loc8 Gateway** | Wall-mounted Pi-class box, ~120×90×35 mm. Tier A demo $~40 · **Tier B standard $93–113** · Tier C ruggedized $180–240 (adds LFP battery, eMMC, dual radios, tamper). Add-ons any tier: LTE dongle, LoRa concentrator | **Loc8OS** | **one** (the brain) | 🟡 fully specced, zero built |
 | **Loc8 Anchor** | nRF52840-class stateless **listening post** (BLE re-broadcast / BLE⟷LoRa; nRF21540 front-end for +13 dB RX gain — the uplink is the binding constraint, and receive is the only side money improves), **~£60–75** (revised 2026-07-21 from £30–40; the better ears cover ~4× the area so per-venue cost is flat or lower), battery/solar/PoE, pole-mounted **above head height**. Spacing planned on uplink: ~25–30 m in crowd. Full rules: `hardware/anchor-deployment.md` | tiny firmware (not Loc8OS) | 0–dozens (the ears) | 🟡 Phase 3, gated on field test; £230 3-board bench spike may run early |
 | **Command computer** | Any laptop/desktop on the venue LAN. **No Bluetooth needed** — the Gateway is its radio | Loc8 Command (browser now; Tauri desktop 🟡 for claim flow) | 1–2 | app ✅ |
@@ -61,7 +61,7 @@ Key hardware facts that answer recurring confusions:
 | **Loc8 Guard** | Team map, hold-to-fire SOS, dispatch + status replies (codes 20–23), duress (9), lone-worker, muster | guard phones | ✅ 8 tests |
 | **Loc8 Command** | Operations, incident timelines, muster board, coverage heatmap, audit log, dispatch | control-room computer | ✅ 52 tests / 6 suites |
 | **Partner SDK** | The finder embedded in someone else's app | partner apps | 🔴 unwritten (4th door) |
-| **`modules/loc8-mesh`** | The native BLE radio code (2,525 lines Swift + Kotlin) | phones | 🔴 never compiled/run on hardware — **the gate** |
+| **`modules/loc8-mesh`** | The native BLE radio code (2,525 lines Swift + Kotlin) | phones | 🟡 **two-iPhone exchange proven** (founder-run, ~2026-07-09) · relay-through-third-phone, background matrix, Android 🔴 not yet run — **the remaining gate** (`testing/field-test-protocol.md`) |
 | **`tools/mesh-bridge`** | Dev-era relay; grows into `loc8-relayd` | laptop (fallback mode) | ✅ |
 | **Loc8OS** | The Gateway appliance image: 6 daemons (`meshd`·`relayd`·`sited`·`syncd`·`provisiond`·`supervisord`), read-only root, A/B signed updates, service portal, power contract | the Gateway | 🟡 specced (`software/loc8os.md`) · interactive sim: `design/loc8os-simulator.html` |
 | **Anchor firmware** | Dumb BLE⟷LoRa translation, nothing else | anchors | 🔴 Phase 3 |

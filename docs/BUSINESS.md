@@ -95,8 +95,10 @@ update and swap it.
 
 ## The near-term plan (unchanged by all of the above)
 
-1. **Field test** — two phones, one park, £0
-   (`testing/field-test-protocol.md`). Everything gates on it.
+1. **Finish the field test** — £0 (`testing/field-test-protocol.md`). The
+   two-iPhone exchange already passed (founder-run, July 2026); what remains
+   is the part that proves the *mesh*: relay through a third phone, background
+   behaviour, Android, measured ranges. Everything still gates on that.
 2. **Bench spike** — 3× Nordic dev kits, £230, proves the anchor thesis on a
    table.
 3. **Encryption + rotating IDs** — prerequisite for any public pilot.

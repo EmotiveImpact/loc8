@@ -170,9 +170,12 @@ cloud backend and HQ dashboard.
 
 **🔴 Open, and one of them is existential:**
 
-1. **The real Bluetooth mesh has never run between two physical phones.** The
-   native module is 2,525 lines of written, never-executed Swift and Kotlin.
-   Everything above assumes that radio works as designed. This is the gate.
+1. **The BLE transport is proven on a real iPhone pair** (founder-run,
+   July 2026: two physical iPhones exchanging real frames). **But the *mesh*
+   is not yet proven:** relay through a third phone, background/locked
+   behaviour, Android, and measured ranges have never been tested. Two phones
+   can prove radios; only three phones can prove relaying. This remaining
+   matrix is the gate.
 2. **Payload encryption does not exist.** Zero lines. Every frame is plaintext
    on air today.
 3. Multi-gateway venues, disaster recovery, fleet health — unspecified.

@@ -7,7 +7,12 @@ All notable work, mapped against the plans and specs it was built from. Newest f
 - Plan: [`docs/superpowers/plans/2026-07-06-loc8-v1-prototype.md`](docs/superpowers/plans/2026-07-06-loc8-v1-prototype.md) (Tasks 1–18)
 - Spec: [`docs/superpowers/specs/2026-07-07-v2-mesh-spike-brief.md`](docs/superpowers/specs/2026-07-07-v2-mesh-spike-brief.md)
 
-**Current state:** Expo SDK 57 · RN 0.86 · React 19 · app version `1.0.0` · **162 jest tests green (12 suites)** · `tsc --noEmit` fully clean (tests type-checked) · `npx expo export -p ios` bundles clean. Runs in the iOS simulator in **sim mode** (simulated transport); real BLE mesh (v2) runs only on hardware via `EXPO_PUBLIC_TRANSPORT=ble`. ⚠️ **The real BLE mesh has NOT been proven on physical phones** — the native module (2,525 lines Swift/Kotlin) compiles but the on-device field-test matrix has never been run (see 🟡 item below; protocol: `docs/testing/field-test-protocol.md`). An earlier revision of this line claimed "mesh proven on 2 real iPhones"; that claim was wrong and is retracted — nothing below it depended on that claim.
+**Current state:** Expo SDK 57 · RN 0.86 · React 19 · app version `1.0.0` · **162 jest tests green (12 suites)** · `tsc --noEmit` fully clean (tests type-checked) · `npx expo export -p ios` bundles clean. Runs in the iOS simulator in **sim mode** (simulated transport); real BLE mesh (v2) runs only on hardware via `EXPO_PUBLIC_TRANSPORT=ble`.
+
+**On-device status, stated precisely (corrected 2026-07-21, twice):**
+- ✅ **BLE transport proven on a real iPhone pair** — founder-run, ~2026-07-08/09: two physical iPhones advertising, scanning and exchanging real frames over `EXPO_PUBLIC_TRANSPORT=ble` (corroborated by `9affc7f` "real names on real phones" and `b85657f` real-device defect fixes from that session).
+- 🔴 **The formal field-test matrix has not been run** — relay through a third phone (the actual *mesh* claim), background/locked states, Android, and measured distances remain unproven. Protocol: `docs/testing/field-test-protocol.md`; Phase 0 is the part already informally passed on iOS.
+- *Record-keeping note:* an earlier header said "mesh proven on 2 real iPhones"; a 2026-07-21 edit retracted it as false. Both were imprecise — the transport was proven, the relay matrix was not. The retraction overcorrected and is itself corrected here.
 
 Legend: ✅ done & verified · 🟡 built, needs hardware/user to finish · ⏳ deferred/not started
 
