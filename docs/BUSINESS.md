@@ -53,6 +53,52 @@ update and swap it.
 5. Note: renting is still "placing on the market" — it does **not** dodge
    compliance obligations (`compliance.md`).
 
+## Accounts, subscription & staffing (decided 2026-07-21)
+
+**Account structure:** Organisation → Sites → Kit. One org (the paying
+customer) owns one or more sites; each site has exactly one Gateway plus its
+anchors and carries a plan. Multi-site orgs get the HQ dashboard automatically.
+
+**Every login in the system:**
+
+| Screen | Who | How | Lives on |
+|---|---|---|---|
+| Gateway service portal | installer / manager | installer PIN printed on chassis, router-style | venue LAN only (`loc8-gateway.local`) |
+| loc8.com account | the person who pays | normal web login | internet |
+| Command | operators | laptop certificate + operator PIN (audit names *who*) | venue LAN |
+| Guard | security staff | scan the shift QR at clock-on — no password | the mesh |
+
+**Claiming (how a box binds to a paying account):** every Gateway/Anchor ships
+pre-provisioned with a claim code (QR + printed). Venue manager logs into
+loc8.com → Add device → scans code → device binds to the org, certificates
+exchange, heartbeats begin. Same pattern as Starlink/Sonos/Nest. One claim ties
+the whole venue kit to one account; Command pairing and Guard shift-QRs chain
+off the claimed Gateway.
+
+**Non-payment (dunning) policy — safety products don't brick:**
+- Day 0–30: grace. Everything works; nags in email + account banner.
+- Day 30+: cloud stops (HQ, sync, support). **The site keeps working** — it is
+  designed to run with no internet, and we neither can nor should kill a
+  safety system mid-event.
+- Day 60+: kit recall (the rental model doing its job).
+- **Never** disable SOS/muster over an invoice. Say this to venues out loud —
+  it's a trust point.
+
+**Staff policy: UNLIMITED, and it's a selling point.** The gating mechanism
+exists (the Gateway signs every shift token, so concurrent staff is countable
+and cappable) — but we do not price per seat: (1) radio hire charges ~£25–50
+per handset per event; "every steward's phone is the radio, unlimited" attacks
+the incumbent's cost structure directly; (2) per-seat pricing on safety creates
+the perverse incentive to under-cover — never build pricing where the customer
+saves money by being less safe; (3) Martyn's Law pushes venues toward *more*
+staff coverage — don't tax what regulation demands. Cap capability is retained
+for abuse prevention only.
+
+**Mockup of all three money-side screens:**
+`design/loc8-account-portal.html` (pricing page, venue dashboard with claim
+flow, and the Gateway's router-style portal — URL bar shows which world each
+lives in).
+
 ## The selling points (deck source of truth)
 
 1. **The play-by-play record.** Every incident reconstructed: SOS 23:41:07,

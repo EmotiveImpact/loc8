@@ -1,0 +1,340 @@
+<title>Loc8 — Subscription & Portals (mockup)</title>
+<style>
+  /* Signal in the dark — the app's own system: plum-black ground, mint signal,
+     gold rally, sunset = YOU. Single committed dark theme (the brand IS dark). */
+  :root{
+    --ground:#08070d; --surface:#100e17; --raised:#171422; --line:#241f33; --line-soft:#1a1626;
+    --ink:#ecEAF2; --dim:#9a93a8; --faint:#645d76;
+    --mint:#7bf0c9; --gold:#f5c64f; --alert:#ff5470;
+    --sun-a:#ff6b9d; --sun-b:#ff9e5e;
+    --mono:ui-monospace,"SF Mono",Menlo,monospace;
+    --sans:-apple-system,"Helvetica Neue","Segoe UI",system-ui,sans-serif;
+  }
+  *{box-sizing:border-box;}
+  body,.page{background:var(--ground);}
+  .page{color:var(--ink); font-family:var(--sans); font-size:15px; line-height:1.55; margin:0; -webkit-font-smoothing:antialiased;}
+  .shell{max-width:1140px; margin:0 auto; padding:40px 22px 100px;}
+
+  .mockhead{display:flex; align-items:baseline; justify-content:space-between; gap:16px; flex-wrap:wrap; margin-bottom:10px;}
+  .mockhead h1{font-size:clamp(24px,3.6vw,40px); font-weight:850; letter-spacing:-.035em; margin:0;}
+  .mockhead h1 em{font-style:normal; background:linear-gradient(90deg,var(--sun-a),var(--sun-b)); -webkit-background-clip:text; background-clip:text; color:transparent;}
+  .mocktag{font-family:var(--mono); font-size:10px; letter-spacing:.18em; color:var(--gold); border:1px solid var(--gold); border-radius:3px; padding:4px 10px; text-transform:uppercase;}
+  .mockhead p{flex-basis:100%; color:var(--dim); margin:4px 0 0; max-width:72ch; font-size:14px;}
+
+  .tabs{display:flex; gap:8px; margin:26px 0 18px; flex-wrap:wrap;}
+  .tabs button{font-family:var(--mono); font-size:11.5px; letter-spacing:.05em; color:var(--dim); background:var(--surface);
+    border:1px solid var(--line); border-radius:5px; padding:10px 16px; cursor:pointer;}
+  .tabs button[aria-pressed="true"]{color:var(--ground); background:var(--mint); border-color:var(--mint); font-weight:700;}
+  .tabs button:focus-visible{outline:2px solid var(--gold); outline-offset:2px;}
+
+  /* browser chrome — teaches WHERE each screen lives */
+  .browser{border:1px solid var(--line); border-radius:10px; overflow:hidden; background:var(--surface);}
+  .chrome{display:flex; align-items:center; gap:12px; padding:10px 14px; background:var(--raised); border-bottom:1px solid var(--line);}
+  .dots{display:flex; gap:6px;} .dots i{width:10px; height:10px; border-radius:50%; background:var(--line); display:block;}
+  .urlbar{flex:1; font-family:var(--mono); font-size:12px; color:var(--dim); background:var(--ground);
+    border:1px solid var(--line); border-radius:6px; padding:7px 12px; display:flex; gap:8px; align-items:center; min-width:0;}
+  .urlbar .lock{color:var(--mint);} .urlbar .host{color:var(--ink);} .urlbar .lan{color:var(--gold);}
+  .netnote{font-family:var(--mono); font-size:9.5px; letter-spacing:.12em; text-transform:uppercase; white-space:nowrap;}
+  .netnote.cloud{color:var(--mint);} .netnote.lan{color:var(--gold);}
+
+  .view{display:none; padding:34px clamp(18px,4vw,44px) 44px;}
+  .view.active{display:block;}
+
+  /* shared bits */
+  .eyebrow{font-family:var(--mono); font-size:10px; letter-spacing:.22em; text-transform:uppercase; color:var(--faint); margin:0 0 10px;}
+  .btn{display:inline-block; font-weight:700; font-size:13.5px; border-radius:6px; padding:11px 20px; cursor:pointer; border:1px solid var(--line); color:var(--ink); background:var(--raised);}
+  .btn.primary{background:linear-gradient(90deg,var(--sun-a),var(--sun-b)); border:none; color:#1b0710;}
+  .btn.mint{background:var(--mint); border:none; color:var(--ground);}
+  .btn:focus-visible{outline:2px solid var(--gold); outline-offset:2px;}
+  .pill{font-family:var(--mono); font-size:9.5px; letter-spacing:.1em; text-transform:uppercase; border-radius:99px; padding:4px 11px; display:inline-block;}
+  .pill.ok{color:var(--ground); background:var(--mint);}
+  .pill.warn{color:var(--ground); background:var(--gold);}
+  .pill.ghost{color:var(--dim); border:1px solid var(--line);}
+
+  /* ══ VIEW 1 · PLANS ══ */
+  .plans-hero{text-align:center; max-width:64ch; margin:0 auto 34px;}
+  .plans-hero h2{font-size:clamp(26px,4vw,44px); font-weight:850; letter-spacing:-.035em; line-height:1.05; margin:0 0 12px; text-wrap:balance;}
+  .plans-hero h2 em{font-style:normal; color:var(--mint);}
+  .plans-hero p{color:var(--dim); margin:0; font-size:15.5px;}
+  .tiers{display:grid; grid-template-columns:repeat(auto-fit,minmax(250px,1fr)); gap:16px; align-items:stretch;}
+  .tier{background:var(--raised); border:1px solid var(--line); border-radius:10px; padding:26px 24px; display:flex; flex-direction:column; gap:0;}
+  .tier.feature{border-color:var(--mint); position:relative;}
+  .tier.feature::before{content:"MOST VENUES"; position:absolute; top:-9px; left:24px; font-family:var(--mono); font-size:8.5px;
+    letter-spacing:.16em; color:var(--ground); background:var(--mint); border-radius:3px; padding:3px 9px;}
+  .tier h3{margin:0 0 2px; font-size:19px; font-weight:800; letter-spacing:-.01em;}
+  .tier .for{color:var(--faint); font-size:12.5px; margin-bottom:16px;}
+  .price{font-family:var(--mono); font-variant-numeric:tabular-nums; margin-bottom:4px;}
+  .price b{font-size:30px; font-weight:700; letter-spacing:-.02em;}
+  .price span{color:var(--dim); font-size:12px;}
+  .price-note{font-size:11px; color:var(--faint); margin-bottom:18px; font-family:var(--mono);}
+  .tier ul{list-style:none; margin:0 0 22px; padding:0; display:grid; gap:9px; font-size:13.5px; color:#cfcadb;}
+  .tier li::before{content:"✓ "; color:var(--mint); font-weight:700;}
+  .tier li.gold::before{content:"★ "; color:var(--gold);}
+  .tier .btn{margin-top:auto; text-align:center;}
+  .plans-floor{display:flex; gap:26px; flex-wrap:wrap; justify-content:center; margin-top:30px;
+    font-family:var(--mono); font-size:11px; color:var(--dim); text-align:center;}
+  .plans-floor b{color:var(--mint); font-weight:500;}
+
+  /* ══ VIEW 2 · DASHBOARD ══ */
+  .dash-top{display:flex; justify-content:space-between; align-items:flex-start; gap:16px; flex-wrap:wrap; margin-bottom:24px;}
+  .dash-top h2{margin:0; font-size:24px; font-weight:800; letter-spacing:-.02em;}
+  .dash-top .org{color:var(--faint); font-size:12.5px; font-family:var(--mono); margin-top:3px;}
+  .grid{display:grid; grid-template-columns:repeat(auto-fit,minmax(300px,1fr)); gap:14px;}
+  .card{background:var(--raised); border:1px solid var(--line); border-radius:9px; padding:20px 22px;}
+  .card h4{margin:0 0 14px; font-size:11px; font-family:var(--mono); letter-spacing:.16em; text-transform:uppercase; color:var(--dim); font-weight:500;
+    display:flex; justify-content:space-between; align-items:center; gap:10px;}
+  .kv{display:grid; grid-template-columns:auto 1fr; gap:7px 18px; font-size:13.5px;}
+  .kv dt{color:var(--faint);} .kv dd{margin:0; text-align:right; font-variant-numeric:tabular-nums;}
+  .kv dd.m{font-family:var(--mono); font-size:12.5px;}
+  .big{font-size:30px; font-weight:800; letter-spacing:-.02em; line-height:1; font-variant-numeric:tabular-nums;}
+  .big small{font-size:12px; color:var(--faint); font-weight:400; letter-spacing:0;}
+  .statusline{display:flex; align-items:center; gap:8px; font-size:13.5px; margin-bottom:10px;}
+  .led{width:8px; height:8px; border-radius:50%; background:var(--mint); box-shadow:0 0 8px var(--mint);}
+  .led.amber{background:var(--gold); box-shadow:0 0 8px var(--gold);}
+  .card .foot{margin-top:14px; padding-top:12px; border-top:1px solid var(--line-soft); font-size:12px; color:var(--faint); display:flex; justify-content:space-between; gap:10px; flex-wrap:wrap; align-items:center;}
+  .claimbox{display:flex; gap:10px; margin-top:6px; flex-wrap:wrap;}
+  .claimbox input{flex:1; min-width:150px; font-family:var(--mono); font-size:14px; letter-spacing:.14em; color:var(--ink);
+    background:var(--ground); border:1px solid var(--line); border-radius:6px; padding:11px 14px;}
+  .claimbox input::placeholder{color:var(--faint); letter-spacing:.1em;}
+  .claimbox input:focus-visible{outline:2px solid var(--mint); outline-offset:1px;}
+  .unlimited{background:linear-gradient(90deg,rgba(255,107,157,.12),rgba(255,158,94,.12)); border:1px solid rgba(255,158,94,.35);
+    border-radius:8px; padding:13px 16px; font-size:13px; margin-top:14px;}
+  .unlimited b{color:var(--gold);}
+
+  /* ══ VIEW 3 · GATEWAY PORTAL ══ */
+  .gw{font-family:var(--mono);}
+  .gw-head{display:flex; justify-content:space-between; align-items:center; gap:14px; flex-wrap:wrap;
+    padding-bottom:16px; border-bottom:1px solid var(--line); margin-bottom:22px;}
+  .gw-head .id{font-size:15px; letter-spacing:.04em;}
+  .gw-head .id b{color:var(--mint); font-weight:700;}
+  .gw-head .sub{font-size:10.5px; color:var(--faint); margin-top:3px;}
+  .gw-grid{display:grid; grid-template-columns:repeat(auto-fit,minmax(280px,1fr)); gap:12px;}
+  .gw-card{background:var(--ground); border:1px solid var(--line); border-radius:6px; padding:16px 18px; font-size:12px;}
+  .gw-card h5{margin:0 0 12px; font-size:9.5px; letter-spacing:.2em; color:var(--faint); font-weight:500; text-transform:uppercase;}
+  .gw-row{display:flex; justify-content:space-between; gap:12px; padding:5px 0; border-bottom:1px dashed var(--line-soft);}
+  .gw-row:last-child{border-bottom:0;}
+  .gw-row .k{color:var(--dim);} .gw-row .v{color:var(--ink); text-align:right; font-variant-numeric:tabular-nums;}
+  .gw-row .v.ok{color:var(--mint);} .gw-row .v.warn{color:var(--gold);}
+  .gw-actions{display:flex; gap:10px; margin-top:20px; flex-wrap:wrap;}
+  .gw-actions .btn{font-family:var(--mono); font-size:11.5px; font-weight:500;}
+  .gw-note{margin-top:18px; border-left:2px solid var(--gold); padding:10px 14px; font-size:11px; color:var(--dim); line-height:1.7; background:var(--surface); border-radius:0 6px 6px 0;}
+  .gw-note b{color:var(--gold); font-weight:500;}
+
+  .explain{margin-top:16px; font-size:12.5px; color:var(--faint); font-family:var(--mono); line-height:1.7;}
+  .explain b{color:var(--dim); font-weight:500;}
+  @media (prefers-reduced-motion:reduce){ .led{box-shadow:none;} }
+</style>
+
+<div class="page"><div class="shell">
+
+  <div class="mockhead">
+    <h1>How the money side <em>looks</em></h1>
+    <span class="mocktag">Mockup · prices illustrative</span>
+    <p>Three screens, two worlds. The first two live at <b>loc8.com</b> on the internet — where the venue chooses a plan and manages its account. The third lives at <b>loc8-gateway.local</b> — the router-style page on the box itself, reachable only inside the venue. Click the tabs.</p>
+  </div>
+
+  <div class="tabs" role="tablist">
+    <button aria-pressed="true"  data-v="v1">1 · loc8.com — Plans</button>
+    <button aria-pressed="false" data-v="v2">2 · loc8.com — Venue account</button>
+    <button aria-pressed="false" data-v="v3">3 · Gateway portal (on the box)</button>
+  </div>
+
+  <div class="browser">
+    <div class="chrome">
+      <div class="dots"><i></i><i></i><i></i></div>
+      <div class="urlbar" id="urlbar"><span class="lock">🔒</span><span class="host" id="url">loc8.com/plans</span></div>
+      <span class="netnote cloud" id="netnote">internet · anywhere</span>
+    </div>
+
+    <!-- ══════════ VIEW 1 — PLANS ══════════ -->
+    <section class="view active" id="v1">
+      <div class="plans-hero">
+        <p class="eyebrow">For venues · staff bring their own phones</p>
+        <h2>Your whole security operation.<br><em>Unlimited staff.</em> One subscription.</h2>
+        <p>Kit included and swapped free. Runs with the internet unplugged. Cancel monthly — the boxes come back, your record doesn't disappear.</p>
+      </div>
+
+      <div class="tiers">
+        <div class="tier">
+          <h3>Club</h3><div class="for">Nightclubs · halls · single rooms up to ~2,000 cap</div>
+          <div class="price"><b>£199</b> <span>/month</span></div>
+          <div class="price-note">illustrative — pre-pilot pricing TBC</div>
+          <ul>
+            <li class="gold">Unlimited staff on Guard</li>
+            <li>Gateway included (we own, we swap)</li>
+            <li>Command on your own laptop</li>
+            <li>Play-by-play incident record</li>
+            <li>Muster board that names who's missing</li>
+            <li>Works with zero internet</li>
+          </ul>
+          <button class="btn">Start with your venue</button>
+        </div>
+
+        <div class="tier feature">
+          <h3>Festival</h3><div class="for">Outdoor sites · multi-zone · seasonal</div>
+          <div class="price"><b>£1,490</b> <span>/event</span></div>
+          <div class="price-note">illustrative — sized per site plan</div>
+          <ul>
+            <li class="gold">Everything in Club</li>
+            <li>6–12 listening anchors, placed to a plan</li>
+            <li>Long-range trunk across car parks &amp; campsites</li>
+            <li>Walk-tested coverage, signed off against criteria</li>
+            <li>Consumer app amplified site-wide, free</li>
+          </ul>
+          <button class="btn primary">Plan my site</button>
+        </div>
+
+        <div class="tier">
+          <h3>Stadium</h3><div class="for">Arenas · stadia · annual calendars</div>
+          <div class="price"><b>Annual</b> <span>· quoted after RF survey</span></div>
+          <div class="price-note">multi-site orgs get the HQ dashboard</div>
+          <ul>
+            <li class="gold">Everything in Festival</li>
+            <li>12–24 anchors, professional RF survey</li>
+            <li>Concourse, backstage &amp; welfare zones</li>
+            <li>HQ portfolio view across your venues</li>
+            <li>Named support &amp; show-day cover</li>
+          </ul>
+          <button class="btn">Talk to us</button>
+        </div>
+      </div>
+
+      <div class="plans-floor">
+        <span>No per-radio hire — <b>every steward's phone is the radio</b></span>
+        <span>Billing trouble never switches off safety — <b>cloud pauses, the venue keeps running</b></span>
+        <span>Supplements — never replaces — <b>emergency services &amp; venue procedure</b></span>
+      </div>
+    </section>
+
+    <!-- ══════════ VIEW 2 — VENUE ACCOUNT ══════════ -->
+    <section class="view" id="v2">
+      <div class="dash-top">
+        <div>
+          <h2>The Warehouse Project</h2>
+          <div class="org">VELVET UNDERWORKS LTD · site 1 of 1 · Club plan</div>
+        </div>
+        <span class="pill ok">Subscription active</span>
+      </div>
+
+      <div class="grid">
+        <div class="card">
+          <h4>Subscription <span class="pill ghost">Manage billing</span></h4>
+          <dl class="kv">
+            <dt>Plan</dt><dd>Club · monthly</dd>
+            <dt>Next invoice</dt><dd class="m">1 Aug 2026 · £199.00</dd>
+            <dt>Payment</dt><dd class="m">Visa ·· 4421</dd>
+            <dt>Since</dt><dd class="m">Mar 2026</dd>
+          </dl>
+          <div class="foot"><span>Invoices &amp; VAT receipts</span><span>→</span></div>
+        </div>
+
+        <div class="card">
+          <h4>Your kit <span class="pill ok">All online</span></h4>
+          <div class="statusline"><span class="led"></span> Gateway <b style="font-family:var(--mono); font-size:12.5px;">LC8-GW-4F2A</b></div>
+          <dl class="kv">
+            <dt>Heartbeat</dt><dd class="m">2 min ago</dd>
+            <dt>Firmware</dt><dd class="m">1.4.2 · auto</dd>
+            <dt>Power</dt><dd class="m">mains · battery 100%</dd>
+            <dt>Anchors</dt><dd class="m">0 · <span style="color:var(--mint)">add anchors →</span></dd>
+          </dl>
+          <div class="foot"><span>Box fault? We ship a swap — unscrew, screw, done.</span></div>
+        </div>
+
+        <div class="card">
+          <h4>Staff</h4>
+          <div class="big">26 <small>provisioned</small> &nbsp;·&nbsp; 9 <small>on shift now</small></div>
+          <div class="unlimited"><b>Unlimited staff — included.</b> Guards join by scanning tonight's shift QR in Command. No per-seat charges, ever: pricing that punishes safety cover isn't pricing we'll write.</div>
+          <div class="foot"><span>Print tonight's shift QR</span><span>→</span></div>
+        </div>
+
+        <div class="card">
+          <h4>Tonight's readiness</h4>
+          <dl class="kv">
+            <dt>Muster board</dt><dd style="color:var(--mint)">ready · 3 zones</dd>
+            <dt>Audit log</dt><dd class="m">1,284 entries · chain ✓</dd>
+            <dt>Last incident</dt><dd class="m">12 Jul · resolved 9 min</dd>
+            <dt>Command consoles</dt><dd class="m">2 paired</dd>
+          </dl>
+          <div class="foot"><span>Export record (for licensing / insurer)</span><span>→</span></div>
+        </div>
+
+        <div class="card" style="grid-column:1/-1;">
+          <h4>Add a device to this site</h4>
+          <div style="font-size:13.5px; color:var(--dim); max-width:64ch;">Every box ships with a claim code on the chassis. Scan it or type it — the device binds to <b style="color:var(--ink)">Velvet Underworks Ltd</b> and appears above within a minute.</div>
+          <div class="claimbox">
+            <input placeholder="LC8-XXXX-XXXX-XXXX" aria-label="Device claim code">
+            <button class="btn mint">Claim device</button>
+            <button class="btn">Scan QR instead</button>
+          </div>
+        </div>
+      </div>
+
+      <p class="explain"><b>What this page is:</b> the account the venue pays with — plan, kit fleet, staff overview, exports. <b>What it is not:</b> the operations screen. Live SOS, dispatch and muster happen in Command, on the venue's own network, and keep working if this page — or the whole internet — goes away.</p>
+    </section>
+
+    <!-- ══════════ VIEW 3 — GATEWAY PORTAL ══════════ -->
+    <section class="view gw" id="v3">
+      <div class="gw-head">
+        <div>
+          <div class="id">◈ <b>LOC8 GATEWAY</b> · LC8-GW-4F2A</div>
+          <div class="sub">service portal · signed in as installer · session 12 min</div>
+        </div>
+        <span class="pill ok">All systems go</span>
+      </div>
+
+      <div class="gw-grid">
+        <div class="gw-card">
+          <h5>Identity &amp; claim</h5>
+          <div class="gw-row"><span class="k">claimed by</span><span class="v">Velvet Underworks Ltd</span></div>
+          <div class="gw-row"><span class="k">site</span><span class="v">The Warehouse Project</span></div>
+          <div class="gw-row"><span class="k">claimed</span><span class="v">14 Mar 2026</span></div>
+          <div class="gw-row"><span class="k">release claim</span><span class="v warn">requires account login</span></div>
+        </div>
+
+        <div class="gw-card">
+          <h5>Health</h5>
+          <div class="gw-row"><span class="k">daemons</span><span class="v ok">6 / 6 running</span></div>
+          <div class="gw-row"><span class="k">site database</span><span class="v">312 MB · WAL ✓</span></div>
+          <div class="gw-row"><span class="k">audit chain</span><span class="v ok">verified 04:00</span></div>
+          <div class="gw-row"><span class="k">power</span><span class="v">mains · batt 100%</span></div>
+          <div class="gw-row"><span class="k">temperature</span><span class="v">41°C</span></div>
+        </div>
+
+        <div class="gw-card">
+          <h5>Network</h5>
+          <div class="gw-row"><span class="k">LAN</span><span class="v ok">eth0 · PoE · 10.0.8.4</span></div>
+          <div class="gw-row"><span class="k">uplink</span><span class="v">via venue router</span></div>
+          <div class="gw-row"><span class="k">last cloud sync</span><span class="v">6 min ago</span></div>
+          <div class="gw-row"><span class="k">mesh</span><span class="v ok">advertising · relaying</span></div>
+          <div class="gw-row"><span class="k">consoles paired</span><span class="v">2</span></div>
+        </div>
+      </div>
+
+      <div class="gw-actions">
+        <button class="btn">Download diagnostics</button>
+        <button class="btn">Network settings</button>
+        <button class="btn">Check for update</button>
+        <button class="btn" style="color:var(--alert); border-color:var(--alert);">Reboot</button>
+      </div>
+
+      <div class="gw-note"><b>This page is the plumbing.</b> It exists for install day and the rare bad day — reachable only on the venue's own network, signed in with the installer PIN printed on the chassis. Operators never come here: their screen is Command. Billing never happens here: that's the account at loc8.com. One box, three cleanly separated doors.</div>
+    </section>
+  </div>
+
+</div></div>
+
+<script>
+  const views = {v1:"loc8.com/plans", v2:"loc8.com/account/warehouse-project", v3:"loc8-gateway.local"};
+  document.querySelectorAll(".tabs button").forEach(btn => {
+    btn.addEventListener("click", () => {
+      document.querySelectorAll(".tabs button").forEach(b => b.setAttribute("aria-pressed", b===btn ? "true":"false"));
+      document.querySelectorAll(".view").forEach(v => v.classList.remove("active"));
+      const id = btn.dataset.v;
+      document.getElementById(id).classList.add("active");
+      document.getElementById("url").textContent = views[id];
+      const note = document.getElementById("netnote");
+      if (id === "v3"){ note.textContent = "venue LAN only · installer PIN"; note.className = "netnote lan"; document.getElementById("url").className = "host lan"; }
+      else { note.textContent = "internet · anywhere"; note.className = "netnote cloud"; document.getElementById("url").className = "host"; }
+    });
+  });
+</script>
