@@ -28,15 +28,38 @@ and the marketing.
 **Venues pay a subscription** for the professional tier: Guard + Command + the
 hardware kit + support.
 
-## The kits
+## Pricing architecture (revised 2026-07-21 — the £1,490 lesson)
 
-| Kit | Contents | Hardware bill to us | Illustrative price |
-|---|---|---|---|
-| **Club** | Gateway + Guard + Command | ~£90 | ~£150–250/month |
-| **Festival** | Club kit + 6–12 anchors + LoRa trunk | ~£500–900 | per-event pricing |
-| **Stadium** | Festival kit scaled, 12–24 anchors, RF survey | ~£1,000–2,000 | annual contract |
+**Rule one: price the service and the labour, not the boxes.** The first
+illustrative festival price (£1,490/event) was anchored on ~£700 of hardware
+and would have *lost* £2–3k per event once survey, install (2 techs × 2 days),
+derig, show-day support and travel were counted (~£3,000–4,800 true cost to
+serve). The boxes are the cheapest part of the service.
 
-Hardware pays for itself in weeks; the margin is the service.
+Three layers — this is the add/subtract system:
+
+**1. Platform (recurring, per site).** Gateway + Command + Guard + the record
++ updates + swap-on-failure. Tier is defined by **venue scale**, not staff:
+
+| Tier | Sized for | Illustrative price |
+|---|---|---|
+| **Club** | venues to ~2,000 cap | **£299/month** — deliberately cheap: the land-and-expand door (one guard-night costs a venue ~£150) |
+| **Festival** | sites to ~20,000 | **from £3,500/event** (£2,500 small one-dayers → £8k+ multi-zone); survey ~£750 one-time first year |
+| **Stadium** | beyond; annual calendars | **annual from ~£18k**, quoted after RF survey |
+
+**2. Add-ons (metered):** anchors per-unit (monthly or per-event, placement
+included) · LoRa trunk · LTE failover · insurer/licensing report pack
+(the record is included; the lawyer-ready export is billable) · HQ dashboard
+free at 2+ sites (it drives multi-site).
+
+**3. Services (one-time / day-rate, at cost +50–100%):** survey, install,
+derig, training, show-day on-site tech. Never silently bundled into the
+platform fee — that was the £1,490 mistake.
+
+Platform revenue is near-pure margin once a site is claimed (hardware
+amortises in ~2 months at Club pricing). **Founding-venue pricing:** the first
+3–5 customers get explicit, labelled discounts in exchange for case studies —
+so early prices never anchor the market. North-star metric: **claimed sites**.
 
 ## Rent, don't sell — decided 2026-07-21
 
@@ -84,15 +107,24 @@ off the claimed Gateway.
 - **Never** disable SOS/muster over an invoice. Say this to venues out loud —
   it's a trust point.
 
-**Staff policy: UNLIMITED, and it's a selling point.** The gating mechanism
-exists (the Gateway signs every shift token, so concurrent staff is countable
-and cappable) — but we do not price per seat: (1) radio hire charges ~£25–50
-per handset per event; "every steward's phone is the radio, unlimited" attacks
-the incumbent's cost structure directly; (2) per-seat pricing on safety creates
-the perverse incentive to under-cover — never build pricing where the customer
-saves money by being less safe; (3) Martyn's Law pushes venues toward *more*
-staff coverage — don't tax what regulation demands. Cap capability is retained
-for abuse prevention only.
+**Staff policy (refined 2026-07-21): never per-seat; tier by venue scale.**
+The promise, kept in every tier: *"No per-seat charges — ever. No guard is
+ever locked out of a shift."* Reasons: (1) radio hire charges ~£25–50 per
+handset per event — "every steward's phone is the radio" attacks that cost
+structure directly; (2) per-seat pricing on safety creates the perverse
+incentive to under-cover — never build pricing where the customer saves money
+by being less safe; (3) Martyn's Law pushes venues toward *more* coverage —
+don't tax what regulation demands.
+
+How value is still captured: **the tier is sized by venue capacity** (Club
+~2,000 / Festival ~20,000 / Stadium beyond) — staff count follows venue size
+naturally, so capacity does the pricing work without metering a safety seat.
+Enforcement is **soft**: the Gateway signs every shift token so usage is
+countable; an account consistently operating like the tier above is moved up
+at renewal ("true-up"), never locked out mid-shift. The hard cap capability
+stays in the drawer for abuse only. Positioning note: "no per-seat charges" is
+the pricing weapon; the *selling points* remain the record, the muster board,
+and measured coverage.
 
 **Mockup of all three money-side screens:**
 `design/loc8-account-portal.html` (pricing page, venue dashboard with claim
