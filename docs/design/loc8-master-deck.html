@@ -1,0 +1,519 @@
+<title>Loc8 — The Whole Thing</title>
+<style>
+  :root{
+    --ground:#08070d; --panel:#100e17; --raised:#171422; --line:#241f33; --soft:#1a1626;
+    --ink:#ecEAF2; --dim:#9a93a8; --faint:#645d76;
+    --mint:#7bf0c9; --gold:#f5c64f; --alert:#ff5470; --violet:#b98cff;
+    --sun-a:#ff6b9d; --sun-b:#ff9e5e;
+    --mono:ui-monospace,"SF Mono",Menlo,monospace;
+    --sans:-apple-system,"Helvetica Neue","Segoe UI",system-ui,sans-serif;
+  }
+  *{box-sizing:border-box;}
+  body,.deck{background:var(--ground); margin:0;}
+  .deck{color:var(--ink); font-family:var(--sans); -webkit-font-smoothing:antialiased;}
+
+  /* ── nav ── */
+  .nav{position:sticky; top:0; z-index:50; display:flex; align-items:center; gap:14px;
+    padding:12px 20px; background:rgba(8,7,13,.94); border-bottom:1px solid var(--line); backdrop-filter:blur(10px); flex-wrap:wrap;}
+  .nav .brand{font-family:var(--mono); font-size:11px; letter-spacing:.22em; color:var(--mint);}
+  .nav .spacer{flex:1;}
+  .nav button{font-family:var(--mono); font-size:11px; color:var(--dim); background:var(--raised);
+    border:1px solid var(--line); border-radius:4px; padding:7px 13px; cursor:pointer;}
+  .nav button:hover{color:var(--ink); border-color:var(--faint);}
+  .nav button:focus-visible{outline:2px solid var(--gold); outline-offset:2px;}
+  .counter{font-family:var(--mono); font-size:11px; color:var(--faint); font-variant-numeric:tabular-nums; white-space:nowrap;}
+  .jump{font-family:var(--mono); font-size:11px; background:var(--raised); color:var(--dim);
+    border:1px solid var(--line); border-radius:4px; padding:7px 10px; max-width:230px;}
+
+  /* ── slides ── */
+  .slide{display:none; min-height:calc(100vh - 54px); padding:56px clamp(20px,5vw,72px) 90px; max-width:1180px; margin:0 auto;}
+  .slide.on{display:block; animation:in .34s ease;}
+  @keyframes in{from{opacity:0; transform:translateY(10px);} to{opacity:1; transform:none;}}
+  @media (prefers-reduced-motion:reduce){ .slide.on{animation:none;} .flow{animation:none;} }
+
+  .num{font-family:var(--mono); font-size:10.5px; letter-spacing:.24em; color:var(--faint); text-transform:uppercase; margin:0 0 18px;}
+  h1{font-size:clamp(34px,6.4vw,76px); font-weight:850; letter-spacing:-.045em; line-height:.97; margin:0 0 22px; text-wrap:balance;}
+  h1 .g{background:linear-gradient(92deg,var(--sun-a),var(--sun-b)); -webkit-background-clip:text; background-clip:text; color:transparent;}
+  h1 .m{color:var(--mint);}
+  h2{font-size:clamp(26px,3.9vw,46px); font-weight:800; letter-spacing:-.032em; line-height:1.05; margin:0 0 16px; text-wrap:balance;}
+  h2 .m{color:var(--mint);} h2 .a{color:var(--alert);} h2 .gd{color:var(--gold);}
+  .lede{font-size:clamp(16px,2vw,21px); color:#cfcadb; max-width:60ch; line-height:1.5; margin:0 0 30px;}
+  .lede b{color:var(--ink);}
+  p{line-height:1.6;}
+
+  .kicker{font-family:var(--mono); font-size:12px; letter-spacing:.05em; color:var(--mint);
+    border-left:2px solid var(--mint); padding-left:15px; margin:26px 0; max-width:64ch; line-height:1.8;}
+  .kicker.gd{color:var(--gold); border-color:var(--gold);}
+  .kicker.a{color:var(--alert); border-color:var(--alert);}
+
+  .grid{display:grid; gap:14px; margin:26px 0;}
+  .g2{grid-template-columns:repeat(auto-fit,minmax(280px,1fr));}
+  .g3{grid-template-columns:repeat(auto-fit,minmax(230px,1fr));}
+  .card{background:var(--panel); border:1px solid var(--line); border-radius:8px; padding:22px; position:relative; overflow:hidden;}
+  .card::before{content:""; position:absolute; inset:0 auto 0 0; width:2px; background:var(--faint);}
+  .card.m::before{background:var(--mint);} .card.g::before{background:var(--gold);}
+  .card.a::before{background:var(--alert);} .card.v::before{background:var(--violet);}
+  .card h4{margin:0 0 8px; font-size:17px; font-weight:750; letter-spacing:-.012em;}
+  .card p{margin:0; font-size:13.5px; color:#c6c0d2;}
+  .card .big{font-size:34px; font-weight:850; letter-spacing:-.03em; line-height:1; margin-bottom:6px; font-variant-numeric:tabular-nums;}
+  .card .big.m{color:var(--mint);} .card .big.g{color:var(--gold);} .card .big.a{color:var(--alert);}
+
+  figure{margin:24px 0; background:var(--panel); border:1px solid var(--line); border-radius:8px; padding:24px;}
+  figure svg{width:100%; height:auto; display:block;}
+  figcaption{font-family:var(--mono); font-size:11px; color:var(--faint); margin-top:16px; padding-top:13px;
+    border-top:1px solid var(--soft); line-height:1.75;}
+  figcaption b{color:var(--dim); font-weight:500;}
+
+  .tw{overflow-x:auto; margin:24px 0; border:1px solid var(--line); border-radius:8px;}
+  table{border-collapse:collapse; width:100%; min-width:520px; font-size:14px;}
+  th{text-align:left; font-family:var(--mono); font-size:9.5px; letter-spacing:.15em; text-transform:uppercase;
+    color:var(--dim); font-weight:500; padding:13px 17px; background:var(--raised); border-bottom:1px solid var(--line); white-space:nowrap;}
+  td{padding:13px 17px; border-bottom:1px solid var(--soft); vertical-align:top; color:#c6c0d2;}
+  tr:last-child td{border-bottom:0;}
+  td strong{color:var(--ink);} td.m{font-family:var(--mono); font-size:12.5px; white-space:nowrap; font-variant-numeric:tabular-nums;}
+  .ok{color:var(--mint);} .no{color:var(--alert);} .warn{color:var(--gold);}
+
+  ol.steps{list-style:none; counter-reset:s; padding:0; margin:24px 0;}
+  ol.steps li{counter-increment:s; position:relative; padding-left:48px; margin-bottom:16px; font-size:15px; color:#c6c0d2;}
+  ol.steps li::before{content:counter(s); position:absolute; left:0; top:-1px; width:30px; height:30px;
+    display:grid; place-items:center; font-family:var(--mono); font-size:12px; color:var(--mint);
+    border:1px solid var(--line); border-radius:50%; background:var(--panel);}
+  ol.steps li b{color:var(--ink);}
+
+  .foot{position:fixed; bottom:0; left:0; right:0; padding:11px 22px; background:rgba(8,7,13,.94);
+    border-top:1px solid var(--line); font-family:var(--mono); font-size:10px; letter-spacing:.1em;
+    color:var(--faint); display:flex; justify-content:space-between; gap:14px; backdrop-filter:blur(10px);}
+  .flow{stroke-dasharray:5 6; animation:fl 1.5s linear infinite;}
+  @keyframes fl{to{stroke-dashoffset:-22;}}
+  @keyframes pg{0%{r:5;opacity:.9;} 100%{r:30;opacity:0;}}
+  .ping{animation:pg 2.6s ease-out infinite;}
+</style>
+
+<div class="deck">
+<div class="nav">
+  <span class="brand">◈ LOC8</span>
+  <select class="jump" id="jump" aria-label="Jump to slide"></select>
+  <span class="spacer"></span>
+  <button id="prev">← Prev</button>
+  <button id="next">Next →</button>
+  <span class="counter"><span id="cur">1</span> / <span id="tot">18</span></span>
+</div>
+
+<!-- 01 ───────────────────────────────────────── -->
+<section class="slide on" data-t="Title">
+  <p class="num">The whole thing · 2026-07-21</p>
+  <h1>Find your people<br>when the network is <span class="g">dead</span>.</h1>
+  <p class="lede">Loc8 is an offline friend-finder. No signal, no wifi, no accounts, no servers. It works because <b>every phone running it quietly relays for every other phone</b> — including strangers'. The crowd itself is the network.</p>
+  <p class="kicker">This deck is everything: how it works, what's built, what isn't, what we decided and why.<br>Read it end to end and you'll know as much as anyone does.</p>
+</section>
+
+<!-- 02 ───────────────────────────────────────── -->
+<section class="slide" data-t="The core idea">
+  <p class="num">01 · The idea</p>
+  <h2>Everyone else fights the crowd.<br><span class="m">We use it.</span></h2>
+  <p class="lede">Every system for finding people at scale degrades as the crowd gets denser — more bodies, more interference, more congestion. Loc8 is the opposite: <b>more people means more relays means better coverage.</b></p>
+  <div class="grid g3">
+    <div class="card m"><div class="big m">0</div><h4>Infrastructure needed</h4><p>Two people in an empty field with the app installed have a working network.</p></div>
+    <div class="card m"><div class="big m">∞</div><h4>Listeners per message</h4><p>Broadcast, not connection. Nobody pairs with anything, so there's no device limit.</p></div>
+    <div class="card m"><div class="big m">25</div><h4>Bytes per message</h4><p>Who, where, heading, floor, battery, time, accuracy. Tiny on purpose.</p></div>
+  </div>
+  <p class="kicker">No pairing. No connections. No handshake. A phone just shouts, and whatever is nearby hears it — which is exactly why <b>strangers can relay for you without ever agreeing to anything.</b></p>
+</section>
+
+<!-- 03 ───────────────────────────────────────── -->
+<section class="slide" data-t="How a message travels">
+  <p class="num">02 · How it travels</p>
+  <h2>It's a ripple, not an arrow</h2>
+  <p class="lede">Radio has no direction. When your phone transmits, <b>every</b> phone in range hears it — and each of those repeats it in every direction too. The message expands as a wave, like a stone dropped in a pond.</p>
+  <figure>
+    <svg viewBox="0 0 1000 300" role="img" aria-label="A message expanding outward through a crowd in rings">
+      <g font-family="ui-monospace,monospace">
+        <circle cx="150" cy="150" r="13" fill="#100e17" stroke="#ff6b9d" stroke-width="1.6"/>
+        <circle cx="150" cy="150" r="5" fill="none" stroke="#ff6b9d" class="ping"/>
+        <g fill="none" stroke="#7bf0c9" opacity=".3"><circle cx="150" cy="150" r="55"/><circle cx="150" cy="150" r="100"/><circle cx="150" cy="150" r="145"/></g>
+        <g fill="#100e17" stroke="#7bf0c9" stroke-width="1.1">
+          <circle cx="205" cy="122" r="9"/><circle cx="198" cy="186" r="9"/><circle cx="160" cy="95" r="9"/><circle cx="142" cy="208" r="9"/>
+          <circle cx="252" cy="150" r="9"/><circle cx="240" cy="97" r="9"/><circle cx="236" cy="205" r="9"/><circle cx="105" cy="105" r="9"/><circle cx="98" cy="196" r="9"/>
+          <circle cx="296" cy="128" r="9"/><circle cx="292" cy="180" r="9"/><circle cx="150" cy="60" r="9"/><circle cx="150" cy="242" r="9"/>
+        </g>
+        <text x="150" y="285" fill="#9a93a8" font-size="11" text-anchor="middle">every neighbour repeats it, in every direction</text>
+        <g stroke="#241f33" stroke-dasharray="3 5"><line x1="380" y1="40" x2="380" y2="260"/></g>
+        <text x="430" y="70" fill="#f5c64f" font-size="12" letter-spacing="2">SO WHAT STOPS IT?</text>
+        <g font-size="13" fill="#c6c0d2">
+          <text x="430" y="108">Two things, and both are deliberate:</text>
+          <text x="430" y="146" fill="#7bf0c9">1 · Hop limit — 7 rings, then it stops</text>
+          <text x="450" y="168" fill="#9a93a8" font-size="11.5">unlimited relaying would drown the air in old messages</text>
+          <text x="430" y="204" fill="#7bf0c9">2 · Dedup — nobody repeats the same message twice</text>
+          <text x="450" y="226" fill="#9a93a8" font-size="11.5">stops it echoing round the crowd forever</text>
+        </g>
+      </g>
+    </svg>
+    <figcaption><b>Nothing is "used up" going the wrong way.</b> A friend to your right receives it via the phones on the right, at the same moment it's spreading left and behind. The 7-hop limit means the ripple can expand seven rings outward — not that it takes seven steps in one direction.</figcaption>
+  </figure>
+</section>
+
+<!-- 04 ───────────────────────────────────────── -->
+<section class="slide" data-t="Why short range is a feature">
+  <p class="num">03 · The counterintuitive bit</p>
+  <h2>Short range isn't a limitation.<br>It's <span class="m">the mechanism.</span></h2>
+  <p class="lede">Put 10,000 people in a field. If everyone <b>shouts across the whole field</b>, nobody hears anything. If everyone <b>talks quietly to the three people next to them</b>, thousands of conversations happen at once, perfectly clearly.</p>
+  <p class="lede">Loc8 is the second one. A crowd isn't one giant argument — it's <b>thousands of tiny local neighbourhoods running in parallel.</b> Capacity scales with area rather than against it.</p>
+  <div class="grid g2">
+    <div class="card m"><h4>At ground level</h4><p>The nearest phone's signal is far stronger than distant ones, so the receiver locks onto it and decodes cleanly. Engineers call this the <b>capture effect</b>. It's why a crowd works at all.</p></div>
+    <div class="card a"><h4>Lift a receiver to 100 m</h4><p>It now hears ~31,000 phones instead of 2,000, and every signal arrives at similar strength — so they collide and cancel. <b>0.14% of messages get through.</b> Each phone heard once per 12 minutes.</p></div>
+  </div>
+  <p class="kicker a"><b>Every instinct to "improve" Loc8 by making a node hear further is an instinct to break it.</b> This is why the drone-mounted anchor idea is dead, and why you should be suspicious of anyone — including us — who proposes more range as an upgrade.</p>
+</section>
+
+<!-- 05 ───────────────────────────────────────── -->
+<section class="slide" data-t="The honest limit">
+  <p class="num">04 · The honest limit</p>
+  <h2>7 hops × 5–20 m<br>= <span class="gd">35–140 metres</span></h2>
+  <p class="lede">That's the real reach of the phone mesh in a crowd. It has to be said plainly, because it decides what the product is.</p>
+  <div class="tw"><table>
+    <thead><tr><th>Scenario</th><th>Distance</th><th>Phones alone</th></tr></thead>
+    <tbody>
+      <tr><td><strong>"Lost my mates in this crowd"</strong></td><td class="m">10–80 m</td><td class="ok">✅ Works — and this is most real use</td></tr>
+      <tr><td>"They went to the bar"</td><td class="m">50–150 m</td><td class="warn">⚠️ Marginal, depends on density</td></tr>
+      <tr><td>"I'm at the campsite, they're at main stage"</td><td class="m">500 m+</td><td class="no">❌ Does not work</td></tr>
+    </tbody>
+  </table></div>
+  <p class="lede">People don't teleport. When you lose your mates they're usually 30 m away behind a wall of people — <b>and that case genuinely works.</b> But "find anyone, anywhere on site" is not deliverable on phones alone.</p>
+  <p class="kicker gd"><b>This limitation is the business model.</b> Free app → finds people near you, anywhere on earth. Venue installs anchors → works across their whole site. The reason to pay becomes concrete instead of vague.</p>
+</section>
+
+<!-- 06 ───────────────────────────────────────── -->
+<section class="slide" data-t="The three tiers">
+  <p class="num">05 · The architecture</p>
+  <h2>Three tiers. The crowd does the work.</h2>
+  <figure>
+    <svg viewBox="0 0 1060 300" role="img" aria-label="Three tiers: crowd relay, anchors, LoRa trunk">
+      <g font-family="ui-monospace,monospace">
+        <rect x="10" y="40" width="320" height="180" rx="8" fill="#100e17" stroke="#7bf0c9" stroke-width="1.4"/>
+        <text x="170" y="30" fill="#7bf0c9" font-size="10.5" text-anchor="middle" letter-spacing="2">TIER 1 — THE CROWD</text>
+        <g fill="#100e17" stroke="#7bf0c9" stroke-width="1"><circle cx="60" cy="120" r="8"/><circle cx="105" cy="95" r="8"/><circle cx="98" cy="152" r="8"/><circle cx="150" cy="125" r="8"/><circle cx="196" cy="100" r="8"/><circle cx="188" cy="158" r="8"/><circle cx="242" cy="128" r="8"/><circle cx="285" cy="105" r="8"/><circle cx="280" cy="160" r="8"/></g>
+        <g stroke="#7bf0c9" stroke-width="1" opacity=".45" fill="none"><path d="M68,116 L98,99"/><path d="M67,126 L91,148"/><path d="M113,99 L143,120"/><path d="M106,148 L181,157"/><path d="M158,122 L188,104"/><path d="M204,104 L235,124"/><path d="M196,156 L235,132"/><path d="M250,124 L278,109"/></g>
+        <g font-size="10" fill="#9a93a8" text-anchor="middle"><text x="170" y="196">5–20 m per hop · 7 hops · ~100 m total</text><text x="170" y="212" fill="#7bf0c9">free · no hardware · works anywhere</text></g>
+
+        <rect x="360" y="40" width="290" height="180" rx="8" fill="#100e17" stroke="#b98cff" stroke-width="1.4"/>
+        <text x="505" y="30" fill="#b98cff" font-size="10.5" text-anchor="middle" letter-spacing="2">TIER 2 — ANCHORS</text>
+        <path d="M505,200 L505,110" stroke="#2b2540" stroke-width="3"/>
+        <rect x="475" y="80" width="60" height="30" rx="4" fill="#100e17" stroke="#b98cff" stroke-width="1.3"/>
+        <text x="505" y="99" fill="#b98cff" font-size="9.5" text-anchor="middle">ANCHOR</text>
+        <path d="M505,112 m-62,52 a62,62 0 0,1 124,0" fill="none" stroke="#b98cff" stroke-dasharray="4 5" opacity=".5"/>
+        <g font-size="10" fill="#9a93a8" text-anchor="middle"><text x="505" y="196">hears phones at 25–30 m in a crowd</text><text x="505" y="212" fill="#b98cff">catches the local bubble · above head height</text></g>
+
+        <rect x="680" y="40" width="370" height="180" rx="8" fill="#100e17" stroke="#f5c64f" stroke-width="1.4"/>
+        <text x="865" y="30" fill="#f5c64f" font-size="10.5" text-anchor="middle" letter-spacing="2">TIER 3 — THE TRUNK</text>
+        <rect x="706" y="120" width="52" height="26" rx="4" fill="#100e17" stroke="#f5c64f" stroke-width="1.2"/>
+        <rect x="972" y="120" width="52" height="26" rx="4" fill="#100e17" stroke="#f5c64f" stroke-width="1.2"/>
+        <path d="M760,133 C830,96 900,96 968,133" stroke="#f5c64f" stroke-width="1.5" fill="none" class="flow"/>
+        <text x="865" y="92" fill="#f5c64f" font-size="10.5" text-anchor="middle">LoRa · 1–3 km in ONE hop</text>
+        <rect x="790" y="158" width="150" height="16" fill="#100e17" stroke="#241f33" stroke-dasharray="3 4"/>
+        <text x="865" y="170" fill="#645d76" font-size="9" text-anchor="middle">empty car park — nobody to relay</text>
+        <g font-size="10" fill="#9a93a8" text-anchor="middle"><text x="865" y="196">~1% duty cycle — a thin pipe</text><text x="865" y="212" fill="#f5c64f">positions and alerts, never chat</text></g>
+
+        <text x="530" y="272" fill="#ecEAF2" font-size="13" text-anchor="middle">you → crowd (~100 m) → anchor → LoRa (km) → anchor → crowd (~100 m) → your friend</text>
+      </g>
+    </svg>
+    <figcaption><b>The phone never knows LoRa exists.</b> It physically cannot hear it — different frequency and different modulation entirely. Anchors are translators sitting between two worlds. The crowd handles local; anchors handle distance.</figcaption>
+  </figure>
+</section>
+
+<!-- 07 ───────────────────────────────────────── -->
+<section class="slide" data-t="The escalation ladder">
+  <p class="num">06 · Escalation</p>
+  <h2>Spend the cheapest resource first</h2>
+  <p class="lede">LoRa airtime is legally capped at about 1% duty cycle — it's the one genuinely scarce resource on site. So we don't reach for it until we have to.</p>
+  <div class="tw"><table>
+    <thead><tr><th>Step</th><th>Reach</th><th>Cost</th><th>Trigger</th></tr></thead>
+    <tbody>
+      <tr><td><strong>1 · Local whisper</strong></td><td class="m">~20 m, 2 hops</td><td>negligible</td><td>always first</td></tr>
+      <tr><td><strong>2 · Full local flood</strong></td><td class="m">~100 m, 7 hops</td><td>some airtime</td><td>no answer after ~2 s</td></tr>
+      <tr><td><strong>3 · Anchor tier → LoRa</strong></td><td class="m">site-wide</td><td class="warn"><strong>scarce</strong></td><td>no answer after ~10 s</td></tr>
+      <tr><td><strong>4 · Last known position</strong></td><td class="m">whatever's cached</td><td>free</td><td>nothing worked</td></tr>
+    </tbody>
+  </table></div>
+  <p class="lede">Most searches end at step 1 or 2, because people you've lost are usually nearby. This pattern is called <b>expanding ring search</b> and it's been standard in mesh routing since the 1990s.</p>
+  <p class="kicker"><b>The phone reports; the anchor decides.</b> The reply comes back to the phone, so only the phone knows for certain that a search failed. But only the anchor knows how much airtime is left this hour, and whether this is an SOS or the hundredth ping this minute. Each side contributes what only it can see.</p>
+</section>
+
+<!-- 08 ───────────────────────────────────────── -->
+<section class="slide" data-t="Never say not found">
+  <p class="num">07 · Failing well</p>
+  <h2>Never say <span class="a">"not found"</span></h2>
+  <p class="lede">When every tier fails, don't show an error. Show what we actually know, and when we knew it:</p>
+  <figure>
+    <svg viewBox="0 0 1000 150" role="img" aria-label="UI example showing last known position with age">
+      <g font-family="ui-monospace,monospace">
+        <rect x="250" y="24" width="500" height="100" rx="10" fill="#171422" stroke="#241f33"/>
+        <circle cx="300" cy="74" r="19" fill="none" stroke="#ff9e5e" stroke-width="1.6"/>
+        <text x="300" y="80" fill="#ff9e5e" font-size="15" text-anchor="middle">S</text>
+        <text x="338" y="66" fill="#ecEAF2" font-size="19" font-family="-apple-system,sans-serif" font-weight="700">Sam</text>
+        <text x="338" y="92" fill="#7bf0c9" font-size="14">340 m north-east</text>
+        <text x="710" y="80" fill="#f5c64f" font-size="14" text-anchor="end">4 minutes ago</text>
+        <rect x="250" y="118" width="500" height="3" rx="2" fill="#241f33"/>
+        <rect x="250" y="118" width="180" height="3" rx="2" fill="#f5c64f" opacity=".65"/>
+      </g>
+    </svg>
+    <figcaption><b>Still useful — it points the right way.</b> The fading bar is confidence decaying with age. This is the honest failure mode: we tell the user exactly what we know and how old it is, rather than pretending the product is broken at the moment they need it most.</figcaption>
+  </figure>
+</section>
+
+<!-- 09 ───────────────────────────────────────── -->
+<section class="slide" data-t="The hardware">
+  <p class="num">08 · Hardware</p>
+  <h2>Two boxes. That's the whole catalogue.</h2>
+  <p class="lede">The phones — which we don't make, don't buy and don't maintain — do most of the physical work. That's why one person can bootstrap this.</p>
+  <div class="grid g2">
+    <div class="card g">
+      <h4>◈ Gateway — the brain</h4>
+      <p><b>Exactly one per venue.</b> Holds the site database and the tamper-evident incident record. Feeds the control room. Also the best-placed mesh node in the building.</p>
+      <p style="margin-top:10px; color:var(--faint); font-size:12.5px;">Raspberry Pi class · ~£75–90 standard tier · rented, never sold</p>
+    </div>
+    <div class="card v">
+      <h4>⬛ Anchor — the ears</h4>
+      <p><b>Zero to dozens.</b> Stateless: if one dies, coverage shrinks and nothing is lost. Three variants share one board and one firmware — plain, +LoRa trunk, or body-worn on a steward.</p>
+      <p style="margin-top:10px; color:var(--faint); font-size:12.5px;">nRF52840 + nRF21540 · ~£65 · rented</p>
+    </div>
+  </div>
+  <div class="tw"><table>
+    <thead><tr><th>Fact that resolves most confusion</th><th>Why</th></tr></thead>
+    <tbody>
+      <tr><td><strong>The Gateway is not a big Anchor</strong></td><td>It's the brain — database, audit, PKI. The Anchor is deliberately dumb, which is what makes it cheap and disposable.</td></tr>
+      <tr><td><strong>Anchors are built to listen, not shout</strong></td><td>Transmit power is capped by law at 20 dBm. Receive gain isn't regulated at all — and hearing phones is the hard direction.</td></tr>
+      <tr><td><strong>Mounting height beats any component</strong></td><td>Getting above head height removes 15–20 dB of body-blocking. Free, and worth more than the whole amplifier.</td></tr>
+      <tr><td><strong>Phones cannot hear LoRa</strong></td><td>Different frequency <em>and</em> modulation. Anchors translate; phones only ever speak Bluetooth.</td></tr>
+    </tbody>
+  </table></div>
+</section>
+
+<!-- 10 ───────────────────────────────────────── -->
+<section class="slide" data-t="The uplink asymmetry">
+  <p class="num">09 · The trap</p>
+  <h2>Anchors <span class="m">hear</span> half as far as they <span class="gd">shout</span></h2>
+  <p class="lede">An anchor is mains-powered, mounted high, with a real antenna, transmitting at the legal ceiling. A phone whispers from inside a pocket, against a body — and a body is mostly water, which is close to the worst possible material for blocking 2.4 GHz.</p>
+  <div class="tw"><table>
+    <thead><tr><th>Link</th><th>Packed crowd</th><th>Open ground</th><th>Clear line of sight</th></tr></thead>
+    <tbody>
+      <tr><td>Anchor → phone <span style="color:var(--faint)">(downlink)</span></td><td class="m">~50 m</td><td class="m">~150–200 m</td><td class="m">up to ~1 km</td></tr>
+      <tr><td><strong>Phone → anchor</strong> <span style="color:var(--faint)">(uplink)</span></td><td class="m warn"><strong>~25–30 m</strong></td><td class="m">~80–100 m</td><td class="m">~300–500 m</td></tr>
+      <tr><td>Anchor ↔ anchor (LoRa)</td><td class="m">—</td><td class="m">1–3 km</td><td class="m">5–15 km</td></tr>
+    </tbody>
+  </table></div>
+  <p class="kicker a"><b>Plan spacing on the uplink number.</b> Space anchors using the 50 m downlink figure and you build a venue where every phone shows "connected" and nobody can be found — a failure that looks exactly like success, right up until someone actually needs finding.</p>
+</section>
+
+<!-- 11 ───────────────────────────────────────── -->
+<section class="slide" data-t="The 25-byte frame">
+  <p class="num">10 · The protocol</p>
+  <h2>25 bytes, everywhere</h2>
+  <p class="lede">One frame format on every link in the system: phone-to-phone, phone-to-anchor, across LoRa, into the Gateway, out to the control room. Same bytes throughout.</p>
+  <figure>
+    <svg viewBox="0 0 1000 130" role="img" aria-label="The 25-byte packet layout">
+      <g font-family="ui-monospace,monospace" font-size="10">
+        <g transform="translate(0,10)">
+          <rect x="0" y="0" width="38" height="44" fill="#171422" stroke="#b98cff" stroke-width="1.2"/>
+          <rect x="38" y="0" width="152" height="44" fill="#171422" stroke="#241f33"/>
+          <rect x="190" y="0" width="152" height="44" fill="#171422" stroke="#241f33"/>
+          <rect x="342" y="0" width="152" height="44" fill="#171422" stroke="#7bf0c9" stroke-width="1.2"/>
+          <rect x="494" y="0" width="152" height="44" fill="#171422" stroke="#7bf0c9" stroke-width="1.2"/>
+          <rect x="646" y="0" width="76" height="44" fill="#171422" stroke="#f5c64f" stroke-width="1.2"/>
+          <rect x="722" y="0" width="38" height="44" fill="#171422" stroke="#241f33"/>
+          <rect x="760" y="0" width="152" height="44" fill="#171422" stroke="#241f33"/>
+          <rect x="912" y="0" width="38" height="44" fill="#171422" stroke="#241f33"/>
+          <g fill="#ecEAF2" text-anchor="middle">
+            <text x="19" y="19">type</text><text x="114" y="19">senderId</text><text x="266" y="19">targetId</text>
+            <text x="418" y="19" fill="#7bf0c9">latitude</text><text x="570" y="19" fill="#7bf0c9">longitude</text>
+            <text x="684" y="19" fill="#f5c64f">hdg+floor</text><text x="741" y="19">bat</text><text x="836" y="19">timestamp</text><text x="931" y="19">acc</text>
+          </g>
+          <g fill="#645d76" text-anchor="middle" font-size="8.5">
+            <text x="19" y="36">0</text><text x="114" y="36">1–4</text><text x="266" y="36">5–8</text><text x="418" y="36">9–12</text>
+            <text x="570" y="36">13–16</text><text x="684" y="36">17–18</text><text x="741" y="36">19</text><text x="836" y="36">20–23</text><text x="931" y="36">24</text>
+          </g>
+        </g>
+        <text x="0" y="82" fill="#f5c64f" font-size="10.5" letter-spacing="1.4">FLOOR RIDES FREE INSIDE HEADING</text>
+        <text x="0" y="100" fill="#9a93a8" font-size="10">Heading needs 9 bits (0–359°); the slot is 16 bits — so the spare 7 carry a signed floor number.</text>
+        <text x="0" y="116" fill="#9a93a8" font-size="10">Vertical position costs <tspan fill="#7bf0c9">zero extra bytes</tspan> and rides every position, rally and ping frame.</text>
+      </g>
+    </svg>
+    <figcaption><b>Why it stays 25 bytes:</b> that's what fits comfortably in a single Bluetooth advertisement, which is what lets unlimited strangers hear it without connecting. The size constraint is what makes the whole model possible.</figcaption>
+  </figure>
+</section>
+
+<!-- 12 ───────────────────────────────────────── -->
+<section class="slide" data-t="The products">
+  <p class="num">11 · The products</p>
+  <h2>One engine. Four doors.</h2>
+  <p class="lede">A capability built for one door is inherited by all four. That discipline is why encryption, when it lands, lands everywhere at once — and why the ops vocabulary can't drift apart.</p>
+  <div class="grid g2">
+    <div class="card m"><h4>Loc8 — consumer</h4><p>Radar → Compass → Proximity → found. Crews joined by code or QR. No account, no server. Free.</p><p style="margin-top:8px; color:var(--mint); font-size:12px; font-family:var(--mono);">✅ BUILT</p></div>
+    <div class="card a"><h4>Loc8 Guard — staff</h4><p>Hold-to-fire SOS, dispatch, one-tap status replies, duress code, lone-worker timer, muster check-in.</p><p style="margin-top:8px; color:var(--mint); font-size:12px; font-family:var(--mono);">✅ BUILT · 8 tests</p></div>
+    <div class="card v"><h4>Loc8 Command — control room</h4><p>Incident timelines, the muster board, coverage heatmap, tamper-evident audit log, nearest-responder dispatch. Runs on any laptop; needs no Bluetooth.</p><p style="margin-top:8px; color:var(--mint); font-size:12px; font-family:var(--mono);">✅ BUILT · 52 tests</p></div>
+    <div class="card"><h4>Partner SDK — the fourth door</h4><p>The finder embedded inside somebody else's app — a venue's own app, a festival's app.</p><p style="margin-top:8px; color:var(--alert); font-size:12px; font-family:var(--mono);">🔴 UNWRITTEN</p></div>
+  </div>
+  <p class="kicker gd"><b>The capability that sells it:</b> the muster board doesn't say "12 of 14 checked in". It <b>names the two who haven't</b>, with their last known zone. In an evacuation that's the difference between a number and an answer.</p>
+</section>
+
+<!-- 13 ───────────────────────────────────────── -->
+<section class="slide" data-t="Degradation ladder">
+  <p class="num">12 · The design promise</p>
+  <h2>Every layer fails <span class="m">safe</span></h2>
+  <figure>
+    <svg viewBox="0 0 1040 210" role="img" aria-label="The degradation ladder from phones to HQ">
+      <g font-family="ui-monospace,monospace">
+        <rect x="20" y="50" width="200" height="76" rx="7" fill="#100e17" stroke="#7bf0c9" stroke-width="1.5"/>
+        <text x="120" y="82" fill="#7bf0c9" font-size="13" text-anchor="middle">PHONES</text>
+        <text x="120" y="103" fill="#645d76" font-size="9.5" text-anchor="middle">the mesh</text>
+        <rect x="270" y="50" width="200" height="76" rx="7" fill="#100e17" stroke="#f5c64f" stroke-width="1.4"/>
+        <text x="370" y="82" fill="#f5c64f" font-size="13" text-anchor="middle">GATEWAY</text>
+        <text x="370" y="103" fill="#645d76" font-size="9.5" text-anchor="middle">the record</text>
+        <rect x="520" y="50" width="200" height="76" rx="7" fill="#100e17" stroke="#b98cff" stroke-width="1.4"/>
+        <text x="620" y="82" fill="#b98cff" font-size="13" text-anchor="middle">COMMAND</text>
+        <text x="620" y="103" fill="#645d76" font-size="9.5" text-anchor="middle">the console</text>
+        <rect x="770" y="50" width="200" height="76" rx="7" fill="#100e17" stroke="#645d76" stroke-width="1.3" stroke-dasharray="5 4"/>
+        <text x="870" y="82" fill="#9a93a8" font-size="13" text-anchor="middle">HQ</text>
+        <text x="870" y="103" fill="#645d76" font-size="9.5" text-anchor="middle">the overview</text>
+        <g stroke="#241f33" stroke-width="1.4" fill="none"><path d="M220,88 L266,88"/><path d="M470,88 L516,88"/><path d="M720,88 L766,88"/></g>
+        <g font-size="10.5" text-anchor="middle">
+          <text x="870" y="160" fill="#f5c64f">HQ dark →</text><text x="870" y="176" fill="#9a93a8">site doesn't notice</text>
+          <text x="620" y="160" fill="#f5c64f">Console dark →</text><text x="620" y="176" fill="#9a93a8">mesh + record continue</text>
+          <text x="370" y="160" fill="#f5c64f">Gateway dark →</text><text x="370" y="176" fill="#9a93a8">phones still find each other</text>
+          <text x="120" y="160" fill="#7bf0c9">← safest</text><text x="120" y="176" fill="#9a93a8">needs nothing at all</text>
+        </g>
+      </g>
+    </svg>
+    <figcaption><b>Read it right to left for the failure story.</b> Remove any right-hand piece and everything to its left keeps working. This ordering is the core design promise, and any proposal that makes phones depend on infrastructure should be rejected on those grounds alone.</figcaption>
+  </figure>
+  <p class="kicker">This is also the sales line: <b>"Internet dies — nothing happens. Your network dies — the mesh and the record continue. Our box dies — phones still find each other."</b></p>
+</section>
+
+<!-- 14 ───────────────────────────────────────── -->
+<section class="slide" data-t="Decisions made">
+  <p class="num">13 · Settled</p>
+  <h2>Five decisions, all made</h2>
+  <p class="lede">None required changing the wire format — the existing frame already carried what they needed. Whoever designed it left room.</p>
+  <div class="tw"><table>
+    <thead><tr><th>#</th><th>Decision</th><th>Cost</th></tr></thead>
+    <tbody>
+      <tr><td class="m">1</td><td><strong>The phone reports, the anchor decides.</strong> Only the phone knows a search failed (the reply comes back to it). Only the anchor knows the airtime budget. Each contributes what it can see.</td><td class="m">firmware</td></tr>
+      <tr><td class="m">2</td><td><strong>Two budgets — hops and time.</strong> A policy, not a format change: the frame already carries a timestamp. Position 5 min · text 10 min · rally 1 h · <strong>SOS 30 min</strong>.</td><td class="m ok">free</td></tr>
+      <tr><td class="m">3</td><td><strong>Carried messages: build the hook, ship it off.</strong> One bit of an already-reserved byte. Enable after encryption lands — a stranger carrying an identifiable plaintext position is an incident, not a feature.</td><td class="m ok">free</td></tr>
+      <tr><td class="m">4</td><td><strong>LoRa resets the hop count</strong> — it's a backbone, not a hop. Loop prevention reuses the existing dedup key.</td><td class="m">firmware</td></tr>
+      <tr><td class="m">5</td><td><strong>Anchors mesh, not star.</strong> A Gateway-centred trunk would make the Gateway a single point of failure — contradicting the ladder on the previous slide.</td><td class="m ok">free</td></tr>
+    </tbody>
+  </table></div>
+  <p class="kicker"><b>The rule for deciding early:</b> either free, or cheaper now than retrofitted, and impossible to get wrong in a way that costs money if the field test surprises us. Anything failing that test stays open until there's data.</p>
+</section>
+
+<!-- 15 ───────────────────────────────────────── -->
+<section class="slide" data-t="What's built">
+  <p class="num">14 · Honest status</p>
+  <h2>What's real, and what's <span class="a">drawing</span></h2>
+  <p class="lede">Say this plainly to anyone who asks. Credibility is the whole distribution strategy in a small industry.</p>
+  <div class="tw"><table>
+    <thead><tr><th>Thing</th><th>Status</th></tr></thead>
+    <tbody>
+      <tr><td>The engine — codec, mesh logic, ops grammar</td><td class="ok">✅ Built · 214 tests</td></tr>
+      <tr><td>Consumer app · Guard · Command</td><td class="ok">✅ Built · 274 tests total</td></tr>
+      <tr><td>Two iPhones exchanging real frames over Bluetooth</td><td class="ok">✅ <strong>Proven on hardware</strong></td></tr>
+      <tr><td><strong>Relay through a third phone</strong></td><td class="no">🔴 <strong>Untested — this is the gate</strong></td></tr>
+      <tr><td>Background / locked-screen behaviour</td><td class="no">🔴 Untested</td></tr>
+      <tr><td>Android on real hardware</td><td class="no">🔴 Untested</td></tr>
+      <tr><td>Measured range in a real crowd</td><td class="no">🔴 Unmeasured</td></tr>
+      <tr><td>Anchors — any variant</td><td class="no">🔴 Never built</td></tr>
+      <tr><td>LoRa trunk</td><td class="no">🔴 Never built</td></tr>
+      <tr><td>Gateway + Loc8OS</td><td class="warn">🟡 Fully specced, zero built</td></tr>
+      <tr><td><strong>Payload encryption</strong></td><td class="no">🔴 <strong>Zero lines — frames are plaintext today</strong></td></tr>
+    </tbody>
+  </table></div>
+  <p class="kicker a"><b>Two phones prove radios. Only three prove a mesh.</b> Everything on the roadmap rests on a relay nobody has watched happen yet.</p>
+</section>
+
+<!-- 16 ───────────────────────────────────────── -->
+<section class="slide" data-t="The field test">
+  <p class="num">15 · The one thing to do</p>
+  <h2>Three phones.<br>A park. <span class="m">£0.</span></h2>
+  <p class="lede">The most valuable measurement available, and it costs an afternoon.</p>
+  <ol class="steps">
+    <li><b>Bench</b> — two phones a metre apart. Does the module load, do frames decode, does it survive 30 minutes without crashing or cooking the battery?</li>
+    <li><b>Open ground</b> — 10 / 25 / 50 / 75 / 100 m. Record time-to-detect, packets received, signal strength. Then repeat with a phone in a pocket and someone standing in the way.</li>
+    <li><b>The relay</b> — A and C out of range of each other, B in the middle. <b>Does A's message reach C through B?</b> This is the product.</li>
+    <li><b>Background matrix</b> — foreground, backgrounded, screen locked, app killed. On both platforms. This decides whether screen-on relay must be a product feature.</li>
+  </ol>
+  <p class="kicker gd"><b>The number that matters most:</b> how far one hop actually goes in a crowd. At 5 m, the mesh reaches 35 m and anchors are essential. At 25 m, it reaches 175 m and half the hardware roadmap becomes optional. <b>Same afternoon, same three phones — and it decides which company this is.</b></p>
+</section>
+
+<!-- 17 ───────────────────────────────────────── -->
+<section class="slide" data-t="For the dev team">
+  <p class="num">16 · If you're joining</p>
+  <h2>What we need built</h2>
+  <div class="grid g2">
+    <div class="card a"><h4>1 · Encryption + rotating IDs</h4><p>Zero lines exist. Frames are plaintext with a <b>static sender ID</b> — a £20 sniffer can follow one person all night. Blocks: any public pilot, carried messages, phones answering for each other. <b>The highest-value code in the company.</b></p></div>
+    <div class="card g"><h4>2 · Loc8OS — the Gateway appliance</h4><p>Six daemons, read-only root, A/B signed updates with automatic rollback, service portal, PKI. Fully specced. Biggest single project.</p></div>
+    <div class="card v"><h4>3 · Anchor firmware</h4><p>Listen, dedup, decrement, re-broadcast, translate BLE↔LoRa. Deliberately stateless. Small project — weeks, not months. Nordic Secure DFU, dual-bank, signed.</p></div>
+    <div class="card m"><h4>4 · Phone-side intelligence</h4><p><b>Answer on behalf of others</b> — a phone that heard Sam 30 s ago can answer for Sam instantly, which quietly solves part of the iOS background problem. Plus battery-aware relaying and adaptive send rate.</p></div>
+  </div>
+  <div class="tw"><table>
+    <thead><tr><th>Stack</th><th>What</th></tr></thead>
+    <tbody>
+      <tr><td class="m">Apps</td><td>Expo SDK 57 · React Native 0.86 · React 19 · TypeScript</td></tr>
+      <tr><td class="m">Command</td><td>Vite · React 19 · runs in a browser on the venue LAN</td></tr>
+      <tr><td class="m">Engine</td><td><code>@loc8/engine</code> — shared core, never forked. 214 tests.</td></tr>
+      <tr><td class="m">Native</td><td>Swift + Kotlin BLE module, 2,525 lines. Compiles; barely run.</td></tr>
+      <tr><td class="m">Gateway</td><td>Raspberry Pi · Linux · SQLite in WAL mode · mTLS to consoles</td></tr>
+      <tr><td class="m">Anchor</td><td>nRF52840 · Zephyr / nRF Connect SDK · C</td></tr>
+    </tbody>
+  </table></div>
+</section>
+
+<!-- 18 ───────────────────────────────────────── -->
+<section class="slide" data-t="The one-page summary">
+  <p class="num">17 · In one page</p>
+  <h2>The whole thing, <span class="m">compressed</span></h2>
+  <div class="grid g2">
+    <div class="card m"><h4>What it is</h4><p>Phones relay 25-byte messages for each other over Bluetooth broadcast. The crowd is the network. Works with nothing installed, anywhere on earth.</p></div>
+    <div class="card m"><h4>Why it's different</h4><p>Every rival degrades in a crowd. This improves. Density is the mechanism, not the obstacle.</p></div>
+    <div class="card g"><h4>The honest limit</h4><p>~100 m on phones alone. Site-wide needs anchors and a LoRa trunk — which is precisely why a venue pays.</p></div>
+    <div class="card g"><h4>What sells it</h4><p>The muster board <b>names who's missing</b>. Radio structurally cannot do that. Every incident reconstructed play-by-play, tamper-evident, while the network was down.</p></div>
+    <div class="card v"><h4>The hardware</h4><p>One Gateway per venue (~£85, the brain). Zero to dozens of Anchors (~£65, the ears). Both rented, never sold.</p></div>
+    <div class="card a"><h4>The gate</h4><p>The relay through a third phone has never been watched. Three phones, a park, an afternoon, £0. <b>Everything waits on it.</b></p></div>
+  </div>
+  <p class="kicker"><b>Design principle to hold onto:</b> Loc8 works <em>because</em> radio range is short and crowds are lossy. Density and attenuation aren't obstacles the product overcomes — they're the mechanism that makes it function.</p>
+  <p class="lede" style="margin-top:26px; color:var(--faint); font-size:14px;">Deeper detail lives in the repo: <code>docs/SYSTEM.md</code> · <code>docs/GLOSSARY.md</code> · <code>docs/software/mesh-network-design.md</code> · <code>docs/hardware/CATALOGUE.md</code> · <code>docs/testing/field-test-protocol.md</code></p>
+</section>
+
+<div class="foot">
+  <span>LOC8 — THE WHOLE THING · 2026-07-21</span>
+  <span>← → OR SPACE TO NAVIGATE</span>
+</div>
+</div>
+
+<script>
+  (function(){
+    var slides = Array.prototype.slice.call(document.querySelectorAll('.slide'));
+    var i = 0, cur = document.getElementById('cur'), tot = document.getElementById('tot'), jump = document.getElementById('jump');
+    tot.textContent = slides.length;
+    slides.forEach(function(s, n){
+      var o = document.createElement('option');
+      o.value = n; o.textContent = (n+1) + '. ' + (s.dataset.t || '');
+      jump.appendChild(o);
+    });
+    function go(n){
+      i = Math.max(0, Math.min(slides.length - 1, n));
+      slides.forEach(function(s, k){ s.classList.toggle('on', k === i); });
+      cur.textContent = i + 1; jump.value = i;
+      window.scrollTo(0, 0);
+    }
+    document.getElementById('next').addEventListener('click', function(){ go(i+1); });
+    document.getElementById('prev').addEventListener('click', function(){ go(i-1); });
+    jump.addEventListener('change', function(){ go(parseInt(jump.value, 10)); });
+    document.addEventListener('keydown', function(e){
+      if (e.target && /^(INPUT|SELECT|TEXTAREA)$/.test(e.target.tagName)) return;
+      if (e.key === 'ArrowRight' || e.key === ' ' || e.key === 'PageDown'){ e.preventDefault(); go(i+1); }
+      if (e.key === 'ArrowLeft' || e.key === 'PageUp'){ e.preventDefault(); go(i-1); }
+      if (e.key === 'Home'){ go(0); } if (e.key === 'End'){ go(slides.length-1); }
+    });
+    go(0);
+  })();
+</script>
