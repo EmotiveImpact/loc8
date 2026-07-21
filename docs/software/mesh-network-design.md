@@ -57,38 +57,83 @@ people you have lost are usually nearby.
 
 Timings are `[PROPOSED]` and should be tuned against field-test measurements.
 
-## 4. ✅ DECIDED: the anchor escalates, not the phone
+## 4. ✅ DECIDED: the phone reports, the anchor decides
 
-**The anchor decides.**
+*Revised 2026-07-21. The first version of this decision said the anchor should
+**notice** that nobody answered. That was wrong; the reasoning below replaces
+it, and the flaw is recorded because it is instructive.*
 
-A phone cannot reach LoRa, so escalation must be triggered by something that
-can. Two candidate designs:
+**The reply comes back to the phone.** The phone therefore *knows* whether it
+succeeded. The anchor can only infer it by listening — and may miss a reply that
+returned along a path it was not on. **The phone has strictly better information
+about failure than the anchor does.** An anchor left to guess would escalate
+queries that had already succeeded, wasting the scarcest resource on site.
 
-| Design | Assessment |
+> **The phone reports the failure. The anchor decides whether to spend the
+> airtime.**
+
+Each side contributes only what it can actually see:
+
+| Contribution | Who |
 |---|---|
-| Phone flags "escalate me" | ❌ Phones are battery-limited, cannot see whether anyone answered elsewhere, and cannot know the site's remaining LoRa airtime budget |
-| **Anchor observes and escalates** | ✅ It hears everything locally, it is mains-powered, and it is the only thing that knows how much duty cycle is left this hour |
+| "I asked 10 s ago and got nothing" | **Phone** — only it knows |
+| "I have duty cycle left this hour" | **Anchor** — only it knows |
+| "This is an SOS, not the hundredth ping this minute" | **Anchor** |
 
-**Principle: phones shout, anchors think.**
+The escalation request is one small frame, sent only after a local failure the
+phone has actually observed. The anchor remains the rate limiter and the
+priority arbiter — it simply stops guessing about success.
 
-This also gives rate-limiting and prioritisation for free — an anchor can refuse
-to escalate a hundred friend-finder pings while always escalating an SOS.
+### The wider principle — not "dumb phones"
 
-### The phone never seeks an anchor
+An earlier draft framed this as *phones shout, anchors think*. That is too
+crude: phones already run real adaptive logic (degree-based TTL clamping,
+jittered relay timing — §11). The accurate principle is:
+
+> **Each node decides what it can see, and nothing else.**
+
+| Decision | Belongs to |
+|---|---|
+| How many neighbours do I have? | Phone |
+| Am I moving or stationary? | Phone |
+| Is my battery nearly flat? | Phone |
+| Did my query get an answer? | **Phone** |
+| Is there LoRa airtime left? | Anchor |
+| What priority does this traffic deserve site-wide? | Anchor |
+
+### Phone-side intelligence worth adding
+
+- **Answer on behalf of others.** If a phone heard Sam's position 30 s ago and a
+  nearby phone asks for Sam, it can answer *immediately* — no need to reach Sam
+  at all. Fewer hops, faster, and it works when Sam's phone is backgrounded or
+  flat. This is decision 6's mechanism in a second form: phones as a distributed
+  cache of recent knowledge, not merely repeaters. **Same privacy gate — needs
+  encryption and rotating IDs first.**
+- **Battery-aware relaying.** Below a threshold, stop carrying other people's
+  traffic. Necessary, or users uninstall.
+- **Adaptive send rate.** Position every ~30 s when stationary, ~5 s when
+  moving. Large airtime saving for no cost.
+
+### The phone never *seeks* an anchor
 
 Worth stating explicitly, because the mental model matters: **there is no
 discovery step.** BLE advertising is broadcast — a phone does not address
 anything, it simply transmits, and whatever is in range hears it. The anchor is
-already listening, always. So:
+already listening, always. The full flow:
 
 1. Phone broadcasts a query. It floods the local crowd (~100 m).
-2. **Any anchor inside that radius hears it automatically.** No seeking, no
-   handshake, no connection, no effort from the phone.
-3. The anchor also listens for the *response*.
-4. No response within the step-3 window → the anchor escalates to LoRa.
-5. Far anchors re-broadcast locally; the reply floods back the same way.
+2. **Any anchor inside that radius hears it automatically** — no seeking, no
+   handshake, no connection.
+3. Phone waits. If a reply arrives, done: nothing else happens and no airtime
+   is spent.
+4. **No reply within the step-3 window → the phone broadcasts an escalation
+   request.** It does not address an anchor; it shouts, exactly as before.
+5. Any anchor that hears it decides whether to grant it (duty cycle, priority,
+   rate limits) and, if so, puts the query on the trunk.
+6. Far anchors re-broadcast locally; the reply floods back the same way.
 
-The phone did exactly one thing: shout. This is what keeps it dumb and cheap.
+The phone never establishes a relationship with anything. It shouts twice — the
+query, then "that didn't work" — and everything else happens around it.
 
 ### How the phone knows escalation is even possible
 
@@ -107,13 +152,17 @@ rather than inferred — worth adding, but polish; the inference is honest.
 
 ### Two edge cases, both solved by existing mechanisms
 
-- **Several anchors hear the same query** and all escalate, wasting scarce LoRa
-  airtime. Fix: the **same jitter + dedup the phones already use**. First anchor
-  to put it on the trunk is heard by the others, which then stay quiet. Reused
-  pattern, no new invention.
-- **The response returned by a path the anchor did not hear**, so it escalates
-  unnecessarily. Not a correctness bug — wasted airtime only. Responses flood
-  too, so the anchor usually hears them; rate-limiting absorbs the remainder.
+- **Several anchors hear the same escalation request** and all act on it,
+  wasting scarce LoRa airtime. Fix: the **same jitter + dedup the phones already
+  use**. First anchor to put it on the trunk is heard by the others, which then
+  stay quiet. Reused pattern, no new invention.
+- **A phone escalates while out of anchor range**, so nothing happens. Not a
+  failure: the phone falls back to last-known-position (§9), which is what it
+  would have shown anyway. Costs one small frame.
+
+*Note: the "anchor escalates on a response it did not hear" failure mode
+disappears entirely under the revised design — the anchor no longer infers
+success or failure, it is told.*
 
 ## 5. ✅ DECIDED: two budgets — hops and time (free, no format change)
 
@@ -247,7 +296,7 @@ room.
 
 | # | Decision | Cost |
 |---|---|---|
-| **4** | **The anchor escalates to LoRa, never the phone.** A phone cannot reach LoRa, cannot observe whether anyone answered elsewhere, and cannot know the site's remaining duty-cycle budget. The anchor can do all three, and is mains-powered. *Phones shout, anchors think.* Brings rate-limiting and SOS prioritisation for free. | firmware only |
+| **4** | **The phone reports the failure; the anchor decides whether to spend the airtime.** *(Revised — the original "anchor notices nobody answered" was wrong: the reply comes back to the PHONE, so the phone knows definitively while the anchor can only guess and may miss a reply routed around it.)* Each side contributes only what it can see. The anchor remains rate limiter and priority arbiter. | firmware only |
 | **5** | **Two budgets — hops and time.** Implemented as a **policy, not a format change**: drop if `now − timestamp > maxAge`. Defaults by type: position 5 min · quick reply 5 min · text 10 min · rally 1 h · **SOS 30 min**. | **free** |
 | **6** | **Carried messages: build the hook, ship it off.** `flags` bit 0 = "may be carried". Emit `0` on everything until encryption and rotating IDs land, then flip it on — capability appears with no format change and no fleet upgrade. **Never enable before encryption**: a stranger's phone carrying an identifiable plaintext position is a privacy incident, not a feature. | **free** (1 bit) |
 | **7** | **LoRa resets the hop count — backbone, not hop.** The far side gets a full local flood. Loop prevention by trunk-side dedup on `(senderID, timestampMs)` — already the dedup key, so anchors reuse the phones' logic. | firmware only |
