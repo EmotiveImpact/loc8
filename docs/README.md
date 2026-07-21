@@ -6,6 +6,44 @@ This folder is the **dev-ready knowledge base**: everything decided so far, so a
 
 ---
 
+# 📖 READING ORDER — start here, ~45 minutes
+
+*Added 2026-07-21. The knowledge base grew fast; this is the path through it.
+Everything below this box is reference material — consult it when a decision
+arrives, don't read it end to end.*
+
+### If you read only one thing
+**[BUSINESS.md](BUSINESS.md) → the "THE PLAN, IN PLAIN ENGLISH" box at the top.**
+Four steps, the order of operations, and what the market research actually
+concluded. Five minutes.
+
+### The 45-minute path
+
+| # | Read | Why | Time |
+|---|---|---|---|
+| 1 | [BUSINESS.md](BUSINESS.md) — the PLAN box | What we do and in what order | 5 min |
+| 2 | [SYSTEM.md](SYSTEM.md) §1–4 | What the thing actually is | 10 min |
+| 3 | [market-expansion-report.md](research/market-expansion-report.md) — Exec summary + §3 (the tier tables) + §4 (money on the table) | Where the market is, where it isn't, and what we're leaving on the table | 20 min |
+| 4 | [data-strategy.md](strategy/data-strategy.md) | The five rungs — how the ceiling gets raised | 10 min |
+
+### Consult when the decision arrives — not before
+
+| When you're about to… | Read |
+|---|---|
+| Run the field test | [testing/field-test-protocol.md](testing/field-test-protocol.md) |
+| Buy or place Anchors | [hardware/anchor-deployment.md](hardware/anchor-deployment.md) + [hardware/build-guide.md](hardware/build-guide.md) |
+| Build hardware | [hardware/loc8-gateway.md](hardware/loc8-gateway.md), [software/loc8os.md](software/loc8os.md) |
+| Talk to a venue about compliance | [compliance.md](compliance.md) |
+| Discuss defence, or a drone/vehicle idea | market report §6 — both answered, mostly "no", with the physics |
+| Ask ChatGPT for research | Paste [BRIEFING-FOR-AI.md](BRIEFING-FOR-AI.md) first — it exists because un-briefed AI research has twice answered the wrong question |
+| Quote a price | [BUSINESS.md](BUSINESS.md) pricing architecture (note the £1,490 lesson) |
+
+### ⚠️ Superseded — do not plan from these
+- [strategy/business-model.md](strategy/business-model.md) — festival counts wrong by ~4×; correction banner at the top of the file. Retained as original reasoning, not guidance.
+- The "Roadmap (phases)" section below — written before the connected-first decision. **We no longer gate revenue on the field test.** See BUSINESS.md.
+
+---
+
 ## Where things stand (2026-07-20)
 
 > **274 tests green · 27 suites** (engine 214/20 · Command 52/6 · Guard 8/1) · tsc clean.
