@@ -2,9 +2,10 @@
 
 *How a message actually gets from one phone to another across a large site, and
 the decisions that must be made before anchor firmware is written. Drafted
-2026-07-21 from the escalation discussion. **Status: PROPOSED.** Nothing here is
-implemented. Several items are open decisions marked 🔴 — they are cheap now and
-expensive once anchors are in the field.*
+2026-07-21 from the escalation discussion. **Status: all five decisions SETTLED
+2026-07-21 (see the summary at the end); none are implemented yet.** None
+required a wire-format change — the existing frame already carried what they
+needed.*
 
 ---
 
@@ -56,9 +57,9 @@ people you have lost are usually nearby.
 
 Timings are `[PROPOSED]` and should be tuned against field-test measurements.
 
-## 4. 🔴 DECISION: the anchor escalates, not the phone
+## 4. ✅ DECIDED: the anchor escalates, not the phone
 
-**Recommendation: the anchor decides.**
+**The anchor decides.**
 
 A phone cannot reach LoRa, so escalation must be triggered by something that
 can. Two candidate designs:
@@ -73,12 +74,12 @@ can. Two candidate designs:
 This also gives rate-limiting and prioritisation for free — an anchor can refuse
 to escalate a hundred friend-finder pings while always escalating an SOS.
 
-## 5. 🔴 DECISION: message lifetime needs two budgets
+## 5. ✅ DECIDED: two budgets — hops and time (free, no format change)
 
 Today a message carries one budget: **hops**. That is sufficient for a live
 flood and insufficient for anything carried (§6).
 
-**Recommendation: two budgets on every frame.**
+**Two budgets on every frame. This is a POLICY, not a format change** — the header already carries an 8-byte `timestamp` stamped at originate (it is part of the dedup key), so time expiry is simply `drop if now - timestamp > maxAge`. Defaults: position 5 min · quick reply 5 min · text 10 min · rally 1 h · SOS 30 min.
 
 | Budget | Unit | Purpose |
 |---|---|---|
@@ -88,7 +89,7 @@ flood and insufficient for anything carried (§6).
 A position is useful for perhaps 5 minutes; an SOS for much longer. Without a
 time budget, carried messages either die instantly or never die at all.
 
-## 6. 🔴 DECISION: should messages ride in people's pockets?
+## 6. ✅ DECIDED: carried messages — build the hook, ship it off
 
 **The single largest robustness gain available, and it costs no hardware.**
 
@@ -111,33 +112,38 @@ crowd is constantly stirring, so you already have thousands of couriers.
 | **Privacy** | Carried frames must be encrypted and pseudonymous *first*. Today's plaintext, static-ID frames make this **unsafe to ship** — a stranger's phone would carry an identifiable position. Gate ④ is a hard prerequisite. |
 | **Battery** | Carrying costs transmit power. Cap it, and honour low-battery state. |
 
-**Recommendation: design for it, gate it behind encryption, and default it off
-until the field test shows whether it is needed.** If real hop distances come
-back at 25 m, the local mesh reaches 175 m and this matters less.
+**Decided: build the hook, ship it off.** `flags` bit 0 = "may be carried" —
+one bit of a byte that is already reserved and currently `0x00`, so **no format
+change**. Emit `0` on everything until encryption and rotating IDs land, then
+flip it on and the capability appears with no wire change and no fleet upgrade.
 
-## 7. 🔴 DECISION: does the hop count reset across LoRa?
+If real hop distances come back at 25 m, the local mesh reaches 175 m and this
+matters less — which is another reason to build the hook and wait rather than
+implement now.
+
+## 7. ✅ DECIDED: LoRa resets the hop count — backbone, not hop
 
 When a message crosses the trunk and is re-broadcast on the far side, does it
 continue with its remaining hops, or start fresh?
 
 - **Continue:** cross-site messages arrive nearly exhausted and travel only a
   hop or two on the far side. Cheap, but cripples the feature it exists for.
-- **Reset** *(recommended)*: treat LoRa as a **backbone, not a hop**. The far
+- **Reset** — treat LoRa as a **backbone, not a hop**. The far
   side gets a full local flood.
 
 **Reset requires dedup on the trunk side** so a message cannot loop between two
 anchors forever. Each anchor keeps a seen-set of message IDs crossing LoRa, same
 as phones do locally.
 
-**This must be decided before anchor firmware is written.**
+Loop prevention keys on `(senderID, timestampMs)` — already the dedup key, so anchors reuse the phones' logic rather than inventing new.
 
-## 8. 🔴 DECISION: anchors form a mesh, not a star
+## 8. ✅ DECIDED: anchors form a mesh, not a star
 
 If every trunk anchor talks only to the Gateway, the Gateway becomes a single
 point of failure for the entire trunk — which contradicts the degradation
 ladder.
 
-**Recommendation: anchors relay for each other over LoRa.** Same radio, same
+**Anchors relay for each other over LoRa.** Same radio, same
 cost, purely a topology decision. A dead anchor is routed around automatically.
 
 This also extends reach: two 1–3 km LoRa hops cover a site no single link could.
@@ -183,16 +189,31 @@ carrying.
 
 ---
 
-## Summary of open decisions
+## ✅ DECIDED — 2026-07-21
 
-| # | Decision | Recommendation | Blocks |
-|---|---|---|---|
-| 4 | Who escalates to LoRa | The anchor | anchor firmware |
-| 5 | One budget or two | Two — hops *and* seconds | frame format ⚠️ |
-| 6 | Carried messages | Design for, gate behind encryption, default off | frame format ⚠️ |
-| 7 | Hop count across LoRa | Reset — backbone, not hop | anchor firmware |
-| 8 | Anchor topology | Mesh, not star | anchor firmware |
+All five settled. **None require a wire-format change** — an earlier draft of
+this document claimed decisions 5 and 6 did. That was wrong, and the reason is
+worth knowing: the existing mesh frame already carries what they need.
 
-⚠️ **Decisions 5 and 6 touch the 25-byte frame format**, which is the one thing
-shared by every device and every app. Changing it later means changing
-everything at once. These two are the most expensive to defer.
+```
+version(1) | type(1) | ttl(1) | timestamp(8) | flags(1) | payloadLength(2)
+           | senderID(8) | payload(25)
+```
+
+`timestamp` is already stamped at every originate (it is part of the dedup key),
+and `flags` is reserved and currently `0x00`. Whoever designed this frame left
+room.
+
+| # | Decision | Cost |
+|---|---|---|
+| **4** | **The anchor escalates to LoRa, never the phone.** A phone cannot reach LoRa, cannot observe whether anyone answered elsewhere, and cannot know the site's remaining duty-cycle budget. The anchor can do all three, and is mains-powered. *Phones shout, anchors think.* Brings rate-limiting and SOS prioritisation for free. | firmware only |
+| **5** | **Two budgets — hops and time.** Implemented as a **policy, not a format change**: drop if `now − timestamp > maxAge`. Defaults by type: position 5 min · quick reply 5 min · text 10 min · rally 1 h · **SOS 30 min**. | **free** |
+| **6** | **Carried messages: build the hook, ship it off.** `flags` bit 0 = "may be carried". Emit `0` on everything until encryption and rotating IDs land, then flip it on — capability appears with no format change and no fleet upgrade. **Never enable before encryption**: a stranger's phone carrying an identifiable plaintext position is a privacy incident, not a feature. | **free** (1 bit) |
+| **7** | **LoRa resets the hop count — backbone, not hop.** The far side gets a full local flood. Loop prevention by trunk-side dedup on `(senderID, timestampMs)` — already the dedup key, so anchors reuse the phones' logic. | firmware only |
+| **8** | **Anchors mesh, not star.** Same radio, zero extra cost, pure topology. A Gateway-centred trunk would make the Gateway a single point of failure for the whole site, contradicting the degradation ladder. | **free** |
+
+**Why all five were decidable before the field test:** each is either free or
+cheaper now than retrofitted, and none can be wrong in a way that costs money if
+the field test surprises us. Decisions that *do* depend on measurements —
+escalation timeouts, whether carrying is needed at all, anchor spacing — stay
+open until §10 is answered.
