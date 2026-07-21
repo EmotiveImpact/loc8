@@ -32,6 +32,15 @@ infrastructure, Command makes it operable, HQ makes it visible.** Remove any
 right-hand piece and everything to its left keeps working — that degradation
 order is the core design promise.
 
+> **Go-to-market note (2026-07-21):** the picture above is the *full* system.
+> The **first sale does not require it.** Guard + Command are
+> transport-agnostic: over a venue's own wifi, using the already-built bridged
+> transport, they deliver named muster, SOS dispatch and the tamper-evident
+> record with **no mesh, no Gateway, no Anchors, no BLE encryption**. The BLE
+> mesh is not cancelled — it is the upgrade sold to customers we already have
+> ("when the wifi dies at 1am, your muster board keeps working") and the only
+> way the consumer app works at a greenfield festival. See `BUSINESS.md`.
+
 ## 2. All the hardware
 
 | Device | What it is | Runs | Per site | Status |
