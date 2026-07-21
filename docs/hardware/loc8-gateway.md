@@ -367,11 +367,37 @@ must never be unavailable during the incident it exists to record.
 **Structural mitigations matter more than thresholds**, and cost ~$0: read-only
 root via overlayfs; one writable partition (`/var/lib/loc8`) plus tmpfs for
 `/run`, `/tmp`, `/var/log`, machine-id, DHCP leases, SSH host keys; and split the
-DB — audit/incident/muster at `synchronous=FULL`, position at `NORMAL`. Note the
-split buys tunable durability, **not** corruption isolation (both files share one
-FTL). And a hash chain does not self-report loss — tail truncation is its known
-undetectable failure mode, so periodically export the signed chain head and entry
-count off-box.
+DB — audit/incident/muster at `journal_mode=WAL` + `synchronous=FULL`, position
+at `journal_mode=WAL` + `synchronous=NORMAL`. Note the split buys tunable
+durability, **not** corruption isolation (both files share one FTL). And a hash
+chain does not self-report loss — tail truncation is its known undetectable
+failure mode, so periodically export the signed chain head and entry count
+off-box.
+
+> **WAL is load-bearing, not incidental — do not change the journal mode.**
+> The durability guarantee this device is sold on holds *only* in WAL mode.
+> Per SQLite's own documentation: "FULL is atomic, consistent, isolated, and
+> durable (ACID) in WAL mode", but "**FULL is not necessarily durable across a
+> power loss in rollback mode**, so if durability is desired, it is best to set
+> the synchronous mode to EXTRA." Switching to a rollback journal therefore
+> silently voids the audit-write guarantee while leaving the `synchronous=FULL`
+> pragma looking untouched — the failure is invisible until a real power cut
+> costs a real incident record. If the journal mode ever must change, raise
+> `synchronous` to `EXTRA` in the same commit. (`EXTRA` is pointless *within*
+> WAL — SQLite: "EXTRA is no different from FULL in WAL mode.")
+>
+> The position DB is deliberately weaker: "A transaction committed in WAL mode
+> with synchronous=NORMAL might roll back following a power loss." That is the
+> correct trade — live positions are worthless seconds later — but it means the
+> position DB is explicitly **not** a record, and nothing evidentiary may be
+> written only there. Source: <https://www.sqlite.org/pragma.html#pragma_synchronous>
+>
+> Two caveats that outrank the pragma. (1) `synchronous=FULL` issues a
+> cache-flush the storage device may simply ignore — on a consumer microSD the
+> pragma buys nothing, which is why the industrial pSLC part is a durability
+> line item, not a nicety. (2) Durability is per committed transaction; it does
+> not protect an in-flight write, which is what the shutdown reserve and the
+> checkpoint-at-mains-loss exist for.
 
 Do **not** unconditionally shed the Ethernet PHY: on PoE the switch is already
 dead so the PHY has auto-entered energy-detect (saving is tens of mW), and if the

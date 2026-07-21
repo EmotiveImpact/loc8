@@ -91,7 +91,7 @@ Key hardware facts that answer recurring confusions:
    It stores nothing about consumer frames; it's just the best neighbour.
 2. **SOS at a festival:** guard's phone fires SOS → hops through the crowd →
    nearest anchor's BLE → LoRa trunk across the empty car park → Gateway
-   (trunk head-end) → persisted `synchronous=FULL` in `site.db` → LAN → every
+   (trunk head-end) → persisted `WAL`+`synchronous=FULL` in `site.db` → LAN → every
    Command console + nearest-responder dispatch → status replies ride back
    the same path.
 3. **Muster:** Command broadcasts MUSTER → every Guard screen flips → each

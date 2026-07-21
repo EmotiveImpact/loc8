@@ -23,7 +23,7 @@ below).
 | Init | systemd | Unit dependencies, watchdogs, journald — all used below |
 | Filesystem | Read-only root via overlayfs | The single biggest corruption defence, ~$0. See §5 |
 | Bluetooth | BlueZ via D-Bus | The `loc8-meshd` substrate |
-| Database | SQLite (WAL mode) | One file per concern, no server to babysit |
+| Database | SQLite, **`journal_mode=WAL` (mandatory)** | One file per concern, no server to babysit. WAL is not a tuning choice: `synchronous=FULL` is only ACID-durable *in WAL mode* — in rollback-journal mode the same pragma is "not necessarily durable across a power loss". Changing the journal mode silently voids the audit guarantee. See `loc8-gateway.md` §9 |
 | Updates | A/B image slots, signed | See §6 |
 | Shell access | None in production. Serial header on the board for factory/bench | The appliance contract: no visible Linux |
 
@@ -128,11 +128,11 @@ be unavailable during the incident it exists to record.
 │  /  (slot B)  ─ ro     previous / next image       │
 │  /var/lib/loc8 ─ rw    THE one writable partition  │
 │    ├─ site.db          incidents · roster · muster │
-│    │                     (synchronous=FULL)        │
+│    │                     (WAL, synchronous=FULL)   │
 │    ├─ track.db         position history            │
-│    │                     (synchronous=NORMAL)      │
+│    │                     (WAL, synchronous=NORMAL) │
 │    ├─ audit.db         hash-chained operator log   │
-│    │                     (synchronous=FULL)        │
+│    │                     (WAL, synchronous=FULL)   │
 │    ├─ identity/        device key, certs, org key  │
 │    └─ spool/           syncd store-and-forward     │
 │  tmpfs                 /run /tmp /var/log          │
