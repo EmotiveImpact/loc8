@@ -21,6 +21,35 @@ Three revenue legs: (1) anchor deploy/rental, (2) per-head software fee collecte
 
 Pricing logic: events = per-event kit + per-head + ops; permanent venues = install + annual SaaS + per-head. "User-pass viable?" = can you charge end-users, collected by the org.
 
+> ## ⚠️ CORRECTION — 2026-07-21: this table's festival counts are wrong by ~4×
+>
+> The two festival rows assume **10,500 festivals ≥5k attendees globally**
+> (2,500 at ≥20k + 8,000 at 5–20k). **JamBase counts 2,840 music festivals
+> worldwide of *all* sizes** — so the ≥20k figure alone is implausible by
+> roughly an order of magnitude. Approximately **£144M of the £460M "reachable
+> TAM" below rests on this error**, and the £1.18B consolidated figure inherits
+> it.
+>
+> Further corrections from `../research/market-expansion-report.md` (210-agent
+> verified study, 80 claims refuted or corrected):
+> - **UK festivals are down 26–34% from peak**, not growing. The displaceable
+>   UK radio-hire budget is ~**£0.8M nationally** — not a market that supports
+>   the priority this table gives it.
+> - **Halo Solutions already holds Glastonbury and ExCeL**; the festival lane
+>   is occupied at the top.
+> - The recommended beachhead is **UK agricultural and county shows**, not
+>   festivals: ~7M attendees across ~400 show days, festival-grade density on
+>   greenfield sites, poor rural cellular, lost children as the dominant
+>   incident type, a Show Secretary with personal signing authority, and **no
+>   vendor found serving the sector**.
+> - The cruise-first priority is not supported: SOLAS muster is a regulated
+>   *process* already served by incumbent systems, and ATEX/marine
+>   certification is a multi-year gate.
+>
+> **This table is retained as the original strategic reasoning, not as current
+> guidance.** Treat every figure below as superseded by the research report
+> until re-derived bottom-up. Nothing here has been deleted.
+
 | Vertical | Who pays | User-pass? | Blended price | Global TAM/yr | 5-yr SOM (ARR) |
 |---|---|---|---|---|---|
 | **Festivals** (≥20k) | organiser | ✅ via ticket | ~£32k/event × 2,500 | ~£80M | ~£6.4M |
