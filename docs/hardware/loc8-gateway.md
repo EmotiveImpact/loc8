@@ -79,7 +79,7 @@ To prevent drift between this doc and `../strategy/anchors-hardware.md`:
 | Product | Class | Runs | Per site | Job |
 |---|---|---|---|---|
 | **Loc8 Gateway** (this doc) | Pi-class | **Loc8OS** | **one** | Site brain: DB, audit, relay, sync, PKI, best mesh node. Tiers A/B/C are build qualities of *this* product. |
-| **Loc8 Anchor** (strategy doc, Phase 3) | ESP32-class, ~£30–40 | tiny firmware, **not** Loc8OS | 0–dozens | Dumb radio translator (BLE re-broadcast / BLE⟷LoRa). Stateless: if one dies, coverage shrinks and nothing is lost. Battery/solar, pole-mounted. |
+| **Loc8 Anchor** (strategy doc, Phase 3) | nRF52840 + nRF21540 FEM, **~£60–75** (revised 2026-07-21) | tiny firmware, **not** Loc8OS | 0–dozens | Dumb **listening post** (BLE re-broadcast / BLE⟷LoRa). Stateless: if one dies, coverage shrinks and nothing is lost. Battery/solar/PoE, pole-mounted above head height. The FEM buys +13 dB RX gain — receive is the side that matters (uplink-limited, ~25–30 m in crowd) and the only side money improves; TX is capped at 20 dBm EIRP by Ofcom IR 2030 regardless of spend. Deployment rules: `anchor-deployment.md`. |
 
 Same 25-byte protocol everywhere; consumer crews and Guard staff share the
 same mesh through the same hardware (crew codes / team tags separate them on

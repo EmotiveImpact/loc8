@@ -39,7 +39,7 @@ order is the core design promise.
 | **Consumer phone** | Any modern iPhone/Android with BLE | Loc8 app | crowds | app ✅ · BLE module 🔴 never run on hardware |
 | **Guard phone** | Same phones, staff-carried | Loc8 Guard | one per staff | app ✅ · same BLE caveat |
 | **Loc8 Gateway** | Wall-mounted Pi-class box, ~120×90×35 mm. Tier A demo $~40 · **Tier B standard $93–113** · Tier C ruggedized $180–240 (adds LFP battery, eMMC, dual radios, tamper). Add-ons any tier: LTE dongle, LoRa concentrator | **Loc8OS** | **one** (the brain) | 🟡 fully specced, zero built |
-| **Loc8 Anchor** | ESP32-class stateless radio translator (BLE re-broadcast / BLE⟷LoRa), ~£30–40, battery/solar, pole-mounted | tiny firmware (not Loc8OS) | 0–dozens (the ears) | 🟡 Phase 3, gated on field test |
+| **Loc8 Anchor** | nRF52840-class stateless **listening post** (BLE re-broadcast / BLE⟷LoRa; nRF21540 front-end for +13 dB RX gain — the uplink is the binding constraint, and receive is the only side money improves), **~£60–75** (revised 2026-07-21 from £30–40; the better ears cover ~4× the area so per-venue cost is flat or lower), battery/solar/PoE, pole-mounted **above head height**. Spacing planned on uplink: ~25–30 m in crowd. Full rules: `hardware/anchor-deployment.md` | tiny firmware (not Loc8OS) | 0–dozens (the ears) | 🟡 Phase 3, gated on field test; £230 3-board bench spike may run early |
 | **Command computer** | Any laptop/desktop on the venue LAN. **No Bluetooth needed** — the Gateway is its radio | Loc8 Command (browser now; Tauri desktop 🟡 for claim flow) | 1–2 | app ✅ |
 | **HQ** | Anything with a browser | cloud dashboard | — | 🔴 no backend exists |
 
@@ -66,7 +66,7 @@ Key hardware facts that answer recurring confusions:
 | **Loc8OS** | The Gateway appliance image: 6 daemons (`meshd`·`relayd`·`sited`·`syncd`·`provisiond`·`supervisord`), read-only root, A/B signed updates, service portal, power contract | the Gateway | 🟡 specced (`software/loc8os.md`) · interactive sim: `design/loc8os-simulator.html` |
 | **Anchor firmware** | Dumb BLE⟷LoRa translation, nothing else | anchors | 🔴 Phase 3 |
 | **Cloud spine + HQ dashboard** | Per-site tiles, event backfill, fleet health | cloud | 🔴 specced only |
-| **Payload encryption (AEAD)** | Per-shift keys, applied in the engine so every door inherits it | everywhere | 🔴 **zero lines — frames are plaintext today** |
+| **Payload encryption (AEAD) + rotating pseudonyms** | Per-shift keys, applied in the engine so every door inherits it. Scope grew 2026-07-21: `senderId` is today a **stable plaintext identifier** — a £20 BLE sniffer can follow one person all night — so gate ④ = encrypt **and** rotate IDs. Hard prerequisite for any public pilot ("no stable attendee identifier observable in plaintext" is a pilot acceptance gate) | everywhere | 🔴 **zero lines — frames are plaintext today** |
 
 ## 4. The protocol — the thing everything shares
 

@@ -4,6 +4,26 @@ Primary research output, preserved verbatim. **Do not delete these** — they ar
 the evidence behind specification numbers, and re-running the research costs
 millions of tokens and hours.
 
+## Arena connectivity / anchor radio reality (2026-07-21)
+
+External research (ChatGPT, un-briefed on the product) + our verification pass.
+
+| File | What it is |
+|---|---|
+| [arena-dossier-assessment.md](arena-dossier-assessment.md) | **Start here.** Adopt/adapt/reject verdicts, independently verified claims, the uplink/downlink lesson, and where every adopted item landed in the specs. |
+| [arena-dossier-2026-07-21.pdf](arena-dossier-2026-07-21.pdf) | The 29-page dossier, archived verbatim. |
+
+Outcome: anchor cost £30–40 → £60–75 (ears-not-mouths reframe), uplink-planned
+spacing, the gate ① field-test protocol, acceptance criteria, compliance map,
+and rotating pseudonyms added to gate ④ scope. `../BRIEFING-FOR-AI.md` exists
+so future external research starts correctly briefed.
+
+## Patent prior-art (2026-07-20)
+
+See [patent-prior-art-report.md](patent-prior-art-report.md) — all three
+candidates failed adversarial verification; no drafting spend supported. Freed
+the decks from confidentiality constraints.
+
 ## Gateway battery & power (2026-07-20)
 
 132-agent adversarial research workflow · 1,875 tool calls · 6.97M tokens.
