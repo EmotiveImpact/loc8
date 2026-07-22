@@ -42,8 +42,11 @@ the decision PROMOTE/REPEAT/HOLD/STOP.
   [result](results/FLOOR-01/2026-07-22-corpus-contract/README.md) passed 40/40
   tests and the two-run 50,008-event replay gate. It is instrumentation evidence,
   not floor-accuracy or phone/building evidence.
-- `MAP-01`: **NEXT autonomous investigation**, using FLOOR-01's frozen stable
-  building/map/level/connector/landing ID seam.
+- `MAP-01`: **PROMOTE pure graph/core / REPEAT real building and product
+  adapters / HOLD safety and deployment claims**. The preregistered
+  [result](results/MAP-01/2026-07-22-semantic-graph/README.md) passed 123/123
+  focused tests, 71 named invalid mutations and four deterministic 10,000-query
+  scale runs. It is synthetic contract/router evidence, not a real mapped route.
 
 ## Mesh and device behaviour
 
@@ -234,11 +237,13 @@ the decision PROMOTE/REPEAT/HOLD/STOP.
 
 ### NOW — no more than three active decision questions
 
-1. `MAP-01` — minimum semantic building graph aligned to frozen FLOOR-01 IDs.
-2. `SEC-05` — reviewed crypto/library, logical-frame, credential and prekey
+1. `SEC-05` — reviewed crypto/library, logical-frame, credential and prekey
    vector bake-off; implementation remains HOLD.
-3. `FLOOR-01` native repeat preparation — exact Expo adapter seam and approved
-   iOS/Android physical protocol; field collection itself remains HOLD.
+2. `MESH-01` physical kit/preflight — run immediately when three suitable phones
+   and a radio-isolated A↔C layout exist; simulation remains non-evidence.
+3. Targeted retained-repository adoption assessment — prioritise exact SEC-05,
+   MESH-01 and promoted MAP seams; distinguish adoptable code from learn-only
+   ideas and stop cloning without a decision question.
 
 `MESH-01` outranks these when the three-device physical setup is available; until
 then it is a named external-evidence blocker, not simulated progress.
@@ -246,14 +251,16 @@ then it is a named external-evidence blocker, not simulated progress.
 ### NEXT — prepared while NOW runs
 
 - `MESH-02`, `MESH-03` — device state and shift battery.
-- `MAP-02` through `MAP-04` — graph edge cases and first real building after
-  MAP-01's pure schema gate.
+- `MAP-04`/`MAP-10` — permissioned real-plan and second-operator repeats after
+  MAP-01's pure schema gate; MAP-02/MAP-03 have bounded synthetic evidence only.
 - `OPS-01` through `OPS-03` — muster truth and pilot outcome.
 - `SEC-06`, `SEC-07` — native replay/migration/interoperability repeats after
   `SEC-05` selects the reviewed provider boundary.
 - `CONN-01` — real identity, durable stores and pinned TLS/proxy adapter repeat
   as product development; pilot remains HOLD.
 - `FLOOR-02` through `FLOOR-05` — baselines, anchors and fusion.
+- `FLOOR-01` native repeat preparation — exact SDK 57 adapter and approved
+  iOS/Android physical protocol; collection itself remains HOLD.
 
 ### LATER — explicitly gated
 

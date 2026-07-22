@@ -626,9 +626,10 @@ Dependency truth was reproduced, not fixed: the main checkout selects Node
 transitive `ws` is 7.5.11 and current registry is 8.21.1; audit remains 1 high/
 11 moderate. No install, force fix, Expo downgrade or lockfile mutation was made.
 
-The current autonomous queue is `FLOOR-01`, `MAP-01`, then the `SEC-05`
-reviewed-library/vector/prekey bake-off. Run `MESH-01` immediately when a real
-three-phone radio-isolated setup exists. Do not use simulation to close it.
+The completed checkpoints below supersede that earlier queue. Current autonomous
+work starts at `SEC-05`, then `MESH-01` physical kit/preflight and targeted
+retained-repository assessment. Run the physical relay immediately when a real
+three-phone radio-isolated setup exists; simulation cannot close it.
 
 This section supersedes the earlier statement that no product source was added:
 the new `services/loc8-relayd` source boundary now exists, but it is deliberately
@@ -715,12 +716,11 @@ The canonical branch is `claude/recursing-montalcini-d59018`; the user's existin
 - The existing manual floor anchor remains authoritative. No estimator or product
   app was changed.
 
-### What happens next
+### Historical next state after FLOOR-01 (completed below)
 
-1. Execute `MAP-01` using the frozen `buildingId`, `mapVersion`, `levelId`,
-   `connectorId` and `landingId` seam. Preregister its scenarios and gates before
-   prototyping the minimum `Building/Level/Space/Connector/Landing/Zone` graph.
-2. Run `SEC-05` after MAP-01: reviewed-library/logical-frame/credential/prekey
+1. `MAP-01` was next at this checkpoint and is completed in the following
+   section using the frozen identity seam and preregistered gates.
+2. Run `SEC-05`: reviewed-library/logical-frame/credential/prekey
    vector bake-off, including the corrected BitChat source finding; crypto
    implementation remains HOLD.
 3. Prepare, but do not falsely close, the FLOOR-01 native/physical repeat.
@@ -731,3 +731,105 @@ If this task compacts or Claude Code resumes it, start from artifact commit
 `fc2f536`, this section, `RDD-014` and the FLOOR-01 result. Do not redo FLOOR-01's
 pure contract work unless new evidence contradicts it; do not mark the physical
 repeat complete without the preregistered real evidence.
+
+## MAP-01 semantic-graph checkpoint — 2026-07-22
+
+This section supersedes the MAP-01 next-step text immediately above. The
+canonical branch remains `claude/recursing-montalcini-d59018`; the user's
+existing `.claude/launch.json` modification remains untouched and unstaged.
+
+### What was inspected
+
+- Re-read the Principal R&D objective, this handoff, mapping synthesis,
+  programme/questions/decisions and FLOOR-01 identity contract.
+- Inspected Command's actual zone/coverage/dispatch/simulation types, Guard's
+  floor/team/map/store state and the engine operations-message/floor-wire seam.
+  Current product truth is a split model: 2D Command zones have no building or
+  level, Guard uses independent hard-coded integer floors/zones, operations
+  messages carry mutable labels and responder ranking is straight-line 2D.
+- Inspected Anyplace `722955182375` model/controller/Dijkstra source and MIT
+  licence directly. It proves the value of building/floor/POI/connection objects
+  but derives floor IDs from building plus floor number, uses weak undirected
+  weighting and lacks the target direction/accessibility/closure/exit policy.
+- Reconfirmed retained multi-floor S-Graphs `35dd3561730a` (GPL-3.0) and HOV-SG
+  `d6e65a53c8be` (MIT file/badge but README commercial-contact restriction) as
+  learn-only sources. No upstream code was copied.
+- Read current OSM Simple Indoor/level/pedestrian-routing guidance and OGC
+  IndoorGML 2.0 concepts. OSM vocabulary is interoperability input, not copied
+  OSM data; IndoorGML alignment is conceptual and no conformance is claimed.
+
+### What changed
+
+- Froze 12 conjunctive acceptance gates before implementation in commit
+  `37e9eb1` (`research(map): preregister MAP-01 semantic graph`).
+- Added independent, dependency-free `loc8.building-graph.v1` under
+  [`research/rnd/prototypes/building-graph/`](research/rnd/prototypes/building-graph/README.md):
+  strict schema/validator, semantic objects plus directed route graph, immutable
+  closure overlays, four route profiles, egress audit, deterministic hashes,
+  product projections and explicit signed-floor-wire adapter.
+- Preserved the exact FLOOR-01 building/map/level/east-stair/landing ID seam and
+  extended it with 12 spaces, five zones, five connectors, seven portals, two
+  final exits, one assembly point, 39 route nodes and 45 edges.
+- Added full decision/data-contract/measurements and 10-file verified SHA-256
+  manifest under
+  [`research/rnd/results/MAP-01/2026-07-22-semantic-graph/`](research/rnd/results/MAP-01/2026-07-22-semantic-graph/README.md).
+- Artifact commit: `d023690` (`research(map): validate MAP-01 semantic graph`).
+  No app, engine, packet, native, Expo or retained-repository source changed.
+
+### What was measured and what passed/failed
+
+- Final focused suite: 123/123 tests. All 71 named malformed/referential/
+  topology/accessibility/routing/wire mutations were rejected with expected
+  issue codes; zero unexpected accepts.
+- Synthetic publication audit: 8/8 general and 7/7 step-free-required spaces
+  reached eligible final exits. Lift/ramp closures rerouted or failed closed;
+  evacuation excluded lifts/escalators; direction and unknown accessibility were
+  enforced.
+- Scale graph: 1,002 nodes/1,001 edges; 10,000 requests per run (all four
+  profiles, 770 closure overlays), 9,718 `ok`, 282 deliberate `no-route`, zero
+  invalid, 3,499,328 returned traversals. Four measured runs took 3,706.137,
+  3,676.832, 3,684.560 and 3,679.830 ms against 5,000 ms; result SHA-256 was
+  identical: `6d832d23700431b26c3b1d9971abbb62950447a73a6b628aa6e339484239a5ea`.
+- Adversarial work found and fixed three defects rather than weakening gates:
+  wrong canonical array ID precedence, a malformed-landing validator throw and
+  a mutable compiled-source/stale-fingerprint seam.
+- Regressions: 188/188 combined R&D tests, 24/24 relay service tests, exactly 27
+  product suites with 274/274 tests, and root/Guard/Command TypeScript checks.
+  Jest's pre-existing open handle remains; `--forceExit` supplied the clean
+  authoritative process exit.
+- All JSON parsed, local documentation links resolved, all 10 evidence hashes
+  matched and `git diff --check` passed before the artifact commit.
+
+### Decisions and limits
+
+- `RDD-015` **PROMOTE:** the pure schema/validator, physical-semantic plus route-
+  graph separation, deterministic profile router, publication egress audit,
+  product projection seam and explicit semantic-ID↔wire-code adapter.
+- **REPEAT:** one permissioned real plan/building (MAP-04), second-operator
+  commissioning (MAP-10), product adapters and specialist accessibility/fire/
+  venue route review.
+- **HOLD:** real site-sensitive map storage/deployment and every regulatory,
+  safety, accessibility, commissioning, route-accuracy or pilot claim.
+- **STOP:** display/integer identity, straight-line 2D cross-floor route truth,
+  geometry-as-connectivity, unknown-as-accessible, automatic lift/escalator
+  evacuation use, zero/default costs and synthetic-building claims.
+- This is synthetic pure-contract evidence. It does not prove a real map,
+  survey, route, building, positioning system, compliance state or safe incident
+  instruction.
+
+### What happens next
+
+1. Execute `SEC-05`: reviewed cryptographic-library/logical-frame/credential/
+   prekey bake-off with public vectors. Do not promote custom cryptography.
+2. Complete the `MESH-01` physical kit/preflight and run it when three suitable
+   phones and a radio-isolated A↔C layout exist; simulation cannot close it.
+3. Continue targeted retained-repository adoption assessment, prioritising
+   components that directly inform SEC-05/MESH-01 and the promoted MAP seam.
+4. Product development may adopt MAP-01's pure contract in a separate reviewed
+   increment. Real-building work remains a separately preregistered repeat.
+5. Prepare, but do not falsely close, the FLOOR-01 native/physical repeat.
+
+If this task compacts or Claude Code resumes it, start from artifact commit
+`d023690`, `RDD-015`, the MAP-01 result and this section. Do not rerun the pure
+MAP cycle unless new evidence contradicts it, and do not infer real-building or
+safety truth from the synthetic fixtures.

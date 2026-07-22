@@ -400,24 +400,58 @@ incident, route and search using both physical safety and communications reach.
   [result](results/FLOOR-01/2026-07-22-corpus-contract/README.md) and
   [prototype README](prototypes/floor-corpus/README.md).
 
+### MAP-01 semantic-building-graph result — 2026-07-22
+
+- Preregistered 12 conjunctive pure gates in commit `37e9eb1`; sealed the
+  implementation/result in artifact commit `d023690`.
+- Added `loc8.building-graph.v1`: strict schema/semantic validator, explicit
+  physical objects plus directed route graph, deeply frozen compilation,
+  deterministic routing, closure overlays, final-exit audit, four accessibility/
+  evacuation profiles, stable product projections and a reversible legacy
+  signed-floor-code adapter.
+- Preserved FLOOR-01's exact building/map/level/east-stair/landing IDs. The
+  synthetic fixture adds 12 spaces, five zones, five connectors, seven portals,
+  two final exits, one assembly place, 39 nodes and 45 edges.
+- Final result: 123/123 focused tests; 71/71 named invalid mutations rejected;
+  8/8 general and 7/7 step-free-required spaces reach eligible exits. Four
+  10,000-query scale runs over 1,002 nodes completed in 3,676.832–3,706.137 ms
+  versus 5,000 ms with identical result SHA-256.
+- Three defects were found and corrected during falsification: canonical arrays
+  using referenced instead of owned IDs, malformed landing arrays throwing, and
+  compiled graphs retaining mutable caller state.
+- Decision `RDD-015`: PROMOTE the pure schema/validator/router/audit/projection
+  seam; REPEAT real plan/building, second operator, product adapters and
+  specialist route review; HOLD site data/deployment and compliance/safety
+  claims; STOP label/integer identity, 2D cross-floor route truth and optimistic
+  unknown accessibility.
+- This is synthetic graph evidence only. It proves no real map, route, building,
+  survey, accessibility, evacuation, positioning or pilot claim. Read the
+  [result](results/MAP-01/2026-07-22-semantic-graph/README.md) and
+  [prototype README](prototypes/building-graph/README.md).
+
 ## What Claude Code should do next
 
-1. Freeze `MAP-01`'s stable `Building/Level/Space/Connector/Landing/Zone` IDs and
-   import one real site plan aligned to the floor corpus.
-2. Run `SEC-05` as a reviewed-library and public-vector bake-off, including the
+1. Run `SEC-05` as a reviewed-library and public-vector bake-off, including the
    BitChat prekey candidate. Do not implement local cryptographic primitives.
-3. Prepare the FLOOR-01 SDK 57 adapter and physical protocol from the promoted
+2. Finish the `MESH-01` physical kit/preflight and run it as soon as three
+   suitable phones and a radio-isolated A↔C layout exist. Simulation cannot
+   close the question.
+3. Continue targeted retained-repository assessment for components that directly
+   inform SEC-05, MESH-01 and the promoted MAP contract; distinguish code from
+   ideas and record file provenance before adoption.
+4. Product development may integrate `loc8.building-graph.v1` in a separate
+   reviewed change. Preregister MAP-04 before importing one permissioned real
+   site plan; pure MAP-01 did not satisfy that real-building requirement.
+5. Prepare the FLOOR-01 SDK 57 adapter and physical protocol from the promoted
    contract, but do not collect until site/participant/storage/deletion authority
    exists. Device/building claims require the iOS/Android repeat.
-4. Do **E01 physical three-phone relay** immediately when suitable devices and a
-   radio-isolated layout are available; simulation cannot close `MESH-01`.
-5. Repeat the connected boundary with real identity, durable stores, pinned
+6. Repeat the connected boundary with real identity, durable stores, pinned
    TLS/proxy adapter and recovery drills; do not wire the demo relay into a pilot.
-6. After floor data exists, implement a pure dataset-driven HMM/Viterbi baseline
+7. After floor data exists, implement a pure dataset-driven HMM/Viterbi baseline
    behind the current manual truth and compare it with Bermuda/Navigine/blelocpp.
-7. Keep MeshCore-vs-LoRaMesher hardware work gated until physical mesh/bench
+8. Keep MeshCore-vs-LoRaMesher hardware work gated until physical mesh/bench
    evidence or a signed pilot need justifies it.
-8. Create `THIRD_PARTY_NOTICES`/file provenance for every upstream file actually
+9. Create `THIRD_PARTY_NOTICES`/file provenance for every upstream file actually
    moved from `repos/` into shipped code.
 
 ## Guardrails for future agents

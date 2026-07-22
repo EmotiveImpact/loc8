@@ -498,16 +498,23 @@ privacy or safety obligations silently.
 
 ## The immediate autonomous queue
 
-The team should start in this exact order:
+After the completed pure `CONN-01`, `SEC-01`, `FLOOR-01` and `MAP-01` cycles,
+the team should continue in this exact order:
 
-1. `MESH-01`: physical third-phone relay.
-2. `CONN-01`: connected pilot threat model and architecture boundary.
-3. `FLOOR-01`: floor-transition data schema/logger design.
-4. `MAP-01`: minimum semantic building graph.
-5. `MESH-02`: background/device/battery matrix.
-6. `OPS-01`: pilot outcome and muster truth definitions.
-7. `FLOOR-02`: corpus collection and current-baseline evaluation.
-8. `SEC-01`: protocol-v2 threat model/identity before encryption code.
+1. `SEC-05`: reviewed library, public vector, logical-frame, credential and
+   prekey bake-off; cryptographic implementation remains HOLD.
+2. `MESH-01`: finish the physical kit/preflight and run the third-phone relay
+   when three suitable phones and radio isolation exist.
+3. Targeted retained-repository assessment for the SEC-05/MESH-01/MAP seams;
+   stop cloning without a decision question.
+4. FLOOR-01 native adapter/physical repeat preparation; collection remains
+   gated by site/participant/storage/deletion authority.
+5. `MAP-04`/`MAP-10`: permissioned real-plan and second-operator repeats after
+   governance and building access exist.
+6. `MESH-02`/`MESH-03`: background/device/battery matrix when devices exist.
+7. `OPS-01` through `OPS-03`: pilot outcome and muster truth definitions.
+8. `FLOOR-02` through `FLOOR-05`: corpus baselines, anchors and fusion after
+   approved physical data exists.
 9. `HW-01`: fixed pressure-anchor bench design, gated by usable floor data.
 10. `RADIO-01`: MeshCore/LoRaMesher comparison, gated by field/bench evidence or
     a signed pilot need.
@@ -540,10 +547,17 @@ the company while the other remains unproven.
   phone/building claims. The 40/40 suite and 50,008-event two-run replay are in
   the [result](results/FLOOR-01/2026-07-22-corpus-contract/README.md) and artifact
   commit `fc2f536`.
-- The next locally autonomous work is `MAP-01` (minimum semantic building graph
-  against the frozen floor identity seam), followed by `SEC-05`
-  (reviewed-library and public-vector bake-off). Prepare, but do not falsely
-  close, the FLOOR-01 physical repeat.
+- `MAP-01` completed its preregistered pure contract cycle. PROMOTE the strict
+  semantic/route graph, deterministic profile router, egress audit, projections
+  and wire-code seam; REPEAT a real plan/building, second operator, product
+  adapters and specialist route review; HOLD every real-building/safety claim.
+  The 123/123 focused suite, 71 invalid mutations and four reproducible
+  10,000-query runs are in the
+  [result](results/MAP-01/2026-07-22-semantic-graph/README.md), artifact commit
+  `d023690`.
+- The next locally autonomous work is `SEC-05`, followed by `MESH-01` physical
+  kit/preflight and targeted retained-repository assessment. Prepare, but do not
+  falsely close, the FLOOR-01 physical repeat or MAP real-building repeats.
 - Product security/connected-platform engineering may take the promoted units in
   the [promotion brief](results/CONN-01/2026-07-22-secure-relay-prototype/promotion-brief.md),
   but no pilot-security claim is authorised yet.

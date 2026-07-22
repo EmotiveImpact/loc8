@@ -219,3 +219,39 @@ Supersedes/superseded by:
 - **Next:** execute `MAP-01` against the frozen ID seam. Implement the exact SDK
   57 adapter only as a separately tested product increment, then repeat E03 on
   supported iOS and Android under the approved protocol.
+
+### RDD-015 — promote the semantic graph contract, not synthetic routes
+
+- **Questions:** `MAP-01`, with bounded evidence for `MAP-02` and `MAP-03`
+- **Decision:** PROMOTE `loc8.building-graph.v1`, its semantic validator,
+  physical-object/directed-route-graph separation, deterministic profile router,
+  immutable closure overlay, publication egress audit, product projections and
+  explicit semantic-level-to-legacy-wire-code adapter. REPEAT with a
+  permissioned real plan/building, measured registration/corrections, a second
+  operator, product adapters and competent accessibility/fire/venue review.
+  HOLD real site-sensitive map storage/deployment and all safety, regulatory,
+  accessibility, route-accuracy, commissioning or pilot claims. STOP
+  display-label/consecutive-integer identity, geometry-as-connectivity,
+  straight-line 2D cross-floor route truth, unknown-as-accessible, automatic
+  lift/escalator evacuation use and missing/zero route-cost defaults.
+- **Evidence:** preregistration commit `37e9eb1`; artifact commit `d023690`;
+  [result](results/MAP-01/2026-07-22-semantic-graph/README.md). Final focused
+  suite 123/123 with 71/71 named invalid mutations rejected; 8/8 general and 7/7
+  step-free-required synthetic spaces reach eligible exits. Four 10,000-query
+  runs over 1,002 nodes completed in 3,676.832–3,706.137 ms against 5,000 ms
+  with identical result SHA-256.
+- **Failures corrected:** canonical arrays originally used some referenced IDs
+  before owned IDs; malformed landing arrays could throw; compiled state shared
+  mutable caller objects. The implementation was fixed and gates retained.
+- **Constraints:** all map, route, accessibility and egress observations are
+  deterministic synthetic evidence. No real plan/building, survey, geometry,
+  route safety, accessibility, compliance, positioning or operational result
+  exists. Existing product code remains unchanged.
+- **Product/specification changes:** use stable IDs across floor truth, maps,
+  incidents, zones and assembly places; keep mutable labels as display/audit
+  snapshots; route only through explicit portals/connector landings; represent
+  unknown accessibility explicitly; isolate the six-bit floor field at a
+  reversible map-version-scoped adapter.
+- **Next:** execute `SEC-05`. Product development may adopt the pure graph
+  contract separately; MAP-04/MAP-10 must preregister real plan and operator
+  evidence before any building/commissioning claim.
