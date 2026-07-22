@@ -4,6 +4,10 @@ This is the plain-English control page for the owner. Engineering detail remains
 in `docs/CODEX-CLAUDE-HANDOFF.md`; this page answers what is real, what can be
 opened, what is still experimental and what needs the owner.
 
+For the exact equipment, permissions, provider choices and review needed to
+move beyond local software, read
+`docs/product/AUTONOMOUS-BUILD-AUDIT-2026-07-22.md`.
+
 **Last updated:** 2026-07-22
 
 **Current product phase:** Shared building engine, commissioning, offline

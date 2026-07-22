@@ -255,9 +255,9 @@ the decision PROMOTE/REPEAT/HOLD/STOP.
 
 ### NOW — no more than three active decision questions
 
-1. Product `MAP-04` preparation — extend Commissioning with synthetic plan
-   import and control-point registration; real-plan/second-operator evidence
-   remains HOLD until site/plan/operator authority exists.
+1. `MAP-04` physical repeat — the strict synthetic plan import/control-point
+   registration product seam is complete (`RDD-023`); real-plan/second-operator
+   evidence remains HOLD until site/plan/operator/evidence authority exists.
 2. `CONN-01` product repeat — reviewed real identity, durable
    replay/revocation/policy/audit stores, pinned TLS/proxy adapter and recovery
    drills; pilot readiness remains HOLD.

@@ -1344,10 +1344,20 @@ Canonical evidence:
 - `docs/research/rnd/decision-log.md` (`RDD-023`)
 
 Phase 4 preregistration is commit `3df0db0`. The verified product commit and
-local-main receipt are recorded after the final explicit file-set commit. The
+implementation/evidence commit is `658d850`; local `main` fast-forwarded from
+`ee26afc` through it after all gates passed. The documentation-only receipt is
+the next commit on both local branches. The
 canonical worktree's `.claude/launch.json` remains user-owned, modified,
 untouched and unstaged. No push, deployment, purchase, external contact or
 physical data collection occurred.
+
+### Final autonomous-scope audit
+
+`docs/product/AUTONOMOUS-BUILD-AUDIT-2026-07-22.md` is the concise “what Codex
+needs” answer. The locally provable Phase 1–4 objective is complete. Further
+promotion now requires a physical phone/site/plan pack, supported Xcode and more
+disk, identity/PKI/deployment choices, specialist review or commercial
+authority. Do not replace any of those with another synthetic pass.
 
 ## 2026-07-22 product increment — phone sensor adapter and journey replay
 

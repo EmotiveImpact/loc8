@@ -11,6 +11,8 @@ This folder is the **dev-ready knowledge base**: everything decided so far, so a
 > registration are built in local software. Open
 > [OWNER-PRODUCT-STATUS.md](OWNER-PRODUCT-STATUS.md) for plain English and
 > [CODEX-CLAUDE-HANDOFF.md](CODEX-CLAUDE-HANDOFF.md) for exact continuation.
+> [product/AUTONOMOUS-BUILD-AUDIT-2026-07-22.md](product/AUTONOMOUS-BUILD-AUDIT-2026-07-22.md)
+> lists exactly what the owner/outside world must supply next.
 > Physical mesh/floor/building evidence, durable Gateway runtime/store, reviewed
 > signing and deployment remain held—not implied by the software demos.
 
