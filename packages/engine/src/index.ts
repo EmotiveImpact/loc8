@@ -15,6 +15,9 @@ export * from './core/proximity';
 export * from './core/floorMath';
 export * from './core/floorTracker';
 
+// --- semantic venue package, commissioning validation and routing ---
+export * from './building';
+
 // --- transport: location transport contract + implementations ---
 export * from './transport/LocationTransport';
 export * from './transport/SimulatedTransport';

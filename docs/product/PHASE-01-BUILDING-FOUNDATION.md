@@ -1,5 +1,7 @@
 # Phase 1 preregistration — production building foundation
 
+**Measured result:** [PHASE-01-BUILDING-FOUNDATION-RESULT.md](PHASE-01-BUILDING-FOUNDATION-RESULT.md)
+
 **Frozen before product implementation:** 2026-07-22
 
 **Decision:** whether the MAP-01 research contract is ready to become a shared

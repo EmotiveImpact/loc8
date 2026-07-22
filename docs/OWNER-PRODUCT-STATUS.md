@@ -19,15 +19,19 @@ opened, what is still experimental and what needs the owner.
 - Development-only three-phone mesh evidence screen and native diagnostics.
 - Tested research implementations for a semantic multi-floor building graph,
   floor-data contract, connected-service boundary and security-provider boundary.
+- Production shared venue-package validation, immutable local-demo publication,
+  four-profile routing, projections and legacy floor-code boundary.
+- Command → Commissioning / Map Builder with a four-level synthetic venue,
+  editable rooms/zones/geometry, validation, route/closure preview and durable
+  browser-local draft/demo state.
+- Guard floor and zone projections from the same semantic venue package.
 
-## Being built now
+## Being built next
 
-- A production TypeScript venue package in the shared Loc8 engine.
-- Command → Commissioning / Map Builder.
-- A realistic four-level demonstration venue.
-- Shared published floors, zones and connectors for Guard and Command.
-- Honest local-draft/local-demo publication states before Gateway distribution
-  exists.
+- Gateway authority, signed/versioned offline venue-package distribution and
+  reconciliation adapters.
+- Expo 57 phone sensor adapter and synthetic/recorded journey replay surface.
+- Installer plan import/control-point registration and second-operator workflow.
 
 ## Built but experimental
 
@@ -68,13 +72,19 @@ verification must pass.
 
 ## Latest result
 
-Not yet measured. See `docs/product/PHASE-01-BUILDING-FOUNDATION.md` for the
-frozen acceptance criteria. This line will be replaced with measured evidence,
-not an optimistic status.
+**PROMOTE the Phase 1 product foundation.** The frozen non-physical gates pass:
+31/31 suites and 326/326 tests, TypeScript, lint, Command production build, Expo
+Doctor 20/20, dependency audit with zero vulnerabilities, real browser workflow
+at desktop/tablet/mobile sizes with no final console errors, and passed visual
+QA after correcting four P1/P2 findings. This does not promote Gateway, physical
+building, positioning, safety or pilot claims. See
+`docs/product/PHASE-01-BUILDING-FOUNDATION-RESULT.md`.
 
 ## Next three actions
 
-1. Implement and test the shared production venue package.
-2. Build and visually verify Command Commissioning / Map Builder.
-3. Project the published venue into Guard/Command, then prepare Gateway
-   distribution and sensor/replay phases.
+1. Build a local fake Gateway authority/distribution adapter and freeze its
+   signed package/reconciliation contract before any network deployment.
+2. Implement the exact Expo 57 phone sensor adapter and journey replay surface
+   without collecting physical data.
+3. Extend Commissioning with plan import/control-point registration, then run a
+   second-operator repeat when an authorised user/plan is available.

@@ -368,3 +368,29 @@ Supersedes/superseded by:
 - **Next:** execute the physical FLOOR corpus/estimator bake-off, `MESH-01 E01`,
   real-building MAP repeat, `RADIO-01 E07` MeshCore-vs-LoRaMesher bake-off and
   `SEC-05 E07`. Refresh individual upstreams only as new experiment snapshots.
+
+### RDD-020 — promote the building product foundation, not site truth
+
+- **Questions:** product adoption of `MAP-01`, supporting `FLOOR-01` and the
+  Guard/Command/Gateway building seam
+- **Decision:** PROMOTE the strict shared venue package, immutable browser-local
+  demo lifecycle, deterministic four-profile router, product projections,
+  explicit legacy floor codec and Command commissioning slice into product
+  development. REPEAT with a second operator, import/control-point workflow and
+  permissioned real plan/building. HOLD Gateway authority/distribution, real
+  building publication, positioning accuracy and every safety, accessibility,
+  compliance or pilot claim. STOP treating mutable labels, localStorage,
+  synthetic geometry, screenshot output or signed floor bytes as site truth.
+- **Evidence:** frozen
+  [acceptance](../../product/PHASE-01-BUILDING-FOUNDATION.md), measured
+  [result](../../product/PHASE-01-BUILDING-FOUNDATION-RESULT.md) and root
+  [design QA](../../../design-qa.md). Root regression passed 31/31 suites and
+  326/326 tests; focused product surface passed 47/47; TypeScript/lint/Command
+  build/Expo Doctor 20/20/audit zero passed; real browser interaction and final
+  desktop/tablet/mobile renders passed with zero final console errors.
+- **Constraints:** every building, path, duration, accessibility and floor
+  observation remains synthetic. Browser-local publication is explicitly
+  unsigned and is neither Gateway distribution nor multi-operator truth.
+- **Next:** freeze and build local fake Gateway package authority/distribution,
+  then the exact Expo 57 sensor/replay adapter. Real MAP/FLOOR repeats remain
+  gated on authority, plans/building, participants and competent review.

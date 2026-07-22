@@ -5,23 +5,33 @@
 // moves those senders; we simply RESKIN those same ids as a security team so the
 // live team map is driven by the real engine loop — no forked transport.
 import { useCrewStore, venueLevelName, type VenueLevel } from '@loc8/engine';
+import {
+  createLegacyFloorCodec,
+  createSyntheticFourLevelVenue,
+  projectLevels,
+  projectZones,
+} from '@loc8/engine/building';
 import { ops } from '../ui/opsTheme';
 
 export type GuardStatus = 'ok' | 'caution';
 
 /**
- * The venue's real levels — guards say "Balcony", not "floor 1". Drives the
- * clock-in anchor, the map's floor strip, and every floor caption. (Per-venue
- * config; this is the demo venue.)
+ * Guard consumes the same semantic venue package as Command. The explicit
+ * legacy codec is the only boundary where stable level IDs become signed wire
+ * floor bytes for existing mesh packets.
  */
-export const VENUE_LEVELS: VenueLevel[] = [
-  { floor: 2, name: 'Roof Terrace', short: 'L2' },
-  { floor: 1, name: 'Balcony', short: 'L1' },
-  { floor: 0, name: 'Main Floor', short: 'G' },
-  { floor: -1, name: 'Car Park', short: 'B1' },
-];
+export const GUARD_VENUE_PACKAGE = createSyntheticFourLevelVenue();
+export const GUARD_VENUE_ZONES = projectZones(GUARD_VENUE_PACKAGE);
+const FLOOR_CODEC = createLegacyFloorCodec(GUARD_VENUE_PACKAGE);
+export const VENUE_LEVELS: VenueLevel[] = projectLevels(GUARD_VENUE_PACKAGE)
+  .map((level) => ({
+    floor: FLOOR_CODEC.encode(level.levelId)!,
+    name: level.name,
+    short: level.levelRef,
+  }))
+  .sort((left, right) => right.floor - left.floor);
 
-/** This venue's name for a floor ("Balcony"), falling back to L1/B1 style. */
+/** This venue's semantic level name, falling back to L1/B1 style. */
 export function levelName(floor: number): string {
   return venueLevelName(VENUE_LEVELS, floor);
 }

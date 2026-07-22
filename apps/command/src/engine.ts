@@ -34,3 +34,30 @@ export { BridgedTransport } from '@loc8/engine/transport/BridgedTransport';
 // parsed by the same module Guard uses, so the doors cannot drift.
 export { opsMsg, parseOpsMessage } from '@loc8/engine/core/opsMessages';
 export type { OpsEvent } from '@loc8/engine/core/opsMessages';
+
+// Commissioning uses only the pure semantic-building submodule. Keeping this
+// explicit preserves Command's no-React-Native web boundary while giving
+// Guard, Command and Gateway packaging one versioned building contract.
+export {
+  SYNTHETIC_FOUR_LEVEL_VENUE,
+  assertVenuePackage,
+  compileVenuePackage,
+  createLocalDemoPublication,
+  createSyntheticFourLevelVenue,
+  forkVenueDraft,
+  projectFloorPlans,
+  projectLevels,
+  projectPlaces,
+  projectZones,
+  routeBetweenNodes,
+  routeToNearestExit,
+  validateVenuePackage,
+} from '@loc8/engine/building';
+export type {
+  PlanPoint,
+  RouteProfile,
+  VenuePackage,
+  VenueRouteResult,
+  VenueSpace,
+  VenueValidationIssue,
+} from '@loc8/engine/building';

@@ -9,8 +9,9 @@ import { MusterBoard } from './dashboards/MusterBoard';
 import { RosterShift } from './dashboards/RosterShift';
 import { CoverageHeatmap } from './dashboards/CoverageHeatmap';
 import { AuditSearch } from './dashboards/AuditSearch';
+import { Commissioning } from './dashboards/Commissioning';
 
-export type TabId = 'operations' | 'incident' | 'muster' | 'roster' | 'heatmap' | 'audit';
+export type TabId = 'operations' | 'incident' | 'muster' | 'roster' | 'heatmap' | 'commissioning' | 'audit';
 
 /** Navigation handle passed to dashboards so they can drill into each other. */
 export interface Nav {
@@ -23,6 +24,7 @@ const NAV: Array<{ id: TabId; label: string; icon: Parameters<typeof Icon>[0]['n
   { id: 'muster', label: 'Muster', icon: 'users' },
   { id: 'roster', label: 'Roster & shift', icon: 'clipboard' },
   { id: 'heatmap', label: 'Coverage', icon: 'grid' },
+  { id: 'commissioning', label: 'Commissioning', icon: 'plus' },
   { id: 'audit', label: 'Assisted search', icon: 'search' },
 ];
 
@@ -123,6 +125,7 @@ export default function App() {
         {tab === 'muster' && <MusterBoard />}
         {tab === 'roster' && <RosterShift />}
         {tab === 'heatmap' && <CoverageHeatmap />}
+        {tab === 'commissioning' && <Commissioning />}
         {tab === 'audit' && <AuditSearch />}
       </main>
 

@@ -1082,3 +1082,85 @@ The cache-heavy Android build was not repeated between `5dd6978` and this
 receipt because the only intervening change is this Markdown ledger. All product,
 research, provenance and link gates recorded above therefore remain the final
 verification evidence for the integrated payload.
+
+## 2026-07-22 product increment — shared building engine and Command commissioning
+
+This is the current continuation point for Codex or Claude Code. It supersedes
+the older statement above that `MAP-01` had not changed product code.
+
+### Owner intent and evidence boundary
+
+The owner asked the autonomous Principal Product/R&D Lead to turn validated
+building/floor/mesh/service/security research into working Loc8 product, starting
+with the shared building engine and Command Commissioning/Map Builder. No push,
+deployment, purchase, customer contact, physical data collection or external
+claim was authorised. Synthetic/replay evidence must never be described as
+physical proof.
+
+Before product implementation, Codex read the exact Expo SDK 57 documentation
+required by `AGENTS.md`, audited the canonical worktree and froze Phase 1 gates
+in `docs/product/PHASE-01-BUILDING-FOUNDATION.md`. The user's existing
+`.claude/launch.json` modification remained untouched and unstaged.
+
+### What was implemented
+
+- `packages/engine/src/building/`: strict production types and validation;
+  immutable compile; canonical JSON; draft/local-demo/successor lifecycle;
+  deterministic walking, step-free and evacuation routing with closures;
+  Guard/Command projections; explicit legacy floor codec; and a coherent
+  four-level synthetic venue.
+- Command now has a real `Commissioning` destination. The operator can switch
+  floors, select data-rendered plan objects, edit name/kind, move geometry, add
+  rooms/zones, see validation, calculate route/closure outcomes, create an
+  unsigned browser-local demo, reload it and fork a successor draft. A visible
+  evidence boundary and publication record prevent localStorage being mistaken
+  for Gateway/site truth.
+- Guard derives its visible floor and zone projection from the same venue
+  package. The old signed floor integer is produced only at the explicit legacy
+  codec boundary.
+- Command publication policy and Guard projection tests were added alongside
+  44 engine tests, including 34 named invalid venue mutations.
+
+### What was verified
+
+- Root Jest: 31/31 suites, 326/326 tests.
+- New focused surface: 47/47 tests.
+- Root, engine and Guard TypeScript: PASS.
+- Command production build: PASS (71 transformed modules).
+- Lint: PASS. Expo Doctor: 20/20. `npm audit`: zero vulnerabilities.
+- Codex in-app browser: add/edit/move room, type edit, validation, 50-second
+  three-level step-free egress route, ramp closure/no-route, local publication,
+  reload persistence, successor draft and reset all passed.
+- Final desktop 1440×1000 and tablet 1024×768 console logs: zero warnings/errors.
+  Desktop/tablet/mobile document widths matched their viewports.
+- Design QA corrected stacked tablet navigation, label collisions, mobile top
+  bar wrapping and inspector placement. Root `design-qa.md` is `passed`.
+
+### Product decision and exact next order
+
+`RDD-020`: PROMOTE the building foundation and browser-local commissioning
+slice; REPEAT with a second operator/permissioned real plan; HOLD Gateway,
+physical building/floor, safety/accessibility/compliance/pilot truth; STOP any
+localStorage/label/synthetic/screenshot shortcut.
+
+Continue in this order:
+
+1. freeze and build a local fake Gateway package authority/distribution and
+   reconciliation contract—no network deployment;
+2. build the exact Expo 57 phone sensor adapter plus synthetic/recorded replay
+   surface—no physical data collection;
+3. extend Commissioning with plan import/control-point registration and prepare
+   the second-operator real-plan repeat; and
+4. preserve the existing physical MESH/FLOOR/MAP/security holds until their
+   external dependencies genuinely exist.
+
+Canonical evidence:
+
+- `docs/product/PHASE-01-BUILDING-FOUNDATION-RESULT.md`
+- `design-qa.md`
+- `docs/product/evidence/`
+- `docs/OWNER-PRODUCT-STATUS.md`
+- `docs/research/rnd/decision-log.md` (`RDD-020`)
+
+At the time this section was written, product changes were verified but not yet
+committed or fast-forwarded into local `main`. Nothing had been pushed.
