@@ -1,0 +1,46 @@
+{
+  "date": "2026-07-22",
+  "runtime": "Node.js 22.22.3",
+  "testCommand": "npm --prefix services/loc8-relayd test",
+  "tests": {
+    "suitesPassed": 6,
+    "passed": 24,
+    "failed": 0
+  },
+  "benchmarkCommand": "npm --prefix services/loc8-relayd run benchmark",
+  "benchmark": {
+    "scope": "dependency-free in-process contract regression; not venue latency",
+    "runs": 10000,
+    "medianMs": 0.0013,
+    "p95Ms": 0.0021,
+    "maxMs": 0.4242,
+    "delivered": 10000,
+    "connections": 2,
+    "replayEntries": 2,
+    "retainedAuditEntries": 128,
+    "heapUsedBytesBefore": 4895656,
+    "heapUsedBytesAfter": 10242592,
+    "heapDeltaBytes": 5346936,
+    "rssBytesAfter": 61030400
+  },
+  "repeatTiming": {
+    "runs": 5,
+    "operationsPerRun": 10000,
+    "p95Ms": [0.0018, 0.0024, 0.0019, 0.0021, 0.0025],
+    "p95RangeMs": [0.0018, 0.0025],
+    "note": "Timing is environment-sensitive and retained only as a local regression baseline."
+  },
+  "gates": {
+    "deliveredAll": true,
+    "routingP95Below2Ms": true,
+    "connectionsBounded": true,
+    "replayBounded": true,
+    "auditBounded": true
+  },
+  "limitations": [
+    "sequential and in-process",
+    "fake verifier, stores, audit and sockets",
+    "receiver fixture intentionally retains 10000 frame copies",
+    "no network, TLS, proxy, database, crash, device or venue evidence"
+  ]
+}

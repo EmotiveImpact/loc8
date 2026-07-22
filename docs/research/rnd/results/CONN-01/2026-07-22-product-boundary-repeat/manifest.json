@@ -1,0 +1,33 @@
+{
+  "date": "2026-07-22",
+  "loc8BaseCommit": "6bc1f44ebbc2886c14c2e92901f6f36f4bf5c5be",
+  "runtime": {
+    "mainCheckout": "Node.js 22.12.0",
+    "canonicalRndAndPrincipalAudit": "Node.js 22.22.3"
+  },
+  "expoDocumentation": "https://docs.expo.dev/versions/v57.0.0/",
+  "expoMinimumNode": "22.13.x",
+  "observedRegistryVersions": {
+    "expo": "57.0.7",
+    "ws": "8.21.1"
+  },
+  "installedBaseline": {
+    "expo": "57.0.2",
+    "toolWs": "8.21.0",
+    "transitiveWs": "7.5.11",
+    "npmAuditOmitDev": {
+      "high": 1,
+      "moderate": 11,
+      "critical": 0
+    }
+  },
+  "evidenceSha256": {
+    "sourceAndTestsHashList": "39af381a0413202b57d0cfeebe866e0c9977d18d13aa60aa2aed65d707a0f190",
+    "benchmark": "3bbc8f7007ac521386909c1c47d85022821a8f3f713e3e68ebbdee0ae4139e62",
+    "package": "30e3a671c43104a9bf37a4417f2d6be16e955cebd2cc93cf401be691e8620013",
+    "measurements": "5495cff03e7fe3560a2dee16eede476f56e838eb8ca84fcf1ed976a494291447"
+  },
+  "personalData": false,
+  "physicalDevices": [],
+  "networkDeployment": null
+}
