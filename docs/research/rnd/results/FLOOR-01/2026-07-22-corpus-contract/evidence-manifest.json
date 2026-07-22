@@ -1,0 +1,58 @@
+{
+  "manifestVersion": "loc8-rd-evidence-v1",
+  "resultId": "floor-01-e03-corpus-contract-2026-07-22",
+  "hashAlgorithm": "sha256",
+  "preregistrationCommit": "8cff81a",
+  "files": [
+    {
+      "path": "docs/research/rnd/prototypes/floor-corpus/README.md",
+      "sha256": "960cc2c3827008ec15fb972658b39d73d84c87474b493a91132f0b720cf873c5"
+    },
+    {
+      "path": "docs/research/rnd/prototypes/floor-corpus/schema-v1.json",
+      "sha256": "a06e33b10071fbb0affb6965fcaa8456db4d196e360f1cc833da634163b0b991"
+    },
+    {
+      "path": "docs/research/rnd/prototypes/floor-corpus/floor-corpus.mjs",
+      "sha256": "f20a2f652d6efed8fb2162da4731c9e85372007b708ccf6234dff5e272c5e448"
+    },
+    {
+      "path": "docs/research/rnd/prototypes/floor-corpus/fixture.mjs",
+      "sha256": "3bf82de5039e81e3cc1e097d13440034889d9eaf7877fac5d6844bce6e15cdc8"
+    },
+    {
+      "path": "docs/research/rnd/prototypes/floor-corpus/floor-corpus.test.mjs",
+      "sha256": "9b78dd9cfa7e663b93611fe1f8c4d32e2357eb8c747491811e12e62edfb9b43e"
+    },
+    {
+      "path": "docs/research/rnd/prototypes/floor-corpus/benchmark.mjs",
+      "sha256": "b0d221f87f90830e45429b17e3a68cdeebc40c994618f4acbbf0880a788ca141"
+    },
+    {
+      "path": "docs/research/rnd/results/FLOOR-01/2026-07-22-corpus-contract/pre-registration.md",
+      "sha256": "8fbff0a79c599f733ab2c9b04f7245f31b8f4889ad980be36b7f8dbd271e348c"
+    },
+    {
+      "path": "docs/research/rnd/results/FLOOR-01/2026-07-22-corpus-contract/README.md",
+      "sha256": "a0fdd668359bba2c842d2fe8c678b39605afe7c46ed9ada39c20dbc9d71ef0c8"
+    },
+    {
+      "path": "docs/research/rnd/results/FLOOR-01/2026-07-22-corpus-contract/data-contract.md",
+      "sha256": "a8adb28dc9b0b268bd9c476d19853dee04db803adf5fcdd58d6b565de154ddea"
+    },
+    {
+      "path": "docs/research/rnd/results/FLOOR-01/2026-07-22-corpus-contract/privacy-and-retention.md",
+      "sha256": "8aebd494b6e73ee6aa7ead474ce6bbcd638415a966e58dc06e3a6ec38660e149"
+    },
+    {
+      "path": "docs/research/rnd/results/FLOOR-01/2026-07-22-corpus-contract/measurements.json",
+      "sha256": "4d43fd63830d139e0d70d102b1c0e71ba34a555a65036df0e36c5fd5b0915920"
+    }
+  ],
+  "reproductionCommands": [
+    "node --test docs/research/rnd/prototypes/floor-corpus/floor-corpus.test.mjs",
+    "node docs/research/rnd/prototypes/floor-corpus/benchmark.mjs"
+  ],
+  "rawPhysicalEvidence": null,
+  "rawPhysicalEvidenceReason": "No physical device, participant, building or radio collection occurred in this contract-only cycle."
+}

@@ -1,0 +1,455 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://loc8.example/schemas/floor-corpus-v1.json",
+  "title": "Loc8 floor-transition corpus bundle v1",
+  "description": "Portable structure. The dependency-free reference validator additionally enforces topology, time, privacy and coverage invariants.",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["manifest", "events"],
+  "properties": {
+    "manifest": { "$ref": "#/$defs/manifest" },
+    "events": {
+      "type": "array",
+      "items": { "$ref": "#/$defs/event" }
+    }
+  },
+  "$defs": {
+    "stableId": {
+      "type": "string",
+      "pattern": "^[a-z][a-z0-9._-]{2,95}$"
+    },
+    "positiveTime": {
+      "type": "integer",
+      "minimum": 1,
+      "maximum": 9007199254740991
+    },
+    "monotonicTime": {
+      "type": "integer",
+      "minimum": 0,
+      "maximum": 9007199254740991
+    },
+    "vector3": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["x", "y", "z"],
+      "properties": {
+        "x": { "type": "number" },
+        "y": { "type": "number" },
+        "z": { "type": "number" }
+      }
+    },
+    "level": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["levelId", "levelRef", "ordinal", "elevationM"],
+      "properties": {
+        "levelId": { "$ref": "#/$defs/stableId" },
+        "levelRef": { "type": "string", "minLength": 1, "maxLength": 32 },
+        "ordinal": { "type": "number" },
+        "elevationM": { "type": "number" }
+      }
+    },
+    "landing": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["landingId", "levelId"],
+      "properties": {
+        "landingId": { "$ref": "#/$defs/stableId" },
+        "levelId": { "$ref": "#/$defs/stableId" }
+      }
+    },
+    "connector": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["connectorId", "modes", "landings"],
+      "properties": {
+        "connectorId": { "$ref": "#/$defs/stableId" },
+        "modes": {
+          "type": "array",
+          "minItems": 1,
+          "uniqueItems": true,
+          "items": { "enum": ["stairs", "lift", "escalator", "ramp"] }
+        },
+        "landings": {
+          "type": "array",
+          "minItems": 2,
+          "items": { "$ref": "#/$defs/landing" }
+        }
+      }
+    },
+    "capability": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "source",
+        "kind",
+        "available",
+        "permission",
+        "requestedIntervalMs",
+        "unit",
+        "nativeTimestampUnit"
+      ],
+      "properties": {
+        "source": { "$ref": "#/$defs/stableId" },
+        "kind": {
+          "enum": [
+            "pressure",
+            "motion",
+            "steps",
+            "magnetic-field",
+            "radio-observation",
+            "phone-state"
+          ]
+        },
+        "available": { "type": "boolean" },
+        "permission": { "enum": ["granted", "denied", "unavailable", "not-required"] },
+        "requestedIntervalMs": { "type": "number", "minimum": 0 },
+        "unit": { "type": "string", "minLength": 1 },
+        "nativeTimestampUnit": { "enum": ["seconds", "milliseconds", "nanoseconds", "none"] }
+      }
+    },
+    "manifest": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "schemaVersion",
+        "recorderVersion",
+        "protocolVersion",
+        "createdAtMs",
+        "sessionId",
+        "studyId",
+        "participantId",
+        "building",
+        "device",
+        "capabilities",
+        "clock",
+        "consent",
+        "retention",
+        "radioPrivacy",
+        "analysis",
+        "exclusions"
+      ],
+      "properties": {
+        "schemaVersion": { "const": "loc8.floor-corpus.v1" },
+        "recorderVersion": { "$ref": "#/$defs/stableId" },
+        "protocolVersion": { "$ref": "#/$defs/stableId" },
+        "createdAtMs": { "$ref": "#/$defs/positiveTime" },
+        "sessionId": { "$ref": "#/$defs/stableId" },
+        "studyId": { "$ref": "#/$defs/stableId" },
+        "participantId": { "$ref": "#/$defs/stableId" },
+        "building": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["buildingId", "mapVersion", "levels", "connectors"],
+          "properties": {
+            "buildingId": { "$ref": "#/$defs/stableId" },
+            "mapVersion": { "$ref": "#/$defs/stableId" },
+            "levels": {
+              "type": "array",
+              "minItems": 2,
+              "items": { "$ref": "#/$defs/level" }
+            },
+            "connectors": {
+              "type": "array",
+              "items": { "$ref": "#/$defs/connector" }
+            }
+          }
+        },
+        "device": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["profileId", "platform", "osVersion", "appBuild", "model", "carryPosition"],
+          "properties": {
+            "profileId": { "$ref": "#/$defs/stableId" },
+            "platform": { "enum": ["ios", "android"] },
+            "osVersion": { "type": "string", "minLength": 1 },
+            "appBuild": { "$ref": "#/$defs/stableId" },
+            "model": { "type": "string", "minLength": 1 },
+            "carryPosition": { "enum": ["hand", "pocket", "bag", "body-mount", "unknown"] }
+          }
+        },
+        "capabilities": {
+          "type": "array",
+          "minItems": 1,
+          "items": { "$ref": "#/$defs/capability" }
+        },
+        "clock": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["monotonicSource", "wallSource", "maxUncertaintyMs", "maxDriftMsPerMinute"],
+          "properties": {
+            "monotonicSource": { "type": "string", "minLength": 1 },
+            "wallSource": { "type": "string", "minLength": 1 },
+            "maxUncertaintyMs": { "type": "number", "exclusiveMinimum": 0, "maximum": 100 },
+            "maxDriftMsPerMinute": { "type": "number", "exclusiveMinimum": 0, "maximum": 5 }
+          }
+        },
+        "consent": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["protocolVersion", "consentedAtMs", "purposes", "withdrawalHandle"],
+          "properties": {
+            "protocolVersion": { "$ref": "#/$defs/stableId" },
+            "consentedAtMs": { "$ref": "#/$defs/positiveTime" },
+            "purposes": {
+              "type": "array",
+              "minItems": 1,
+              "items": { "$ref": "#/$defs/stableId" }
+            },
+            "withdrawalHandle": { "$ref": "#/$defs/stableId" }
+          }
+        },
+        "retention": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["class", "deleteAfterMs", "encryptedAtRest", "accessLogging", "rawDataLocation"],
+          "properties": {
+            "class": { "$ref": "#/$defs/stableId" },
+            "deleteAfterMs": { "$ref": "#/$defs/positiveTime" },
+            "encryptedAtRest": { "const": true },
+            "accessLogging": { "const": true },
+            "rawDataLocation": { "type": "string", "pattern": "^research://[a-z0-9._/-]{3,240}$" }
+          }
+        },
+        "radioPrivacy": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["identifierForm", "keyEpoch"],
+          "properties": {
+            "identifierForm": { "const": "site-keyed-hmac" },
+            "keyEpoch": { "$ref": "#/$defs/stableId" }
+          }
+        },
+        "analysis": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["startMonotonicUs", "endMonotonicUs", "maxTruthGapUs"],
+          "properties": {
+            "startMonotonicUs": { "$ref": "#/$defs/monotonicTime" },
+            "endMonotonicUs": { "$ref": "#/$defs/monotonicTime" },
+            "maxTruthGapUs": { "type": "integer", "minimum": 0, "maximum": 100000 }
+          }
+        },
+        "exclusions": {
+          "type": "array",
+          "items": { "$ref": "#/$defs/stableId" }
+        }
+      }
+    },
+    "sessionStartPayload": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["reason"],
+      "properties": { "reason": { "const": "started" } }
+    },
+    "sessionEndPayload": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["reason"],
+      "properties": { "reason": { "enum": ["completed", "cancelled", "error"] } }
+    },
+    "clockSyncPayload": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["localSendUs", "localReceiveUs", "referenceWallTimeMs", "offsetMs", "rttMs", "uncertaintyMs"],
+      "properties": {
+        "localSendUs": { "$ref": "#/$defs/monotonicTime" },
+        "localReceiveUs": { "$ref": "#/$defs/monotonicTime" },
+        "referenceWallTimeMs": { "$ref": "#/$defs/positiveTime" },
+        "offsetMs": { "type": "number" },
+        "rttMs": { "type": "number", "minimum": 0 },
+        "uncertaintyMs": { "type": "number", "minimum": 0 }
+      }
+    },
+    "sensorStatusPayload": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["status"],
+      "properties": {
+        "status": { "enum": ["available", "unavailable", "permission-denied", "started", "stopped", "error"] }
+      }
+    },
+    "pressurePayload": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["pressureHpa", "nativeTimestamp", "nativeTimestampUnit"],
+      "properties": {
+        "pressureHpa": { "type": "number", "minimum": 300, "maximum": 1100 },
+        "relativeAltitudeM": { "type": "number", "minimum": -10000, "maximum": 10000 },
+        "nativeTimestamp": { "type": "number", "minimum": 0 },
+        "nativeTimestampUnit": { "enum": ["seconds", "milliseconds", "nanoseconds"] }
+      }
+    },
+    "motionPayload": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["accelerationIncludingGravityMps2", "nativeTimestamp", "nativeTimestampUnit"],
+      "properties": {
+        "accelerationIncludingGravityMps2": { "$ref": "#/$defs/vector3" },
+        "userAccelerationMps2": { "$ref": "#/$defs/vector3" },
+        "rotationRateRps": { "$ref": "#/$defs/vector3" },
+        "screenOrientationDeg": { "enum": [0, 90, 180, -90] },
+        "nativeTimestamp": { "type": "number", "minimum": 0 },
+        "nativeTimestampUnit": { "enum": ["seconds", "milliseconds", "nanoseconds"] }
+      }
+    },
+    "stepsPayload": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["cumulativeSteps"],
+      "properties": {
+        "cumulativeSteps": { "type": "integer", "minimum": 0 },
+        "nativeTimestamp": { "type": "number", "minimum": 0 },
+        "nativeTimestampUnit": { "enum": ["seconds", "milliseconds", "nanoseconds"] }
+      }
+    },
+    "magneticFieldPayload": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["microtesla"],
+      "properties": {
+        "microtesla": { "$ref": "#/$defs/vector3" },
+        "nativeTimestamp": { "type": "number", "minimum": 0 },
+        "nativeTimestampUnit": { "enum": ["seconds", "milliseconds", "nanoseconds"] }
+      }
+    },
+    "radioObservationPayload": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["radio", "transmitterId", "keyEpoch", "rssiDbm"],
+      "properties": {
+        "radio": { "enum": ["ble", "wifi"] },
+        "transmitterId": { "type": "string", "pattern": "^tx_[a-z0-9_-]{8,96}$" },
+        "keyEpoch": { "$ref": "#/$defs/stableId" },
+        "rssiDbm": { "type": "number", "minimum": -127, "maximum": 20 },
+        "nativeTimestamp": { "type": "number", "minimum": 0 },
+        "nativeTimestampUnit": { "enum": ["seconds", "milliseconds", "nanoseconds"] }
+      }
+    },
+    "phoneStatePayload": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["appState", "screenState", "lowPowerMode"],
+      "properties": {
+        "appState": { "enum": ["active", "background", "inactive"] },
+        "screenState": { "enum": ["on", "off", "locked", "unknown"] },
+        "lowPowerMode": { "type": "boolean" },
+        "nativeTimestamp": { "type": "number", "minimum": 0 },
+        "nativeTimestampUnit": { "enum": ["seconds", "milliseconds", "nanoseconds"] }
+      }
+    },
+    "groundTruthSegmentPayload": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["segmentId", "category", "startUs", "endUs", "sourceLevelId", "destinationLevelId", "mode", "direction", "confirmedBy"],
+      "properties": {
+        "segmentId": { "$ref": "#/$defs/stableId" },
+        "category": { "enum": ["stationary", "transition", "same-floor-control"] },
+        "startUs": { "$ref": "#/$defs/monotonicTime" },
+        "endUs": { "$ref": "#/$defs/monotonicTime" },
+        "sourceLevelId": { "$ref": "#/$defs/stableId" },
+        "destinationLevelId": { "$ref": "#/$defs/stableId" },
+        "connectorId": { "$ref": "#/$defs/stableId" },
+        "startLandingId": { "$ref": "#/$defs/stableId" },
+        "endLandingId": { "$ref": "#/$defs/stableId" },
+        "mode": { "enum": ["stairs", "lift", "escalator", "ramp", "unknown"] },
+        "direction": { "enum": ["up", "down", "level"] },
+        "confirmedBy": { "enum": ["participant", "observer", "both"] }
+      },
+      "allOf": [{
+        "if": { "properties": { "category": { "const": "transition" } }, "required": ["category"] },
+        "then": { "required": ["connectorId", "startLandingId", "endLandingId"] },
+        "else": {
+          "properties": {
+            "connectorId": false,
+            "startLandingId": false,
+            "endLandingId": false
+          }
+        }
+      }]
+    },
+    "groundTruthPointPayload": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["pointId", "action", "levelId", "confirmedBy"],
+      "properties": {
+        "pointId": { "$ref": "#/$defs/stableId" },
+        "action": { "enum": ["landing-confirmed", "correction"] },
+        "levelId": { "$ref": "#/$defs/stableId" },
+        "connectorId": { "$ref": "#/$defs/stableId" },
+        "landingId": { "$ref": "#/$defs/stableId" },
+        "confirmedBy": { "enum": ["participant", "observer", "both"] }
+      },
+      "allOf": [{
+        "if": { "properties": { "action": { "const": "landing-confirmed" } }, "required": ["action"] },
+        "then": { "required": ["connectorId", "landingId"] },
+        "else": { "properties": { "connectorId": false, "landingId": false } }
+      }]
+    },
+    "operatorNotePayload": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["code"],
+      "properties": {
+        "code": { "enum": ["sensor-obstructed", "route-deviation", "manual-pause", "environment-change", "other-coded"] }
+      }
+    },
+    "event": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "schemaVersion",
+        "sessionId",
+        "sequence",
+        "kind",
+        "monotonicUs",
+        "wallTimeMs",
+        "clockUncertaintyMs",
+        "source",
+        "payload"
+      ],
+      "properties": {
+        "schemaVersion": { "const": "loc8.floor-corpus.v1" },
+        "sessionId": { "$ref": "#/$defs/stableId" },
+        "sequence": { "type": "integer", "minimum": 0 },
+        "kind": {
+          "enum": [
+            "session-start",
+            "session-end",
+            "clock-sync",
+            "sensor-status",
+            "pressure",
+            "motion",
+            "steps",
+            "magnetic-field",
+            "radio-observation",
+            "phone-state",
+            "ground-truth-segment",
+            "ground-truth-point",
+            "operator-note"
+          ]
+        },
+        "monotonicUs": { "$ref": "#/$defs/monotonicTime" },
+        "wallTimeMs": { "$ref": "#/$defs/positiveTime" },
+        "clockUncertaintyMs": { "type": "number", "minimum": 0, "maximum": 100 },
+        "source": { "$ref": "#/$defs/stableId" },
+        "payload": { "type": "object" }
+      },
+      "allOf": [
+        { "if": { "properties": { "kind": { "const": "session-start" } } }, "then": { "properties": { "payload": { "$ref": "#/$defs/sessionStartPayload" } } } },
+        { "if": { "properties": { "kind": { "const": "session-end" } } }, "then": { "properties": { "payload": { "$ref": "#/$defs/sessionEndPayload" } } } },
+        { "if": { "properties": { "kind": { "const": "clock-sync" } } }, "then": { "properties": { "payload": { "$ref": "#/$defs/clockSyncPayload" } } } },
+        { "if": { "properties": { "kind": { "const": "sensor-status" } } }, "then": { "properties": { "payload": { "$ref": "#/$defs/sensorStatusPayload" } } } },
+        { "if": { "properties": { "kind": { "const": "pressure" } } }, "then": { "properties": { "payload": { "$ref": "#/$defs/pressurePayload" } } } },
+        { "if": { "properties": { "kind": { "const": "motion" } } }, "then": { "properties": { "payload": { "$ref": "#/$defs/motionPayload" } } } },
+        { "if": { "properties": { "kind": { "const": "steps" } } }, "then": { "properties": { "payload": { "$ref": "#/$defs/stepsPayload" } } } },
+        { "if": { "properties": { "kind": { "const": "magnetic-field" } } }, "then": { "properties": { "payload": { "$ref": "#/$defs/magneticFieldPayload" } } } },
+        { "if": { "properties": { "kind": { "const": "radio-observation" } } }, "then": { "properties": { "payload": { "$ref": "#/$defs/radioObservationPayload" } } } },
+        { "if": { "properties": { "kind": { "const": "phone-state" } } }, "then": { "properties": { "payload": { "$ref": "#/$defs/phoneStatePayload" } } } },
+        { "if": { "properties": { "kind": { "const": "ground-truth-segment" } } }, "then": { "properties": { "payload": { "$ref": "#/$defs/groundTruthSegmentPayload" } } } },
+        { "if": { "properties": { "kind": { "const": "ground-truth-point" } } }, "then": { "properties": { "payload": { "$ref": "#/$defs/groundTruthPointPayload" } } } },
+        { "if": { "properties": { "kind": { "const": "operator-note" } } }, "then": { "properties": { "payload": { "$ref": "#/$defs/operatorNotePayload" } } } }
+      ]
+    }
+  }
+}
