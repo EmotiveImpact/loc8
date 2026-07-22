@@ -127,7 +127,7 @@ class Loc8MeshModule : Module() {
             }
         }
 
-        AsyncFunction("stopFieldDiagnostics") {
+        AsyncFunction<Unit>("stopFieldDiagnostics") {
             try {
                 MeshDiagnostics.stop()
             } catch (e: MeshDiagnosticValidationException) {
@@ -135,11 +135,11 @@ class Loc8MeshModule : Module() {
             }
         }
 
-        AsyncFunction("getFieldDiagnostics") {
+        AsyncFunction<Map<String, Any>>("getFieldDiagnostics") {
             MeshDiagnostics.snapshot()
         }
 
-        AsyncFunction("releaseFieldDiagnostics") {
+        AsyncFunction<Unit>("releaseFieldDiagnostics") {
             try {
                 MeshDiagnostics.release()
             } catch (e: MeshDiagnosticValidationException) {

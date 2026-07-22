@@ -1,9 +1,19 @@
 // app/(tabs)/index.tsx
 import { useEffect, useState } from 'react';
 import { View, Text, StyleSheet, Pressable } from 'react-native';
-import { useCrewStore, shouldNotifyBanner, shouldAutoDismissBanner } from '@loc8/engine';
-import { QUICK_REPLIES } from '@loc8/engine';
-import { getMeshService, bootCrew } from '@loc8/engine';
+import {
+  QUICK_REPLIES,
+  bootCrew,
+  colors,
+  ensureBlePermissions,
+  fonts,
+  getMeshService,
+  haptics,
+  notifyPing,
+  shouldAutoDismissBanner,
+  shouldNotifyBanner,
+  useCrewStore,
+} from '@loc8/engine';
 import { useMyLocation } from '../../src/hooks/useMyLocation';
 import { useBatteryGuard } from '../../src/hooks/useBatteryGuard';
 import { RadarView } from '../../src/ui/RadarView';
@@ -12,10 +22,6 @@ import { MeshDebugOverlay } from '../../src/ui/MeshDebugOverlay';
 import { RadarCrewSheet } from '../../src/ui/RadarCrewSheet';
 import { AuroraBackground } from '../../src/ui/AuroraBackground';
 import { useRouter, type Href } from 'expo-router';
-import { colors, fonts } from '@loc8/engine';
-import { notifyPing } from '@loc8/engine';
-import { haptics } from '@loc8/engine';
-import { ensureBlePermissions } from '@loc8/engine';
 import { Play, TriangleAlert, BatteryLow, Wrench, ChevronRight } from 'lucide-react-native';
 
 export default function RadarHome() {
@@ -46,7 +52,7 @@ export default function RadarHome() {
       if (!cancelled) mesh.start();
     })();
     return () => { cancelled = true; mesh.stop(); };
-  }, []);
+  }, [setBanner]);
 
   useEffect(() => {
     if (!banner) return;
@@ -62,12 +68,12 @@ export default function RadarHome() {
     if (!shouldAutoDismissBanner(banner)) return;
     const t = setTimeout(() => setBanner(null), 5000);
     return () => clearTimeout(t);
-  }, [banner]);
+  }, [banner, setBanner]);
 
   // Incoming rally: buzz when a pin lands from SOMEONE ELSE (not our own drop).
   useEffect(() => {
     if (rallyPin && rallyPin.droppedById !== myId) haptics.rallyReceived();
-  }, [rallyPin?.droppedById, rallyPin?.atSec]);
+  }, [myId, rallyPin]);
 
   return (
     <View style={st.wrap}>
@@ -131,7 +137,7 @@ export default function RadarHome() {
       {beaconMode && (
         <View style={st.warnRow}>
           <BatteryLow size={12} color={colors.yellow} strokeWidth={2} />
-          <Text style={st.warn}>Power saver — updating once a minute, you're still findable</Text>
+          <Text style={st.warn}>Power saver — updating once a minute, you’re still findable</Text>
         </View>
       )}
 

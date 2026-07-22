@@ -4,13 +4,18 @@ import { View, Text, Pressable, StyleSheet, Modal } from 'react-native';
 import { BlurView } from 'expo-blur';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useRouter, type Href } from 'expo-router';
-import { useCrewStore, freshnessSec, GHOST_SEC } from '@loc8/engine';
-import { QUICK_REPLIES } from '@loc8/engine';
-import { getMeshService } from '@loc8/engine';
-import { haptics } from '@loc8/engine';
-import { getHaversineDistance } from '@loc8/engine';
+import {
+  GHOST_SEC,
+  QUICK_REPLIES,
+  colors,
+  fonts,
+  freshnessSec,
+  getHaversineDistance,
+  getMeshService,
+  haptics,
+  useCrewStore,
+} from '@loc8/engine';
 import { useNowSec } from '../hooks/useNowSec';
-import { colors, fonts } from '@loc8/engine';
 import { Radio, Waypoints, ChevronRight } from 'lucide-react-native';
 
 export function CrewSheet() {

@@ -6,12 +6,11 @@ import { LinearGradient } from 'expo-linear-gradient';
 import { BlurView } from 'expo-blur';
 import * as ImagePicker from 'expo-image-picker';
 import { useCrewStore, type PrivacyMode } from '@loc8/engine';
-import { haptics } from '@loc8/engine';
+import { haptics, colors, gradients, fonts } from '@loc8/engine';
 import { AuroraBackground } from '../../src/ui/AuroraBackground';
-import { colors, gradients, fonts } from '@loc8/engine';
 import { MoonStar, Settings, Shield, ChevronRight, Pencil, Camera, X, type LucideIcon } from 'lucide-react-native';
 
-const MODES: Array<{ mode: PrivacyMode; label: string }> = [
+const MODES: { mode: PrivacyMode; label: string }[] = [
   { mode: 'live', label: 'Live' },
   { mode: 'open', label: 'Only open' },
   { mode: 'invisible', label: 'Invisible' },
@@ -155,7 +154,7 @@ export default function MeScreen() {
         {([
           { Icon: Settings, label: 'Settings', onPress: () => router.push('/settings') },
           { Icon: Shield, label: 'Privacy', onPress: () => setPrivacyOpen(true) },
-        ] as Array<{ Icon: LucideIcon; label: string; onPress: () => void }>).map((r) => (
+        ] as { Icon: LucideIcon; label: string; onPress: () => void }[]).map((r) => (
           <Pressable key={r.label} style={st.linkRow} onPress={r.onPress}>
             <r.Icon size={18} color={colors.textDim} strokeWidth={2} />
             <Text style={st.linkText}>{r.label}</Text>

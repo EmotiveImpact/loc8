@@ -1,9 +1,8 @@
 // src/ui/PrivacyModal.tsx
 import { Modal, View, Text, Pressable, StyleSheet } from 'react-native';
-import { useCrewStore, type PrivacyMode } from '@loc8/engine';
-import { colors } from '@loc8/engine';
+import { useCrewStore, colors, type PrivacyMode } from '@loc8/engine';
 
-const OPTIONS: Array<{ mode: PrivacyMode; title: string; desc: string }> = [
+const OPTIONS: { mode: PrivacyMode; title: string; desc: string }[] = [
   { mode: 'live', title: 'Live (background)', desc: 'Broadcast even in your pocket. Radar stays true. Best experience.' },
   { mode: 'open', title: 'Only while app is open', desc: 'Battery-saver. Visible only with Loc8 on screen.' },
   { mode: 'invisible', title: 'Invisible / on-demand', desc: 'You disappear. Show up only when you share or answer a ping.' },

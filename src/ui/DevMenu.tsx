@@ -1,13 +1,11 @@
 // src/ui/DevMenu.tsx
 import { Modal, View, Text, Pressable, StyleSheet } from 'react-native';
 import { Moon, Sun, PersonStanding, Footprints, MapPin, Megaphone, BatteryLow, BatteryFull, Wrench, type LucideIcon } from 'lucide-react-native';
-import { getSimTransport } from '@loc8/engine';
-import { useCrewStore } from '@loc8/engine';
-import { colors } from '@loc8/engine';
+import { getSimTransport, useCrewStore, colors } from '@loc8/engine';
 
 // Sim-only demo scenarios: on the real BLE mesh (EXPO_PUBLIC_TRANSPORT=ble)
 // getSimTransport() is null and these actions no-op.
-const ACTIONS: Array<{ Icon: LucideIcon; label: string; run(): void }> = [
+const ACTIONS: { Icon: LucideIcon; label: string; run(): void }[] = [
   { Icon: Moon, label: 'Rae goes dark', run: () => getSimTransport()?.scenario('goDark', 104) },
   { Icon: Sun, label: 'Rae comes back', run: () => getSimTransport()?.scenario('return', 104) },
   { Icon: PersonStanding, label: 'Maya approaches you', run: () => getSimTransport()?.scenario('approach', 101) },

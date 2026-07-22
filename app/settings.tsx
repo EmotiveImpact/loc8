@@ -4,10 +4,9 @@ import Constants from 'expo-constants';
 import { BlurView } from 'expo-blur';
 import { useCrewStore, type Units } from '@loc8/engine';
 import { AuroraBackground } from '../src/ui/AuroraBackground';
-import { haptics } from '@loc8/engine';
-import { colors, fonts } from '@loc8/engine';
+import { haptics, colors, fonts } from '@loc8/engine';
 
-const UNIT_OPTS: Array<{ value: Units; label: string }> = [
+const UNIT_OPTS: { value: Units; label: string }[] = [
   { value: 'm', label: 'Metres' },
   { value: 'ft', label: 'Feet' },
 ];

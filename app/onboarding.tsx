@@ -4,9 +4,7 @@ import { View, Text, TextInput, Pressable, StyleSheet, Linking } from 'react-nat
 import { BlurView } from 'expo-blur';
 import { LinearGradient } from 'expo-linear-gradient';
 import * as Location from 'expo-location';
-import { useCrewStore } from '@loc8/engine';
-import { haptics } from '@loc8/engine';
-import { colors, fonts, gradients, FRIEND_COLORS } from '@loc8/engine';
+import { useCrewStore, haptics, colors, fonts, gradients, FRIEND_COLORS } from '@loc8/engine';
 import { AuroraBackground } from '../src/ui/AuroraBackground';
 import { MapPin, Plus } from 'lucide-react-native';
 
@@ -46,7 +44,7 @@ export default function Onboarding() {
       <View style={st.wrap}>
         <AuroraBackground />
         <Text style={st.logo}>Loc<Text style={{ color: colors.pink }}>8</Text></Text>
-        <Text style={st.tagline}>Find your crew when the signal's gone.</Text>
+        <Text style={st.tagline}>Find your crew when the signal’s gone.</Text>
         <BlurView tint="dark" intensity={24} style={st.inputWrap}>
           <TextInput
             style={st.input} placeholder="Your name" placeholderTextColor={colors.textDim}
@@ -78,12 +76,12 @@ export default function Onboarding() {
     return (
       <View style={st.wrap}>
         <AuroraBackground />
-        <Text style={st.h}>Loc8 can't work without location</Text>
+        <Text style={st.h}>Loc8 can’t work without location</Text>
         {/* Claim only what ships: position rides the mesh device-to-device and
             is never uploaded. Payload encryption is on the roadmap and MUST NOT
             be promised here until it is implemented. */}
         <Text style={st.p}>
-          Your GPS position is how your crew finds you. It's shared only with your crew,
+          Your GPS position is how your crew finds you. It’s shared only with your crew,
           phone to phone — it never touches a server. Enable location in Settings to continue.
         </Text>
         <Pressable style={st.btn} onPress={() => Linking.openSettings()}>

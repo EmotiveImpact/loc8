@@ -9,10 +9,8 @@ import { useRouter, type Href } from 'expo-router';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useCrewStore, type ActivityKind } from '@loc8/engine';
 import { useNowSec } from '../../src/hooks/useNowSec';
-import { getMeshService } from '@loc8/engine';
-import { haptics } from '@loc8/engine';
+import { getMeshService, haptics, colors, fonts } from '@loc8/engine';
 import { AuroraBackground } from '../../src/ui/AuroraBackground';
-import { colors, fonts } from '@loc8/engine';
 import { Bell, MessageCircle, MessageSquare, Flag, PartyPopper, Moon, Clock, ChevronRight, Send, type LucideIcon } from 'lucide-react-native';
 
 const KIND: Record<ActivityKind, { Icon: LucideIcon; color: string }> = {

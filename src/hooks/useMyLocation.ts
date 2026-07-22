@@ -1,8 +1,7 @@
 // src/hooks/useMyLocation.ts
 import { useEffect, useState } from 'react';
 import * as Location from 'expo-location';
-import { useCrewStore } from '@loc8/engine';
-import { getSimTransport, FALLBACK_ORIGIN } from '@loc8/engine';
+import { useCrewStore, getSimTransport, FALLBACK_ORIGIN } from '@loc8/engine';
 
 export type LocationStatus = 'pending' | 'granted' | 'denied';
 
@@ -40,7 +39,7 @@ export function useMyLocation(): LocationStatus {
       }
     })();
     return () => sub?.remove();
-  }, []);
+  }, [setMyLocation]);
 
   return status;
 }

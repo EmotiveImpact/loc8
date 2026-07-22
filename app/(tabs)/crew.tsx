@@ -6,10 +6,8 @@ import { LinearGradient } from 'expo-linear-gradient';
 import * as Clipboard from 'expo-clipboard';
 import { CameraView, useCameraPermissions } from 'expo-camera';
 import QRCode from 'react-native-qrcode-svg';
-import { useCrewStore } from '@loc8/engine';
-import { haptics } from '@loc8/engine';
+import { useCrewStore, haptics, colors, fonts, gradients } from '@loc8/engine';
 import { useNowSec } from '../../src/hooks/useNowSec';
-import { colors, fonts, gradients } from '@loc8/engine';
 import { AuroraBackground } from '../../src/ui/AuroraBackground';
 import { Copy, Share2, ScanLine, Plus, LogOut, X } from 'lucide-react-native';
 
@@ -107,7 +105,7 @@ export default function CrewScreen() {
           {sessionEndsAtSec ? (
             <>
               <Text style={st.big}>{hh}h {mm}m left</Text>
-              <Text style={st.p}>Auto-expires — you'll stop broadcasting automatically.</Text>
+              <Text style={st.p}>Auto-expires — you’ll stop broadcasting automatically.</Text>
               <View style={st.row}>
                 <Pressable style={st.btnGhost} onPress={() => extendSession(2)}>
                   <Text style={st.btnGhostText}>+2h</Text>

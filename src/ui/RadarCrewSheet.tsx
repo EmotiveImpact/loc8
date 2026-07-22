@@ -10,11 +10,9 @@ import { View, Text, Pressable, StyleSheet } from 'react-native';
 import Animated, { FadeIn, FadeOut, SlideInDown, SlideOutDown } from 'react-native-reanimated';
 import { BlurView } from 'expo-blur';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
-import { useCrewStore, freshnessSec, GHOST_SEC } from '@loc8/engine';
+import { useCrewStore, freshnessSec, GHOST_SEC, haptics, colors, fonts } from '@loc8/engine';
 import { useNowSec } from '../hooks/useNowSec';
 import { CrewSheet } from './CrewSheet';
-import { haptics } from '@loc8/engine';
-import { colors, fonts } from '@loc8/engine';
 import { ChevronUp, Users } from 'lucide-react-native';
 
 const AnimatedPressable = Animated.createAnimatedComponent(Pressable);

@@ -47,5 +47,5 @@ export function useBatteryGuard(): void {
       mounted = false;
       sub?.remove();
     };
-  }, []);
+  }, [setBanner, setBeacon]);
 }

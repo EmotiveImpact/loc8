@@ -1,8 +1,8 @@
-import { useEffect, useState } from 'react';
+import { useState } from 'react';
 import { View, Text, Pressable, StyleSheet } from 'react-native';
-import { useMeshDebugStore } from '@loc8/engine';
+import { useMeshDebugStore, colors } from '@loc8/engine';
 import { ChevronDown, TriangleAlert } from 'lucide-react-native';
-import { colors } from '@loc8/engine';
+import { useNowSec } from '../hooks/useNowSec';
 
 /**
  * Field-test HUD for the BLE mesh — only rendered when EXPO_PUBLIC_TRANSPORT === 'ble'.
@@ -17,15 +17,9 @@ export function MeshDebugOverlay() {
 function Hud() {
   const s = useMeshDebugStore();
   const [open, setOpen] = useState(true);
-  const [, tick] = useState(0);
+  const nowSec = useNowSec();
 
-  // re-render once a second so "last rx" age counts up
-  useEffect(() => {
-    const t = setInterval(() => tick((n) => n + 1), 1000);
-    return () => clearInterval(t);
-  }, []);
-
-  const rxAgo = s.lastRxSec == null ? '—' : `${Math.max(0, Math.floor(Date.now() / 1000) - s.lastRxSec)}s`;
+  const rxAgo = s.lastRxSec == null ? '—' : `${Math.max(0, nowSec - s.lastRxSec)}s`;
   const health = s.connected ? (s.received > 0 ? colors.teal : colors.yellow) : colors.danger;
 
   if (!open) {

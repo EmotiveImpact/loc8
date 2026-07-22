@@ -5,15 +5,23 @@ import { LinearGradient } from 'expo-linear-gradient';
 import { useLocalSearchParams, useRouter } from 'expo-router';
 import Animated, { useAnimatedStyle, useSharedValue, withTiming } from 'react-native-reanimated';
 import { useEffect, useRef, useState } from 'react';
-import { useCrewStore, freshnessSec } from '@loc8/engine';
-import { haptics } from '@loc8/engine';
-import { getHaversineDistance, getAbsoluteBearing } from '@loc8/engine';
-import { proximityRadiusM, isFound, shouldRearmCelebration } from '@loc8/engine';
+import {
+  colors,
+  fonts,
+  freshnessSec,
+  getAbsoluteBearing,
+  getHaversineDistance,
+  gradients,
+  haptics,
+  isFound,
+  proximityRadiusM,
+  shouldRearmCelebration,
+  useCrewStore,
+} from '@loc8/engine';
 import { useSmoothedHeading } from '../../src/hooks/useSmoothedHeading';
 import { useNowSec } from '../../src/hooks/useNowSec';
 import { ShareSheet } from '../../src/ui/ShareSheet';
 import { AuroraBackground } from '../../src/ui/AuroraBackground';
-import { colors, fonts, gradients } from '@loc8/engine';
 import { Navigation, ScanEye, PartyPopper, Flame, Compass, ChevronLeft } from 'lucide-react-native';
 
 const AnimatedNavigation = Animated.createAnimatedComponent(Navigation);
@@ -58,7 +66,9 @@ export default function CompassScreen() {
   // closeness ∈ 0..1 is distance measured against the proximity threshold:
   //   dist = HEARTBEAT_START_M → 0 (slow, Light) … dist ≤ proximityAt → 1 (fast, Heavy).
   const distRef = useRef(dist);
-  distRef.current = dist;
+  useEffect(() => {
+    distRef.current = dist;
+  }, [dist]);
   const inHeartbeatZone =
     dist !== null && dist <= HEARTBEAT_START_M && !found && !celebrationShown;
 
@@ -86,11 +96,14 @@ export default function CompassScreen() {
 
   useEffect(() => {
     if (found && !celebrated && !celebrationShown) {
+      // GPS is the external source; this screen-local latch preserves the
+      // specified once-per-visible-reunion celebration independently of store persistence.
+      // eslint-disable-next-line react-hooks/set-state-in-effect
       setCelebrationShown(true);
       markCelebrated(Number(id));
       haptics.found();
     }
-  }, [found]);
+  }, [celebrated, celebrationShown, found, id, markCelebrated]);
 
   // Drifted apart after celebrating: dismiss the celebration view and re-arm for a
   // future reunion — but only past the hysteresis margin (proximity radius + margin),
@@ -99,9 +112,11 @@ export default function CompassScreen() {
   useEffect(() => {
     if (drifted && celebrated) {
       clearCelebrated(Number(id));
+      // This is the corresponding external-GPS hysteresis transition.
+      // eslint-disable-next-line react-hooks/set-state-in-effect
       setCelebrationShown(false);
     }
-  }, [drifted, celebrated]);
+  }, [clearCelebrated, drifted, celebrated, id]);
 
   useEffect(() => {
     // rotate the short way round
@@ -110,7 +125,7 @@ export default function CompassScreen() {
     if (delta > 180) delta -= 360;
     if (delta < -180) delta += 360;
     rotation.value = withTiming(rotation.value + delta, { duration: 400 });
-  }, [arrowDeg]);
+  }, [arrowDeg, rotation]);
 
   const arrowStyle = useAnimatedStyle(() => ({
     // Navigation icon points UP at 0°, so arrowDeg=0 renders straight up (no -90 offset).
@@ -153,8 +168,8 @@ export default function CompassScreen() {
       ) : inProximity ? (
         <View style={st.center}>
           <View style={st.pulse}><ScanEye size={56} color={colors.teal} strokeWidth={2} /></View>
-          <Text style={st.proxH}>You're basically there</Text>
-          <Text style={st.warm}>GPS can't do better than ~{Math.round(accuracy)}m here — look around!</Text>
+          <Text style={st.proxH}>You’re basically there</Text>
+          <Text style={st.warm}>GPS can’t do better than ~{Math.round(accuracy)}m here — look around!</Text>
           <Text style={st.dist}>{Math.round(dist!)}m</Text>
         </View>
       ) : (
@@ -179,7 +194,7 @@ export default function CompassScreen() {
       )}
       <Pressable style={st.shareBtn} onPress={() => setShareOpen(true)}>
         <BlurView tint="dark" intensity={24} style={st.shareInner}>
-          <Text style={st.shareT}>Share {friend.name}'s spot</Text>
+          <Text style={st.shareT}>Share {friend.name}’s spot</Text>
         </BlurView>
       </Pressable>
       <ShareSheet

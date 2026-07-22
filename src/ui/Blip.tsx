@@ -30,7 +30,7 @@ export function Blip({ x, y, name, color, distanceM, freshness, relayVia, stale,
   useEffect(() => {
     tx.value = withTiming(x, { duration: 900 });   // glide between packets — no teleporting dots
     ty.value = withTiming(y, { duration: 900 });
-  }, [x, y]);
+  }, [tx, ty, x, y]);
 
   const style = useAnimatedStyle(() => ({
     transform: [{ translateX: tx.value }, { translateY: ty.value }],

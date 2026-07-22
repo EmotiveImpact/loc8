@@ -5,12 +5,21 @@ import Svg, { Circle, Defs, RadialGradient, Stop, Path, LinearGradient as SvgLin
 import Animated, { useSharedValue, useAnimatedStyle, withRepeat, withTiming, Easing } from 'react-native-reanimated';
 import { LinearGradient } from 'expo-linear-gradient';
 import { useRouter, type Href } from 'expo-router';
-import { useCrewStore, freshnessSec, STALE_SEC, GHOST_SEC } from '@loc8/engine';
-import { calculateRadarPoint, LINEAR_MAX_M, OUTER_MAX_M } from '@loc8/engine';
+import {
+  GHOST_SEC,
+  LINEAR_MAX_M,
+  OUTER_MAX_M,
+  STALE_SEC,
+  calculateRadarPoint,
+  colors,
+  fonts,
+  freshnessSec,
+  gradients,
+  useCrewStore,
+} from '@loc8/engine';
 import { useNowSec } from '../hooks/useNowSec';
 import { Blip } from './Blip';
 import { ShareSheet } from './ShareSheet';
-import { colors, fonts, gradients } from '@loc8/engine';
 import { Flag } from 'lucide-react-native';
 
 export function RadarView() {
@@ -27,7 +36,7 @@ export function RadarView() {
   const spin = useSharedValue(0);
   useEffect(() => {
     spin.value = withRepeat(withTiming(1, { duration: 4200, easing: Easing.linear }), -1, false);
-  }, []);
+  }, [spin]);
   const sweepStyle = useAnimatedStyle(() => ({ transform: [{ rotate: `${spin.value * 360}deg` }] }));
   const sweepA1 = -Math.PI / 2;
   const sweepA2 = sweepA1 + (75 * Math.PI) / 180;
@@ -39,7 +48,7 @@ export function RadarView() {
   const pulse = useSharedValue(0);
   useEffect(() => {
     pulse.value = withRepeat(withTiming(1, { duration: 2600, easing: Easing.out(Easing.ease) }), -1, false);
-  }, []);
+  }, [pulse]);
   const haloStyle = useAnimatedStyle(() => ({
     transform: [{ scale: 1 + pulse.value * 6 }],
     opacity: 0.7 * (1 - pulse.value),

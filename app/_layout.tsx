@@ -7,8 +7,7 @@ import * as Notifications from 'expo-notifications';
 import { useFonts, Unbounded_600SemiBold, Unbounded_800ExtraBold } from '@expo-google-fonts/unbounded';
 import { Sora_300Light, Sora_400Regular, Sora_500Medium, Sora_600SemiBold, Sora_700Bold } from '@expo-google-fonts/sora';
 import { SpaceMono_400Regular, SpaceMono_700Bold } from '@expo-google-fonts/space-mono';
-import { useCrewStore, parseCrewDeepLink, resolveNotificationNav } from '@loc8/engine';
-import { colors, fonts } from '@loc8/engine';
+import { useCrewStore, parseCrewDeepLink, resolveNotificationNav, colors, fonts } from '@loc8/engine';
 
 // `/onboarding` (app/onboarding.tsx) is created in the next task, so the
 // generated typed-routes union does not include it yet. Reference it through
@@ -30,7 +29,7 @@ export default function RootLayout() {
   });
 
   // Load the persisted profile before deciding onboarding-vs-home (no flash).
-  useEffect(() => { hydrate(); }, []);
+  useEffect(() => { hydrate(); }, [hydrate]);
 
   useEffect(() => {
     if (!hydrated) return; // wait for AsyncStorage — the id may already exist
@@ -41,7 +40,7 @@ export default function RootLayout() {
       (segments[0] as string) === 'mesh-field';
     if (!profile && !inOnboarding && !inEnabledFieldKit) router.replace(ONBOARDING);
     if (profile && inOnboarding) router.replace('/');
-  }, [hydrated, profile, segments]);
+  }, [hydrated, profile, router, segments]);
 
   // Notification taps → deep-link. `seenNotifIds` dedupes so the warm-tap listener
   // and the cold-start handler below never both navigate for the same tap.
@@ -54,7 +53,7 @@ export default function RootLayout() {
       if (url) router.push(url as never);
     });
     return () => sub.remove();
-  }, []);
+  }, [router]);
 
   // Cold start: the app was LAUNCHED by tapping a notification. The live listener
   // above never fires for that tap (it happened before the listener existed), so
@@ -64,7 +63,7 @@ export default function RootLayout() {
   useEffect(() => {
     const url = resolveNotificationNav(lastNotifResponse, seenNotifIds.current);
     if (url) router.push(url as never);
-  }, [lastNotifResponse]);
+  }, [lastNotifResponse, router]);
 
   // Deep link: loc8://crew/<CODE> — join the crew, then route to the Crew tab.
   // Wrapped so a malformed link (bad %-encoding, etc.) can never crash the app.
@@ -82,7 +81,7 @@ export default function RootLayout() {
     Linking.getInitialURL().then(handleUrl).catch(() => {});
     const sub = Linking.addEventListener('url', ({ url }) => handleUrl(url));
     return () => sub.remove();
-  }, []);
+  }, [router]);
 
   if (!fontsLoaded) return null; // brief; native splash covers it
 

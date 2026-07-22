@@ -5,14 +5,20 @@ import * as Clipboard from 'expo-clipboard';
 import { LinearGradient } from 'expo-linear-gradient';
 import { BlurView } from 'expo-blur';
 import { useRouter } from 'expo-router';
-import { useCrewStore, freshnessSec, GHOST_SEC } from '@loc8/engine';
-import { getMeshService } from '@loc8/engine';
-import { haptics } from '@loc8/engine';
-import { getHaversineDistance } from '@loc8/engine';
-import { encodePlusCode } from '@loc8/engine';
+import {
+  GHOST_SEC,
+  colors,
+  encodePlusCode,
+  fonts,
+  freshnessSec,
+  getHaversineDistance,
+  getMeshService,
+  gradients,
+  haptics,
+  useCrewStore,
+} from '@loc8/engine';
 import { useNowSec } from '../src/hooks/useNowSec';
 import { AuroraBackground } from '../src/ui/AuroraBackground';
-import { colors, gradients, fonts } from '@loc8/engine';
 import { Flag, Navigation, Copy, Check, X, Trash2 } from 'lucide-react-native';
 
 const ARRIVED_M = 15;
@@ -61,7 +67,7 @@ export default function RallyScreen() {
           <>
             <Text style={st.h1}>Set a meet-up point</Text>
             <Text style={st.p}>
-              Drop a rally pin where you're standing. Your crew sees it on their radar and can navigate straight to it — no signal needed.
+              Drop a rally pin where you’re standing. Your crew sees it on their radar and can navigate straight to it — no signal needed.
             </Text>
             <Pressable style={st.goldBtn} onPress={() => { haptics.rallyDrop(); getMeshService().dropRally(); }}>
               <Flag size={18} color="#1a0a10" strokeWidth={2.4} />

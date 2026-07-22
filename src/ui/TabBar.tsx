@@ -8,8 +8,7 @@ import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useRouter, type Href } from 'expo-router';
 import type { BottomTabBarProps } from 'expo-router/tabs';
 import { Radar, Bell, Flag, Users, User, type LucideIcon } from 'lucide-react-native';
-import { haptics } from '@loc8/engine';
-import { colors, gradients, fonts } from '@loc8/engine';
+import { haptics, colors, gradients, fonts } from '@loc8/engine';
 
 interface TabDef { name: string; label: string; Icon: LucideIcon; }
 

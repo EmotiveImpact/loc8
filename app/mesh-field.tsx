@@ -94,13 +94,22 @@ function FieldHarness() {
   const filename = fieldExportFilename(runId, block.blockId, role);
 
   useEffect(() => {
-    try {
-      const packetSub = addPacketListener(() => setReceived((value) => value + 1));
-      const statusSub = addStatusListener((status) => {
-        setNearbyCount(status.nearbyCount);
-        setDegraded(status.degraded === true);
-      });
-      getFieldDiagnostics().then((recovered) => {
+    let active = true;
+    let packetSub: ReturnType<typeof addPacketListener> | undefined;
+    let statusSub: ReturnType<typeof addStatusListener> | undefined;
+
+    async function initialize() {
+      try {
+        packetSub = addPacketListener(() => {
+          if (active) setReceived((value) => value + 1);
+        });
+        statusSub = addStatusListener((status) => {
+          if (!active) return;
+          setNearbyCount(status.nearbyCount);
+          setDegraded(status.degraded === true);
+        });
+        const recovered = await getFieldDiagnostics();
+        if (!active) return;
         const first = recovered.events[0];
         if (!first) return;
         const recoveredBlockIndex = MESH_FIELD_BLOCKS.findIndex((candidate) => candidate.blockId === first.blockId);
@@ -124,15 +133,19 @@ function FieldHarness() {
             ? 'Recovered an active snapshot after reload. Treat the block as interrupted; stop and secure it as INCOMPLETE.'
             : 'Recovered a closed unexported snapshot after reload. Secure and hash it before starting anything else.',
         );
-      }).catch((caught) => setError(message(caught))).finally(() => setRecovering(false));
-      return () => {
-        packetSub.remove();
-        statusSub.remove();
-      };
-    } catch (caught) {
-      setError(message(caught));
-      return undefined;
+      } catch (caught) {
+        if (active) setError(message(caught));
+      } finally {
+        if (active) setRecovering(false);
+      }
     }
+
+    void initialize();
+    return () => {
+      active = false;
+      packetSub?.remove();
+      statusSub?.remove();
+    };
   }, []);
 
   function resetForSelection(nextBlock: number, nextRole = role) {
