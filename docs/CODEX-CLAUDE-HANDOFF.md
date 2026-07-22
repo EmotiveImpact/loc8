@@ -1061,3 +1061,24 @@ Do not redo completed pure cycles unless new evidence contradicts them. Do not
 infer physical, security, building, safety or pilot truth from synthetic/native-
 source/module evidence. Preserve `.claude/launch.json`, use the canonical
 worktree, and leave GitHub/remotes unchanged unless the owner explicitly asks.
+
+### Local-main integration receipt — 2026-07-22
+
+This receipt supersedes the pending-main wording in the canonical-state bullets
+above. After the final regression, provenance and documentation-link gates:
+
+- shared-record commit `5dd6978` (`docs(rnd): reconcile principal research
+  state`) was created from an explicit 11-file documentation list;
+- local `main` fast-forwarded cleanly from `74eb9b3` through `5dd6978`, and then
+  through this documentation-only receipt so local `main` and
+  `claude/recursing-montalcini-d59018` share the final integrated commit;
+- `origin/main` was not changed and no push was attempted;
+- root `.codex-audit/` remains untracked and untouched;
+- the canonical worktree's user-owned `.claude/launch.json` remains modified,
+  untouched and unstaged; and
+- `claude/vibrant-yalow-620cd6` remains separate and untouched.
+
+The cache-heavy Android build was not repeated between `5dd6978` and this
+receipt because the only intervening change is this Markdown ledger. All product,
+research, provenance and link gates recorded above therefore remain the final
+verification evidence for the integrated payload.
