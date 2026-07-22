@@ -27,6 +27,7 @@
   "exclude": [
     "node_modules",
     "apps/command",
-    "apps/guard"
+    "apps/guard",
+    "docs/research/rnd/repos"
   ]
 }
