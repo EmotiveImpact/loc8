@@ -13,10 +13,10 @@ complete; installer plan import/control points next
 
 **Remote status:** local work only; nothing is pushed or deployed
 
-**Local integration:** Phase 2 is fast-forwarded into local `main`. Phase 3
-preregistration is commit `12ed233`; its verified product payload is being
-committed and fast-forwarded locally. Root `.codex-audit/` and the canonical
-worktree's user launch setting remain untouched.
+**Local integration:** Phase 3 preregistration `12ed233` and verified product
+commit `3a7f72e` are fast-forwarded into local `main`; this documentation receipt
+may be one commit newer on both local branches. Root `.codex-audit/` and the
+canonical worktree's user launch setting remain untouched.
 
 ## Working now
 

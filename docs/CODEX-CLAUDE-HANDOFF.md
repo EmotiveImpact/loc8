@@ -1339,8 +1339,23 @@ Canonical evidence:
 - `docs/OWNER-PRODUCT-STATUS.md`
 - `docs/research/rnd/decision-log.md` (`RDD-022`)
 
-Phase 3 preregistration is commit `12ed233`. The verified product commit and
-local-main integration receipt are recorded immediately after that commit is
-created. The canonical worktree's `.claude/launch.json` remains user-owned,
-modified, untouched and unstaged. No push, deployment, purchase, external
-contact or physical data collection occurred.
+Phase 3 preregistration is commit `12ed233`; the verified product commit is
+`3a7f72e`, with the local-main receipt below. The canonical worktree's
+`.claude/launch.json` remains user-owned, modified, untouched and unstaged. No
+push, deployment, purchase, external contact or physical data collection
+occurred.
+
+### Phase 3 local-main integration receipt
+
+- Preregistration commit `12ed233` (`product(sensing): preregister phone
+  replay`) froze the gates before implementation.
+- Product commit `3a7f72e` (`product(sensing): add phone journey replay`) was
+  created from the explicit 28-file implementation, correction, documentation
+  and evidence set after the final gates passed.
+- Local `main` fast-forwarded cleanly from `7a3e93f` through `3a7f72e`.
+- This documentation-only receipt is committed after the product payload and
+  local `main` is fast-forwarded once more; no product code changes occur
+  between the measured product commit and the receipt.
+- `origin/main` remains at `eefad23`; no push/deployment was attempted.
+- Root `.codex-audit/`, the canonical worktree's user-owned
+  `.claude/launch.json`, and `claude/vibrant-yalow-620cd6` remain untouched.
