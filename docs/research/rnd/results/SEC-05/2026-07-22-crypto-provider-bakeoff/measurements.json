@@ -1,0 +1,185 @@
+{
+  "schemaVersion": "loc8.rnd.measurements.v1",
+  "questionId": "SEC-05",
+  "experiment": "crypto-provider-bakeoff-v1",
+  "measuredAt": "2026-07-22",
+  "evidenceClass": "non-cryptographic-deterministic-contract-and-source-audit",
+  "preRegistrationCommit": "5ac8e76c2cd5733876e79ea968dab8abe66b0424",
+  "runtime": {
+    "node": "v22.22.3",
+    "platform": "darwin",
+    "architecture": "arm64"
+  },
+  "securityBoundary": {
+    "keysGenerated": 0,
+    "signaturesGeneratedOrVerified": 0,
+    "ciphertextsGeneratedOrDecrypted": 0,
+    "nativeDevices": 0,
+    "specialistReviewsOfLoc8Composition": 0
+  },
+  "focusedTests": {
+    "topLevelTests": 21,
+    "totalTests": 88,
+    "passed": 88,
+    "failed": 0,
+    "namedAdversarialParserCases": 67,
+    "unexpectedAdversarialAccepts": 0,
+    "independentCommandDurationsMs": [405.762583, 408.292084]
+  },
+  "logicalHeader": {
+    "bytes": 32,
+    "hex": "0201010051525354555657586162636465666768717273747576777800000007"
+  },
+  "credentialShapes": [
+    {
+      "claims": "standard",
+      "tags": "untagged",
+      "bytes": 171,
+      "cells": 19,
+      "sha256": "e1c0b19588433e73dc7f61ca3514777d3f32e382884b8a2e2b4694addbe64cd0",
+      "hex": "844da2012704485152535455565758a05857a901676c6f63382d6361026f6465766963652d30303030303030310368736974652d303031041a6b49e010051a6b49d200061a6b49d2000748010203040506070808a10348111213141516171809482122232425262728584000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000"
+    },
+    {
+      "claims": "standard",
+      "tags": "cose",
+      "bytes": 172,
+      "cells": 20,
+      "sha256": "9063930b3c12a5feab5358ac4888808a1bfd70fd40958d03f5013cb8c5085a67",
+      "hex": "d2844da2012704485152535455565758a05857a901676c6f63382d6361026f6465766963652d30303030303030310368736974652d303031041a6b49e010051a6b49d200061a6b49d2000748010203040506070808a10348111213141516171809482122232425262728584000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000"
+    },
+    {
+      "claims": "standard",
+      "tags": "cwt-cose",
+      "bytes": 174,
+      "cells": 20,
+      "sha256": "f1239e2071ac2f6ba7359f7eba29958fa876097014d4a8f3a97306e91992b7a6",
+      "hex": "d83dd2844da2012704485152535455565758a05857a901676c6f63382d6361026f6465766963652d30303030303030310368736974652d303031041a6b49e010051a6b49d200061a6b49d2000748010203040506070808a10348111213141516171809482122232425262728584000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000"
+    },
+    {
+      "claims": "extended",
+      "tags": "untagged",
+      "bytes": 205,
+      "cells": 23,
+      "sha256": "75fc7791c9d8690d9237a975ccc9b95beb07bd39dfa8fcf217fdb1fb3b43ade1",
+      "hex": "844da2012704485152535455565758a05879ac01676c6f63382d6361026f6465766963652d30303030303030310368736974652d303031041a6b49e010051a6b49d200061a6b49d2000748010203040506070808a103481112131415161718094821222324252627283a000111704831323334353637383a00011171073a00011172484142434445464748584000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000"
+    },
+    {
+      "claims": "extended",
+      "tags": "cose",
+      "bytes": 206,
+      "cells": 23,
+      "sha256": "bc7dbeaaced21151a14bccec42cf98cdc07ea6f8ce6c24aa28277fc927f1538d",
+      "hex": "d2844da2012704485152535455565758a05879ac01676c6f63382d6361026f6465766963652d30303030303030310368736974652d303031041a6b49e010051a6b49d200061a6b49d2000748010203040506070808a103481112131415161718094821222324252627283a000111704831323334353637383a00011171073a00011172484142434445464748584000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000"
+    },
+    {
+      "claims": "extended",
+      "tags": "cwt-cose",
+      "bytes": 208,
+      "cells": 24,
+      "sha256": "17b5fefb3830a48e611da9cebf1e6bb8f1e80637874aff42d326c7ae6893c532",
+      "hex": "d83dd2844da2012704485152535455565758a05879ac01676c6f63382d6361026f6465766963652d30303030303030310368736974652d303031041a6b49e010051a6b49d200061a6b49d2000748010203040506070808a103481112131415161718094821222324252627283a000111704831323334353637383a00011171073a00011172484142434445464748584000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000"
+    }
+  ],
+  "representativePayload64WithLogicalHeader": [
+    {"shape": "noise-x", "bytes": 192, "cells": 22},
+    {"shape": "noise-x-prekey", "bytes": 196, "cells": 22},
+    {"shape": "noise-xx-handshake", "bytes": 288, "cells": 32},
+    {"shape": "noise-transport-implicit", "bytes": 112, "cells": 13},
+    {"shape": "noise-transport-explicit64", "bytes": 120, "cells": 14},
+    {"shape": "hpke-raw-base", "bytes": 144, "cells": 16},
+    {"shape": "hpke-raw-auth", "bytes": 144, "cells": 16},
+    {"shape": "tink-hpke-raw", "bytes": 144, "cells": 16},
+    {"shape": "tink-hpke-tink", "bytes": 149, "cells": 17},
+    {"shape": "bitchat-extracted32-adverse", "bytes": 116, "cells": 13, "selectable": false}
+  ],
+  "carrierBoundaries": {
+    "cellBodyBytes": 9,
+    "maximumFrameBytes": 2048,
+    "maximumCellCount": 255,
+    "bytes2048Cells": 228,
+    "bytes2048Accepted": true,
+    "bytes2049Accepted": false
+  },
+  "providerAssessment": {
+    "candidates": 10,
+    "allTenGatesPassed": 0,
+    "directProductAdoption": 0,
+    "decisions": {
+      "PROMOTE": 0,
+      "REPEAT": 3,
+      "HOLD": 5,
+      "STOP": 2
+    },
+    "repeat": [
+      "cryptokit-tink-java-hpke-base",
+      "tink-cc-boringssl-shared",
+      "swift-crypto-shared-hpke"
+    ],
+    "hold": [
+      "snow-noise-ffi",
+      "noise-c-ffi",
+      "libsodium-composition",
+      "openmls-groups",
+      "go-cose-oracle"
+    ],
+    "stop": [
+      "bitchat-custom-noise-copy",
+      "libsignal-direct"
+    ]
+  },
+  "benchmark": {
+    "operationsPerRun": 50000,
+    "maximumDurationMs": 5000,
+    "independentRuns": [
+      {"elapsedMs": 487.096, "deterministicSha256": "5577191263e060fca6f07302aa375fe7f59809520af245a2926fc12a67a1f807"},
+      {"elapsedMs": 485.77, "deterministicSha256": "5577191263e060fca6f07302aa375fe7f59809520af245a2926fc12a67a1f807"}
+    ],
+    "allRunsBelowLimit": true,
+    "deterministicOutputsMatch": true
+  },
+  "gates": {
+    "G1_deterministicCbor": true,
+    "G2_strictParser": true,
+    "G3_credentialShape": true,
+    "G4_byteAccounting": true,
+    "G5_providerEvidence": true,
+    "G6_vectorProvenance": true,
+    "G7_prekeyLifecycle": true,
+    "G8_noCryptoBoundary": true,
+    "G9_practicality": true,
+    "G10_reproduction": true
+  },
+  "decisions": {
+    "promote": [
+      "carrier-logical-frame-provider-credential-lifecycle-separation",
+      "explicit-version-and-suite-registry",
+      "deterministic-credential-cache-handle-contract",
+      "public-vector-and-source-object-provenance",
+      "full-64-bit-explicit-noise-nonce-requirement",
+      "fail-closed-atomic-prekey-lifecycle-invariants"
+    ],
+    "repeat": [
+      "native-ios-cryptokit-android-tink-java-hpke-base-interoperability",
+      "shared-tink-cc-boringssl-packaging-feasibility",
+      "native-reviewed-cose-cwt-parser-and-signature-provider"
+    ],
+    "hold": [
+      "final-provider-or-algorithm-selection",
+      "product-cryptographic-implementation",
+      "security-and-forward-secrecy-claims",
+      "credential-issuance-recovery-and-revocation",
+      "group-mls-post-quantum-and-ratchet-work"
+    ],
+    "stop": [
+      "copying-bitchat-cryptographic-code",
+      "32-bit-noise-live-nonces",
+      "silent-identity-or-static-key-fallback",
+      "fingerprint-as-authorisation",
+      "non-atomic-or-corrupt-reset-prekeys",
+      "distinct-message-prekey-reuse",
+      "direct-agpl-libsignal-adoption",
+      "assuming-tink-objective-c-has-hpke",
+      "claiming-full-forward-secrecy-from-48-hour-key-deletion"
+    ]
+  }
+}

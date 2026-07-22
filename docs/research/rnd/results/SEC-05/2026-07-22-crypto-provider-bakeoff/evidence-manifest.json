@@ -1,0 +1,319 @@
+{
+  "schema": "loc8-rnd-evidence-manifest/v1",
+  "question": "SEC-05",
+  "date": "2026-07-22",
+  "loc8PreRegistrationCommit": "5ac8e76c2cd5733876e79ea968dab8abe66b0424",
+  "prototypeSecurityBoundary": "No key generation, encryption, decryption, signing or verification was implemented. SHA-256 is used only for evidence and deterministic-fixture fingerprints.",
+  "primaryStandards": [
+    {
+      "name": "Noise Protocol Framework",
+      "version": "revision 34",
+      "url": "https://noiseprotocol.org/noise.html",
+      "retrieved": "2026-07-22"
+    },
+    {
+      "name": "Hybrid Public Key Encryption",
+      "version": "RFC 9180",
+      "url": "https://www.rfc-editor.org/rfc/rfc9180.html",
+      "retrieved": "2026-07-22"
+    },
+    {
+      "name": "Concise Binary Object Representation",
+      "version": "RFC 8949",
+      "url": "https://www.rfc-editor.org/rfc/rfc8949.html",
+      "retrieved": "2026-07-22"
+    },
+    {
+      "name": "COSE Structures and Process",
+      "version": "RFC 9052",
+      "url": "https://www.rfc-editor.org/rfc/rfc9052.html",
+      "retrieved": "2026-07-22"
+    },
+    {
+      "name": "CBOR Web Token",
+      "version": "RFC 8392",
+      "url": "https://www.rfc-editor.org/rfc/rfc8392.html",
+      "retrieved": "2026-07-22"
+    },
+    {
+      "name": "CWT Proof-of-Possession Key Semantics",
+      "version": "RFC 8747",
+      "url": "https://www.rfc-editor.org/rfc/rfc8747.html",
+      "retrieved": "2026-07-22"
+    },
+    {
+      "name": "IANA CBOR Web Token registry",
+      "version": "last updated 2026-07-20",
+      "url": "https://www.iana.org/assignments/cwt/cwt.xhtml",
+      "retrieved": "2026-07-22"
+    },
+    {
+      "name": "Messaging Layer Security",
+      "version": "RFC 9420",
+      "url": "https://www.rfc-editor.org/rfc/rfc9420.html",
+      "retrieved": "2026-07-22"
+    }
+  ],
+  "providerDocumentation": [
+    {
+      "name": "Tink Hybrid Encryption",
+      "url": "https://developers.google.com/tink/hybrid",
+      "retrieved": "2026-07-22",
+      "relevantFact": "The high-level primitive provides privacy, not sender authenticity."
+    },
+    {
+      "name": "Tink wire format",
+      "url": "https://developers.google.com/tink/wire-format",
+      "retrieved": "2026-07-22",
+      "relevantFact": "HPKE is prefix || enc || ciphertext || tag; the optional five-byte Tink prefix is an unauthenticated hint."
+    },
+    {
+      "name": "Tink supported key types",
+      "url": "https://developers.google.com/tink/supported-key-types",
+      "retrieved": "2026-07-22",
+      "relevantFact": "The 2026-05-06 table records HPKE for Java and C++/BoringSSL, not Objective-C or C++/OpenSSL."
+    },
+    {
+      "name": "Tink Java/Android setup",
+      "url": "https://developers.google.com/tink/setup/java",
+      "retrieved": "2026-07-22",
+      "relevantFact": "Tink Android 1.23.0 is fully supported from API 24; most components are expected from API 23 and Android tests are internal."
+    },
+    {
+      "name": "PQXDH specification",
+      "url": "https://signal.org/docs/specifications/pqxdh/",
+      "retrieved": "2026-07-22",
+      "relevantFact": "Learn-only reference for signed/one-time prekeys, depletion and identity binding."
+    },
+    {
+      "name": "Double Ratchet specification",
+      "url": "https://signal.org/docs/specifications/doubleratchet/",
+      "retrieved": "2026-07-22",
+      "relevantFact": "Learn-only reference for per-message keys, forward secrecy and break-in recovery after initial key agreement."
+    },
+    {
+      "name": "OpenMLS independent security audit summary",
+      "url": "https://blog.phnx.im/openmls-independent-security-audit/",
+      "retrieved": "2026-07-22",
+      "relevantFact": "The May 2026 summary reports eight findings, one High, seven fixed in 0.8.1/0.7.3 and one Low still being addressed at publication."
+    }
+  ],
+  "upstreamRepositories": [
+    {
+      "name": "bitchat",
+      "url": "https://github.com/permissionlesstech/bitchat.git",
+      "commit": "733098bb633e7f8af88b4e8bf2aa6fef4d031e32",
+      "licence": "Unlicense"
+    },
+    {
+      "name": "noise-c",
+      "url": "https://github.com/rweather/noise-c.git",
+      "commit": "cfe25410979a87391bb9ac8d4d4bef64e9f268c6",
+      "licence": "MIT"
+    },
+    {
+      "name": "snow",
+      "url": "https://github.com/mcginty/snow.git",
+      "commit": "8ac60f51cfe3e010c84f0a454cc575ad9204fa12",
+      "licence": "MIT OR Apache-2.0"
+    },
+    {
+      "name": "libsodium",
+      "url": "https://github.com/jedisct1/libsodium.git",
+      "commit": "7014b204b6fbd448c7b653aa69762581d8c463ab",
+      "licence": "ISC"
+    },
+    {
+      "name": "swift-crypto",
+      "url": "https://github.com/apple/swift-crypto.git",
+      "commit": "47d3869a7291f085c1fb9fb1e6d3b97a793f45c6",
+      "licence": "Apache-2.0"
+    },
+    {
+      "name": "tink-java",
+      "url": "https://github.com/tink-crypto/tink-java.git",
+      "commit": "1423887709cd537e79bffe1d531bdf5bf3c25d01",
+      "licence": "Apache-2.0"
+    },
+    {
+      "name": "tink-objc",
+      "url": "https://github.com/tink-crypto/tink-objc.git",
+      "commit": "04e43ef89f8cf0649392d5a8ec5e0ea14d51b007",
+      "licence": "Apache-2.0"
+    },
+    {
+      "name": "tink-cc",
+      "url": "https://github.com/tink-crypto/tink-cc.git",
+      "commit": "5bf527a8dc73d07244c5b06774f69d49baaa401c",
+      "licence": "Apache-2.0"
+    },
+    {
+      "name": "libsignal",
+      "url": "https://github.com/signalapp/libsignal.git",
+      "commit": "8e49f09bbcdebc3c820bda2a788828f62db0e898",
+      "licence": "AGPL-3.0"
+    },
+    {
+      "name": "openmls",
+      "url": "https://github.com/openmls/openmls.git",
+      "commit": "65396d8ed3121506d1b9c7d0e6ec9fce1bed486d",
+      "licence": "MIT"
+    },
+    {
+      "name": "cose-examples",
+      "url": "https://github.com/cose-wg/Examples.git",
+      "commit": "53c9d634333bb4f529d78f5980fffa2667ee2c12",
+      "licence": "Unlicense"
+    },
+    {
+      "name": "go-cose",
+      "url": "https://github.com/veraison/go-cose.git",
+      "commit": "022cb5419154684d8a38110033d820728268ce01",
+      "licence": "MPL-2.0"
+    }
+  ],
+  "sourceObjects": [
+    {
+      "repository": "bitchat",
+      "path": "bitchat/Noise/NoiseProtocol.swift",
+      "objectId": "a42b86a04d522e642cc9fc806d6c4dcb6e3dc870"
+    },
+    {
+      "repository": "bitchat",
+      "path": "bitchat/Noise/NoiseSessionManager.swift",
+      "objectId": "619f84ac95ef1c08a28a4ad6119b1d998626ff3e"
+    },
+    {
+      "repository": "bitchat",
+      "path": "bitchat/Services/NoiseEncryptionService.swift",
+      "objectId": "3e0aae6b1637f2b03184dac47090bae548cf7f21"
+    },
+    {
+      "repository": "bitchat",
+      "path": "bitchat/Services/Prekeys/LocalPrekeyStore.swift",
+      "objectId": "26f9ec6763d6ad7847956a52ba192ac9ade7cdda"
+    },
+    {
+      "repository": "bitchat",
+      "path": "bitchat/Services/Prekeys/PrekeyBundleStore.swift",
+      "objectId": "83527ef9a1d24728099e8b95aebca2ffb038c663"
+    },
+    {
+      "repository": "swift-crypto",
+      "path": "Package.swift",
+      "objectId": "227c9d757db563ca160df35eafd970c78894e897"
+    },
+    {
+      "repository": "swift-crypto",
+      "path": "Sources/Crypto/HPKE/HPKE.swift",
+      "objectId": "9a3c3958cae06e57f13c6bc5051565fe5cdaab3c"
+    },
+    {
+      "repository": "tink-java",
+      "path": "src/main/java/com/google/crypto/tink/hybrid/internal/HpkeEncrypt.java",
+      "objectId": "07f9dcd205d2d217a72f0d848e515b2be7d32fed"
+    },
+    {
+      "repository": "tink-java",
+      "path": "src/main/java/com/google/crypto/tink/hybrid/internal/HpkeContext.java",
+      "objectId": "2c0eaec1fca8f9ee305c9c41e7a44b72bce76c94"
+    },
+    {
+      "repository": "tink-java",
+      "path": "src/main/java/com/google/crypto/tink/hybrid/internal/AuthHpkeHelperForAndroidKeystore.java",
+      "objectId": "1135c195955d8ef1f6d295b8d456fed91ef1795f"
+    }
+  ],
+  "vectorArtifacts": [
+    {
+      "id": "rfc9180-swift-crypto",
+      "repository": "swift-crypto",
+      "commit": "47d3869a7291f085c1fb9fb1e6d3b97a793f45c6",
+      "path": "Tests/CryptoTests/HPKE/hpke-test-vectors.json",
+      "objectId": "514dd8bbcc4339f99ad9cf527007523f94668582",
+      "bytes": 5892257,
+      "sha256": "61fc662f01996cd06d713dacf5e133167bd309a1f329442d53f1e21a47b3ede6"
+    },
+    {
+      "id": "hpke-tink-boringssl",
+      "repository": "tink-java",
+      "commit": "1423887709cd537e79bffe1d531bdf5bf3c25d01",
+      "path": "testdata/testvectors/hpke_boringssl.json",
+      "objectId": "099e96d0099e62a9e2e6eac99f80e99b4ffff3d1",
+      "bytes": 6262338,
+      "sha256": "42f439682e955551f7451657229b3e1d8cc3e5c085405f9540d99def4189c334"
+    },
+    {
+      "id": "noise-xx-bitchat",
+      "repository": "bitchat",
+      "commit": "733098bb633e7f8af88b4e8bf2aa6fef4d031e32",
+      "path": "bitchatTests/Noise/NoiseTestVectors.json",
+      "objectId": "4c595465206558dc8652d7cedf39f69400d8c81d",
+      "bytes": 4432,
+      "sha256": "9ff85f460aa1db3d69b3289560be31aa844cf850edc9d4c4650bdc7a9152c00b"
+    },
+    {
+      "id": "noise-snow-community",
+      "repository": "snow",
+      "commit": "8ac60f51cfe3e010c84f0a454cc575ad9204fa12",
+      "path": "tests/vectors/snow.txt",
+      "objectId": "11f7b7c8b43506f1ad8879dc789cc694cd7c17c0",
+      "bytes": 883233,
+      "sha256": "69da433305fd045f6c9f01b656662a389d022688986fd39fbe7af009cd402fd3"
+    },
+    {
+      "id": "cose-sign1-pass",
+      "repository": "cose-examples",
+      "commit": "53c9d634333bb4f529d78f5980fffa2667ee2c12",
+      "path": "sign1-tests/sign-pass-01.json",
+      "objectId": "661faf6dd7c2fbfe52e3b9611af8a3d02dd7dfec",
+      "bytes": 1224,
+      "sha256": "d3b0fb02f6ef8cfa2b69f22c4467d437f58da8943af4d5439225fb67641f6fe8"
+    },
+    {
+      "id": "cose-sign1-fail",
+      "repository": "cose-examples",
+      "commit": "53c9d634333bb4f529d78f5980fffa2667ee2c12",
+      "path": "sign1-tests/sign-fail-01.json",
+      "objectId": "02eb927a651dcd98e296aa98137bb1f51019bf23",
+      "bytes": 1279,
+      "sha256": "cb4cad0b8d68bb33e8db82bf33e0aca7d1bbfc03e486752dd87abff6850fa6d1"
+    },
+    {
+      "id": "cwt-example-a3",
+      "repository": "cose-examples",
+      "commit": "53c9d634333bb4f529d78f5980fffa2667ee2c12",
+      "path": "CWT/A_3.json",
+      "objectId": "1951d144a1d884dadd92cc65874957cc6d015e81",
+      "bytes": 1685,
+      "sha256": "9145d0458c7b2bbc733de4f5e3b258d6b1a86c3c3d6b35fe29bf75f95e6b4ec3"
+    }
+  ],
+  "auditArtifacts": [
+    {
+      "repository": "go-cose",
+      "path": "reports/NCC_Microsoft-go-cose-Report_2022-05-26_v1.0.pdf",
+      "objectId": "4381572da6e9999a8f52a843c0e2114811f08273",
+      "bytes": 301313,
+      "sha256": "5f74fb31b698f34732baaeb9da5a8a9d2184c0ef3e8d32eab31e5547f8441d62",
+      "scope": "go-cose commit 8cef769 and selected fxamacker/cbor v2.4.0 APIs; 15 person-days"
+    },
+    {
+      "repository": "go-cose",
+      "path": "reports/Trail-of-Bits_Microsoft-go-cose-Report_2022-07-26_v1.0.pdf",
+      "objectId": "ff01c2be46e40867ffe632cccf87231a53a39713",
+      "bytes": 1026397,
+      "sha256": "a32f4882ebecf9bd3f242620c42b566cdfc52d023c4d9ee34ef41f7ce02065f7",
+      "scope": "June 2022 go-cose review; four person-weeks; one High, one Low and one Informational finding"
+    }
+  ],
+  "localPlatformEvidence": [
+    {
+      "name": "Installed Xcode CryptoKit Swift interface",
+      "path": "/Applications/Xcode.app/Contents/Developer/Platforms/iPhoneOS.platform/Developer/SDKs/iPhoneOS18.2.sdk/System/Library/Frameworks/CryptoKit.framework/Modules/CryptoKit.swiftmodule/arm64-apple-ios.swiftinterface",
+      "bytes": 66759,
+      "sha256": "ee3cfa9274737f174e239eb4dd300e26589623ba1aea621023bc7c5755008f7d",
+      "relevantFact": "The interface marks HPKE and its X25519 conformances available from iOS 17.0."
+    }
+  ]
+}
