@@ -1,0 +1,40 @@
+{
+  "date": "2026-07-22",
+  "questionIds": [
+    "SEC-01",
+    "SEC-02",
+    "SEC-03",
+    "SEC-04",
+    "SEC-05",
+    "SEC-06",
+    "SEC-07",
+    "MESH-06",
+    "MESH-07",
+    "MESH-08",
+    "MESH-09",
+    "MESH-10"
+  ],
+  "loc8BaseCommit": "6bc1f44ebbc2886c14c2e92901f6f36f4bf5c5be",
+  "runtime": {
+    "sprintReported": "Node.js 22.12.0",
+    "principalAudit": "Node.js 22.22.3"
+  },
+  "expoDocumentation": "https://docs.expo.dev/versions/v57.0.0/",
+  "upstream": {
+    "bitchat": { "commit": "733098bb633e", "licence": "Unlicense/public domain", "use": "primary architecture reference; no source copied" },
+    "columba": { "commit": "a19b2c2a1a7c", "licence": "MPL-2.0", "use": "BLE lifecycle reference only; no source copied" },
+    "weshnet": { "commit": "d735e1d4f723", "licence": "MIT/Apache-2.0", "use": "replication architecture reference only; no source copied" },
+    "meshcore": { "commit": "a3a1aa5e3be3", "licence": "MIT", "use": "routing reference only; custom crypto rejected; no source copied" },
+    "meshtasticFirmware": { "commit": "f90c1340de20", "licence": "GPL-3.0", "use": "benchmark/architecture reference only; no source copied" },
+    "reticulum": { "commit": "122f17fad69a", "licence": "custom reference-code licence; protocol separately public domain", "use": "architecture reference only; no source copied" }
+  },
+  "evidenceSha256": {
+    "prototype": "bbf0d55b02e745f93ebf9c7228d1250644bb6498e180781e893a2c9bad36b7c9",
+    "tests": "8bbd7c69a598100e37e197344b4a5768aa852a35b22f00129f4b96c30750b0ee",
+    "benchmark": "a7951f3314aee2ac95ddfa502e76bd74a23484fe36a02246272daa18ef0bdad5",
+    "measurements": "94099d91e6cee152c45cc0c2a0e185e8978ceee7a4d53b0b6369f74cc1e763ad"
+  },
+  "personalData": false,
+  "physicalDevices": [],
+  "buildingMap": null
+}
