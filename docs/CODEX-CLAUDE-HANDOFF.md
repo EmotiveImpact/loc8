@@ -1263,3 +1263,84 @@ physical data collection occurred.
 - `origin/main` remains unchanged and no push/deployment was attempted.
 - Root `.codex-audit/`, the canonical worktree's user-owned
   `.claude/launch.json`, and `claude/vibrant-yalow-620cd6` remain untouched.
+
+## 2026-07-22 product increment — phone sensor adapter and journey replay
+
+This is the newest continuation point. It supersedes the Phase 2 next action
+that asked for the SDK 57 adapter/replay preparation.
+
+### What was implemented
+
+- `packages/engine/src/sensing/` now contains the strict
+  `loc8.floor-replay.v1` types/validator/parser, deterministic Ground → Level 1
+  → Level 2 generator, replay-frame projection and a dependency-injected phone
+  adapter for Barometer, DeviceMotion and Magnetometer.
+- The adapter has explicit start/permission authority, source-by-source
+  availability/error isolation, interval-before-listener ordering, subscription
+  cleanup and one-time native-second → session-monotonic-microsecond mapping. It
+  performs no automatic boot, persistence or network send.
+- `packages/engine/src/services/expoPhoneFloorSensorAdapter.ts` is the Expo 57
+  native factory. Guard app config has the `expo-sensors` plugin and an explicit
+  iOS motion usage message. No Guard screen or service starts it yet.
+- Command Commissioning has a third `Sensor replay` view. Playback, speed,
+  range seek, event stepping, reset, local JSON file/paste validation,
+  truth-versus-estimate, source counts and observation cards are functional.
+  Motion/magnetic evidence is explicitly displayed but not fused.
+
+### Research correction found and recorded
+
+The frozen FLOOR-01 note incorrectly reused Expo's Euler `rotation` axis
+description for `rotationRate`. Installed SDK 57 types define rate alpha/beta/
+gamma as X/Y/Z. The adapter and named conversion test use alpha→x, beta→y,
+gamma→z before deg/s → rad/s. The product preregistration, FLOOR-01 prototype
+README/result and `RDD-022` record the erratum; the schema shape did not change.
+Do not restore the old mapping. Native parity remains a physical repeat.
+
+### What was verified
+
+- Focused sensing/replay: 59/59 tests.
+- Full regression: 35/35 suites and 432/432 tests.
+- Root, engine, Guard and Command TypeScript: PASS.
+- Command production build: PASS, 78 transformed modules.
+- Expo lint: PASS. Expo Doctor: 20/20. `npm audit`: zero vulnerabilities.
+- Guard Expo config introspection contains the sensors plugin and generated
+  `NSMotionUsageDescription`.
+- Browser: playback/pause, 4× completion, seek, forward/back, reset and invalid
+  pasted JSON rejection retaining the current journey all passed.
+- 1280×720, 900×900 and 390×844 document widths matched their viewports. Final
+  logs had no warning/error; `design-qa.md` has no open P0/P1/P2.
+
+The existing full-Jest Expo Go remote-push warning remains non-failing and
+unrelated. No phone, permission prompt, building, participant, recorded corpus,
+background run or accuracy result exists.
+
+### Decision and continuation order
+
+`RDD-022`: PROMOTE the local adapter/replay seam; REPEAT native permission/rate/
+background/recorded cohorts; HOLD physical collection, automatic floor display,
+accuracy and building/pilot claims; STOP silent collection and replay-as-proof.
+
+Continue in this order:
+
+1. extend Command Commissioning with synthetic plan import and control-point
+   registration; preserve venue-package stable IDs and fail closed;
+2. separately select/preregister a durable Gateway runtime/store and reviewed
+   signing-provider repeat before implementation;
+3. run native FLOOR-01 only with supported iOS/Android devices/toolchains and
+   approved site/participant/storage/deletion authority; and
+4. run real-plan/second-operator MAP repeats only after explicit authority.
+
+Canonical evidence:
+
+- `docs/product/PHASE-03-PHONE-SENSOR-REPLAY.md`
+- `docs/product/PHASE-03-PHONE-SENSOR-REPLAY-RESULT.md`
+- `design-qa.md`
+- `docs/product/evidence/phase-03-*`
+- `docs/OWNER-PRODUCT-STATUS.md`
+- `docs/research/rnd/decision-log.md` (`RDD-022`)
+
+Phase 3 preregistration is commit `12ed233`. The verified product commit and
+local-main integration receipt are recorded immediately after that commit is
+created. The canonical worktree's `.claude/launch.json` remains user-owned,
+modified, untouched and unstaged. No push, deployment, purchase, external
+contact or physical data collection occurred.

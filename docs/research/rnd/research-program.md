@@ -507,9 +507,10 @@ order:
 1. Run physical `MESH-01 E01` immediately when three authorised phones, real
    A↔C radio isolation, approved evidence storage and a supported native build
    are available. The kit is ready; no simulation may close the decision.
-2. Prepare the `FLOOR-01` exact SDK 57 native adapter with synthetic
-   injection/replay tests. Physical collection remains gated by
-   site/participant/storage/deletion authority.
+2. Extend the product Commissioning workflow with synthetic plan import and
+   control-point registration. The `FLOOR-01` SDK 57 adapter/replay preparation
+   is complete; physical collection remains gated by supported devices/toolchain
+   plus site/participant/storage/deletion authority.
 3. Execute `CONN-01` product development with reviewed real identity, durable
    replay/revocation/policy/audit stores, a pinned TLS/proxy adapter and recovery
    drills. Pilot readiness remains HOLD.

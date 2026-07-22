@@ -516,8 +516,9 @@ incident, route and search using both physical safety and communications reach.
 1. Run physical `MESH-01 E01` immediately when three authorised phones, true
    A↔C radio isolation, approved storage and a supported native build exist. Do
    not alter the frozen blocks or thresholds.
-2. Prepare the FLOOR-01 exact SDK 57 sensor adapter with synthetic
-   injection/replay tests. Do not collect identifiable/physical data without
+2. Continue product Commissioning with synthetic plan import and control-point
+   registration. The FLOOR-01 SDK 57 adapter/replay preparation is complete;
+   do not collect identifiable/physical data without supported devices and
    site/participant/storage/deletion authority.
 3. Repeat the connected product boundary with reviewed real identity, durable
    replay/revocation/policy/audit stores, pinned TLS/proxy adapter and recovery

@@ -422,3 +422,35 @@ Supersedes/superseded by:
 - **Next:** build the exact Expo SDK 57 phone sensor adapter and deterministic
   replay. Separately preregister the durable Gateway/security-provider repeats;
   do not let them block the locally provable sensor/replay product increment.
+
+### RDD-022 — promote the sensor/replay seam, not floor accuracy
+
+- **Questions:** product preparation for `FLOOR-01`, supporting `FLOOR-02`–
+  `FLOOR-05`, `MAP-01` and the Guard/Command building seam
+- **Decision:** PROMOTE the dependency-injected Expo SDK 57 sensor lifecycle and
+  normalisation contract, strict `loc8.floor-replay.v1` format, deterministic
+  multi-floor replay and visibly non-live Command tool. REPEAT supported iOS and
+  Android permission, delivered-rate, timestamp, background and recorded-file
+  cohorts under the frozen FLOOR-01 governance. HOLD physical collection,
+  automatic floor display, estimator accuracy and every building/pilot claim.
+  STOP replay-as-proof, silent permission/collection and the incorrect frozen
+  rotation-rate mapping.
+- **Correction:** the earlier adapter note reused Expo's Euler `rotation` axis
+  description for `rotationRate`. The installed SDK 57 type contract defines
+  rate alpha/beta/gamma as X/Y/Z. Product code/tests now use alpha→x, beta→y,
+  gamma→z before deg/s → rad/s conversion; the corpus schema shape is unchanged.
+- **Evidence:** frozen
+  [acceptance](../../product/PHASE-03-PHONE-SENSOR-REPLAY.md), measured
+  [result](../../product/PHASE-03-PHONE-SENSOR-REPLAY-RESULT.md) and root
+  [design QA](../../../design-qa.md). Focused sensing/replay tests passed 59/59;
+  root regression passed 35/35 suites and 432/432 tests; all TypeScript, lint,
+  78-module Command build, Expo Doctor 20/20, Guard config introspection and
+  audit-zero gates passed. Real-browser playback/seek/speed/reset/rejection and
+  responsive checks passed with no final warning/error log.
+- **Constraints:** no app binary, phone sensor, permission prompt, background
+  run, participant, recorded corpus, real building or accuracy measurement was
+  used. Motion and magnetic values are displayed but not fused. The Expo factory
+  has no automatic boot/storage/network side effect.
+- **Next:** build synthetic plan import/control-point registration. Execute the
+  native FLOOR-01 and real MAP repeats only after supported hardware/toolchains,
+  authority and approved evidence storage genuinely exist.

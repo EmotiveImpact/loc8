@@ -1,13 +1,19 @@
 import { useEffect, useMemo, useState } from 'react';
 import {
   assertVenuePackage,
+  createFloorReplayFrames,
+  createSyntheticFloorReplay,
   createSyntheticFourLevelVenue,
+  floorReplayFrameAt,
+  parseFloorReplayJson,
   projectLevels,
   projectPlaces,
   projectZones,
   routeToNearestExit,
   validateVenuePackage,
   type GatewaySimulationSnapshot,
+  type FloorReplayBundle,
+  type FloorReplayEvent,
   type RouteProfile,
   type VenuePackage,
   type VenueReconciliationResult,
@@ -28,7 +34,7 @@ import {
 const STORAGE_KEY = 'loc8.command.commissioning.synthetic-v1';
 const ROUTE_PROFILES: RouteProfile[] = ['walking', 'step-free', 'evacuation-walking', 'evacuation-step-free'];
 
-type CommissioningView = 'map' | 'gateway';
+type CommissioningView = 'map' | 'gateway' | 'replay';
 
 function cloneVenue(venue: VenuePackage): VenuePackage {
   return JSON.parse(JSON.stringify(venue)) as VenuePackage;
@@ -179,6 +185,197 @@ function GatewaySimulationView({
           <article><Pill tone="off">PHYSICAL HOLD</Pill><b>Field evidence</b><p>Radio transfer, building survey and offline operations require approved hardware and a real multi-floor test venue.</p></article>
         </div>
       </div>
+    </section>
+  );
+}
+
+function replayTime(elapsedMs: number) {
+  const seconds = Math.floor(elapsedMs / 1000);
+  return `${Math.floor(seconds / 60)}:${String(seconds % 60).padStart(2, '0')}`;
+}
+
+function replayEventLabel(event: FloorReplayEvent) {
+  if (event.kind === 'anchor') return `Manual anchor · ${event.levelId}`;
+  if (event.kind === 'truth') return `${event.phase.replaceAll('-', ' ')} · ${event.levelId}`;
+  if (event.kind === 'barometer') return `Pressure · ${event.pressureHpa.toFixed(3)} hPa`;
+  if (event.kind === 'motion') return 'Motion observation · m/s² + rad/s';
+  return 'Magnetic observation · μT';
+}
+
+function vectorMagnitude(vector: { x: number; y: number; z: number } | null | undefined) {
+  return vector ? Math.hypot(vector.x, vector.y, vector.z) : null;
+}
+
+function SensorReplayView({ venue }: { venue: VenuePackage }) {
+  const [bundle, setBundle] = useState<FloorReplayBundle>(() => createSyntheticFloorReplay(venue));
+  const [cursorMs, setCursorMs] = useState(0);
+  const [playing, setPlaying] = useState(false);
+  const [speed, setSpeed] = useState(2);
+  const [pasteOpen, setPasteOpen] = useState(false);
+  const [pastedJson, setPastedJson] = useState('');
+  const [importNotice, setImportNotice] = useState('Built-in synthetic journey loaded. No phone or building was measured.');
+  const frames = useMemo(() => createFloorReplayFrames(bundle, venue), [bundle, venue]);
+  const frame = floorReplayFrameAt(frames, cursorMs);
+  const estimate = venue.levels.find((level) => level.levelId === frame.estimatedLevelId) ?? null;
+  const truth = venue.levels.find((level) => level.levelId === frame.truthLevelId) ?? null;
+  const recentEvents = bundle.events.slice(Math.max(0, frame.index - 5), frame.index + 1).reverse();
+  const motionMagnitude = vectorMagnitude(frame.latestMotion?.userAccelerationMps2 ?? frame.latestMotion?.accelerationIncludingGravityMps2);
+  const magneticMagnitude = vectorMagnitude(frame.latestMagnetometer?.microtesla);
+
+  useEffect(() => {
+    if (!playing) return;
+    const timer = window.setInterval(() => {
+      setCursorMs((current) => {
+        const next = Math.min(bundle.durationMs, current + speed * 250);
+        if (next >= bundle.durationMs) setPlaying(false);
+        return next;
+      });
+    }, 250);
+    return () => window.clearInterval(timer);
+  }, [bundle.durationMs, playing, speed]);
+
+  const resetSynthetic = () => {
+    setBundle(createSyntheticFloorReplay(venue));
+    setCursorMs(0);
+    setPlaying(false);
+    setImportNotice('Built-in synthetic journey reset from the current venue package.');
+  };
+
+  const step = (direction: -1 | 1) => {
+    setPlaying(false);
+    if (direction < 0) {
+      const previous = [...frames].reverse().find((candidate) => candidate.elapsedMs < frame.elapsedMs);
+      setCursorMs(previous?.elapsedMs ?? 0);
+    } else {
+      const next = frames.find((candidate) => candidate.elapsedMs > frame.elapsedMs);
+      setCursorMs(next?.elapsedMs ?? bundle.durationMs);
+    }
+  };
+
+  const importReplayText = (json: string) => {
+    try {
+      const imported = parseFloorReplayJson(json, venue);
+      setBundle(imported);
+      setCursorMs(0);
+      setPlaying(false);
+      setImportNotice(`${imported.evidenceClass === 'recorded-unverified' ? 'Recorded-unverified' : 'Synthetic'} journey accepted locally: ${imported.journeyId}.`);
+      return true;
+    } catch {
+      setImportNotice('Import rejected: the file is invalid, oversized or does not match this venue package. The current journey was kept.');
+      return false;
+    }
+  };
+
+  const importReplay = async (file: File | undefined) => {
+    if (!file) return;
+    try {
+      importReplayText(await file.text());
+    } catch {
+      setImportNotice('Import rejected: the file could not be read. The current journey was kept.');
+    }
+  };
+
+  return (
+    <section className="sensor-replay" aria-labelledby="sensor-replay-title">
+      <div className="sensor-replay-head">
+        <div>
+          <div className="gateway-sim-eyebrow">Deterministic floor journey</div>
+          <h2 id="sensor-replay-title">Replay phone evidence without a building</h2>
+          <p>Runs the anchored barometer tracker against declared samples and truth. Motion and magnetic evidence are visible but do not influence the estimate.</p>
+        </div>
+        <Pill tone={bundle.evidenceClass === 'synthetic' ? 'amber' : 'alert'}>{bundle.evidenceClass === 'synthetic' ? 'SYNTHETIC REPLAY' : 'RECORDED · UNVERIFIED'}</Pill>
+      </div>
+
+      <div className="sensor-controls">
+        <button type="button" className="btn ghost" onClick={resetSynthetic}>Reset synthetic</button>
+        <button type="button" className="sensor-step" onClick={() => step(-1)} aria-label="Previous replay event"><Icon name="arrow" size={15} style={{ transform: 'rotate(180deg)' }} /></button>
+        <button type="button" className="btn go" onClick={() => setPlaying((value) => !value)}>{playing ? 'Pause replay' : 'Play replay'}</button>
+        <button type="button" className="sensor-step" onClick={() => step(1)} aria-label="Next replay event"><Icon name="arrow" size={15} /></button>
+        <label><span>Speed</span><select value={speed} onChange={(event) => setSpeed(Number(event.target.value))}><option value={1}>1×</option><option value={2}>2×</option><option value={4}>4×</option></select></label>
+        <label className="sensor-import"><span>Recorded JSON</span><input type="file" accept="application/json,.json" onChange={(event) => void importReplay(event.target.files?.[0])} /></label>
+        <button type="button" className="btn ghost sensor-paste-toggle" aria-expanded={pasteOpen} onClick={() => setPasteOpen((value) => !value)}>Paste JSON</button>
+      </div>
+
+      {pasteOpen && (
+        <div className="sensor-paste-panel">
+          <label><span>Replay JSON</span><textarea value={pastedJson} onChange={(event) => setPastedJson(event.target.value)} placeholder="Paste a loc8.floor-replay.v1 bundle for local validation" /></label>
+          <button type="button" className="btn go" disabled={!pastedJson.trim()} onClick={() => { if (importReplayText(pastedJson)) setPasteOpen(false); }}>Load pasted JSON</button>
+        </div>
+      )}
+
+      <div className="sensor-timeline">
+        <input
+          type="range" min={0} max={bundle.durationMs} step={250} value={cursorMs}
+          onChange={(event) => { setPlaying(false); setCursorMs(Number(event.target.value)); }}
+          aria-label="Replay timeline"
+        />
+        <div><span>0:00 · manual anchor</span><b>{replayTime(frame.elapsedMs)} / {replayTime(bundle.durationMs)}</b><span>0:30 · same-floor control</span></div>
+      </div>
+
+      <div className="sensor-truth-boundary" role="status">
+        <Icon name="info" size={16} />
+        <span><b>Replay boundary:</b> {bundle.evidenceClass === 'synthetic' ? 'every sample and truth label was generated in software.' : 'the file is structurally valid but its sensor, truth and consent evidence has not been verified.'} No floor-accuracy or physical-device result is claimed.</span>
+      </div>
+
+      <div className="sensor-replay-grid">
+        <article className="sensor-level-card">
+          <SectionTitle>Truth and barometer estimate</SectionTitle>
+          <div className="sensor-levels">
+            {[...venue.levels].sort((left, right) => right.ordinal - left.ordinal).map((level) => {
+              const isTruth = level.levelId === truth?.levelId;
+              const isEstimate = level.levelId === estimate?.levelId;
+              return (
+                <div key={level.levelId} className={`${isTruth ? 'truth' : ''} ${isEstimate ? 'estimate' : ''}`}>
+                  <span>{level.levelRef}</span><b>{level.name}</b><small>{level.elevationM}m</small>
+                  <em>{isTruth && isEstimate ? 'TRUTH + ESTIMATE' : isTruth ? 'DECLARED TRUTH' : isEstimate ? 'BAROMETER ESTIMATE' : ''}</em>
+                </div>
+              );
+            })}
+          </div>
+          <div className="sensor-level-summary">
+            <span>Truth <b>{truth?.levelRef ?? 'not declared'}</b></span>
+            <span>Estimate <b>{estimate?.levelRef ?? `wire ${frame.estimatedLegacyFloor}`}</b></span>
+            <span>Difference <b>{frame.estimateDeltaFloors === null ? 'n/a' : `${frame.estimateDeltaFloors} floor${Math.abs(frame.estimateDeltaFloors) === 1 ? '' : 's'}`}</b></span>
+          </div>
+        </article>
+
+        <article className="sensor-observation-card">
+          <SectionTitle>Latest replayed observations</SectionTitle>
+          <div className="sensor-readings">
+            <div><Icon name="radar" size={17} /><span>Pressure</span><b>{frame.latestBarometer ? `${frame.latestBarometer.pressureHpa.toFixed(3)} hPa` : 'waiting'}</b><small>relative only · not an absolute floor</small></div>
+            <div><Icon name="arrow" size={17} /><span>Motion</span><b>{motionMagnitude === null ? 'waiting' : `${motionMagnitude.toFixed(3)} m/s²`}</b><small>displayed · not fused</small></div>
+            <div><Icon name="grid" size={17} /><span>Magnetic field</span><b>{magneticMagnitude === null ? 'waiting' : `${magneticMagnitude.toFixed(2)} μT`}</b><small>displayed · not fused</small></div>
+          </div>
+          <dl className="sensor-context">
+            <div><dt>Truth phase</dt><dd>{frame.truthPhase?.replaceAll('-', ' ') ?? 'not declared'}</dd></div>
+            <div><dt>Connector</dt><dd>{frame.truthConnectorId ?? 'none'}</dd></div>
+            <div><dt>Confidence</dt><dd>{frame.estimateConfidence}{frame.confirmSuggested ? ' · confirm suggested' : ''}</dd></div>
+          </dl>
+        </article>
+
+        <article className="sensor-event-card">
+          <SectionTitle>Replay event stream</SectionTitle>
+          <div className="sensor-event-counts">
+            <span><b>{frame.counts.barometer}</b> pressure</span><span><b>{frame.counts.motion}</b> motion</span><span><b>{frame.counts.magnetometer}</b> magnetic</span>
+          </div>
+          <ol>
+            {recentEvents.map((event) => <li key={event.sequence}><time>{replayTime(event.elapsedMs)}</time><span>{replayEventLabel(event)}</span></li>)}
+          </ol>
+        </article>
+
+        <article className="sensor-adapter-card">
+          <SectionTitle>Native adapter readiness</SectionTitle>
+          <p>The Expo SDK 57 adapter is built but not running in this browser. A future consented phone action checks availability and permission before each listener.</p>
+          <ul>
+            <li><b>Barometer</b><span>hPa · optional iOS relative altitude · 500ms request</span></li>
+            <li><b>DeviceMotion</b><span>m/s² · deg/s converted to rad/s · 100ms request</span></li>
+            <li><b>Magnetometer</b><span>calibrated μT · 200ms request</span></li>
+          </ul>
+          <div className="sensor-holds"><Pill tone="amber">PHYSICAL REPEAT</Pill><span>Phone permission, delivered rate, background behavior and floor accuracy remain untested.</span></div>
+        </article>
+      </div>
+
+      <div className="sensor-import-notice" aria-live="polite">{importNotice}</div>
     </section>
   );
 }
@@ -400,13 +597,16 @@ export function Commissioning() {
             <Icon name="shield" size={15} /> Gateway simulation
             {gatewaySnapshot && <span className="commission-view-dot">1</span>}
           </button>
+          <button type="button" role="tab" aria-selected={workspaceView === 'replay'} className={workspaceView === 'replay' ? 'active' : ''} onClick={() => setWorkspaceView('replay')}>
+            <Icon name="radar" size={15} /> Sensor replay
+          </button>
         </div>
 
         <div className="commission-actions">
           <div>
             <div className="commission-kicker">Commissioning workspace</div>
-            <div className="commission-title">{workspaceView === 'map' ? 'Four-level venue package' : 'Offline Gateway distribution'}</div>
-            <div className="commission-meta">{workspaceView === 'map' ? `${venue.mapVersion} · ${statusCopy(venue)}` : `${reconciliationCopy(reconciliation).label} · simulation-only`}</div>
+            <div className="commission-title">{workspaceView === 'map' ? 'Four-level venue package' : workspaceView === 'gateway' ? 'Offline Gateway distribution' : 'Phone sensor journey replay'}</div>
+            <div className="commission-meta">{workspaceView === 'map' ? `${venue.mapVersion} · ${statusCopy(venue)}` : workspaceView === 'gateway' ? `${reconciliationCopy(reconciliation).label} · simulation-only` : `${venue.mapVersion} · development replay only`}</div>
           </div>
           <div className="commission-action-buttons">
             {workspaceView === 'map' ? (
@@ -430,7 +630,7 @@ export function Commissioning() {
                   </button>
                 )}
               </>
-            ) : (
+            ) : workspaceView === 'gateway' ? (
               <>
                 {(gatewaySnapshot || gatewayLoad.status === 'invalid') && (
                   <button className="btn ghost" type="button" onClick={clearGatewaySimulation}>Remove simulated copy</button>
@@ -439,6 +639,8 @@ export function Commissioning() {
                   <Icon name="check" size={16} /> {gatewaySnapshot ? 'Replace simulated copy' : 'Install simulated copy'}
                 </button>
               </>
+            ) : (
+              <Pill tone="amber">NO LIVE SENSOR</Pill>
             )}
           </div>
         </div>
@@ -447,7 +649,9 @@ export function Commissioning() {
           <Icon name="info" size={16} />
           <span><b>Evidence boundary:</b> {workspaceView === 'map'
             ? 'synthetic geometry, browser-local storage, unsigned package. Gateway distribution and physical survey remain unclaimed.'
-            : 'this is a browser-local replica labelled simulation-only. Production signing, durable Gateway storage, radio transfer and physical proof remain unclaimed.'}</span>
+            : workspaceView === 'gateway'
+              ? 'this is a browser-local replica labelled simulation-only. Production signing, durable Gateway storage, radio transfer and physical proof remain unclaimed.'
+              : 'this view replays synthetic or recorded-unverified samples. No phone is connected and no building, background-mode or floor-accuracy result is claimed.'}</span>
         </div>
 
         {workspaceView === 'map' ? (
@@ -600,13 +804,15 @@ export function Commissioning() {
           )}
         </div>
           </>
-        ) : (
+        ) : workspaceView === 'gateway' ? (
           <GatewaySimulationView
             venue={venue}
             load={gatewayLoad}
             reconciliation={reconciliation}
             onOpenMap={() => setWorkspaceView('map')}
           />
+        ) : (
+          <SensorReplayView venue={venue} />
         )}
         <div className="commission-notice" aria-live="polite">{notice}</div>
       </Console>

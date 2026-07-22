@@ -205,3 +205,92 @@ Phase 1 and does not block the Gateway task.
 - [x] Correct all P0/P1/P2 findings.
 
 **Phase 2 final result: passed**
+
+---
+
+# Phase 3 Sensor replay design QA
+
+**Source structural truth:** the preserved `Sensor replay` state in
+`loc8-building-system-preview.html`.
+
+**Visual-system truth:** `docs/product/evidence/phase-01-source-concept.png` and
+the established Phase 1/2 Command Commissioning implementation.
+
+**Final evidence:**
+
+- `docs/product/evidence/phase-03-source-sensor-replay.png`
+- `docs/product/evidence/phase-03-sensor-replay-desktop.png`
+- `docs/product/evidence/phase-03-sensor-replay-tablet.png`
+- `docs/product/evidence/phase-03-sensor-replay-mobile.png`
+- `docs/product/evidence/phase-03-visual-comparison.png`
+
+**Comparison viewport:** 900×900 CSS pixels, device scale factor 1. The source
+and implementation captures are both 900×900. The alternate concept state was
+served from the preserved HTML but its visualisation-host stylesheet was not
+preserved, so its same-state screenshot is intentionally unstyled. It remains
+the exact structural/copy reference; the saved styled concept and current
+Command tokens remain the visual reference.
+
+**State:** synthetic journey loaded at 0:00, Ground truth and anchored estimate
+aligned, pressure/motion/magnetic readings visible, no live sensor claimed.
+
+## Functional verification
+
+- Play/pause, 4× speed, event step forward/back, reset and timeline seek were
+  exercised in the real in-app browser.
+- Playback reached 0:30 with declared truth and the barometer estimate both at
+  Level 2 and a displayed difference of zero floors.
+- The JSON paste validator rejected `{}` and retained the last valid synthetic
+  journey. The file control uses the same strict parser after local file read.
+- Evidence copy explicitly says synthetic/recorded-unverified, no live sensor
+  and no physical/floor-accuracy claim.
+- Motion and magnetic cards say `displayed · not fused`.
+
+## Findings and corrections
+
+### [P1] Narrow tool navigation clipped the active replay tab — fixed
+
+The earlier horizontally scrolling tool strip could leave the newly selected
+third tab partly outside the 390px capture. The narrow layout now uses measured
+three-column tracks with smaller existing mono labels. All three tools and the
+Gateway state dot fit inside the 390px viewport.
+
+### Capture artefact — not a product defect
+
+The in-app browser's full-page capture produced a compressed fixed-navigation
+strip after changing emulated viewports. DOM geometry and normal viewport
+captures showed the page at its correct measured width. Final evidence uses
+normal viewport captures and records `scrollWidth === innerWidth`.
+
+### Final pass
+
+- 1280×720, 900×900 and 390×844 document widths equal their viewports.
+- Controls wrap without overlap; the mobile file input and paste validator form
+  a full-width row beneath playback controls.
+- Existing Command typography, tokens, borders, radii and stroke icons are
+  retained. No new decorative or placeholder asset was introduced.
+- Truth/estimate and evidence status are communicated with text, not colour
+  alone; controls have accessible names and existing focus rings.
+- Final browser logs have no warning/error entries.
+
+No actionable P0, P1 or P2 finding remains. The existing P3 global-navigation
+overflow affordance remains reachable and does not block Sensor replay.
+
+## Open external questions
+
+- Native permission wording and the collection decision have not been tested
+  with an authorised participant.
+- Phone-delivered rates, background behaviour and physical floor accuracy are
+  not design-QA results.
+- A second operator has not usability-tested the replay and evidence language.
+
+## Phase 3 checklist
+
+- [x] Compare the same replay state at 900×900.
+- [x] Exercise primary playback, seek, speed, step, reset and rejection states.
+- [x] Inspect desktop, tablet and mobile renders.
+- [x] Verify document overflow and browser logs.
+- [x] Keep synthetic, recorded-unverified and physical evidence classes clear.
+- [x] Correct all P0/P1/P2 findings.
+
+**Phase 3 final result: passed**

@@ -17,6 +17,8 @@ export * from './core/floorTracker';
 
 // --- semantic venue package, commissioning validation and routing ---
 export * from './building';
+export * from './sensing';
+export * from './services/expoPhoneFloorSensorAdapter';
 
 // --- transport: location transport contract + implementations ---
 export * from './transport/LocationTransport';

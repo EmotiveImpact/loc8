@@ -2,6 +2,13 @@
 
 **Frozen before implementation:** 2026-07-22
 
+**Post-freeze correction:** implementation audit found that the earlier
+FLOOR-01 note reused Expo's Euler-orientation axis description for
+`rotationRate`. The SDK 57 installed type contract defines rate alpha/beta/gamma
+as X/Y/Z. Acceptance gate A1 therefore uses alpha→x, beta→y, gamma→z before the
+deg/s → rad/s conversion. The deviation is recorded rather than hidden; native
+physical parity remains a repeat gate.
+
 **Decision:** whether Loc8 can promote an exact Expo SDK 57 sensor-normalisation
 adapter and a deterministic product replay path without collecting physical
 data or implying that replay proves floor-detection accuracy

@@ -6,17 +6,17 @@ opened, what is still experimental and what needs the owner.
 
 **Last updated:** 2026-07-22
 
-**Current product phase:** Offline Gateway package simulation complete; phone
-sensor adapter and replay next
+**Current product phase:** Phone sensor adapter and deterministic replay
+complete; installer plan import/control points next
 
 **Working branch:** `claude/recursing-montalcini-d59018`
 
 **Remote status:** local work only; nothing is pushed or deployed
 
-**Local integration:** Phase 2 preregistration `8a4407c` and verified product
-commit `9347415` are fast-forwarded into local `main`; the documentation receipt
-may be one commit newer on both local branches. Root `.codex-audit/` and the
-canonical worktree's user launch setting remain untouched.
+**Local integration:** Phase 2 is fast-forwarded into local `main`. Phase 3
+preregistration is commit `12ed233`; its verified product payload is being
+committed and fast-forwarded locally. Root `.codex-audit/` and the canonical
+worktree's user launch setting remain untouched.
 
 ## Working now
 
@@ -36,10 +36,15 @@ canonical worktree's user launch setting remain untouched.
 - Command → Commissioning → Gateway simulation: an explicitly browser-local,
   offline copy that can install, reload, reconcile versions and be removed
   without changing the Command venue package.
+- Dependency-injected Expo 57 Barometer/DeviceMotion/Magnetometer adapter with
+  explicit permission start, source isolation, monotonic timestamps and no
+  automatic storage/network/boot behaviour.
+- Command → Commissioning → Sensor replay: deterministic Ground → Level 1 →
+  Level 2 playback, truth-versus-estimate display, speed/seek/step/reset and
+  strict local JSON validation, always labelled synthetic or unverified.
 
 ## Being built next
 
-- Expo 57 phone sensor adapter and synthetic/recorded journey replay surface.
 - Installer plan import/control-point registration and second-operator workflow.
 - A durable Gateway process/store repeat and reviewed signing-provider bake-off.
 
@@ -56,8 +61,8 @@ canonical worktree's user launch setting remain untouched.
 - Durable on-hardware Gateway venue-package storage/distribution and real
   signing-provider integration.
 - Optional cloud backup and multi-site management.
-- Product phone sensor adapter and replay screen.
-- Calibrated anchor + barometer + topology floor estimator.
+- Consented Guard collection workflow and physically calibrated
+  anchor/barometer/topology floor estimator.
 - Installer-ready plan import, control-point registration and survey workflow.
 - Manufactured Gateway/anchor/LoRa hardware.
 
@@ -74,27 +79,28 @@ canonical worktree's user launch setting remain untouched.
 
 ## Current definition of success
 
-The current increment is successful only when Command refuses to install a
-draft, can copy a valid local demo into a separately labelled Gateway simulator,
-reload it offline, reconcile package lineage, remove it independently and make
-the missing production dependencies visible. The provider/store contract must
-fail closed under malformed input, provider failure, conflicts and forks.
+The current increment is successful only when the exact Expo 57 adapter can be
+tested without a phone, never starts or requests permission implicitly, rejects
+bad/regressing samples and removes listeners; the replay format fails closed;
+and Command can visibly replay a multi-floor journey without claiming a live
+sensor, building or accuracy result.
 
 ## Latest result
 
-**PROMOTE the Phase 2 distribution contract and simulation tool.** The frozen
-local gates pass: 33/33 suites and 373/373 tests, TypeScript, lint, Command
-production build, Expo Doctor 20/20, dependency audit with zero vulnerabilities,
-install/reload/reconcile/remove browser workflow and desktop/mobile visual QA.
-This does not promote signing, durable Gateway storage, radio distribution,
-physical buildings or operational deployment. See
-`docs/product/PHASE-02-GATEWAY-VENUE-DISTRIBUTION-RESULT.md`.
+**PROMOTE the Phase 3 sensor-normalisation contract and replay development
+tool.** The frozen local gates pass: 35/35 suites and 432/432 tests, 59/59
+focused sensing/replay tests, TypeScript, lint, a 78-module Command production
+build, Expo Doctor 20/20, Guard config introspection, dependency audit with zero
+vulnerabilities and real-browser playback/rejection/responsive QA. This does
+not promote phone collection, background operation, floor accuracy, real
+buildings or automatic floor display. See
+`docs/product/PHASE-03-PHONE-SENSOR-REPLAY-RESULT.md`.
 
 ## Next three actions
 
-1. Implement the exact Expo 57 phone sensor adapter and journey replay surface
-   without collecting physical data.
+1. Extend Commissioning with synthetic plan import and control-point
+   registration; run the real-plan/second-operator repeat only when authorised.
 2. Preregister a durable Gateway runtime/store and reviewed signing-provider
    repeat; do not substitute browser localStorage or fake cryptography.
-3. Extend Commissioning with plan import/control-point registration, then run a
-   second-operator repeat when an authorised user/plan is available.
+3. Run the frozen FLOOR-01 native cohort when supported phones, toolchains,
+   building/participant authority and approved evidence storage exist.

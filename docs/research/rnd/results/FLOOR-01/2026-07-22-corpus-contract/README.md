@@ -65,6 +65,16 @@ explicitly labelled synthetic.
 | Anyplace | `722955182375` (MIT) |
 | Expo API reference | version path `v57.0.0`; docs recommended `expo-sensors ~57.0.2` |
 
+## 2026-07-22 adapter erratum
+
+Phase 3 product implementation found one semantic error in the later-adapter
+note: it had applied Expo's Euler `rotation` description to `rotationRate`.
+The installed Expo SDK 57 type contract documents rotation-rate alpha, beta and
+gamma as X, Y and Z. The implemented adapter therefore maps alpha→x, beta→y and
+gamma→z before converting deg/s to rad/s. The corpus shape and captured pure
+result do not change; the field semantics in the prototype README are corrected.
+Native physical parity remains a repeat gate.
+
 ## Licence, privacy and consent
 
 - **Upstream code/data:** no upstream file or dataset was copied. The retained

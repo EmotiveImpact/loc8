@@ -49,6 +49,12 @@
         }
       ],
       [
+        "expo-sensors",
+        {
+          "motionPermission": "Loc8 Guard uses motion and pressure changes to assist your manually selected building level while you are on shift. Sensor evidence stays on the device unless you explicitly join an approved test."
+        }
+      ],
+      [
         "expo-splash-screen",
         {
           "backgroundColor": "#06070d",

@@ -71,7 +71,7 @@ Required mapping:
 | `Barometer.timestamp` | `nativeTimestamp` | seconds; retain before converting once to `monotonicUs` |
 | `DeviceMotion.accelerationIncludingGravity` | `accelerationIncludingGravityMps2` | x/y/z, m/s² |
 | nullable `DeviceMotion.acceleration` | `userAccelerationMps2` | omit if unavailable; x/y/z, m/s² |
-| `DeviceMotion.rotationRate` | `rotationRateRps` | Expo reports deg/s; map beta→x, gamma→y, alpha→z and multiply by `π/180` |
+| `DeviceMotion.rotationRate` | `rotationRateRps` | Expo reports deg/s; the SDK 57 installed type contract defines alpha→x, beta→y, gamma→z; multiply by `π/180` |
 | `DeviceMotion.orientation` | `screenOrientationDeg` | only `0`, `90`, `180`, `-90` |
 | motion component timestamp | `nativeTimestamp` | choose and document the acceleration-including-gravity timestamp; seconds |
 | `Magnetometer.x/y/z` | `microtesla` | calibrated values, μT |
@@ -87,6 +87,16 @@ physical pilot.
 The DeviceMotion iOS usage description and permission flow are app/native build
 work, not part of this pure prototype. An adapter must record denied/unavailable
 states; it must not synthesize readings or silently switch timestamp sources.
+
+### 2026-07-22 rotation-rate erratum
+
+The first frozen note incorrectly reused the `rotation` Euler-angle mapping
+(alpha around Z, beta around X, gamma around Y) for `rotationRate`. Expo SDK
+57's installed `DeviceMotion.d.ts` instead documents rotation-rate alpha, beta
+and gamma as X, Y and Z. The production adapter and tests use the installed
+SDK 57 rate contract. This correction does not change the corpus JSON shape;
+it corrects the semantic mapping into its existing `rotationRateRps.x/y/z`
+fields. Native physical repeats must still confirm platform parity.
 
 ## What the evaluator proves
 

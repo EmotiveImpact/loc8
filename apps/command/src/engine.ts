@@ -67,3 +67,21 @@ export type {
   VenueSpace,
   VenueValidationIssue,
 } from '@loc8/engine/building';
+
+// Phone-floor development uses the pure replay/normalisation contract only.
+// The Expo-backed native adapter remains in Guard/@loc8/engine and is never
+// bundled into this web application.
+export {
+  FLOOR_REPLAY_MAX_BYTES,
+  canonicalFloorReplayJson,
+  createFloorReplayFrames,
+  createSyntheticFloorReplay,
+  floorReplayFrameAt,
+  parseFloorReplayJson,
+  validateFloorReplayBundle,
+} from '@loc8/engine/sensing';
+export type {
+  FloorReplayBundle,
+  FloorReplayEvent,
+  FloorReplayFrame,
+} from '@loc8/engine/sensing';

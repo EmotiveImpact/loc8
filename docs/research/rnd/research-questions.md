@@ -47,8 +47,10 @@ the decision PROMOTE/REPEAT/HOLD/STOP.
 - `FLOOR-01`: **PROMOTE contract/core / REPEAT native pilot / HOLD field
   collection**. The preregistered
   [result](results/FLOOR-01/2026-07-22-corpus-contract/README.md) passed 40/40
-  tests and the two-run 50,008-event replay gate. It is instrumentation evidence,
-  not floor-accuracy or phone/building evidence.
+  tests and the two-run 50,008-event replay gate. Product Phase 3 now also has a
+  dependency-injected SDK 57 adapter and deterministic Command replay with
+  59/59 focused tests; it is still not phone, background, building or accuracy
+  evidence. The rotation-rate axis erratum is recorded in the result.
 - `MAP-01`: **PROMOTE pure graph/core / REPEAT real building and product
   adapters / HOLD safety and deployment claims**. The preregistered
   [result](results/MAP-01/2026-07-22-semantic-graph/README.md) passed 123/123
@@ -253,9 +255,9 @@ the decision PROMOTE/REPEAT/HOLD/STOP.
 
 ### NOW — no more than three active decision questions
 
-1. `FLOOR-01` native repeat preparation — implement the exact SDK 57 sensor
-   adapter with synthetic injection/replay tests; field collection remains HOLD
-   until site/participant/storage/deletion authority exists.
+1. Product `MAP-04` preparation — extend Commissioning with synthetic plan
+   import and control-point registration; real-plan/second-operator evidence
+   remains HOLD until site/plan/operator authority exists.
 2. `CONN-01` product repeat — reviewed real identity, durable
    replay/revocation/policy/audit stores, pinned TLS/proxy adapter and recovery
    drills; pilot readiness remains HOLD.
@@ -266,7 +268,8 @@ the decision PROMOTE/REPEAT/HOLD/STOP.
 `MESH-01 E01` outranks these when the authorised three-device/isolation setup is
 available; until then it is a named physical-evidence blocker, not simulated
 progress. `MAP-04` similarly advances immediately when a permissioned real plan,
-building and second operator exist.
+building and second operator exist. The FLOOR-01 adapter preparation is complete;
+its native/physical cohort joins the same external-evidence queue.
 
 ### NEXT — prepared while NOW runs
 
