@@ -13,15 +13,17 @@ field, security, capacity or pilot-readiness claim.
 - **Review base:** `6bc1f44ebbc2886c14c2e92901f6f36f4bf5c5be`
 - **Preserved protocol commit:** `aaed1a6` (`research(rnd): audit protocol v2 boundary spike`)
 - **Preserved connected-boundary commit:** `338612a` (`research(rnd): harden connected relay boundary`)
+- **Consolidated shared-record commit:** `dc04bd7` (`docs(rnd): consolidate audited sprint results`)
+- **Local-main integration:** completed by fast-forward; no remote push was performed.
 - **User-owned edit preserved:** `.claude/launch.json` remains modified and was
   never staged or changed by Codex.
 - **Product source changed:** only the new, non-runnable
   `services/loc8-relayd` boundary. No app, engine, native BLE, Command, Guard or
   `tools/mesh-bridge` behaviour was integrated or enabled.
 
-Final full-workspace verification, shared-record commit, local-main integration
-and removal of the two now-preserved temporary worktrees are intentionally
-marked pending until their commands have actually passed.
+Final full-workspace verification, shared-record commit, local-main integration,
+temporary-worktree removal and task archival all completed successfully. The
+canonical branch and local `main` are synchronized after this ledger update.
 
 ## Why the temporary worktrees existed
 
@@ -44,6 +46,12 @@ Measured facts:
   before consolidation;
 - the protocol and connected tasks contained distinct uncommitted candidate
   outputs plus conflicting edits to shared R&D records.
+
+The reviewed unique outputs were preserved in the canonical commits listed
+above. The two temporary worktrees were then force-removed and their tasks
+archived. Their uncommitted shared-record variants were intentionally discarded
+because the principal audit had already reconciled the valid facts into
+`dc04bd7`; those discarded variants were not treated as independent evidence.
 
 ## Audit procedure actually performed
 
@@ -277,7 +285,7 @@ phones, real TLS/network/database adapters, customer data or a building corpus.
 - [x] Protocol source/licence/code/test/benchmark audit
 - [x] Connected source/security/dependency/test/benchmark audit
 - [x] Corrected commits cherry-picked into canonical R&D branch
-- [x] Shared R&D records reconciled; commit pending
+- [x] Shared R&D records reconciled and committed as `dc04bd7`
 - [x] Full Loc8 regression, TypeScript, standalone R&D tests and link/integrity checks
-- [ ] Canonical branch integrated into local `main`
-- [ ] Preserved temporary protocol/connected worktrees removed and tasks archived
+- [x] Canonical branch integrated into local `main` by fast-forward
+- [x] Temporary protocol/connected worktrees removed and tasks archived
