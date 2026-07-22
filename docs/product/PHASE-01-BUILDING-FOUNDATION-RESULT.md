@@ -12,6 +12,9 @@ floor accuracy and every safety/accessibility/compliance claim. **STOP** any
 path that treats labels, localStorage, synthetic geometry or legacy floor bytes
 as site truth.
 
+**Product commit:** `3821bec` (`product(map): ship commissioning foundation`),
+fast-forwarded into local `main`; nothing was pushed or deployed.
+
 ## What now works
 
 - A dependency-free strict TypeScript venue package in `@loc8/engine` with

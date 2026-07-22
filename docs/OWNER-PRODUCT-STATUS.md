@@ -12,6 +12,11 @@ opened, what is still experimental and what needs the owner.
 
 **Remote status:** local work only; nothing is pushed or deployed
 
+**Local integration:** verified product commit `3821bec` is fast-forwarded into
+local `main`; the documentation receipt may be one commit newer on both local
+branches. Root `.codex-audit/` and the canonical worktree's user launch setting
+remain untouched.
+
 ## Working now
 
 - Existing Loc8 consumer, Guard and Command applications.

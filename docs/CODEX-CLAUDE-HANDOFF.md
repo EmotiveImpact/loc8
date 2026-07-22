@@ -1162,5 +1162,16 @@ Canonical evidence:
 - `docs/OWNER-PRODUCT-STATUS.md`
 - `docs/research/rnd/decision-log.md` (`RDD-020`)
 
-At the time this section was written, product changes were verified but not yet
-committed or fast-forwarded into local `main`. Nothing had been pushed.
+### Phase 1 local-main integration receipt
+
+- Product commit `3821bec` (`product(map): ship commissioning foundation`) was
+  created from the explicit 32-file product/evidence set after the final gates.
+- Local `main` fast-forwarded cleanly from `07a4dbb` to `3821bec`.
+- This documentation-only receipt is committed after the product payload and
+  local `main` is then fast-forwarded once more; no product code changes occur
+  between the measured product commit and the receipt.
+- `origin/main` remains unchanged and no push/deployment was attempted.
+- Root `.codex-audit/` remains untracked and untouched.
+- The canonical worktree's user-owned `.claude/launch.json` remains modified,
+  untouched and unstaged.
+- `claude/vibrant-yalow-620cd6` remains separate and untouched at `4f725df`.
