@@ -11,6 +11,14 @@ The older body remains a historical temporary-worktree consolidation record;
 later FLOOR/MAP/SEC/MESH/tooling/source-audit checkpoints supersede its queue and
 dependency status.
 
+**Latest product promotion:** `RDD-023` promotes the strict local plan-import/
+control-point registration seam after 36/36 suites and 479/479 tests. The shared
+venue package now connects Command Map Builder, Guard projection, Gateway
+distribution simulation, phone-sensor replay and registered plan geometry.
+This is synthetic/browser-local proof only. Real plan/second-operator MAP-04,
+native FLOOR-01, physical MESH-01, durable Gateway storage and reviewed signing
+remain held behind their named external evidence gates.
+
 ## Mission
 
 Find active and historical open-source projects that can accelerate Loc8's

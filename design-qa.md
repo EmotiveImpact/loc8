@@ -294,3 +294,103 @@ overflow affordance remains reachable and does not block Sensor replay.
 - [x] Correct all P0/P1/P2 findings.
 
 **Phase 3 final result: passed**
+
+---
+
+# Phase 4 Plan registration design QA
+
+**Source visual truth:** `docs/product/evidence/phase-01-source-concept.png`
+
+**Implementation screenshot:**
+`docs/product/evidence/phase-04-plan-registration.png`
+
+**Combined comparison evidence:**
+`docs/product/evidence/phase-04-visual-comparison.png`
+
+**Comparison viewport and normalization:** source and implementation are both
+900×900 pixels at a 900×900 CSS viewport and device scale factor 1. No density
+normalization was required.
+
+**State:** browser-local editable successor draft
+`map.synthetic.draft.003`; Plan registration selected; built-in synthetic Ground
+Floor source loaded; 0.05 m/pixel, 4° fit passing with zero displayed residual;
+no physical plan/survey claim.
+
+## Full-view comparison evidence
+
+The source and implementation were opened together in the same 1800×900
+comparison image. The source is the early neutral concept and does not contain a
+plan-registration state, so it is a visual-system/hierarchy target rather than a
+pixel-identical screen. The implementation preserves its product hierarchy:
+venue/package state, tool navigation, floor-plan geometry, selected operation,
+adjacent measured facts and explicit publication/evidence status. It follows the
+already selected dark Command design system from Phases 1–3 rather than reviving
+the exploratory white canvas.
+
+## Focused-region comparison evidence
+
+The 900×900 implementation capture keeps the source/registered plan pair,
+control-point markers, RMS/max cards and scale/rotation/translation rows legible
+at original density, so a separate crop was not needed. The browser DOM snapshot
+was also inspected for the complete residual table and evidence boundary below
+the captured fold.
+
+## Findings and comparison history
+
+No P0/P1/P2 finding was produced by the first normalized comparison, so no
+visual-fix iteration was required.
+
+- **Fonts and typography:** established Sora/Unbounded/Space Mono roles, optical
+  weights and machine-data hierarchy are consistent. Headings and evidence copy
+  wrap without collision at 900 and 390 CSS pixels.
+- **Spacing and layout rhythm:** the plan preview and fit facts remain adjacent
+  on desktop/tablet and stack on mobile. Controls wrap to reachable rows; the
+  dense residual table uses its own horizontal scroller instead of expanding
+  the document.
+- **Colors and tokens:** existing Command background, line, info, caution,
+  success and alert tokens carry the same meaning as prior commissioning views.
+  Passing fit, synthetic status and evidence hold all include text.
+- **Image quality and asset fidelity:** the concept contains no plan-image asset
+  to reproduce. Both previews are sharp SVG renderings of actual import/engine
+  geometry and observations; no decorative placeholder, emoji or fake product
+  imagery was introduced. Existing Command stroke icons are reused.
+- **Copy and content:** the standalone screen explains source pixels, registered
+  metres, thresholds, preserved topology and the exact unverified/physical
+  boundary. It does not leak internal prompts or claim a survey.
+- **Interactions and accessibility:** load, file/paste validation, invalid JSON
+  rejection, apply and Map Builder handoff were exercised. Controls have semantic
+  labels, the data table has a table/row description, focus rings are inherited
+  and SVG previews have accessible names.
+- **Viewport resilience:** document width equalled the viewport at 1280, 900
+  and 390 CSS pixels. Four tool tabs form a 2×2 grid on mobile; no persistent
+  control is hidden by document overflow.
+- **Browser console:** final logs contained development info/debug output only;
+  no warning or error was present.
+
+## Open questions
+
+- The source concept has no exact Plan registration mock; visual fidelity is to
+  the selected Command system and product hierarchy, not a same-state source.
+- A second operator has not usability-tested control-point terminology, table
+  density or field sequence.
+- Customer plan handling, physical point capture and survey review are external
+  product-evidence gates, not visual-QA evidence.
+
+## Follow-up polish
+
+- **[P3]** On narrow screens the residual table scrolls horizontally. A later
+  field usability repeat can determine whether stacked control-point cards scan
+  better, without blocking the current core task.
+- **[P3]** The established global Command navigation still scrolls horizontally
+  at narrow widths without a dedicated overflow cue; it remains reachable.
+
+## Phase 4 checklist
+
+- [x] Compare source and implementation in one normalized image.
+- [x] Exercise valid preview, apply, map handoff and invalid import retention.
+- [x] Inspect desktop, tablet and mobile layout metrics.
+- [x] Verify document overflow and browser logs.
+- [x] Preserve evidence/provenance boundaries in visible copy.
+- [x] Leave no actionable P0/P1/P2 finding.
+
+**final result: passed**

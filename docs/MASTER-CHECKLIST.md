@@ -3,7 +3,7 @@
 *The come-back-to-this document. Every open item across the whole system, in
 dependency order, with where it's specced. If something isn't on this list or
 in a linked doc, it hasn't been thought about — add it here when you think of
-it. Updated 2026-07-20.*
+it. Updated 2026-07-22.*
 
 **How to read status:** ✅ done · 🟡 specced, unbuilt · 🔴 open / unstarted ·
 ⚠️ newly identified gap, not yet specced anywhere.
@@ -28,6 +28,18 @@ it. Updated 2026-07-20.*
 | Loc8 Guard | ✅ built | Foreground-only lone-worker timer ⚠️ (no background monitoring) |
 | Loc8 Command | ✅ built | Browser app today; desktop (Tauri) wrap 🟡 for gateway claim flow |
 | Partner SDK | 🔴 unwritten | The fourth door — deferred by choice |
+
+## Building, mapping and floor foundation
+
+| Item | Status | Notes |
+|---|---|---|
+| Shared semantic venue package + validation | ✅ built/tested | Stable levels/spaces/zones/connectors/portals/routes; synthetic evidence only |
+| Command Commissioning / Map Builder | ✅ built/tested | Editable browser draft/local demo; not site truth |
+| Guard projections + legacy floor boundary | ✅ built/tested | Same venue package; no automatic physical floor result |
+| Gateway distribution contract + simulator | ✅ contract/simulator | Durable target store, reviewed signing and hardware repeat remain 🔴 |
+| Expo 57 phone sensor adapter + replay | ✅ software seam | Native permission/background/rate/accuracy cohorts remain 🔴 |
+| Plan import + control-point registration | ✅ software seam | Strict pixel→metre fit/receipt; real plan, physical points and second operator remain 🔴 |
+| Coverage-aware operational digital twin | 🟡 foundation built | Fuse verified radio/floor/person confidence only after physical experiments |
 
 ## Gateway / Loc8OS
 

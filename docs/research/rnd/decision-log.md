@@ -454,3 +454,32 @@ Supersedes/superseded by:
 - **Next:** build synthetic plan import/control-point registration. Execute the
   native FLOOR-01 and real MAP repeats only after supported hardware/toolchains,
   authority and approved evidence storage genuinely exist.
+
+### RDD-023 — promote plan registration, not survey truth
+
+- **Questions:** product preparation for `MAP-04`, supporting `MAP-01`, the
+  Command commissioning workflow and the shared Guard/Gateway venue package
+- **Decision:** PROMOTE the strict `loc8.plan-import.v1` contract, bounded
+  similarity-fit engine, residual/geometry gates, immutable receipt and Command
+  preview/apply workflow. REPEAT with one authorised current plan, physically
+  measured well-separated control points and a second operator. HOLD customer-
+  plan file handling/storage, automatic image tracing, physical accuracy,
+  competent survey/fire/accessibility review and signed publication. STOP loose
+  JSON, mismatched package/frame identity, applying failed fits, topology
+  inference from pixels and treating a software residual as a survey result.
+- **Evidence:** frozen
+  [acceptance](../../product/PHASE-04-PLAN-REGISTRATION.md), measured
+  [result](../../product/PHASE-04-PLAN-REGISTRATION-RESULT.md) and root
+  [design QA](../../../design-qa.md). Focused registration passed 47/47; root
+  regression passed 36/36 suites and 479/479 tests; all TypeScript, lint,
+  79-module Command build, Expo Doctor 20/20 and audit-zero gates passed. Real-
+  browser preview/apply/successor/map-handoff/rejection and responsive checks
+  passed with no final warning/error log.
+- **Constraints:** the source pixels, four control points and venue are wholly
+  synthetic. No customer plan/image/PDF, file hash computation, permission,
+  site visit, physical point, second operator, accuracy metric, review,
+  signature or deployment exists. The resulting package is an unsigned browser-
+  local draft.
+- **Next:** select/preregister the durable Gateway runtime/store and reviewed
+  signing provider. Execute MAP-04, FLOOR-01 and MESH-01 only after their named
+  external authority, equipment, toolchain and evidence controls exist.

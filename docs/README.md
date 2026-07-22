@@ -4,6 +4,16 @@
 
 This folder is the **dev-ready knowledge base**: everything decided so far, so anyone can pick up any arena and expand. Start here.
 
+> **Current engineering checkpoint — 2026-07-22:** 36/36 suites and 479/479
+> tests pass. The shared production building package, four-profile routing,
+> Command Map Builder, Guard projections, offline Gateway distribution contract/
+> simulator, Expo 57 sensor adapter/replay and strict floor-plan control-point
+> registration are built in local software. Open
+> [OWNER-PRODUCT-STATUS.md](OWNER-PRODUCT-STATUS.md) for plain English and
+> [CODEX-CLAUDE-HANDOFF.md](CODEX-CLAUDE-HANDOFF.md) for exact continuation.
+> Physical mesh/floor/building evidence, durable Gateway runtime/store, reviewed
+> signing and deployment remain held—not implied by the software demos.
+
 ---
 
 # 📖 READING ORDER — start here, ~45 minutes
@@ -52,14 +62,27 @@ concluded. Five minutes.
 
 ---
 
-## Where things stand (2026-07-20)
+## Where things stand (2026-07-22)
 
-> **274 tests green · 27 suites** (engine 214/20 · Command 52/6 · Guard 8/1) · tsc clean.
+> **479 tests green · 36 suites** · all root/engine/Guard/Command TypeScript,
+> lint, Command production build, Expo Doctor 20/20 and dependency audit pass.
 
 - **Guard + Command — BUILT.** Guard (Expo SDK 57): team map, hold-to-fire SOS, dispatch + status replies, lone-worker, muster. Command (Vite/React 19): operations, incident detail, muster board, coverage heatmap, durable audit. Two-way ops grammar (`core/opsMessages.ts`) closes the Guard↔Command loop; live bridge verified in software (simulated transport bridged — **not yet real BLE**).
-- **Gateway appliance — SPECIFIED, unbuilt.** [hardware/loc8-gateway.md](hardware/loc8-gateway.md): BOM tiers, §9 power & battery (LFP, adversarially verified). Software: [software/loc8os.md](software/loc8os.md).
+- **Building/commissioning software — BUILT locally.** Shared semantic venue
+  package, multi-floor routing, Map Builder, Guard projections, Gateway package
+  simulator, phone-sensor replay and source-plan control-point registration.
+  Synthetic/browser-local results are not physical site truth. See
+  [OWNER-PRODUCT-STATUS.md](OWNER-PRODUCT-STATUS.md).
+- **Gateway appliance — SPECIFIED; production runtime/hardware unbuilt.** The
+  package installer/provider contracts and browser-local simulator are built,
+  but durable target storage, reviewed signing, radio transfer and hardware are
+  not. See [hardware/loc8-gateway.md](hardware/loc8-gateway.md) and
+  [software/loc8os.md](software/loc8os.md).
 - **Master brief — SHIPPED.** [brochure/loc8-ops-brief.html](brochure/loc8-ops-brief.html) — one document for investors/CEO/technicians/staff, every claim graded verified/specified/open.
-- **Still open:** the 2–3 phone field test (the make-or-break gate — the repo record on it is contradictory, see the brief §01), payload encryption (zero lines), operator SSO, cloud spine, SDK door.
+- **Still open:** physical three-phone relay/range/background/battery proof,
+  customer-plan/second-operator commissioning, native floor cohorts, payload
+  encryption/provider review, durable Gateway runtime/store, operator SSO,
+  cloud spine and SDK door.
 
 ---
 

@@ -1264,6 +1264,91 @@ physical data collection occurred.
 - Root `.codex-audit/`, the canonical worktree's user-owned
   `.claude/launch.json`, and `claude/vibrant-yalow-620cd6` remain untouched.
 
+## 2026-07-22 product increment — plan import and control-point registration
+
+This is the newest continuation point. It supersedes the Phase 3 next action
+that asked for synthetic plan import and registration.
+
+### What was implemented
+
+- `packages/engine/src/building/planRegistration.ts` defines the strict
+  `loc8.plan-import.v1` contract, exact venue/frame/level/provenance validation,
+  2 MiB and collection bounds, least-squares 2D similarity fitting, frozen
+  0.25 m RMS / 0.50 m maximum residual gates, transformed-geometry checks,
+  draft/successor application and immutable registration receipts.
+- The importer requires complete geometry for the existing target-level stable
+  spaces. It may replace plan shapes/control points/provenance but cannot add,
+  remove, rename or infer spaces, zones, portals, connectors, route nodes or
+  route edges. The application test proves all those IDs/counts are preserved.
+- `createSyntheticPlanImport()` produces a deterministic rotated/scaled pixel
+  plan for the current Ground Floor and recovers 0.05 m/pixel and 4° with
+  effectively zero residual. It contains no customer file or physical point.
+- Command Commissioning now has four tools: Map Builder, Plan registration,
+  Gateway simulation and Sensor replay. Plan registration supports built-in
+  synthetic reset, strict local file/paste input, source and registered geometry
+  previews, transform/residual facts, per-point residuals, apply-to-draft and
+  direct Map Builder handoff.
+- Applying an immutable local demo creates the explicit existing successor
+  `map.synthetic.draft.003`; applying a draft clones it. A conflicting or bad
+  import keeps the previous valid preview and venue. Nothing uploads or stores
+  the source drawing.
+
+### What was verified
+
+- Focused plan registration: 47/47 tests, including 31 table-driven invalid
+  inputs plus degeneracy, scale, residual, transformed-bounds, immutability,
+  topology preservation, deterministic output and successor-lineage cases.
+- Full regression: 36/36 suites and 479/479 tests.
+- Root, engine, Guard and Command TypeScript: PASS.
+- Command production build: PASS, 79 transformed modules.
+- Expo lint: PASS. Expo Doctor: 20/20. `npm audit`: zero vulnerabilities.
+- Guard config introspection still contains the Expo sensors plugin and
+  `NSMotionUsageDescription` from Phase 3.
+- Browser: preview, fit facts, apply, immutable→successor fork, receipt, Map
+  Builder handoff and pasted `{}` rejection retaining valid state all passed.
+- 1280, 900 and 390 CSS-pixel document widths matched their viewports. Browser
+  logs had no warning/error. The 900×900 source/implementation comparison and
+  root `design-qa.md` have no open P0/P1/P2.
+
+The existing full-Jest Expo Go remote-push warning remains non-failing and
+unrelated. No customer plan, source-file hashing/storage, physical control
+point, site visit, participant, survey accuracy, competent review, signature,
+deployment or Gateway hardware evidence was introduced.
+
+### Decision and continuation order
+
+`RDD-023`: PROMOTE the strict software registration seam and Command workflow;
+REPEAT with an authorised current plan, measured control points and second
+operator; HOLD customer-plan storage, auto-tracing, survey/accuracy and
+publication claims; STOP loose imports and topology inference from pixels.
+
+Continue in this order:
+
+1. select and preregister the durable Gateway runtime/store and independently
+   reviewed signing provider before implementing target restart/concurrency/
+   power-loss evidence;
+2. execute MAP-04 with an authorised plan/venue and second operator while
+   keeping the source binary out of this local JSON contract;
+3. execute native FLOOR-01 and MESH-01 only with supported devices/toolchains,
+   site/participant authority and approved storage/deletion; and
+4. keep physical accuracy, signed publication, hardware and operational claims
+   held until their named evidence gates pass.
+
+Canonical evidence:
+
+- `docs/product/PHASE-04-PLAN-REGISTRATION.md`
+- `docs/product/PHASE-04-PLAN-REGISTRATION-RESULT.md`
+- `design-qa.md`
+- `docs/product/evidence/phase-04-*`
+- `docs/OWNER-PRODUCT-STATUS.md`
+- `docs/research/rnd/decision-log.md` (`RDD-023`)
+
+Phase 4 preregistration is commit `3df0db0`. The verified product commit and
+local-main receipt are recorded after the final explicit file-set commit. The
+canonical worktree's `.claude/launch.json` remains user-owned, modified,
+untouched and unstaged. No push, deployment, purchase, external contact or
+physical data collection occurred.
+
 ## 2026-07-22 product increment — phone sensor adapter and journey replay
 
 This is the newest continuation point. It supersedes the Phase 2 next action

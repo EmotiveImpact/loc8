@@ -414,6 +414,66 @@ select.sel:disabled { color: var(--muted); cursor: not-allowed; }
 .commission-audit b { color: var(--muted); }
 .commission-notice { padding: 9px 16px; border-top: 1px solid var(--line); color: var(--muted); font-family: var(--mono); font-size: 9px; min-height: 34px; }
 
+/* --- floor-plan control-point registration --- */
+.plan-registration { min-height: 560px; background: #080b13; }
+.plan-registration-head { display: flex; align-items: flex-start; justify-content: space-between; gap: 24px; padding: 20px; border-bottom: 1px solid var(--line); }
+.plan-registration-head h2 { margin: 6px 0 7px; font: 800 17px var(--disp); }
+.plan-registration-head p { max-width: 760px; margin: 0; color: var(--muted); font-size: 11px; line-height: 1.6; }
+.plan-registration-controls { display: flex; align-items: flex-end; flex-wrap: wrap; gap: 8px; padding: 12px 18px; border-bottom: 1px solid var(--line); background: rgba(255,255,255,.012); }
+.plan-registration-controls .btn { min-height: 36px; padding: 8px 11px; border-radius: 9px; font-size: 10px; }
+.plan-registration-controls .btn.go { margin-left: auto; }
+.plan-registration-controls label { display: flex; flex-direction: column; gap: 4px; }
+.plan-registration-controls label > span, .plan-registration-paste label > span { color: var(--faint); font: 8px var(--mono); letter-spacing: .7px; text-transform: uppercase; }
+.plan-registration-controls input[type="file"] { min-height: 36px; max-width: 250px; padding: 6px; border: 1px solid var(--line); border-radius: 9px; background: var(--panel); color: var(--muted); font: 9px var(--mono); }
+.plan-registration-paste { display: grid; grid-template-columns: minmax(0,1fr) auto; align-items: end; gap: 9px; padding: 12px 18px; border-bottom: 1px solid var(--line); background: rgba(122,162,255,.035); }
+.plan-registration-paste label { display: flex; flex-direction: column; gap: 5px; }
+.plan-registration-paste textarea { width: 100%; min-height: 72px; resize: vertical; border: 1px solid var(--line); border-radius: 9px; padding: 9px 10px; background: var(--panel); color: var(--muted); font: 9px/1.5 var(--mono); }
+.plan-registration-stale { display: flex; align-items: flex-start; gap: 9px; padding: 10px 18px; border-bottom: 1px solid rgba(255,180,58,.2); background: rgba(255,180,58,.045); color: var(--muted); font-size: 10px; line-height: 1.5; }
+.plan-registration-stale svg { color: var(--caution); flex: none; }
+.plan-registration-grid { display: grid; grid-template-columns: 1.2fr .8fr; gap: 12px; padding: 18px; }
+.plan-registration-grid > article { min-width: 0; padding: 15px; border: 1px solid var(--line); border-radius: 13px; background: var(--panel2); }
+.plan-preview-pair { display: grid; grid-template-columns: minmax(0,1fr) auto minmax(0,1fr); align-items: center; gap: 12px; margin-top: 12px; }
+.plan-preview-pair > svg { color: var(--faint); }
+.plan-preview-pair > div { min-width: 0; }
+.plan-preview-pair span { display: block; margin-bottom: 6px; color: var(--faint); font: 8px var(--mono); text-transform: uppercase; letter-spacing: .6px; }
+.plan-preview-pair div > svg { display: block; width: 100%; height: 210px; border: 1px solid var(--line); border-radius: 10px; background: #06080e; }
+.plan-preview-pair rect { fill: rgba(255,255,255,.012); stroke: rgba(255,255,255,.14); }
+.plan-preview-pair polygon { fill: rgba(122,162,255,.08); stroke: rgba(122,162,255,.7); stroke-width: 2; vector-effect: non-scaling-stroke; }
+.plan-preview-pair circle { fill: var(--caution); stroke: #080b13; stroke-width: 2; vector-effect: non-scaling-stroke; }
+.plan-preview-legend { display: flex; flex-wrap: wrap; gap: 14px; margin-top: 9px; color: var(--faint); font: 8px var(--mono); }
+.plan-preview-legend span { display: inline-flex; align-items: center; gap: 6px; }
+.plan-preview-legend i { width: 13px; height: 8px; border: 1px solid rgba(122,162,255,.7); background: rgba(122,162,255,.08); }
+.plan-preview-legend i.control { width: 8px; height: 8px; border: 2px solid #080b13; border-radius: 50%; background: var(--caution); }
+.plan-fit-gates { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin-top: 12px; }
+.plan-fit-gates > div { padding: 11px; border: 1px solid rgba(70,224,160,.25); border-radius: 10px; background: rgba(70,224,160,.035); }
+.plan-fit-gates span, .plan-fit-gates b, .plan-fit-gates small { display: block; }
+.plan-fit-gates span { color: var(--faint); font: 8px var(--mono); text-transform: uppercase; }
+.plan-fit-gates b { margin-top: 5px; color: var(--ok); font: 800 18px var(--disp); }
+.plan-fit-gates small { margin-top: 3px; color: var(--faint); font: 8px var(--mono); }
+.plan-registration-fit dl, .plan-registration-boundary dl { margin: 11px 0 0; border-top: 1px solid var(--line); }
+.plan-registration-fit dl div, .plan-registration-boundary dl div { display: grid; grid-template-columns: 105px minmax(0,1fr); gap: 8px; padding: 7px 0; border-bottom: 1px solid var(--line); }
+.plan-registration-fit dt, .plan-registration-boundary dt { color: var(--faint); font: 8px var(--mono); }
+.plan-registration-fit dd, .plan-registration-boundary dd { margin: 0; color: var(--muted); font: 8px var(--mono); text-align: right; overflow-wrap: anywhere; }
+.plan-fit-pass { display: flex; align-items: flex-start; gap: 8px; margin-top: 11px; padding: 10px; border-left: 2px solid var(--ok); background: rgba(70,224,160,.04); color: var(--faint); font-size: 8px; line-height: 1.5; }
+.plan-fit-pass svg, .plan-fit-pass b { color: var(--ok); flex: none; }
+.plan-registration-points { grid-column: 1 / -1; }
+.plan-point-table { margin-top: 12px; border: 1px solid var(--line); border-radius: 10px; overflow: hidden; }
+.plan-point-table > div { display: grid; grid-template-columns: minmax(170px,1.4fr) 1fr 1fr .7fr; gap: 12px; align-items: center; padding: 9px 10px; border-bottom: 1px solid var(--line); color: var(--muted); font: 8px var(--mono); }
+.plan-point-table > div:last-child { border-bottom: 0; }
+.plan-point-table > div.head { color: var(--faint); background: rgba(255,255,255,.025); text-transform: uppercase; letter-spacing: .5px; }
+.plan-point-table b, .plan-point-table small { display: block; }
+.plan-point-table b { color: var(--muted); font-family: var(--body); font-size: 9px; }
+.plan-point-table small { margin-top: 3px; color: var(--faint); font-size: 7px; overflow-wrap: anywhere; }
+.plan-registration-boundary { grid-column: 1 / -1; }
+.plan-registration-boundary ul { display: grid; grid-template-columns: repeat(3,1fr); gap: 8px; list-style: none; margin: 12px 0 0; padding: 0; }
+.plan-registration-boundary li { display: flex; align-items: flex-start; gap: 8px; padding: 10px; border: 1px solid var(--line); border-radius: 9px; color: var(--faint); font-size: 8px; line-height: 1.5; }
+.plan-registration-boundary li svg { color: var(--info); flex: none; }
+.plan-registration-boundary li:last-child svg { color: var(--caution); }
+.plan-registration-boundary li b { color: var(--muted); }
+.plan-receipt { display: flex; align-items: center; flex-wrap: wrap; gap: 9px; margin-top: 12px; padding: 10px; border: 1px solid rgba(70,224,160,.25); border-radius: 10px; background: rgba(70,224,160,.035); }
+.plan-receipt > span { flex: 1; min-width: 220px; color: var(--faint); font: 8px var(--mono); }
+.plan-receipt .btn { padding: 7px 9px; font-size: 9px; }
+
 /* --- offline Gateway venue-package simulator --- */
 .gateway-sim { min-height: 500px; background: #080b13; }
 .gateway-sim-head {
@@ -643,9 +703,22 @@ button.dot { border: none; padding: 0; font: inherit; -webkit-appearance: none; 
   .commission-inspector { border-left: 0; border-top: 1px solid var(--line); display: flex; }
   .commission-route-panel { grid-template-columns: 1fr; }
   .commission-route-result { border-left: 0; border-top: 1px solid var(--line); padding: 10px 0 0; }
-  .commission-views { display: grid; grid-template-columns: .85fr 1.25fr 1fr; gap: 2px; }
+  .commission-views { display: grid; grid-template-columns: 1fr 1fr; gap: 2px; }
   .commission-views button { min-width: 0; justify-content: center; gap: 4px; padding: 7px 4px; font-size: 8px; white-space: nowrap; }
   .gateway-sim-head { flex-direction: column; gap: 12px; }
+  .plan-registration-head { flex-direction: column; gap: 12px; }
+  .plan-registration-controls { align-items: stretch; }
+  .plan-registration-controls label { width: 100%; }
+  .plan-registration-controls input[type="file"] { width: 100%; max-width: none; }
+  .plan-registration-controls .btn.go { width: 100%; margin-left: 0; }
+  .plan-registration-paste, .plan-registration-grid { grid-template-columns: 1fr; }
+  .plan-registration-points, .plan-registration-boundary { grid-column: auto; }
+  .plan-preview-pair { grid-template-columns: 1fr; }
+  .plan-preview-pair > svg { transform: rotate(90deg); justify-self: center; }
+  .plan-preview-pair div > svg { height: 180px; }
+  .plan-point-table { overflow-x: auto; }
+  .plan-point-table > div { min-width: 620px; }
+  .plan-registration-boundary ul { grid-template-columns: 1fr; }
   .gateway-flow { grid-template-columns: 1fr; }
   .gateway-flow > svg { transform: rotate(90deg); justify-self: center; }
   .gateway-sim-grid, .gateway-production-boundary > div:last-child { grid-template-columns: 1fr; }

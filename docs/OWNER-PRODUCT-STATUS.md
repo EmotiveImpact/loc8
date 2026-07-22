@@ -6,17 +6,18 @@ opened, what is still experimental and what needs the owner.
 
 **Last updated:** 2026-07-22
 
-**Current product phase:** Phone sensor adapter and deterministic replay
-complete; installer plan import/control points next
+**Current product phase:** Shared building engine, commissioning, offline
+Gateway simulation, phone-sensor replay and plan registration are complete in
+local software; physical and provider-backed repeats are next
 
 **Working branch:** `claude/recursing-montalcini-d59018`
 
 **Remote status:** local work only; nothing is pushed or deployed
 
-**Local integration:** Phase 3 preregistration `12ed233` and verified product
-commit `3a7f72e` are fast-forwarded into local `main`; this documentation receipt
-may be one commit newer on both local branches. Root `.codex-audit/` and the
-canonical worktree's user launch setting remain untouched.
+**Local integration:** Phase 3 is fast-forwarded into local `main`. Phase 4 was
+preregistered in `3df0db0`; its verified product and documentation commits are
+integrated only after the final receipt. Root `.codex-audit/` and the canonical
+worktree's user launch setting remain untouched.
 
 ## Working now
 
@@ -42,11 +43,20 @@ canonical worktree's user launch setting remain untouched.
 - Command → Commissioning → Sensor replay: deterministic Ground → Level 1 →
   Level 2 playback, truth-versus-estimate display, speed/seek/step/reset and
   strict local JSON validation, always labelled synthetic or unverified.
+- Command → Commissioning → Plan registration: strict bounded source-plan JSON,
+  source-pixel to building-metre control points, measured similarity fit,
+  residual gates, source/registered previews, safe draft apply and Map Builder
+  handoff. The engine preserves every stable semantic/routing identity and
+  records an immutable software receipt.
 
-## Being built next
+## Next promotion work
 
-- Installer plan import/control-point registration and second-operator workflow.
-- A durable Gateway process/store repeat and reviewed signing-provider bake-off.
+- Select and independently review the real Gateway signing provider and durable
+  runtime/store; then run restart, concurrency and power-loss tests on target
+  hardware.
+- Run real-plan/second-operator MAP-04 and supported native FLOOR/MESH cohorts
+  only after the owner supplies the authorised equipment, site and evidence
+  controls.
 
 ## Built but experimental
 
@@ -63,7 +73,8 @@ canonical worktree's user launch setting remain untouched.
 - Optional cloud backup and multi-site management.
 - Consented Guard collection workflow and physically calibrated
   anchor/barometer/topology floor estimator.
-- Installer-ready plan import, control-point registration and survey workflow.
+- Customer-plan file hashing/ingestion/storage, field capture and competent
+  survey/review workflow. The strict software registration seam is built.
 - Manufactured Gateway/anchor/LoRa hardware.
 
 ## Waiting for the owner later
@@ -79,28 +90,29 @@ canonical worktree's user launch setting remain untouched.
 
 ## Current definition of success
 
-The current increment is successful only when the exact Expo 57 adapter can be
-tested without a phone, never starts or requests permission implicitly, rejects
-bad/regressing samples and removes listeners; the replay format fails closed;
-and Command can visibly replay a multi-floor journey without claiming a live
-sensor, building or accuracy result.
+The current increment is successful only when a plan bundle fails closed on
+unknown identity/geometry, at least three non-collinear points recover one
+bounded similarity transform, residual and target-bound gates are enforced,
+apply preserves semantic/routing IDs, and Command visibly distinguishes a
+software registration from a physical survey.
 
 ## Latest result
 
-**PROMOTE the Phase 3 sensor-normalisation contract and replay development
-tool.** The frozen local gates pass: 35/35 suites and 432/432 tests, 59/59
-focused sensing/replay tests, TypeScript, lint, a 78-module Command production
-build, Expo Doctor 20/20, Guard config introspection, dependency audit with zero
-vulnerabilities and real-browser playback/rejection/responsive QA. This does
-not promote phone collection, background operation, floor accuracy, real
-buildings or automatic floor display. See
-`docs/product/PHASE-03-PHONE-SENSOR-REPLAY-RESULT.md`.
+**PROMOTE the Phase 4 strict plan-import, control-point registration and local
+operator workflow.** The frozen local gates pass: 36/36 suites and 479/479
+tests, 47/47 focused registration tests, all TypeScript, lint, a 79-module
+Command production build, Expo Doctor 20/20, dependency audit with zero
+vulnerabilities and real-browser preview/apply/handoff/rejection/responsive QA.
+This does not promote customer-plan storage, physical control points, survey
+accuracy, competent review or published site truth. See
+`docs/product/PHASE-04-PLAN-REGISTRATION-RESULT.md`.
 
 ## Next three actions
 
-1. Extend Commissioning with synthetic plan import and control-point
-   registration; run the real-plan/second-operator repeat only when authorised.
-2. Preregister a durable Gateway runtime/store and reviewed signing-provider
-   repeat; do not substitute browser localStorage or fake cryptography.
-3. Run the frozen FLOOR-01 native cohort when supported phones, toolchains,
-   building/participant authority and approved evidence storage exist.
+1. Select and preregister a durable Gateway runtime/store plus reviewed signing
+   provider; do not substitute browser localStorage or fake cryptography.
+2. Run MAP-04 with one authorised current plan, measured control points and a
+   second operator; keep the source binary outside this development contract.
+3. Run frozen FLOOR-01 and MESH-01 native cohorts when supported phones,
+   toolchains, building/participant authority and approved evidence storage
+   exist.
