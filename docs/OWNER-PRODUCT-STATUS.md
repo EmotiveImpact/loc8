@@ -13,10 +13,10 @@ sensor adapter and replay next
 
 **Remote status:** local work only; nothing is pushed or deployed
 
-**Local integration:** verified product commit `3821bec` is fast-forwarded into
-local `main`; the documentation receipt may be one commit newer on both local
-branches. Root `.codex-audit/` and the canonical worktree's user launch setting
-remain untouched.
+**Local integration:** Phase 2 preregistration `8a4407c` and verified product
+commit `9347415` are fast-forwarded into local `main`; the documentation receipt
+may be one commit newer on both local branches. Root `.codex-audit/` and the
+canonical worktree's user launch setting remain untouched.
 
 ## Working now
 

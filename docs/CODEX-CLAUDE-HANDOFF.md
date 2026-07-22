@@ -1248,3 +1248,18 @@ Canonical evidence:
 The canonical worktree's `.claude/launch.json` remains user-owned, modified,
 untouched and unstaged. No push, deployment, purchase, external contact or
 physical data collection occurred.
+
+### Phase 2 local-main integration receipt
+
+- Preregistration commit `8a4407c` (`product(gateway): preregister venue
+  distribution`) froze the evidence and failure gates before implementation.
+- Product commit `9347415` (`product(gateway): add offline venue distribution`)
+  was created from the explicit 17-file implementation/evidence set after all
+  final gates passed.
+- Local `main` fast-forwarded cleanly from `c2b13ca` through `9347415`.
+- This documentation-only receipt is committed after that product payload and
+  local `main` is fast-forwarded once more; no code changes occur between the
+  measured product commit and the receipt.
+- `origin/main` remains unchanged and no push/deployment was attempted.
+- Root `.codex-audit/`, the canonical worktree's user-owned
+  `.claude/launch.json`, and `claude/vibrant-yalow-620cd6` remain untouched.
