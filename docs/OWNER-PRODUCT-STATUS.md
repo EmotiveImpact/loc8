@@ -1,0 +1,80 @@
+# Loc8 owner product status
+
+This is the plain-English control page for the owner. Engineering detail remains
+in `docs/CODEX-CLAUDE-HANDOFF.md`; this page answers what is real, what can be
+opened, what is still experimental and what needs the owner.
+
+**Last updated:** 2026-07-22
+
+**Current product phase:** Building foundation and Command commissioning
+
+**Working branch:** `claude/recursing-montalcini-d59018`
+
+**Remote status:** local work only; nothing is pushed or deployed
+
+## Working now
+
+- Existing Loc8 consumer, Guard and Command applications.
+- Shared mesh, packet, floor-code and operations engine.
+- Development-only three-phone mesh evidence screen and native diagnostics.
+- Tested research implementations for a semantic multi-floor building graph,
+  floor-data contract, connected-service boundary and security-provider boundary.
+
+## Being built now
+
+- A production TypeScript venue package in the shared Loc8 engine.
+- Command → Commissioning / Map Builder.
+- A realistic four-level demonstration venue.
+- Shared published floors, zones and connectors for Guard and Command.
+- Honest local-draft/local-demo publication states before Gateway distribution
+  exists.
+
+## Built but experimental
+
+- Multi-floor routing and egress validation: synthetic evidence only.
+- Floor sensor recording/evaluation contract: no real building accuracy result.
+- Mesh evidence kit: no physical three-phone relay result yet.
+- Connected relay and security contracts: not a deployed or independently
+  reviewed production security system.
+
+## Not yet built
+
+- Gateway venue-package storage/distribution.
+- Optional cloud backup and multi-site management.
+- Product phone sensor adapter and replay screen.
+- Calibrated anchor + barometer + topology floor estimator.
+- Installer-ready plan import, control-point registration and survey workflow.
+- Manufactured Gateway/anchor/LoRa hardware.
+
+## Waiting for the owner later
+
+- Three supported phones and an isolated layout for physical relay evidence.
+- Permissioned multi-storey building, plan and controlled participant walks.
+- Substantially more free disk space and a supported Xcode toolchain for iOS 57
+  native builds.
+- Authority before purchases, deployment, customer contact or physical data
+  collection.
+- Specialist security, cryptography, fire/accessibility and privacy review before
+  corresponding product claims.
+
+## Current definition of success
+
+The current increment is successful only when a field operator can open Command,
+edit a four-level venue draft, validate it, create a clearly labelled local demo
+publication, switch operational floors, preview a cross-floor route, reload the
+draft, and see the same stable building/floor/zone identities projected through
+the shared engine. Product and focused tests, types, lint and browser interaction
+verification must pass.
+
+## Latest result
+
+Not yet measured. See `docs/product/PHASE-01-BUILDING-FOUNDATION.md` for the
+frozen acceptance criteria. This line will be replaced with measured evidence,
+not an optimistic status.
+
+## Next three actions
+
+1. Implement and test the shared production venue package.
+2. Build and visually verify Command Commissioning / Map Builder.
+3. Project the published venue into Guard/Command, then prepare Gateway
+   distribution and sensor/replay phases.
