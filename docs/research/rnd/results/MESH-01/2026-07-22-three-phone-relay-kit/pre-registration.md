@@ -356,3 +356,20 @@ Neither state may be relabelled GO/LIMITED/NO-GO. Repair the setup and repeat.
 If three suitable phones and a genuinely isolated layout are unavailable, the
 physical decision remains **BLOCKED on physical evidence** while the complete
 kit can still be promoted and committed.
+
+## Append-only pre-implementation amendment — 2026-07-22
+
+The first canonical fixture audit, before any benchmark or physical data,
+identified one internal type contradiction: the frozen near-control matrix
+requires `B→A` and `B→C`, so B is necessarily an origin in those controls, while
+the event table above restricted `originRole` to `A | C`. Amend that field to:
+
+```text
+originRole             A | B | C when known, otherwise null
+```
+
+Cross-record validation still requires `originRole == block.sourceRole` and
+relay/isolation blocks remain only `A→C` or `C→A` through B. This amendment
+changes no attempt count, threshold, path proof, isolation requirement or
+decision rule. Original preregistration remains independently frozen in commit
+`29938c4`.
