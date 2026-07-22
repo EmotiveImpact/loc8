@@ -306,10 +306,12 @@ active decision.
 
 ### Days 0-14 — establish truth and instruments
 
-1. Freeze a labelled build and run E01 three-phone relay.
-2. Begin E02 background matrix on available iOS/Android hardware.
+1. Freeze a labelled build and run `MESH-01 E01` three-phone relay.
+2. Begin `MESH-02/MESH-03 E02` background matrix on available iOS/Android
+   hardware.
 3. Write the connected bridge threat model and minimum pilot boundary.
-4. Specify E03's sensor/event schema, consent and ground-truth capture flow.
+4. Specify `FLOOR-01 E03`'s sensor/event schema, consent and ground-truth capture
+   flow.
 5. Define the first semantic building schema and select one accessible test
    building with at least three floors and two connector types if possible.
 6. Create the experiment registry/result folder and publish the first decision
@@ -485,7 +487,7 @@ privacy or safety obligations silently.
 
 ## Research anti-patterns
 
-- Cloning more repositories instead of running E01/E03.
+- Cloning more repositories instead of running `MESH-01 E01`/`FLOOR-01 E03`.
 - Tuning algorithms on the same building/device used to report accuracy.
 - Averaging away an unsupported phone model or background state.
 - Treating RSSI distance, one paper's accuracy or a simulator as field truth.
@@ -498,26 +500,35 @@ privacy or safety obligations silently.
 
 ## The immediate autonomous queue
 
-After the completed pure `CONN-01`, `SEC-01`, `FLOOR-01` and `MAP-01` cycles,
-the team should continue in this exact order:
+After the completed pure `CONN-01`, `SEC-01`, `FLOOR-01`, `MAP-01`, `SEC-05`
+and MESH-01 kit cycles plus the 48-repository source audit, continue in this
+order:
 
-1. `SEC-05`: reviewed library, public vector, logical-frame, credential and
-   prekey bake-off; cryptographic implementation remains HOLD.
-2. `MESH-01`: finish the physical kit/preflight and run the third-phone relay
-   when three suitable phones and radio isolation exist.
-3. Targeted retained-repository assessment for the SEC-05/MESH-01/MAP seams;
-   stop cloning without a decision question.
-4. FLOOR-01 native adapter/physical repeat preparation; collection remains
-   gated by site/participant/storage/deletion authority.
-5. `MAP-04`/`MAP-10`: permissioned real-plan and second-operator repeats after
-   governance and building access exist.
-6. `MESH-02`/`MESH-03`: background/device/battery matrix when devices exist.
-7. `OPS-01` through `OPS-03`: pilot outcome and muster truth definitions.
-8. `FLOOR-02` through `FLOOR-05`: corpus baselines, anchors and fusion after
-   approved physical data exists.
-9. `HW-01`: fixed pressure-anchor bench design, gated by usable floor data.
-10. `RADIO-01`: MeshCore/LoRaMesher comparison, gated by field/bench evidence or
-    a signed pilot need.
+1. Run physical `MESH-01 E01` immediately when three authorised phones, real
+   A↔C radio isolation, approved evidence storage and a supported native build
+   are available. The kit is ready; no simulation may close the decision.
+2. Prepare the `FLOOR-01` exact SDK 57 native adapter with synthetic
+   injection/replay tests. Physical collection remains gated by
+   site/participant/storage/deletion authority.
+3. Execute `CONN-01` product development with reviewed real identity, durable
+   replay/revocation/policy/audit stores, a pinned TLS/proxy adapter and recovery
+   drills. Pilot readiness remains HOLD.
+4. Prefreeze and implement the isolated Android half of `SEC-05 E07`; hold the
+   cross-platform/provider decision for supported Xcode/iOS, phones and
+   specialist review.
+5. Run `MAP-04`/`MAP-10` with a permissioned real plan/building and second
+   operator as soon as governance/access exists.
+6. Run `FLOOR-02` through `FLOOR-05` manual/receiver/barometer/fused/topology
+   baselines only after an approved physical corpus exists.
+7. Run `MESH-02`/`MESH-03` background/device/battery cohorts after `MESH-01 E01`
+   and device access.
+8. Run `OPS-01` through `OPS-03` only with authorised representative users and
+   a named pilot outcome.
+9. Run `RADIO-01` MeshCore-versus-LoRaMesher on identical representative
+   hardware only when hardware is available or a signed pilot need justifies it;
+   select RadioLib only after the firmware/chip decision.
+10. Refresh/adopt retained repositories only for a named experiment or at the
+    capped quarterly watch; do not restart broad discovery.
 
 This queue deliberately combines proof, pilot readiness and differentiating IP.
 It prevents either the mesh experiment or connected sales path from monopolising
@@ -538,9 +549,12 @@ the company while the other remains unproven.
   bounded non-cryptographic protocol seam. PROMOTE the candidate contracts,
   REPEAT native/physical work and HOLD cryptographic implementation. See the
   [protocol result](results/SEC-01/2026-07-22-protocol-v2-boundary/README.md).
-- `MESH-01` remains **BLOCKED on physical evidence**: three suitable phones and a
-  test layout that proves A and C cannot hear one another directly. Simulation
-  must not be used to close it.
+- `MESH-01` now has a complete, promoted physical-evidence kit. The strict
+  evaluator passes 100/100, its TypeScript operator protocol passes 5/5, pure
+  native recorder harnesses pass and an actual generated Expo Android project
+  compiles/packages the module. The relay decision remains **HOLD-PHYSICAL**:
+  zero physical attempts exist and the three-phone/isolation/storage/toolchain
+  dependencies remain.
 - `FLOOR-01` completed its preregistered pure contract cycle. PROMOTE the schema,
   platform-neutral recorder/validator/evaluator and replay gates; REPEAT the
   native adapter/physical pilot; HOLD collection authority and all accuracy or
@@ -555,9 +569,22 @@ the company while the other remains unproven.
   10,000-query runs are in the
   [result](results/MAP-01/2026-07-22-semantic-graph/README.md), artifact commit
   `d023690`.
-- The next locally autonomous work is `SEC-05`, followed by `MESH-01` physical
-  kit/preflight and targeted retained-repository assessment. Prepare, but do not
-  falsely close, the FLOOR-01 physical repeat or MAP real-building repeats.
+- `SEC-05` completed its pure provider/credential/prekey contract cycle. Promote
+  only the strict logical-frame/provider/policy/lifecycle contracts. The suite
+  passed 88/88 and rejected 67 parser adversaries; none of ten provider
+  candidates cleared all ten gates. Run isolated `SEC-05 E07`; hold all
+  cryptography and security claims.
+- The retained collection is now a verified 48-repository source-object ledger,
+  not the earlier 36-project catalogue. Forty-six retained branch tips matched
+  GitHub; Meshtastic and Tink C++ advanced and remain pinned until a new
+  experiment snapshot. Broad discovery stays held.
+- SDK-57 dependency/tooling remediation is complete at this checkpoint: lint
+  zero, `npm audit` zero, Expo Doctor 20/20, all product tests/types pass and the
+  Android module packages. Complete native app builds/installs/phone evidence
+  remain open; Xcode 16.2 cannot close the iOS gate.
+- The next local work is FLOOR native adapter preparation, the connected product
+  repeat and the bounded `SEC-05 E07` Android harness. Physical MESH/MAP/FLOOR
+  work preempts them when its real dependencies become available.
 - Product security/connected-platform engineering may take the promoted units in
   the [promotion brief](results/CONN-01/2026-07-22-secure-relay-prototype/promotion-brief.md),
   but no pilot-security claim is authorised yet.

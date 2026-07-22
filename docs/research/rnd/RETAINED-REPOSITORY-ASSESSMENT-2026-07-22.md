@@ -190,10 +190,10 @@ hardware/client interoperability and community signal, not runtime code.
 | noise-c | Older Noise oracle | HOLD provider |
 | openmls | Future group-security provider/reference | HOLD |
 | snow | Active Noise differential oracle | HOLD provider |
-| swift-crypto | HPKE source/vectors/shared-provider candidate | REPEAT E07 |
+| swift-crypto | HPKE source/vectors/shared-provider candidate | REPEAT SEC-05 E07 |
 | tink | Historical monorepo | STOP legacy adoption |
 | tink-cc | Shared HPKE provider candidate | REPEAT after refresh/pin |
-| tink-java | Android HPKE provider candidate | REPEAT E07 |
+| tink-java | Android HPKE provider candidate | REPEAT SEC-05 E07 |
 | tink-objc | Non-HPKE Objective-C hybrid evidence | HOLD; not selected HPKE path |
 
 The full security interpretation and ten-gate evidence are in the
@@ -305,7 +305,7 @@ executing the following preregistered work:
 |---:|---|---|---|
 | 1 | Physical FLOOR corpus + SDK 57 sensor adapter | Bermuda, Navigine, blelocpp, BaroFloorHeight/NavCog lessons | Which floor baseline advances to product estimator work |
 | 2 | Same-corpus floor estimator bake-off | Bermuda, Navigine, blelocpp, room-assistant/find3 controls | Manual/receiver/barometer/fused/HMM performance by phone/transition/building |
-| 3 | MESH-01 three-phone physical E01 | Current Loc8 plus BitChat/Columba lessons only after baseline | Whether foreground phone relay is GO/LIMITED/NO-GO |
+| 3 | MESH-01 three-phone physical `E01` | Current Loc8 plus BitChat/Columba lessons only after baseline | Whether foreground phone relay is GO/LIMITED/NO-GO |
 | 4 | Real-building MAP commissioning repeat | Anyplace model, PALMS, hdl constraints, S-Graphs/HOV ideas | Commissioning time, correction rate and graph completeness—not universal SLAM |
 | 5 | RADIO-01 identical-hardware bake-off | MeshCore vs LoRaMesher; Meshtastic benchmark; RadioLib conditional | Dedicated Gateway/repeater firmware direction |
 | 6 | SEC-05 E07 native interoperability | CryptoKit, Tink Java, Swift Crypto/Tink C++ fallbacks, public vectors | Provider adapter worthy of specialist review |

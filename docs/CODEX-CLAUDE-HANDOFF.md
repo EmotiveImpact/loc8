@@ -833,3 +833,231 @@ If this task compacts or Claude Code resumes it, start from artifact commit
 `d023690`, `RDD-015`, the MAP-01 result and this section. Do not rerun the pure
 MAP cycle unless new evidence contradicts it, and do not infer real-building or
 safety truth from the synthetic fixtures.
+
+## Principal R&D integration checkpoint — 2026-07-22 (latest)
+
+This section supersedes every earlier “what happens next,” dependency count and
+36-repository statement in this file. The earlier sections remain evidence
+history; start continuation here.
+
+### Canonical state
+
+- Worktree:
+  `/Users/augustusedem/Loc8/.claude/worktrees/recursing-montalcini-d59018`
+- Branch: `claude/recursing-montalcini-d59018`
+- Latest completed source-audit commit before this shared-record update:
+  `5ea7b8910b3da40b6f4e9b839993f136edb015d2`
+- Local `main` was still `74eb9b354c0a60953e0e1435d629f3de4360ab8d`
+  when this section was written. Fast-forward it only after the final shared
+  records and regression pass.
+- `origin/main` was not changed. No push, deployment, purchase, external contact
+  or physical data collection was performed.
+- The separate `claude/vibrant-yalow-620cd6` worktree/branch was observed and
+  deliberately left untouched; it is not part of this R&D integration.
+- The user's `.claude/launch.json` remains modified, untouched and unstaged.
+- Root `main` has an unrelated untracked `.codex-audit/`; it remains untouched
+  and outside every R&D commit.
+- macOS reported about 4.3 GiB available while the APFS data volume still showed
+  100% allocation. Avoid broad clones/cache-heavy rebuilds until space is safer.
+
+### What was inspected
+
+- Re-read the durable Principal goal, historical audit, full programme/question/
+  decision records, all FLOOR/MAP/SEC/MESH result/prototype evidence and current
+  product/native seams relevant to the gates.
+- Read the exact Expo SDK 57 reference before app/native/tooling changes, as
+  required by `AGENTS.md`.
+- Inspected the MESH TypeScript field route/protocol, iOS/Android native module,
+  frame/dedup/relay services, diagnostic recorders, schemas, evaluator, clock
+  derivation, manifest generator, runbook and tests.
+- Reconciled all 48 ignored retained repositories (36 original plus 12 SEC-05
+  sources), their `HEAD`, date, branch, origin, licences and actual source
+  objects. Read filters, floor/particle/transition logic, graph construction,
+  packet/routing/BLE/GATT/queue/replication paths and provider/vector seams.
+- Compared every retained branch tip with GitHub via `git ls-remote`: 46 matched;
+  Meshtastic `develop` advanced to `1804fd188626` and Tink C++ `main` to
+  `a50ffe32402d`. Old evidence remains pinned rather than silently refreshed.
+
+### What changed
+
+#### SEC-05
+
+- Preregistration: `5ac8e76`; result: `9afbf85`.
+- Built a strict, dependency-free, deliberately non-cryptographic provider/
+  logical-frame/credential/prekey contract experiment and native repeat plan.
+- No upstream security source was copied into Loc8 and no key generation,
+  encryption, decryption, signing or verification was implemented.
+
+#### MESH-01
+
+- Preregistration: `29938c4`; amendment: `88b7182`; field kit: `5815608`;
+  dependency/native repair: `9f394b8`; result: `65763e8`.
+- Added strict `loc8.mesh-field-evidence.v1` manifest/JSONL contracts,
+  deterministic path/TTL/isolation/duplicate evaluator, conservative pairwise
+  clock-bound derivation, fail-closed physical-manifest generator and complete
+  runbook.
+- Added a development-only exact 14-block/660-attempt BLE field route with
+  synthetic zero-coordinate attempts, role enforcement and guarded exports.
+- Added bounded 20,000-event iOS/Android diagnostics with run-scoped link handles
+  and stable SHA-256 over the full immutable logical frame (excluding mutable
+  TTL). Raw payloads, positions, names, MACs and persistent platform IDs are not
+  exported.
+- Corrected pairwise clock uncertainty, one-direction classification, frame
+  identity, stale timer, lifecycle, resend/export and native Kotlin return-type
+  defects without moving physical thresholds.
+
+#### Tooling/native gate
+
+- Installed/configured SDK-57-compatible ESLint and fixed the initial 14 errors
+  plus 77 warnings.
+- Remediated dependency advisories without the incompatible Expo downgrade. The
+  only override is `xcode@3.0.1`'s used `uuid.v4()` path to `uuid` 11.1.1; that
+  call was smoke-tested.
+- Installed Homebrew OpenJDK 17 and Android API 36/build tools/NDK. Added the
+  Kotlin 2.1.20/API 36 Android semantic/source harness. The official compiler
+  archive matched JetBrains' separately published SHA-256
+  `a118197b0de55ffab2bc8d5cd03a5e39033cfb53383d6931bc761dec0784891a`.
+- Corrected the stale runbook claim that no Java runtime exists. Xcode remains
+  16.2 and cannot close the SDK 57 iOS native app build gate.
+
+#### Retained source portfolio
+
+- Commit `5ea7b89` adds the
+  [48-repository source assessment](research/rnd/RETAINED-REPOSITORY-ASSESSMENT-2026-07-22.md),
+  [machine-readable source audit](research/rnd/retained-repository-source-audit.tsv)
+  and corrected [snapshot](research/rnd/repository-snapshot.tsv).
+- Every row distinguishes reusable code from reusable ideas, records licence,
+  pinned source blob, decision and next gate. All 48 blob IDs were re-resolved
+  locally with zero mismatches.
+- The strongest bounded adoption candidates are Bermuda, selected Navigine/
+  blelocpp/Anyplace components, non-cryptographic BitChat seams,
+  MeshCore/LoRaMesher experiments, conditional RadioLib, PALMS,
+  hdl_graph_slam, public vectors and isolated MeshCore lab tools.
+- Direct custom crypto and wholesale repositories remain stopped. GPL/AGPL/MPL/
+  custom/conflicting/unlicensed/non-commercial sources retain their explicit
+  obligations and learn-only/benchmark boundaries.
+
+### What was measured
+
+- SEC-05: 88/88 tests; 67/67 named parser adversaries rejected; six exact
+  credential variants; ten provider candidates; zero clearing all ten gates;
+  two 50,000-operation runs at 487.096/485.770 ms with identical deterministic
+  output.
+- MESH evaluator: 100/100 tests plus 5/5 TypeScript field-protocol tests.
+- MESH deterministic benchmark: two runs of 25 × 2,444 = 61,100 event
+  evaluations at 334.859/240.196 ms; identical result fingerprint
+  `b445abe6269e49fa9887d7aa100d94e78c7fb6ad62ce8879867e85424d55fdfe`
+  and deterministic hash
+  `5304e3ef65f5e80e1e5a7eec71b65f4080b979a0d80839da0cae14677822d4a3`.
+- The synthetic MESH fixture produces 200/200 per direction, full B path proof,
+  zero duplicates and p95 90 ms only as evaluator arithmetic. The top-level
+  decision is hard-held at `HOLD-PHYSICAL`; these are not radio results.
+- Pure iOS recorder harness: PASS for privacy, synthetic-only origin, sequence,
+  canonical/TTL-stable identity, lifecycle and bound.
+- Android Kotlin/API 36 source/recorder harness: PASS. An actual isolated
+  generated Expo/Gradle project then passed `:loc8-mesh:compileDebugKotlin` and
+  `:loc8-mesh:assembleDebug`, producing a 94,067-byte AAR with SHA-256
+  `a580b4e8dabcccbabc88829fd72ef5d0a8c0711cc84a740db2ae4e8c9bc36b4f`.
+  The ephemeral AAR/build log was not retained after storage cleanup; repeat a
+  full app build before device execution.
+- Tooling regression at `9f394b8`: lint zero; `npm audit` zero; Expo Doctor
+  20/20; Expo install/config and isolated iOS/Android prebuild/autolinking pass;
+  root Jest 28/28 suites and 279/279 tests; root/Guard/Command TypeScript pass.
+
+### What passed, failed or remains unavailable
+
+Passed:
+
+- FLOOR-01, MAP-01, SEC-05 and MESH kit pure acceptance gates within their
+  documented evidence classes;
+- Android module source and real Gradle packaging gate;
+- dependency, lint, Expo diagnostic, product test/type and source-provenance
+  gates described above.
+
+Failed/corrected during the work rather than hidden:
+
+- initial MESH pair-clock and one-direction logic;
+- weak diagnostic identity and export/resend/lifecycle edge cases;
+- absent lint gate and all 91 surfaced findings;
+- prior 12 dependency advisories;
+- two storage-constrained Android build attempts before bounded cleanup and the
+  successful module build; and
+- stale records claiming 36 repositories, no Java and an unresolved audit hold.
+
+Unavailable—not failed and never simulated:
+
+- three-phone physical relay/isolation;
+- iOS SDK 57 native app build on Xcode 16.2;
+- complete Android APK/AAB, install, permission flow and BLE phone run;
+- background/locked/mixed-platform/range/crowd/battery evidence;
+- physical multi-floor corpus/floor accuracy;
+- permissioned real-building MAP repeat and second operator;
+- native HPKE cross-platform/lifecycle evidence and specialist review;
+- real connected identity/store/TLS/proxy/recovery and operational pilot;
+- representative MeshCore/LoRaMesher hardware bake-off.
+
+### Decisions
+
+- `RDD-016`: PROMOTE security contracts only; REPEAT native `SEC-05 E07`; HOLD
+  provider, algorithm, cryptography and security claims; STOP custom crypto/
+  fail-open lifecycle.
+- `RDD-017`: PROMOTE MESH evidence kit only; REPEAT native/physical cohorts;
+  HOLD relay and phone-mesh architecture; STOP synthetic/counter/software-
+  isolation proof and unsupported claims.
+- `RDD-018`: PROMOTE dependency/tooling repair and close the old audit hold;
+  HOLD complete native/operational readiness.
+- `RDD-019`: PROMOTE the 48-repository adoption ledger; HOLD broad discovery;
+  STOP wholesale imports and licence-as-suitability reasoning.
+
+### Final shared-record regression
+
+After the programme, experiment namespace and handoff were reconciled, the
+canonical worktree passed:
+
+- product lint; 28/28 Jest suites and 279/279 tests; root, Guard and Command
+  TypeScript;
+- Expo Doctor 20/20, Expo dependency compatibility and `npm audit` with zero
+  vulnerabilities;
+- all six pure FLOOR/CONN/SEC/MAP/MESH prototype suites, 376/376 tests total;
+- the connected product-boundary relay core, 24/24 tests;
+- all seven SEC-05 retained-vector provenance objects;
+- all 48 retained `HEAD` values and 48/48 recorded inspected-path Git blobs,
+  with exact equality between the 48-row audit and snapshot sets;
+- 174 relative links across 81 Markdown files, with zero missing targets; and
+- `git diff --check`.
+
+The cache-heavy Android module build was not repeated because it already passed
+at `9f394b8` and only shared documentation changed afterward. This does not alter
+the hold on a complete app build, install, BLE phone run or physical result.
+
+### Current autonomous order
+
+1. Physical `MESH-01 E01` preempts everything when three authorised phones, true
+   A↔C isolation, approved evidence storage and a supported build exist.
+2. Locally, prepare the FLOOR-01 exact SDK 57 sensor adapter with synthetic
+   injection/replay tests; do not collect physical data without authority.
+3. Product development repeats CONN-01 with reviewed real identity, durable
+   stores, pinned TLS/proxy and recovery drills.
+4. Prefreeze/implement the isolated Android half of `SEC-05 E07`; hold full
+   selection on iOS/Xcode/phones/specialist evidence.
+5. MAP-04/MAP-10 preempt when a permissioned real plan/building and second
+   operator exist.
+6. Run `RADIO-01 E07` only on identical representative hardware or signed pilot
+   need.
+7. Refresh/copy upstream source only for a named experiment and record file-level
+   notices/provenance.
+
+### Resume recipe
+
+Read, in order:
+
+1. this latest section;
+2. `research/rnd/decision-log.md` entries `RDD-014` through `RDD-019`;
+3. the FLOOR/MAP/SEC/MESH result READMEs;
+4. `research/rnd/RETAINED-REPOSITORY-ASSESSMENT-2026-07-22.md` and its TSV;
+5. the current research-program queue and question board.
+
+Do not redo completed pure cycles unless new evidence contradicts them. Do not
+infer physical, security, building, safety or pilot truth from synthetic/native-
+source/module evidence. Preserve `.claude/launch.json`, use the canonical
+worktree, and leave GitHub/remotes unchanged unless the owner explicitly asks.

@@ -5,6 +5,50 @@ It records what was actually inspected, reproduced, corrected, retained and
 held. A green unit test is evidence for its narrow fixture only; it is not a
 field, security, capacity or pilot-readiness claim.
 
+## Current continuation addendum — read before the historical body
+
+The temporary-worktree consolidation below remains valid history, but its
+dependency truth, 36-project count, autonomous queue and statement that local
+`main` is synchronized were superseded by later Principal work on the same
+canonical branch. Use the latest section of
+[`../../CODEX-CLAUDE-HANDOFF.md`](../../CODEX-CLAUDE-HANDOFF.md), the current
+question board and decisions `RDD-014` through `RDD-019` for continuation.
+
+Later verified checkpoints:
+
+- `FLOOR-01`: preregistration `8cff81a`, artifact `fc2f536`, principal
+  correction `51bbbb7`; PROMOTE pure corpus/recorder/evaluator contract, REPEAT
+  native/physical, HOLD collection and accuracy claims.
+- `MAP-01`: preregistration `37e9eb1`, artifact `d023690`, principal correction
+  `74eb9b3`; PROMOTE pure semantic/route graph contract, REPEAT a permissioned
+  real building and product adapters, HOLD route/safety/deployment claims.
+- `SEC-05`: preregistration `5ac8e76`, result `9afbf85`; 88/88 tests and 67
+  parser adversaries pass, but zero of ten providers clear every gate. PROMOTE
+  contracts only; REPEAT SEC-05 E07; HOLD all cryptography/security claims.
+- `MESH-01`: preregistration `29938c4`/`88b7182`, kit `5815608`, repair
+  `9f394b8`, result `65763e8`; evaluator 100/100 and protocol 5/5 pass, pure
+  recorder harnesses pass and the actual Android module packages. The decision
+  remains `HOLD-PHYSICAL`: zero physical relay attempts exist.
+- Dependency/tooling truth at `9f394b8`: lint zero, `npm audit` zero, Expo Doctor
+  20/20, product Jest 28/28 suites and 279/279 tests, all TypeScript checks and
+  isolated prebuild/autolinking pass. Xcode 16.2 still cannot close the SDK 57
+  iOS app build; no full Android app/phone evidence exists.
+- Retained-source truth at `5ea7b89`: 48/48 repositories have pinned source
+  blobs, licences, code-versus-idea classifications and next gates. Forty-six
+  retained branch tips matched GitHub; Meshtastic/Tink C++ advanced and remain
+  pinned for reproducibility. Broad discovery remains held.
+- Final shared-record regression: product lint, 28/28 Jest suites and 279/279
+  tests, all three TypeScript configurations, Expo Doctor 20/20, Expo dependency
+  check and zero-vulnerability audit pass; six pure R&D suites pass 376/376 and
+  the connected relay core passes 24/24. All 48 source blobs and 174 local
+  documentation links revalidate exactly.
+
+The user's `.claude/launch.json` remains modified, untouched and unstaged. No
+remote push has been authorised. Root `main` also contains an unrelated untracked
+`.codex-audit/`, which is preserved and excluded. Local-main integration must be
+re-verified and performed only after the latest shared records and final
+regression pass.
+
 ## Status and canonical location
 
 - **Canonical R&D worktree:**

@@ -4,10 +4,12 @@
 **Branch:** `claude/recursing-montalcini-d59018`
 **Owner:** Codex R&D review, designed for continuation by Claude Code
 
-**Latest principal audit:**
-[`PRINCIPAL-AUDIT-2026-07-22.md`](PRINCIPAL-AUDIT-2026-07-22.md) records the
-temporary-worktree consolidation, corrections, retained commits, reproduced
-evidence and open gates. Read it before continuing this branch.
+**Latest principal state:** read the current addendum at the top of
+[`PRINCIPAL-AUDIT-2026-07-22.md`](PRINCIPAL-AUDIT-2026-07-22.md), then the latest
+section of [`../../CODEX-CLAUDE-HANDOFF.md`](../../CODEX-CLAUDE-HANDOFF.md).
+The older body remains a historical temporary-worktree consolidation record;
+later FLOOR/MAP/SEC/MESH/tooling/source-audit checkpoints supersede its queue and
+dependency status.
 
 ## Mission
 
@@ -45,8 +47,10 @@ architecture.
 
 ## Clone policy and disk constraint
 
-At the start of this work the volume had only about **246 MiB free**. To avoid
-filling the user's disk:
+At the start of discovery the volume had only about **246 MiB free**. At the
+latest Principal checkpoint macOS reported about **4.3 GiB available** while the
+APFS data volume still displayed 100% allocation. To avoid filling the user's
+disk:
 
 - clones use `--depth 1 --filter=blob:none --single-branch` where supported;
 - only the strongest candidates are retained under `repos/`;
@@ -54,8 +58,9 @@ filling the user's disk:
 - large binaries, histories, submodules and build artefacts are excluded;
 - `repos/` and `tmp/` are intentionally gitignored.
 
-If more disk becomes available, expand the retained clone set from the
-shortlist in the final report.
+Do not expand the retained clone set merely because more disk becomes
+available. The source library is sufficient; add or refresh a repository only
+for a named experiment or the capped quarterly watch.
 
 ## Evidence precedence
 
@@ -69,28 +74,32 @@ shortlist in the final report.
 
 1. [`PRINCIPAL-AUDIT-2026-07-22.md`](PRINCIPAL-AUDIT-2026-07-22.md) — latest
    Codex/Claude continuity, audit corrections and current evidence boundary.
-2. [`catalogue.md`](catalogue.md) — all 36 cloned projects, pinned revisions,
-   licences, inspected implementation value and adopt/adapt/learn/reject verdict.
-3. [`floor-detection.md`](floor-detection.md) — the research synthesis and
+2. [`RETAINED-REPOSITORY-ASSESSMENT-2026-07-22.md`](RETAINED-REPOSITORY-ASSESSMENT-2026-07-22.md)
+   and [`retained-repository-source-audit.tsv`](retained-repository-source-audit.tsv)
+   — the complete 48-repository source-object, licence, code-versus-idea,
+   decision and next-gate ledger.
+3. [`catalogue.md`](catalogue.md) — human catalogue, pinned revisions and
+   adopt/adapt/learn/reject reasoning.
+4. [`floor-detection.md`](floor-detection.md) — the research synthesis and
    proposed absolute-floor/transition estimator.
-4. [`building-mapping.md`](building-mapping.md) — whole-building capture,
+5. [`building-mapping.md`](building-mapping.md) — whole-building capture,
    semantic graph, coordinate frames, commissioning and versioning.
-5. [`mesh-and-resilience.md`](mesh-and-resilience.md) — current Loc8 truth,
+6. [`mesh-and-resilience.md`](mesh-and-resilience.md) — current Loc8 truth,
    BitChat v2 opportunity, LoRa hardware paths and protocol-v2 gates.
-6. [`innovation-opportunities.md`](innovation-opportunities.md) — defensible
+7. [`innovation-opportunities.md`](innovation-opportunities.md) — defensible
    product/hardware/business synthesis and 12-month R&D sequence.
-7. [`experiments.md`](experiments.md) — prioritised experiments with measurable
+8. [`experiments.md`](experiments.md) — prioritised experiments with measurable
    pass/fail conditions.
-8. [`research-program.md`](research-program.md) — autonomous workstreams,
+9. [`research-program.md`](research-program.md) — autonomous workstreams,
    ownership contracts, portfolio allocation and 30/60/90-day execution.
-9. [`research-questions.md`](research-questions.md) — full P0/P1/P2 question
-   register and initial NOW/NEXT/LATER board.
-10. [`decision-log.md`](decision-log.md) — durable PROMOTE/REPEAT/HOLD/STOP
+10. [`research-questions.md`](research-questions.md) — full P0/P1/P2 question
+   register and current NOW/NEXT/LATER board.
+11. [`decision-log.md`](decision-log.md) — durable PROMOTE/REPEAT/HOLD/STOP
    decisions and their evidence.
-11. [`results/README.md`](results/README.md) and
+12. [`results/README.md`](results/README.md) and
     [`templates/result-template.md`](templates/result-template.md) — standard
     evidence/result structure.
-12. [`repository-snapshot.tsv`](repository-snapshot.tsv) — exact clone provenance
+13. [`repository-snapshot.tsv`](repository-snapshot.tsv) — exact clone provenance
    for automation and later refreshes.
 
 `repos/` contains the ignored research clones. They are a source library, **not
@@ -163,7 +172,9 @@ incident, route and search using both physical safety and communications reach.
   `/Users/augustusedem/Loc8/.claude/worktrees/recursing-montalcini-d59018` on
   `claude/recursing-montalcini-d59018`.
 - Read the repository `AGENTS.md`: exact Expo SDK 57 documentation must be read
-  before changing app code. No Expo/app code was changed in this research pass.
+  before changing app code. The initial discovery changed no app code; later
+  MESH-01 instrumentation/tooling work read the exact SDK 57 documentation first
+  and changed bounded development-only app/native seams.
 - Preserved the user's pre-existing `.claude/launch.json` modification and the
   existing `docs/CODEX-CLAUDE-HANDOFF.md`; neither was reverted.
 - Created `docs/research/rnd/` as the durable R&D department and added an ignore
@@ -185,9 +196,11 @@ incident, route and search using both physical safety and communications reach.
   found; an unrelated personal use of “meshaholic” was the only literal lead.
   The likely intended family is MeshCore/Meshtastic, so the active CC0
   `awesome-meshcore` ecosystem catalogue was retained.
-- Screened a broader set and cloned 36 strongest active/historical candidates.
-- Recorded exact origin, branch, 12-character commit and commit date in
-  `repository-snapshot.tsv`.
+- Screened a broader set and cloned 36 strongest active/historical candidates;
+  SEC-05 later added 12 provider/vector evidence repositories for 48 total.
+- Recorded exact origin, branch, 12-character commit and commit date for all 48
+  in `repository-snapshot.tsv`, then froze a source blob/licence/reuse/decision
+  row for every repository.
 
 ### Existing Loc8 implementation inspection
 
@@ -429,30 +442,100 @@ incident, route and search using both physical safety and communications reach.
   [result](results/MAP-01/2026-07-22-semantic-graph/README.md) and
   [prototype README](prototypes/building-graph/README.md).
 
+### SEC-05 provider-contract result — 2026-07-22
+
+- Preregistered commit `5ac8e76`; result commit `9afbf85`.
+- Read standards, provider source, public vectors, audit material and BitChat
+  prekey/lifecycle source. No upstream source was copied into Loc8.
+- Built only a dependency-free, non-cryptographic logical-frame,
+  credential-size, provider-gate and prekey-lifecycle experiment.
+- Passed 88/88 tests, rejected 67/67 parser adversaries and reproduced both
+  50,000-operation benchmarks at 487.096/485.770 ms.
+- None of ten candidates cleared all ten gates. Decision `RDD-016`: PROMOTE
+  separation/contracts; REPEAT CryptoKit/Tink Java `SEC-05 E07` and bounded
+  fallbacks; HOLD provider/algorithm selection and all security claims; STOP
+  custom crypto, BitChat crypto copying, 32-bit live Noise nonces and fail-open
+  lifecycle.
+
+### MESH-01 field-evidence-kit result — 2026-07-22
+
+- Frozen preregistration commits `29938c4`/`88b7182`, kit commit `5815608`,
+  tooling/Android gate commit `9f394b8` and result commit `65763e8`.
+- Added strict manifest/JSONL contracts, deterministic path/TTL/isolation/
+  duplicate evaluator, conservative clock bounds, bounded privacy-preserving
+  native diagnostics, the exact development-only 14-block/660-attempt route,
+  manifest/export tools and physical runbook.
+- Reproduced evaluator 100/100 and protocol 5/5. Two 61,100-event synthetic
+  benchmarks agreed deterministically at 334.859/240.196 ms. These figures test
+  evaluator arithmetic, not Bluetooth.
+- Pure iOS/Android recorder harnesses passed. An actual generated Expo Android
+  project compiled and packaged `loc8-mesh` into a 94,067-byte AAR with SHA-256
+  `a580b4e8dabcccbabc88829fd72ef5d0a8c0711cc84a740db2ae4e8c9bc36b4f`.
+- Decision `RDD-017`: PROMOTE the evidence kit only; REPEAT supported app builds
+  and physical cohorts; HOLD relay/phone-mesh decision; STOP synthetic/counter/
+  software-isolation evidence as physical proof. Zero physical attempts exist.
+
+### Dependency, native-tooling and source-portfolio closure — 2026-07-22
+
+- SDK 57 ESLint now reports zero findings after 14 errors/77 warnings were
+  corrected. `npm audit` reports zero advisories after targeted compatible
+  remediation and a narrowly smoke-tested `xcode@3.0.1` → `uuid` 11.1.1
+  override. Expo Doctor passes 20/20; install/config/prebuild/autolinking checks,
+  all product tests and all TypeScript configurations pass.
+- OpenJDK 17, Android API 36/Kotlin 2.1.20/NDK 27.1 are available and module
+  packaging passes. Xcode remains 16.2, below the SDK 57 iOS native-build gate;
+  no complete APK/AAB, install, BLE phone run or iOS app build exists.
+- The source collection is now 48 repositories, not 36. Every pinned blob in
+  the [source audit](retained-repository-source-audit.tsv) re-resolves. Forty-six
+  retained branch tips matched GitHub; Meshtastic/Tink C++ advanced and remain
+  pinned until a new experiment snapshot. Decision `RDD-019` keeps broad
+  discovery held and promotes only bounded provenance-backed spikes.
+
+### Final shared-record verification — 2026-07-22
+
+- Re-ran the complete product regression after the final programme/decision
+  reconciliation: lint passed; Jest passed 28/28 suites and 279/279 tests;
+  root, Guard and Command TypeScript passed; Expo Doctor passed 20/20; Expo's
+  dependency check reported current versions; and `npm audit` reported zero
+  vulnerabilities.
+- Ran all six dependency-free R&D suites together: 376/376 tests passed across
+  FLOOR, connected-relay, protocol-v2, MAP, SEC-05 and MESH artifacts. The
+  product-boundary relay service separately passed 24/24 tests.
+- Re-ran SEC-05 vector provenance for all seven retained vector objects. The
+  complete 48-row source ledger has ten fields per row, 48 unique names, exact
+  `HEAD` matches and 48/48 inspected paths resolving to the recorded Git blobs.
+  Its repository set exactly matches the 48-row snapshot.
+- Checked 174 relative links across 81 Markdown files with zero missing targets,
+  and `git diff --check` passed.
+- The cache-heavy Android module build was not repeated because it had already
+  passed at `9f394b8` and only documentation changed afterward. A full app build,
+  install and phone run remain required before physical execution.
+
 ## What Claude Code should do next
 
-1. Run `SEC-05` as a reviewed-library and public-vector bake-off, including the
-   BitChat prekey candidate. Do not implement local cryptographic primitives.
-2. Finish the `MESH-01` physical kit/preflight and run it as soon as three
-   suitable phones and a radio-isolated A↔C layout exist. Simulation cannot
-   close the question.
-3. Continue targeted retained-repository assessment for components that directly
-   inform SEC-05, MESH-01 and the promoted MAP contract; distinguish code from
-   ideas and record file provenance before adoption.
-4. Product development may integrate `loc8.building-graph.v1` in a separate
-   reviewed change. Preregister MAP-04 before importing one permissioned real
-   site plan; pure MAP-01 did not satisfy that real-building requirement.
-5. Prepare the FLOOR-01 SDK 57 adapter and physical protocol from the promoted
-   contract, but do not collect until site/participant/storage/deletion authority
-   exists. Device/building claims require the iOS/Android repeat.
-6. Repeat the connected boundary with real identity, durable stores, pinned
-   TLS/proxy adapter and recovery drills; do not wire the demo relay into a pilot.
-7. After floor data exists, implement a pure dataset-driven HMM/Viterbi baseline
-   behind the current manual truth and compare it with Bermuda/Navigine/blelocpp.
-8. Keep MeshCore-vs-LoRaMesher hardware work gated until physical mesh/bench
-   evidence or a signed pilot need justifies it.
-9. Create `THIRD_PARTY_NOTICES`/file provenance for every upstream file actually
-   moved from `repos/` into shipped code.
+1. Run physical `MESH-01 E01` immediately when three authorised phones, true
+   A↔C radio isolation, approved storage and a supported native build exist. Do
+   not alter the frozen blocks or thresholds.
+2. Prepare the FLOOR-01 exact SDK 57 sensor adapter with synthetic
+   injection/replay tests. Do not collect identifiable/physical data without
+   site/participant/storage/deletion authority.
+3. Repeat the connected product boundary with reviewed real identity, durable
+   replay/revocation/policy/audit stores, pinned TLS/proxy adapter and recovery
+   drills; pilot readiness remains HOLD.
+4. Prefreeze/implement the isolated Android half of SEC-05 E07. Hold the full
+   provider decision on supported Xcode/iOS, phones and specialist review.
+5. Run MAP-04/MAP-10 as soon as a permissioned real plan/building and second
+   operator exist. Product may adopt MAP-01's pure contract separately, but no
+   real-building or safety claim follows from its fixtures.
+6. After approved floor data exists, compare manual/receiver/barometer/fused/
+   topology-constrained HMM baselines using Bermuda/Navigine/blelocpp as bounded
+   inputs, never as unmeasured product claims.
+7. Run RADIO-01 MeshCore versus LoRaMesher only on identical representative
+   hardware/channel/traffic; choose RadioLib only after the firmware/chip
+   decision.
+8. Refresh or copy retained source only for a named experiment. Create file-level
+   provenance and `THIRD_PARTY_NOTICES` for every upstream file entering shipped
+   code.
 
 ## Guardrails for future agents
 

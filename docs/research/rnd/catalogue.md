@@ -101,10 +101,10 @@ No provider was selected.
 | rweather/noise-c `cfe25410979a` | MIT | Older Noise handshake/cipher-state oracle | **Hold provider; use differential evidence.** |
 | openmls/openmls `65396d8ed312` | MIT | Future MLS group provider/reference | **Hold** until pairwise identity/delivery/recovery. |
 | mcginty/snow `8ac60f51cfe3` | MIT or Apache-2.0 | Active Noise/vector/fuzz oracle | **Hold provider** pending review/mobile gates. |
-| apple/swift-crypto `47d3869a7291` | Apache-2.0 | HPKE source, RFC vectors and shared-provider candidate | **Repeat** isolated native E07. |
+| apple/swift-crypto `47d3869a7291` | Apache-2.0 | HPKE source, RFC vectors and shared-provider candidate | **Repeat** isolated SEC-05 E07. |
 | tink-crypto/tink `1f4cd38874ec` | Apache-2.0 | Historical monorepo comparison | **Stop legacy adoption**; use split sources. |
 | tink-crypto/tink-cc `5bf527a8dc73` | Apache-2.0 | Shared BoringSSL HPKE candidate | **Repeat after refresh/pin**; upstream advanced after snapshot. |
-| tink-crypto/tink-java `1423887709cd` | Apache-2.0 | Android HPKE Base candidate | **Repeat** isolated native E07. |
+| tink-crypto/tink-java `1423887709cd` | Apache-2.0 | Android HPKE Base candidate | **Repeat** isolated SEC-05 E07. |
 | tink-crypto/tink-objc `04e43ef89f8c` | Apache-2.0 | Evidence for Objective-C Hybrid surface, not selected HPKE | **Hold; not the HPKE path.** |
 
 ## Explicitly rejected shortcuts

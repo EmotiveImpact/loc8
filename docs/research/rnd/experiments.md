@@ -6,9 +6,14 @@ Run experiments in order of risk retired per week. Preserve raw data, scripts,
 phone/OS/app versions, floor-map version and failures. A demo video is supporting
 evidence; a timestamped data set and repeatable protocol are the result.
 
+Experiment numbers are question-scoped, not globally unique. Always write the
+question and experiment together (for example `MESH-01 E01`, `FLOOR-01 E03`,
+`RADIO-01 E07` or `SEC-05 E07`). This lets the historical radio trial and the
+frozen native HPKE repeat retain their original identifiers without ambiguity.
+
 ## P0 gates
 
-### E01 — physical three-phone BLE relay
+### MESH-01 E01 — physical three-phone BLE relay
 
 **Question:** does Loc8 currently form a mesh rather than a two-peer link?
 **Method:** isolate A and C beyond direct BLE reception; place B between them;
@@ -21,7 +26,7 @@ the logs prove B forwarded and A/C could not hear each other directly.
 **Output:** raw logs, topology, packet-success/latency distribution and honest
 device/OS support matrix.
 
-### E02 — mesh background and shift-battery matrix
+### MESH-02/MESH-03 E02 — mesh background and shift-battery matrix
 
 **Question:** when do iOS/Android suspend scanning, advertising or GATT?
 **Method:** foreground, screen-off, locked, low-power and background combinations
@@ -30,7 +35,7 @@ bursts.
 **Pass:** per-state discovery/relay recovery and battery budgets are agreed before
 claiming coverage. Report unsupported states explicitly; do not average them away.
 
-### E03 — floor-transition corpus
+### FLOOR-01 E03 — floor-transition corpus
 
 **Question:** how well does current barometer logic work across actual sites and
 phones?
@@ -43,7 +48,7 @@ where possible.
 false-transition controls and no unlabelled gaps. This is a data gate, not an
 accuracy gate.
 
-### E04 — anchor + barometer + topology estimator
+### FLOOR-05 E04 — anchor + barometer + topology estimator
 
 **Question:** does fusion outperform Loc8's fixed threshold?
 **Method:** compare (A) current engine, (B) barometer only, (C) radio anchor only,
@@ -56,7 +61,7 @@ devices. No cohort may be hidden by aggregate accuracy.
 **Safety pass:** 100% of deliberately contradictory high-risk cases expose low
 confidence/confirmation rather than a confident wrong floor.
 
-### E05 — secure connected bridge threat-model spike
+### CONN-01 E05 — secure connected bridge threat-model spike
 
 **Question:** what is the smallest production-safe connected pilot architecture?
 **Scope:** WSS/TLS, authenticated devices/operators, tenant/site isolation,
@@ -69,7 +74,7 @@ claims.
 
 ## P1 differentiators
 
-### E06 — BitChat-v2 component bake-off
+### SEC-01 E06 — BitChat-v2 component bake-off
 
 Implement separately feature-flagged spikes for:
 
@@ -84,7 +89,7 @@ For each, compare delivery, airtime, CPU, battery, memory, hostile-input behavio
 and cross-platform compatibility against legacy Loc8. Do not bundle all changes
 before their individual value and failure modes are visible.
 
-### E07 — MeshCore versus LoRaMesher venue trial
+### RADIO-01 E07 — MeshCore versus LoRaMesher venue trial
 
 **Hardware:** same legal regional band, antenna class, placement and power where
 possible; at least two repeaters and one BLE companion/gateway.
@@ -96,7 +101,7 @@ effort.
 **Pass:** select a carrier only after both produce comparable raw traces. Loc8
 application encryption/identity must remain independent of either carrier.
 
-### E08 — guided building commissioning
+### MAP-10 E08 — guided building commissioning
 
 Import a plan; map rooms/exits/connectors; record control points and transitions;
 place test anchors; walk coverage; publish a version. Have a second installer
@@ -106,14 +111,14 @@ registration residual and review conflicts are reported; repeat installer can
 produce a usable model without developer intervention; every derived object has
 source/provenance.
 
-### E09 — learned storey/connector height
+### FLOOR-08 E09 — learned storey/connector height
 
 Compare fixed 3.5 m against learned per-building and per-connector distributions
 over held-out walks and weather periods.
 **Pass:** learned model materially reduces wrong-floor/settling error without
 increasing same-floor false transitions; report sample count and uncertainty.
 
-### E10 — RF-aware placement recommender
+### RADIO-06 E10 — RF-aware placement recommender
 
 Hide 20% of survey observations, recommend anchors/repeaters from the remainder,
 then physically validate.
@@ -123,25 +128,25 @@ than a manual baseline.
 
 ## P2 exploration
 
-### E11 — RoomPlan/PALMS assisted registration
+### MAP-06/MAP-07 E11 — RoomPlan/PALMS assisted registration
 
 Compare manual plan alignment, Apple multi-room `CapturedStructure`, smartphone
 LiDAR PALMS and monocular PALMS on the same floors. Measure setup time, pose error,
 failure cases, supported devices and reviewer correction time.
 
-### E12 — Wi-Fi RTT premium tier
+### FLOOR-12 E12 — Wi-Fi RTT premium tier
 
 On supported Android phones and at least three surveyed FTM APs, measure horizontal
 and floor-disambiguation value, foreground limits and battery. Treat Android's
 typical 1-2 m documentation as a hypothesis to reproduce at the venue.
 
-### E13 — BLE AoA/UWB feasibility
+### FLOOR-13 E13 — BLE AoA/UWB feasibility
 
 Obtain a small installed evaluation kit and compare cost, calibration effort and
 incident value with ordinary signed landing anchors. Continue only where the
 business outcome justifies specialist hardware.
 
-### E14 — multi-floor SLAM benchmark
+### MAP-08/MAP-09 E14 — multi-floor SLAM benchmark
 
 Use permissibly licensed/approved subsets of NUFR-M3F and internally captured
 phone data. Test repeated-floor aliasing, lifts, reflective areas, dynamic crowds,

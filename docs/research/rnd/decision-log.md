@@ -217,8 +217,8 @@ Supersedes/superseded by:
   quality; require same-floor controls and held-out physical cohorts before
   estimator work or support claims.
 - **Next:** execute `MAP-01` against the frozen ID seam. Implement the exact SDK
-  57 adapter only as a separately tested product increment, then repeat E03 on
-  supported iOS and Android under the approved protocol.
+  57 adapter only as a separately tested product increment, then repeat
+  `FLOOR-01 E03` on supported iOS and Android under the approved protocol.
 
 ### RDD-015 — promote the semantic graph contract, not synthetic routes
 
@@ -280,7 +280,7 @@ Supersedes/superseded by:
   verification occurred. No phone, Keychain, Keystore, reboot, radio or
   specialist review evidence exists. Permissive licence does not establish
   cryptographic suitability.
-- **Next:** freeze E07 releases/suites/domain separators and run public
+- **Next:** freeze SEC-05 E07 releases/suites/domain separators and run public
   pass/fail vectors, lifecycle faults, cross-platform interoperability and
   specialist review before selecting a provider.
 
@@ -311,9 +311,9 @@ Supersedes/superseded by:
   measured. Xcode 16.2 cannot build the SDK 57 iOS client; no full Android app,
   install or BLE session exists. The top-level decision is `HOLD-PHYSICAL`.
 - **Next:** obtain three authorised phones, a fixed radio-isolated layout,
-  approved evidence storage and a supported iOS toolchain; then execute E01
-  without changing its frozen 190/200-per-direction, full-path, zero-duplicate
-  and bracketed-isolation gates.
+  approved evidence storage and a supported iOS toolchain; then execute
+  `MESH-01 E01` without changing its frozen 190/200-per-direction, full-path,
+  zero-duplicate and bracketed-isolation gates.
 
 ### RDD-018 — dependency/tooling repair clears the audit hold, not native readiness
 
@@ -365,6 +365,6 @@ Supersedes/superseded by:
   legacy Tink monorepo adoption; and any dataset use beyond its recorded terms.
 - **Supersedes:** only the stale 36-project count in `RDD-001`; its decision to
   hold broad discovery remains in force.
-- **Next:** execute the physical FLOOR corpus/estimator bake-off, MESH-01 E01,
-  real-building MAP repeat, RADIO-01 MeshCore-vs-LoRaMesher bake-off and SEC-05
-  E07. Refresh individual upstreams only as new experiment snapshots.
+- **Next:** execute the physical FLOOR corpus/estimator bake-off, `MESH-01 E01`,
+  real-building MAP repeat, `RADIO-01 E07` MeshCore-vs-LoRaMesher bake-off and
+  `SEC-05 E07`. Refresh individual upstreams only as new experiment snapshots.

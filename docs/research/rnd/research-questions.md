@@ -26,17 +26,24 @@ the decision PROMOTE/REPEAT/HOLD/STOP.
 - `SEC-01`–`SEC-04`: **PROMOTE research model / REPEAT specialist review**.
   Threat/identity and current-frame classification are recorded in the
   [protocol result](results/SEC-01/2026-07-22-protocol-v2-boundary/README.md).
-- `SEC-05`: **NEXT reviewed-library/vector bake-off; HOLD implementation**.
-  Include the corrected BitChat one-time-prekey source finding; copy no crypto
-  merely because it is public domain.
+- `SEC-05`: **PROMOTE contracts / REPEAT native provider cohorts / HOLD
+  cryptography and security claims**. The preregistered
+  [provider result](results/SEC-05/2026-07-22-crypto-provider-bakeoff/README.md)
+  passed 88/88 contract/lifecycle tests and 67 parser adversaries, but none of
+  ten provider candidates cleared all ten gates. `SEC-05 E07` must test
+  CryptoKit/Tink Java first; copy no crypto merely because it is public domain.
 - `SEC-06`/`SEC-07`: **PROMOTE candidate invariants / REPEAT native and
   interoperability**. Persistent replay/order and monotonic migration contracts
   pass the pure seam only.
 - `MESH-06`–`MESH-10`: controlled fanout/routing/bounds now have useful
   synthetic contracts; physical, lossy, moving-peer, battery and native evidence
   remains REPEAT/HOLD according to `RDD-012`.
-- `MESH-01`: **BLOCKED** until three physical phones can run the existing field
-  protocol with direct A↔C reception excluded.
+- `MESH-01`: **PROMOTE field evidence kit / HOLD physical relay decision**. The
+  [kit result](results/MESH-01/2026-07-22-three-phone-relay-kit/README.md)
+  passed 100/100 evaluator tests, 5/5 protocol tests, pure recorder harnesses
+  and actual Android module compilation/packaging. It remains blocked on three
+  physical phones, a genuinely isolated A↔C layout, approved storage and a
+  supported iOS toolchain; zero physical relay attempts exist.
 - `FLOOR-01`: **PROMOTE contract/core / REPEAT native pilot / HOLD field
   collection**. The preregistered
   [result](results/FLOOR-01/2026-07-22-corpus-contract/README.md) passed 40/40
@@ -47,12 +54,21 @@ the decision PROMOTE/REPEAT/HOLD/STOP.
   [result](results/MAP-01/2026-07-22-semantic-graph/README.md) passed 123/123
   focused tests, 71 named invalid mutations and four deterministic 10,000-query
   scale runs. It is synthetic contract/router evidence, not a real mapped route.
+- `OSS-01`–`OSS-08`: **PROMOTE the 48-repository source/provenance ledger / HOLD
+  broad cloning**. Every pinned source blob re-resolves; 46 retained branch tips
+  matched GitHub and Meshtastic/Tink C++ had advanced. Use the
+  [source assessment](RETAINED-REPOSITORY-ASSESSMENT-2026-07-22.md), not the old
+  36-project count.
+- Product dependency/tooling gate: **audit hold closed / native readiness still
+  held**. `npm audit` is zero, lint is zero, Expo Doctor is 20/20 and Android
+  module packaging passes. Xcode 16.2 still cannot close the SDK 57 iOS app
+  build, and no full Android app/phone run exists.
 
 ## Mesh and device behaviour
 
 | ID | Priority | Research question | Evidence required | Decision unlocked | Collection value |
 |---|---|---|---|---|---|
-| MESH-01 | P0 | Can A reach C only through physical phone B? | 200+ sequenced packets, radio isolation proof, relay logs, latency/loss/duplicates | Phone mesh GO/LIMITED/NO-GO | Existing Loc8 native mesh and E01 |
+| MESH-01 | P0 | Can A reach C only through physical phone B? | 200+ sequenced packets, radio isolation proof, relay logs, latency/loss/duplicates | Phone mesh GO/LIMITED/NO-GO | Existing Loc8 native mesh and `MESH-01 E01` |
 | MESH-02 | P0 | Which iOS/Android foreground, locked, background and low-power states scan, advertise and relay? | Device/OS state matrix with discovery/recovery timing | Supported operating model and UI warnings | Loc8, Columba lifecycle patterns |
 | MESH-03 | P0 | What is shift-length battery cost at idle, normal and incident traffic? | 8-12 hour runs per supported cohort; screen/BLE/app attribution where possible | Battery budget and scan/fanout settings | BitChat adaptive behaviour; Meshtastic measurement discipline |
 | MESH-04 | P0 | How do bodies, pockets, walls, phone orientation and competing 2.4 GHz change delivery? | Repeated controlled trials with distributions, not maximum range | Deployment density and honest coverage claims | Existing field protocol, Bermuda/ESPresense warnings |
@@ -105,7 +121,7 @@ the decision PROMOTE/REPEAT/HOLD/STOP.
 | FLOOR-02 | P0 | How accurate is the current 0.42 hPa/3.5 m threshold by phone, building, weather and transition type? | Held-out labelled corpus and same-floor controls | Honest baseline and replacement case | Current floor tracker |
 | FLOOR-03 | P0 | Which phone models lack a usable barometer or produce unstable/blocked readings? | Capability/quality matrix and rejection criteria | Device profiles/fallback UX | NavCog device allowlist lesson |
 | FLOOR-04 | P0 | Does a signed landing anchor plus hysteresis initialise/correct floor reliably? | Known-floor passes, radio leakage, moved/stale/spoofed-anchor cases | Anchor deployment baseline | Bermuda algorithms |
-| FLOOR-05 | P0 | Does topology-constrained HMM/Viterbi beat threshold and radio-only baselines on unseen buildings/devices? | Pre-registered E04 split evaluation | Estimator promotion | Navigine, blelocpp, Viterbi research |
+| FLOOR-05 | P0 | Does topology-constrained HMM/Viterbi beat threshold and radio-only baselines on unseen buildings/devices? | Pre-registered `FLOOR-05 E04` split evaluation | Estimator promotion | Navigine, blelocpp, Viterbi research |
 | FLOOR-06 | P1 | How much does a fixed venue pressure reference reduce weather/HVAC/cross-phone error? | Simultaneous fixed/phone sensors over days and pressure-zone events | Gateway/anchor sensor requirement | Barometer research synthesis |
 | FLOOR-07 | P1 | Can stairs, lift, escalator and ramp be distinguished reliably enough to improve transitions? | Mode-labelled IMU/pressure corpus with false-mode costs | Motion observation model | Microsoft study; S-Graphs state-machine idea |
 | FLOOR-08 | P1 | Should height be learned per building, floor pair or connector? | Hierarchical model comparison with held-out walks | Calibration model | BaroFloorHeight idea; independently implement |
@@ -129,7 +145,7 @@ the decision PROMOTE/REPEAT/HOLD/STOP.
 | MAP-07 | P1 | Does PALMS enable useful relocalisation against known plans with LiDAR or monocular phones? | Reproduction on local plans/device cohorts | Installer relocalisation method | MIT PALMS |
 | MAP-08 | P1 | Which geometry errors matter operationally: walls, doors, connectors, exits or object detail? | Sensitivity tests against routing/search tasks | Mapping QA priorities | hdl_graph_slam/HOV-SG ideas |
 | MAP-09 | P1 | Can floor-plane constraints reduce AR/SLAM drift without confusing physical planes and semantic floors? | Plane extraction/registration comparison and failure cases | Geometry module | BSD hdl_graph_slam |
-| MAP-10 | P1 | Can a second installer reproduce a commissioned building without developer help? | Timed usability/rework test and topology completeness | Service scalability | E08 |
+| MAP-10 | P1 | Can a second installer reproduce a commissioned building without developer help? | Timed usability/rework test and topology completeness | Service scalability | `MAP-10 E08` |
 | MAP-11 | P2 | Which BIM/IFC/CAD/OSM imports are demanded by buyers and safe to support first? | Customer artefact sample and conversion fidelity | Import roadmap | Anyplace/OSM/Hilti references |
 | MAP-12 | P2 | Can visual/semantic object detection reduce work without creating unsafe false certainty? | Human-reviewed precision/recall and time saved | Semantic automation scope | HOV-SG learn-only architecture |
 
@@ -233,20 +249,24 @@ the decision PROMOTE/REPEAT/HOLD/STOP.
 | X-05 | P1 | What has R&D learned that invalidates a current README, deck, specification or price? | Weekly claim audit | Product truth update |
 | X-06 | P1 | Which active project should be killed or held to fund replication? | Monthly portfolio review | Capacity reallocation |
 
-## Initial NOW / NEXT / LATER board
+## Current NOW / NEXT / LATER board
 
 ### NOW — no more than three active decision questions
 
-1. `SEC-05` — reviewed crypto/library, logical-frame, credential and prekey
-   vector bake-off; implementation remains HOLD.
-2. `MESH-01` physical kit/preflight — run immediately when three suitable phones
-   and a radio-isolated A↔C layout exist; simulation remains non-evidence.
-3. Targeted retained-repository adoption assessment — prioritise exact SEC-05,
-   MESH-01 and promoted MAP seams; distinguish adoptable code from learn-only
-   ideas and stop cloning without a decision question.
+1. `FLOOR-01` native repeat preparation — implement the exact SDK 57 sensor
+   adapter with synthetic injection/replay tests; field collection remains HOLD
+   until site/participant/storage/deletion authority exists.
+2. `CONN-01` product repeat — reviewed real identity, durable
+   replay/revocation/policy/audit stores, pinned TLS/proxy adapter and recovery
+   drills; pilot readiness remains HOLD.
+3. `SEC-05 E07` prefreeze/Android harness — exact releases, suite bytes, public
+   vectors and lifecycle faults. The full cross-platform result remains HOLD on
+   supported Xcode/iOS, phones and specialist review.
 
-`MESH-01` outranks these when the three-device physical setup is available; until
-then it is a named external-evidence blocker, not simulated progress.
+`MESH-01 E01` outranks these when the authorised three-device/isolation setup is
+available; until then it is a named physical-evidence blocker, not simulated
+progress. `MAP-04` similarly advances immediately when a permissioned real plan,
+building and second operator exist.
 
 ### NEXT — prepared while NOW runs
 
@@ -254,13 +274,11 @@ then it is a named external-evidence blocker, not simulated progress.
 - `MAP-04`/`MAP-10` — permissioned real-plan and second-operator repeats after
   MAP-01's pure schema gate; MAP-02/MAP-03 have bounded synthetic evidence only.
 - `OPS-01` through `OPS-03` — muster truth and pilot outcome.
-- `SEC-06`, `SEC-07` — native replay/migration/interoperability repeats after
-  `SEC-05` selects the reviewed provider boundary.
-- `CONN-01` — real identity, durable stores and pinned TLS/proxy adapter repeat
-  as product development; pilot remains HOLD.
 - `FLOOR-02` through `FLOOR-05` — baselines, anchors and fusion.
-- `FLOOR-01` native repeat preparation — exact SDK 57 adapter and approved
-  iOS/Android physical protocol; collection itself remains HOLD.
+- `SEC-06`, `SEC-07` — native replay/migration/interoperability after
+  `SEC-05 E07` produces a provider worthy of specialist review.
+- `OSS-*` — only file-level adoption spikes demanded by a named experiment;
+  quarterly refresh rather than broad discovery.
 
 ### LATER — explicitly gated
 
