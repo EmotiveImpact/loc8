@@ -37,8 +37,13 @@ the decision PROMOTE/REPEAT/HOLD/STOP.
   remains REPEAT/HOLD according to `RDD-012`.
 - `MESH-01`: **BLOCKED** until three physical phones can run the existing field
   protocol with direct A↔C reception excluded.
-- `FLOOR-01`: **NEXT autonomous investigation**.
-- `MAP-01`: prepared behind `FLOOR-01` so both share stable building/floor IDs.
+- `FLOOR-01`: **PROMOTE contract/core / REPEAT native pilot / HOLD field
+  collection**. The preregistered
+  [result](results/FLOOR-01/2026-07-22-corpus-contract/README.md) passed 40/40
+  tests and the two-run 50,008-event replay gate. It is instrumentation evidence,
+  not floor-accuracy or phone/building evidence.
+- `MAP-01`: **NEXT autonomous investigation**, using FLOOR-01's frozen stable
+  building/map/level/connector/landing ID seam.
 
 ## Mesh and device behaviour
 
@@ -229,10 +234,11 @@ the decision PROMOTE/REPEAT/HOLD/STOP.
 
 ### NOW — no more than three active decision questions
 
-1. `FLOOR-01` — floor corpus/logger schema and ground truth.
-2. `MAP-01` — minimum semantic building graph aligned to floor IDs.
-3. `SEC-05` — reviewed crypto/library, logical-frame, credential and prekey
+1. `MAP-01` — minimum semantic building graph aligned to frozen FLOOR-01 IDs.
+2. `SEC-05` — reviewed crypto/library, logical-frame, credential and prekey
    vector bake-off; implementation remains HOLD.
+3. `FLOOR-01` native repeat preparation — exact Expo adapter seam and approved
+   iOS/Android physical protocol; field collection itself remains HOLD.
 
 `MESH-01` outranks these when the three-device physical setup is available; until
 then it is a named external-evidence blocker, not simulated progress.
@@ -240,7 +246,8 @@ then it is a named external-evidence blocker, not simulated progress.
 ### NEXT — prepared while NOW runs
 
 - `MESH-02`, `MESH-03` — device state and shift battery.
-- `MAP-01` through `MAP-04` — semantic graph and first building.
+- `MAP-02` through `MAP-04` — graph edge cases and first real building after
+  MAP-01's pure schema gate.
 - `OPS-01` through `OPS-03` — muster truth and pilot outcome.
 - `SEC-06`, `SEC-07` — native replay/migration/interoperability repeats after
   `SEC-05` selects the reviewed provider boundary.

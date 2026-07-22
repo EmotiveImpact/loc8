@@ -193,3 +193,29 @@ Supersedes/superseded by:
   SDK-57 patch set; the 1-high/11-moderate audit remains open.
 - **Next:** execute the real-adapter/store/identity repeat and recovery drills on
   a supported pinned Node after targeted Expo-57 dependency remediation.
+
+### RDD-014 — promote the floor corpus contract, not floor detection
+
+- **Questions:** `FLOOR-01`, supporting `MAP-01`, `FLOOR-02`–`FLOOR-05`
+- **Decision:** PROMOTE the `loc8.floor-corpus.v1` schema, platform-neutral
+  recorder/validator/evaluator seam, JSONL replay and regression gates. REPEAT
+  the Expo/native adapter and physical iOS/Android instrumentation pilot. HOLD
+  field collection until site/participant authority plus encrypted,
+  access-logged and deletion-tested storage exist. STOP treating raw pressure as
+  absolute floor or floor labels as consecutive integers.
+- **Evidence:** preregistration commit `8cff81a`; artifact commit `fc2f536`;
+  [result](results/FLOOR-01/2026-07-22-corpus-contract/README.md). Final contract
+  suite 40/40; canonical truth gap/overlap 0/0 μs; two clock syncs at 20 ms
+  maximum uncertainty and 1.363636 ms/min drift; 50,008-event captured replay
+  119.912/108.169 ms with identical summary hashes on Node 22.22.3 arm64.
+- **Constraints:** all observations are deterministic synthetic evidence. No
+  phone, building, participant, radio, background, battery or floor-accuracy
+  result exists. Self-declared consent/encryption/access fields are not runtime
+  proof. The existing manual floor anchor remains authoritative.
+- **Product/specification changes:** use stable building/map/level/connector/
+  landing IDs shared with `MAP-01`; preserve native/monotonic timing and data
+  quality; require same-floor controls and held-out physical cohorts before
+  estimator work or support claims.
+- **Next:** execute `MAP-01` against the frozen ID seam. Implement the exact SDK
+  57 adapter only as a separately tested product increment, then repeat E03 on
+  supported iOS and Android under the approved protocol.

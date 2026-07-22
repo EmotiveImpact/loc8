@@ -635,3 +635,99 @@ the new `services/loc8-relayd` source boundary now exists, but it is deliberatel
 not runnable or integrated. The existing apps, engine, native BLE, Command,
 Guard and demo relay remain unchanged. The user's `.claude/launch.json` edit
 remains untouched.
+
+## FLOOR-01 corpus-contract checkpoint — 2026-07-22
+
+This is the authoritative continuation checkpoint after the principal audit.
+The canonical branch is `claude/recursing-montalcini-d59018`; the user's existing
+`.claude/launch.json` modification was again left untouched.
+
+### What was inspected
+
+- Re-read the durable Principal R&D goal, principal audit, this handoff,
+  programme, question register, decisions, floor-detection/mapping syntheses,
+  experiment plan and current floor source/tests.
+- Read pinned implementation source at exact commits for Bermuda
+  `cd46d17e8469`, Navigine `67e11c4d398a`, blelocpp `72b4bd3b32af`,
+  NavCogAndroid `87f6ed2b353e`, BaroFloorHeight `4158e69b1b3d` and Anyplace
+  `722955182375`; recorded licences and copied no source.
+- Read the relevant full sections of the Microsoft barometer study, B-Loc, the
+  2021 accelerometer/barometer/Wi-Fi Viterbi study and MagneFi rather than
+  relying on abstracts or project READMEs.
+- Read the exact Expo SDK 57 Barometer, DeviceMotion and Magnetometer API pages.
+  They define hPa, optional iOS relative altitude, seconds sensor timestamps,
+  availability/permission/listener/interval behaviour and the DeviceMotion
+  deg/s→rad/s adapter conversion. No Expo/app source was changed.
+
+### What changed
+
+- Frozen the FLOOR-01 protocol before implementation in
+  [`research/rnd/results/FLOOR-01/2026-07-22-corpus-contract/pre-registration.md`](research/rnd/results/FLOOR-01/2026-07-22-corpus-contract/pre-registration.md),
+  commit `8cff81a`.
+- Added the strict JSON Schema, dependency-free recorder/validator/evaluator,
+  JSONL codec, deterministic fixture, 40-case test suite, two-run benchmark and
+  exact future SDK 57 adapter mapping under
+  [`research/rnd/prototypes/floor-corpus/`](research/rnd/prototypes/floor-corpus/README.md).
+- Added the full result, data contract, privacy/retention boundary, captured
+  measurements and 11-file SHA-256 evidence manifest under
+  [`research/rnd/results/FLOOR-01/2026-07-22-corpus-contract/`](research/rnd/results/FLOOR-01/2026-07-22-corpus-contract/README.md).
+- Artifact commit: `fc2f536` (`research(floor): validate FLOOR-01 corpus
+  contract`). The artifact is independent Loc8 work; no retained-repository file
+  was adopted.
+
+### What was measured and what passed/failed
+
+- The first prototype execution passed 24/25. Its only failure was a wrong test
+  expectation: the two offsets over the fixture interval calculate to 1.363636,
+  not 1.485149 ms/min. The evaluator was correct; the assertion was corrected.
+- Principal audit expanded the suite and closed initial contract gaps: app build,
+  access logging, strict manifest/event/payload/vector fields, connector landing
+  topology, all-stream native timestamps/units, malformed-manifest fail-closed
+  behaviour, session/sync bracketing and recorder start atomicity.
+- Captured result: 40/40 tests, zero failures; canonical 129 events, two syncs,
+  20 ms maximum uncertainty, 1.363636 ms/min drift, three truth segments, one
+  transition, one same-floor control, 0 μs gap, 0 μs overlap and zero missing
+  pressure/motion observations.
+- Captured replay: 50,008 events; two valid evaluations at 119.912 and 108.169
+  ms versus the 5,000 ms ceiling; identical summary SHA-256
+  `3fe4c2f44520d3811c69f1888cda1063c6ad4cf12a187e5826d6805faeb4d7b1`.
+- All 11 evidence-manifest hashes matched, all JSON parsed, all new local links
+  resolved and `git diff --check` passed before artifact commit.
+- Integration regression passed after the artifact commit: 65/65 combined
+  floor/protocol-v2/secure-relay prototype tests, 24/24 `loc8-relayd` core tests,
+  exactly 27 Loc8 Jest suites with 274/274 tests, and root/Guard/Command
+  TypeScript checks. Jest still requires the previously known `--forceExit`.
+  An initial discovery shell assertion failed only because `npm test
+  -- --listTests` added npm wrapper lines; direct `npx jest --listTests` proved
+  the expected count of 27 before the full green run.
+
+### Decisions and limits
+
+- `RDD-014` **PROMOTE:** `loc8.floor-corpus.v1`, the platform-neutral recorder/
+  validator/evaluator seam, JSONL replay, fixtures and regression gates.
+- **REPEAT:** SDK 57/native adapter and at least one supported iOS and Android
+  physical instrumentation run.
+- **HOLD:** identifiable/physical field collection until owner/site/participant
+  authority and encrypted, access-logged, restore/deletion-tested storage exist.
+- **STOP:** raw pressure as absolute floor; consecutive integers/display labels
+  as identity; any attempt to turn this synthetic contract result into floor-
+  accuracy, device, building, background, battery, safety or pilot evidence.
+- The existing manual floor anchor remains authoritative. No estimator or product
+  app was changed.
+
+### What happens next
+
+1. Execute `MAP-01` using the frozen `buildingId`, `mapVersion`, `levelId`,
+   `connectorId` and `landingId` seam. Preregister its scenarios and gates before
+   prototyping the minimum `Building/Level/Space/Connector/Landing/Zone` graph.
+2. Run `SEC-05` after MAP-01: reviewed-library/logical-frame/credential/prekey
+   vector bake-off, including the corrected BitChat source finding; crypto
+   implementation remains HOLD.
+3. Prepare, but do not falsely close, the FLOOR-01 native/physical repeat.
+4. Run `MESH-01` immediately when three suitable phones and an isolated A↔C test
+   topology exist. Simulation cannot close it.
+
+If this task compacts or Claude Code resumes it, start from artifact commit
+`fc2f536`, this section, `RDD-014` and the FLOOR-01 result. Do not redo FLOOR-01's
+pure contract work unless new evidence contradicts it; do not mark the physical
+repeat complete without the preregistered real evidence.

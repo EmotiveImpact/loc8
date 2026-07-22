@@ -21,3 +21,4 @@ An empty or failed result is still a result. Publish it and make a decision.
 - [`CONN-01` isolated secure-relay prototype](CONN-01/2026-07-22-secure-relay-prototype/README.md)
 - [`CONN-01` audited product-boundary repeat](CONN-01/2026-07-22-product-boundary-repeat/README.md)
 - [`SEC-01` protocol-v2 security, routing and migration boundary](SEC-01/2026-07-22-protocol-v2-boundary/README.md)
+- [`FLOOR-01` floor-transition corpus contract](FLOOR-01/2026-07-22-corpus-contract/README.md)

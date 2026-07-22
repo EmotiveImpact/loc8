@@ -376,14 +376,39 @@ incident, route and search using both physical safety and communications reach.
   continuation instructions are in the
   [principal audit](PRINCIPAL-AUDIT-2026-07-22.md).
 
+### FLOOR-01 corpus-contract result — 2026-07-22
+
+- Preregistered `FLOOR-01 E03` in commit `8cff81a` before implementation or
+  synthetic results; sealed the result in artifact commit `fc2f536`.
+- Added a strict JSON Schema 2020-12 bundle plus dependency-free recorder,
+  semantic/topology/privacy validator, JSONL codec, evaluator, deterministic
+  fixtures, adversarial tests and replay benchmark.
+- The first run exposed one incorrect expected drift assertion. The audit then
+  found and fixed missing app-build/access-log fields, landing topology,
+  non-pressure native-time checks, arbitrary manifest/event/payload fields,
+  malformed-manifest handling and recorder lifecycle atomicity.
+- Final result: 40/40 tests; canonical 129-event session with two syncs, 20 ms
+  maximum uncertainty, 1.363636 ms/min drift, zero truth gap/overlap and zero
+  missing pressure/motion observations. A captured 50,008-event replay ran in
+  119.912 and 108.169 ms with identical SHA-256 summary fingerprints on Node
+  22.22.3 arm64.
+- Decision `RDD-014`: PROMOTE the contract/core only; REPEAT Expo/native and
+  physical iOS/Android instrumentation; HOLD field collection; STOP pressure-as-
+  absolute-floor and consecutive-integer floor assumptions.
+- This is synthetic instrumentation evidence only. It proves no sensor,
+  background, battery, building, estimator, accuracy or pilot claim. Read the
+  [result](results/FLOOR-01/2026-07-22-corpus-contract/README.md) and
+  [prototype README](prototypes/floor-corpus/README.md).
+
 ## What Claude Code should do next
 
-1. Freeze `FLOOR-01`'s privacy-aware sensor/event/ground-truth schema and corpus
-   manifest. Only then add the Expo logger, after reading the exact SDK 57 docs.
-2. Freeze `MAP-01`'s stable `Building/Level/Space/Connector/Landing/Zone` IDs and
+1. Freeze `MAP-01`'s stable `Building/Level/Space/Connector/Landing/Zone` IDs and
    import one real site plan aligned to the floor corpus.
-3. Run `SEC-05` as a reviewed-library and public-vector bake-off, including the
+2. Run `SEC-05` as a reviewed-library and public-vector bake-off, including the
    BitChat prekey candidate. Do not implement local cryptographic primitives.
+3. Prepare the FLOOR-01 SDK 57 adapter and physical protocol from the promoted
+   contract, but do not collect until site/participant/storage/deletion authority
+   exists. Device/building claims require the iOS/Android repeat.
 4. Do **E01 physical three-phone relay** immediately when suitable devices and a
    radio-isolated layout are available; simulation cannot close `MESH-01`.
 5. Repeat the connected boundary with real identity, durable stores, pinned

@@ -534,9 +534,16 @@ the company while the other remains unproven.
 - `MESH-01` remains **BLOCKED on physical evidence**: three suitable phones and a
   test layout that proves A and C cannot hear one another directly. Simulation
   must not be used to close it.
-- The next locally autonomous work is `FLOOR-01` (corpus/logger schema), followed
-  by `MAP-01` (minimum semantic building graph) and `SEC-05` (reviewed-library
-  and public-vector bake-off).
+- `FLOOR-01` completed its preregistered pure contract cycle. PROMOTE the schema,
+  platform-neutral recorder/validator/evaluator and replay gates; REPEAT the
+  native adapter/physical pilot; HOLD collection authority and all accuracy or
+  phone/building claims. The 40/40 suite and 50,008-event two-run replay are in
+  the [result](results/FLOOR-01/2026-07-22-corpus-contract/README.md) and artifact
+  commit `fc2f536`.
+- The next locally autonomous work is `MAP-01` (minimum semantic building graph
+  against the frozen floor identity seam), followed by `SEC-05`
+  (reviewed-library and public-vector bake-off). Prepare, but do not falsely
+  close, the FLOOR-01 physical repeat.
 - Product security/connected-platform engineering may take the promoted units in
   the [promotion brief](results/CONN-01/2026-07-22-secure-relay-prototype/promotion-brief.md),
   but no pilot-security claim is authorised yet.
