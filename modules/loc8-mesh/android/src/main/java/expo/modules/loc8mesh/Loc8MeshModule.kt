@@ -28,6 +28,8 @@ internal class InvalidPacketSizeException(size: Int) : CodedException(
     "Loc8 mesh packets must be exactly ${MeshConstants.PAYLOAD_SIZE} bytes, got $size"
 )
 
+internal class InvalidFieldDiagnosticException(message: String) : CodedException(message)
+
 internal class MissingBlePermissionsException(missing: List<String>) : CodedException(
     "Cannot start the Loc8 mesh — missing runtime permissions: ${missing.joinToString(", ")}. " +
         "Request them from the app UI before calling start()."
@@ -110,6 +112,54 @@ class Loc8MeshModule : Module() {
                 throw InvalidPacketSizeException(packet.size)
             }
             MeshBleService.shared.broadcast(packet)
+        }
+
+        AsyncFunction("startFieldDiagnostics") {
+                runId: String,
+                cohortId: String,
+                blockId: String,
+                deviceRole: String,
+                originRole: String ->
+            try {
+                MeshDiagnostics.start(runId, cohortId, blockId, deviceRole, originRole)
+            } catch (e: MeshDiagnosticValidationException) {
+                throw InvalidFieldDiagnosticException(e.message ?: "Invalid MESH-01 diagnostic context")
+            }
+        }
+
+        AsyncFunction("stopFieldDiagnostics") {
+            try {
+                MeshDiagnostics.stop()
+            } catch (e: MeshDiagnosticValidationException) {
+                throw InvalidFieldDiagnosticException(e.message ?: "Cannot stop MESH-01 diagnostics")
+            }
+        }
+
+        AsyncFunction("getFieldDiagnostics") {
+            MeshDiagnostics.snapshot()
+        }
+
+        AsyncFunction("releaseFieldDiagnostics") {
+            try {
+                MeshDiagnostics.release()
+            } catch (e: MeshDiagnosticValidationException) {
+                throw InvalidFieldDiagnosticException(e.message ?: "Cannot release MESH-01 diagnostics")
+            }
+        }
+
+        AsyncFunction("broadcastFieldTest") { packet: ByteArray, sequence: Int ->
+            if (packet.size != MeshConstants.PAYLOAD_SIZE) {
+                throw InvalidPacketSizeException(packet.size)
+            }
+            if (sequence !in 0..99) {
+                throw InvalidFieldDiagnosticException("MESH-01 sequence must be between 0 and 99")
+            }
+            try {
+                MeshDiagnostics.assertCanOriginate(sequence, packet)
+            } catch (e: MeshDiagnosticValidationException) {
+                throw InvalidFieldDiagnosticException(e.message ?: "Cannot originate MESH-01 attempt")
+            }
+            MeshBleService.shared.broadcast(packet, diagnosticSequence = sequence)
         }
     }
 

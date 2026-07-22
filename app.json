@@ -11,8 +11,8 @@
       "icon": "./assets/expo.icon",
       "supportsTablet": true,
       "infoPlist": {
-        "NSLocationWhenInUseUsageDescription": "Loc8 uses your location to show your crew where you are — even with no signal. It's shared only with your crew, end-to-end encrypted.",
-        "NSLocationAlwaysAndWhenInUseUsageDescription": "Loc8 keeps you findable to your crew in the background during an active session. Shared only with your crew.",
+        "NSLocationWhenInUseUsageDescription": "Loc8 uses your location to show your crew where you are, including during authorised offline sessions.",
+        "NSLocationAlwaysAndWhenInUseUsageDescription": "Loc8 keeps location updates active in the background during an active session so nearby crew devices can receive them.",
         "NSMotionUsageDescription": "Loc8 uses the compass to point the arrow toward your friends.",
         "NSBluetoothAlwaysUsageDescription": "Loc8 uses Bluetooth to find your crew directly, phone-to-phone, when there's no internet.",
         "NSCameraUsageDescription": "Loc8 scans a crew QR code to join your crew.",
@@ -55,7 +55,7 @@
       [
         "expo-location",
         {
-          "locationAlwaysAndWhenInUsePermission": "Loc8 keeps you findable to your crew during an active session, shared only with your crew."
+          "locationAlwaysAndWhenInUsePermission": "Loc8 keeps location updates active in the background during an active session so nearby crew devices can receive them."
         }
       ],
       [
@@ -65,7 +65,10 @@
           "image": "./assets/images/splash-icon.png",
           "imageWidth": 76
         }
-      ]
+      ],
+      "expo-image",
+      "expo-status-bar",
+      "expo-web-browser"
     ],
     "experiments": {
       "typedRoutes": true,

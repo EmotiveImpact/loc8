@@ -137,6 +137,12 @@ final class MeshService: NSObject {
             scanRestartTimer = nil
 
             if central?.isScanning == true { central?.stopScan() }
+            for id in centralLinks.keys {
+                MeshDiagnostics.shared.recordLifecycle(action: "link-down", rawLinkID: id.uuidString)
+            }
+            for id in subscribers.keys {
+                MeshDiagnostics.shared.recordLifecycle(action: "link-down", rawLinkID: id.uuidString)
+            }
             for peripheral in centralLinks.values { central?.cancelPeripheralConnection(peripheral) }
             for peripheral in pendingPeripherals.values { central?.cancelPeripheralConnection(peripheral) }
             centralLinks.removeAll()
@@ -166,7 +172,7 @@ final class MeshService: NSObject {
     /// Originate a frame: TTL=7, FRESH header timestamp (dedup keys on it —
     /// rally-pin re-broadcasts must not be swallowed), full fanout.
     /// `payload` must be exactly 25 bytes (validated by the module layer).
-    func broadcast(payload: Data) {
+    func broadcast(payload: Data, diagnosticSequence: Int? = nil) {
         queue.async { [self] in
             guard running else { return }
 
@@ -182,6 +188,9 @@ final class MeshService: NSObject {
                 senderID: senderID,
                 payload: payload
             )
+            if let diagnosticSequence {
+                MeshDiagnostics.shared.recordFrame(action: "origin", frame: frame, sequence: diagnosticSequence)
+            }
             // Record our own frame so loopback arrivals (peer relaying back to
             // us, or our dual-role twin link) are dropped as duplicates.
             dedup.markProcessed(MeshDeduplicator.key(for: frame))
@@ -194,6 +203,7 @@ final class MeshService: NSObject {
     /// Send a wire frame to every connected link, minus the split-horizon exclusion.
     /// Full fanout — see header comment.
     private func sendFrame(_ data: Data, excludingLink excluded: UUID?) {
+        let diagnosticFrame = MeshFrameCodec.decode(data)
         // Central role: write to each connected peer's characteristic.
         // Write-without-response ONLY — long (prepared) writes via
         // .withResponse are broken cross-platform, so links whose negotiated
@@ -203,6 +213,14 @@ final class MeshService: NSObject {
             guard let characteristic = centralCharacteristics[id] else { continue }
             guard peripheral.maximumWriteValueLength(for: .withoutResponse) >= data.count else {
                 log.warning("mesh egress: skipping link \(id, privacy: .public) — MTU too small for \(data.count)-byte frame")
+                if let diagnosticFrame {
+                    MeshDiagnostics.shared.recordFrame(
+                        action: "egress-skipped",
+                        frame: diagnosticFrame,
+                        rawLinkID: id.uuidString,
+                        reason: "mtu-too-small"
+                    )
+                }
                 continue
             }
             // Backpressure (M1): respect canSendWriteWithoutResponse and keep
@@ -222,6 +240,14 @@ final class MeshService: NSObject {
             guard central.identifier != excluded else { return false }
             guard central.maximumUpdateValueLength >= data.count else {
                 log.warning("mesh egress: skipping subscriber \(central.identifier, privacy: .public) — notify MTU too small for \(data.count)-byte frame")
+                if let diagnosticFrame {
+                    MeshDiagnostics.shared.recordFrame(
+                        action: "egress-skipped",
+                        frame: diagnosticFrame,
+                        rawLinkID: central.identifier.uuidString,
+                        reason: "mtu-too-small"
+                    )
+                }
                 return false
             }
             return true
@@ -238,7 +264,15 @@ final class MeshService: NSObject {
     private func enqueueWrite(_ data: Data, for id: UUID) {
         var backlog = pendingWrites[id, default: []]
         if backlog.count >= MeshConstants.maxPendingWritesPerPeer {
-            backlog.removeFirst() // drop-oldest: stale positions are worthless
+            let dropped = backlog.removeFirst() // drop-oldest: stale positions are worthless
+            if let frame = MeshFrameCodec.decode(dropped) {
+                MeshDiagnostics.shared.recordFrame(
+                    action: "egress-skipped",
+                    frame: frame,
+                    rawLinkID: id.uuidString,
+                    reason: "write-backpressure-overflow"
+                )
+            }
         }
         backlog.append(data)
         pendingWrites[id] = backlog
@@ -247,13 +281,38 @@ final class MeshService: NSObject {
     // MARK: - Ingress
 
     private func handleIngress(_ data: Data, fromLink linkID: UUID) {
-        guard running, let frame = MeshFrameCodec.decode(data) else { return }
+        guard running else { return }
+        guard let frame = MeshFrameCodec.decode(data) else {
+            MeshDiagnostics.shared.recordMalformed(rawLinkID: linkID.uuidString)
+            return
+        }
+        MeshDiagnostics.shared.recordFrame(
+            action: "ingress",
+            frame: frame,
+            rawLinkID: linkID.uuidString
+        )
 
         // Freshness guards (brief §3): reject future clock skew > 120 s and
         // broadcasts older than 900 s.
         let nowMs = UInt64(Date().timeIntervalSince1970 * 1000)
-        if frame.timestampMs > nowMs + MeshConstants.maxFutureSkewMs { return }
-        if frame.timestampMs + MeshConstants.maxAgeMs < nowMs { return }
+        if frame.timestampMs > nowMs + MeshConstants.maxFutureSkewMs {
+            MeshDiagnostics.shared.recordFrame(
+                action: "future-drop",
+                frame: frame,
+                rawLinkID: linkID.uuidString,
+                reason: "future"
+            )
+            return
+        }
+        if frame.timestampMs + MeshConstants.maxAgeMs < nowMs {
+            MeshDiagnostics.shared.recordFrame(
+                action: "stale-drop",
+                frame: frame,
+                rawLinkID: linkID.uuidString,
+                reason: "stale"
+            )
+            return
+        }
 
         let senderIsSelf = (frame.senderID == mySenderID)
         let key = MeshDeduplicator.key(for: frame)
@@ -262,9 +321,24 @@ final class MeshService: NSObject {
         // frame — someone else already flooded it.
         if let pending = pendingRelays.removeValue(forKey: key) {
             pending.cancel()
+            MeshDiagnostics.shared.recordFrame(
+                action: "relay-cancelled",
+                frame: frame,
+                rawLinkID: linkID.uuidString,
+                reason: "scheduled-relay-cancelled",
+                onlyWhenRelayRole: true
+            )
             return
         }
-        if dedup.isDuplicate(key) || senderIsSelf { return }
+        if dedup.isDuplicate(key) || senderIsSelf {
+            MeshDiagnostics.shared.recordFrame(
+                action: "duplicate-drop",
+                frame: frame,
+                rawLinkID: linkID.uuidString,
+                reason: "duplicate"
+            )
+            return
+        }
 
         // relayVia: arrival TTL == originate TTL (7) means a direct neighbor.
         // A lower TTL means at least one relay hop — without announce packets
@@ -274,6 +348,11 @@ final class MeshService: NSObject {
         let relayVia: String? = frame.ttl == MeshConstants.originTTL ? nil : "mesh"
 
         let payload = frame.payload
+        MeshDiagnostics.shared.recordFrame(
+            action: "application-delivery",
+            frame: frame,
+            rawLinkID: linkID.uuidString
+        )
         DispatchQueue.main.async { [weak self] in
             self?.onPacket?(payload, relayVia)
         }
@@ -288,11 +367,27 @@ final class MeshService: NSObject {
 
         var relayFrame = frame
         relayFrame.ttl = decision.newTTL
+        MeshDiagnostics.shared.recordFrame(
+            action: "relay-scheduled",
+            frame: frame,
+            ttlBefore: frame.ttl,
+            ttlAfter: decision.newTTL,
+            rawLinkID: linkID.uuidString,
+            onlyWhenRelayRole: true
+        )
         let relayData = MeshFrameCodec.encode(relayFrame)
         let item = DispatchWorkItem { [weak self] in
             guard let self else { return }
             self.pendingRelays.removeValue(forKey: key)
             guard self.running else { return }
+            MeshDiagnostics.shared.recordFrame(
+                action: "relay-forwarded",
+                frame: relayFrame,
+                ttlBefore: frame.ttl,
+                ttlAfter: relayFrame.ttl,
+                rawLinkID: linkID.uuidString,
+                onlyWhenRelayRole: true
+            )
             self.sendFrame(relayData, excludingLink: linkID)
         }
         pendingRelays[key] = item
@@ -468,7 +563,9 @@ extension MeshService: CBCentralManagerDelegate {
         let id = peripheral.identifier
         pendingPeripherals.removeValue(forKey: id)
         pendingConnectTokens.removeValue(forKey: id)
-        centralLinks.removeValue(forKey: id)
+        if centralLinks.removeValue(forKey: id) != nil {
+            MeshDiagnostics.shared.recordLifecycle(action: "link-down", rawLinkID: id.uuidString)
+        }
         centralCharacteristics.removeValue(forKey: id)
         pendingWrites.removeValue(forKey: id)
         emitStatusIfChanged()
@@ -501,6 +598,7 @@ extension MeshService: CBPeripheralDelegate {
         pendingConnectTokens.removeValue(forKey: id)
         centralLinks[id] = peripheral
         centralCharacteristics[id] = characteristic
+        MeshDiagnostics.shared.recordLifecycle(action: "link-up", rawLinkID: id.uuidString)
         peripheral.setNotifyValue(true, for: characteristic)
         emitStatusIfChanged()
     }
@@ -515,7 +613,9 @@ extension MeshService: CBPeripheralDelegate {
         if error != nil || !characteristic.isNotifying {
             let id = peripheral.identifier
             log.warning("mesh link \(id, privacy: .public): notify subscription failed/dropped — tearing down link")
-            centralLinks.removeValue(forKey: id)
+            if centralLinks.removeValue(forKey: id) != nil {
+                MeshDiagnostics.shared.recordLifecycle(action: "link-down", rawLinkID: id.uuidString)
+            }
             centralCharacteristics.removeValue(forKey: id)
             pendingWrites.removeValue(forKey: id)
             central?.cancelPeripheralConnection(peripheral)
@@ -580,13 +680,16 @@ extension MeshService: CBPeripheralManagerDelegate {
                            didSubscribeTo characteristic: CBCharacteristic) {
         guard characteristic.uuid == MeshConstants.characteristicUUID else { return }
         subscribers[central.identifier] = central
+        MeshDiagnostics.shared.recordLifecycle(action: "link-up", rawLinkID: central.identifier.uuidString)
         emitStatusIfChanged()
     }
 
     func peripheralManager(_ peripheral: CBPeripheralManager,
                            central: CBCentral,
                            didUnsubscribeFrom characteristic: CBCharacteristic) {
-        subscribers.removeValue(forKey: central.identifier)
+        if subscribers.removeValue(forKey: central.identifier) != nil {
+            MeshDiagnostics.shared.recordLifecycle(action: "link-down", rawLinkID: central.identifier.uuidString)
+        }
         emitStatusIfChanged()
     }
 

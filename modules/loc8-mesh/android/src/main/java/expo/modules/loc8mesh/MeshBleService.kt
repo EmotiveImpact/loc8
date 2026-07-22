@@ -260,6 +260,13 @@ class MeshBleService private constructor() {
         for (r in pendingRelays.values) h?.removeCallbacks(r)
         pendingRelays.clear()
 
+        for (address in centralLinks.keys) {
+            MeshDiagnostics.recordLifecycle("link-down", address)
+        }
+        for (address in subscribers.keys) {
+            MeshDiagnostics.recordLifecycle("link-down", address)
+        }
+
         if (scanning) {
             runCatching { scanner?.stopScan(scanCallback) }
             scanning = false
@@ -299,7 +306,7 @@ class MeshBleService private constructor() {
      * rally-pin re-broadcasts must not be swallowed), full fanout.
      * `payload` must be exactly 25 bytes (validated by the module layer).
      */
-    fun broadcast(payload: ByteArray) {
+    fun broadcast(payload: ByteArray, diagnosticSequence: Int? = null) {
         // Only start() may create the mesh thread; a broadcast while stopped is dropped.
         val h = handler ?: return
         h.post {
@@ -318,6 +325,9 @@ class MeshBleService private constructor() {
                 senderID = senderID,
                 payload = payload
             )
+            if (diagnosticSequence != null) {
+                MeshDiagnostics.recordFrame("origin", frame, sequence = diagnosticSequence)
+            }
             // Record our own frame so loopback arrivals (peer relaying back to
             // us, or our dual-role twin link) are dropped as duplicates.
             dedup.markProcessed(MeshDeduplicator.key(frame))
@@ -343,6 +353,7 @@ class MeshBleService private constructor() {
      * set — the writing central must not be notified back). Full fanout.
      */
     private fun sendFrame(data: ByteArray, excludedLinkId: String?) {
+        val diagnosticFrame = MeshFrameCodec.decode(data)
         // Central role: write to each connected peer's characteristic.
         // Write-without-response ONLY — a link whose usable ATT payload
         // (mtu − 3) can't carry the whole frame is SKIPPED (a with-response
@@ -357,6 +368,14 @@ class MeshBleService private constructor() {
             if (mtu - 3 < data.size) {
                 if (mtuSkipLogged.add(address)) {
                     Log.w(TAG, "Skipping write to $address: MTU $mtu can't carry ${data.size}-byte frame")
+                }
+                if (diagnosticFrame != null) {
+                    MeshDiagnostics.recordFrame(
+                        "egress-skipped",
+                        diagnosticFrame,
+                        rawLinkId = address,
+                        reason = "mtu-too-small"
+                    )
                 }
                 continue
             }
@@ -382,6 +401,14 @@ class MeshBleService private constructor() {
             if (mtu - 3 < data.size) {
                 if (mtuSkipLogged.add(address)) {
                     Log.w(TAG, "Skipping notify to $address: MTU $mtu can't carry ${data.size}-byte frame")
+                }
+                if (diagnosticFrame != null) {
+                    MeshDiagnostics.recordFrame(
+                        "egress-skipped",
+                        diagnosticFrame,
+                        rawLinkId = address,
+                        reason = "mtu-too-small"
+                    )
                 }
                 continue
             }
@@ -430,14 +457,25 @@ class MeshBleService private constructor() {
 
     private fun handleIngress(data: ByteArray, linkId: String) {
         if (!running) return
-        val frame = MeshFrameCodec.decode(data) ?: return
+        val frame = MeshFrameCodec.decode(data)
+        if (frame == null) {
+            MeshDiagnostics.recordMalformed(linkId)
+            return
+        }
+        MeshDiagnostics.recordFrame("ingress", frame, rawLinkId = linkId)
 
         // Freshness guards (brief §3): reject future clock skew > 120 s and
         // broadcasts older than 900 s. (> 2^63 wire timestamps decode negative
         // and are dropped by the age guard.)
         val nowMs = System.currentTimeMillis()
-        if (frame.timestampMs > nowMs + MeshConstants.MAX_FUTURE_SKEW_MS) return
-        if (frame.timestampMs + MeshConstants.MAX_AGE_MS < nowMs) return
+        if (frame.timestampMs > nowMs + MeshConstants.MAX_FUTURE_SKEW_MS) {
+            MeshDiagnostics.recordFrame("future-drop", frame, rawLinkId = linkId, reason = "future")
+            return
+        }
+        if (frame.timestampMs + MeshConstants.MAX_AGE_MS < nowMs) {
+            MeshDiagnostics.recordFrame("stale-drop", frame, rawLinkId = linkId, reason = "stale")
+            return
+        }
 
         val senderIsSelf = mySenderID?.contentEquals(frame.senderID) == true
         val key = MeshDeduplicator.key(frame)
@@ -446,15 +484,26 @@ class MeshBleService private constructor() {
         // frame — someone else already flooded it.
         pendingRelays.remove(key)?.let { pending ->
             handler?.removeCallbacks(pending)
+            MeshDiagnostics.recordFrame(
+                "relay-cancelled",
+                frame,
+                rawLinkId = linkId,
+                reason = "scheduled-relay-cancelled",
+                onlyWhenRelayRole = true
+            )
             return
         }
-        if (dedup.isDuplicate(key) || senderIsSelf) return
+        if (dedup.isDuplicate(key) || senderIsSelf) {
+            MeshDiagnostics.recordFrame("duplicate-drop", frame, rawLinkId = linkId, reason = "duplicate")
+            return
+        }
 
         // relayVia: arrival TTL == originate TTL (7) means a direct neighbor.
         // A lower TTL means at least one relay hop — without announce packets
         // we can't name the last hop (the frame's senderID is the ORIGINATOR),
         // so we honestly report "mesh".
         val relayVia = if (frame.ttl == MeshConstants.ORIGIN_TTL) null else "mesh"
+        MeshDiagnostics.recordFrame("application-delivery", frame, rawLinkId = linkId)
         onPacket?.invoke(frame.payload, relayVia)
 
         // Relay decision (TTL clamp + decrement + jitter), split horizon.
@@ -465,11 +514,30 @@ class MeshBleService private constructor() {
         )
         if (!decision.shouldRelay) return
 
+        val ttlBefore = frame.ttl
+        MeshDiagnostics.recordFrame(
+            "relay-scheduled",
+            frame,
+            ttlBefore = ttlBefore,
+            ttlAfter = decision.newTTL,
+            rawLinkId = linkId,
+            onlyWhenRelayRole = true
+        )
         frame.ttl = decision.newTTL // relays rewrite ONLY the ttl
         val relayData = MeshFrameCodec.encode(frame)
         val relayRunnable = Runnable {
             pendingRelays.remove(key)
-            if (running) sendFrame(relayData, excludedLinkId = linkId)
+            if (running) {
+                MeshDiagnostics.recordFrame(
+                    "relay-forwarded",
+                    frame,
+                    ttlBefore = ttlBefore,
+                    ttlAfter = frame.ttl,
+                    rawLinkId = linkId,
+                    onlyWhenRelayRole = true
+                )
+                sendFrame(relayData, excludedLinkId = linkId)
+            }
         }
         pendingRelays[key] = relayRunnable
         handler?.postDelayed(relayRunnable, decision.delayMs.toLong())
@@ -638,6 +706,7 @@ class MeshBleService private constructor() {
         pendingGatts.remove(address)
         centralLinks[address] = gatt
         centralCharacteristics[address] = characteristic
+        MeshDiagnostics.recordLifecycle("link-up", address)
 
         // Subscribe: local notification routing + remote CCCD write.
         runCatching { gatt.setCharacteristicNotification(characteristic, true) }
@@ -656,7 +725,9 @@ class MeshBleService private constructor() {
 
     private fun dropClientLink(address: String, gatt: BluetoothGatt) {
         pendingGatts.remove(address)
-        centralLinks.remove(address)
+        if (centralLinks.remove(address) != null) {
+            MeshDiagnostics.recordLifecycle("link-down", address)
+        }
         centralCharacteristics.remove(address)
         linkMtus.remove(address)
         mtuSkipLogged.remove(address)
@@ -762,7 +833,10 @@ class MeshBleService private constructor() {
                 handler?.post {
                     subscriberMtus.remove(address)
                     mtuSkipLogged.remove(address)
-                    if (subscribers.remove(address) != null) emitStatusIfChanged()
+                    if (subscribers.remove(address) != null) {
+                        MeshDiagnostics.recordLifecycle("link-down", address)
+                        emitStatusIfChanged()
+                    }
                 }
             }
         }
@@ -833,7 +907,12 @@ class MeshBleService private constructor() {
                 value[1] == BluetoothGattDescriptor.ENABLE_NOTIFICATION_VALUE[1]
             handler?.post {
                 if (!running) return@post
-                if (enable) subscribers[address] = device else subscribers.remove(address)
+                if (enable) {
+                    val wasAbsent = subscribers.put(address, device) == null
+                    if (wasAbsent) MeshDiagnostics.recordLifecycle("link-up", address)
+                } else if (subscribers.remove(address) != null) {
+                    MeshDiagnostics.recordLifecycle("link-down", address)
+                }
                 emitStatusIfChanged()
             }
         }

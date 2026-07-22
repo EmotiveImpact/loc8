@@ -18,6 +18,10 @@ internal final class InvalidPacketSizeException: GenericException<Int> {
     }
 }
 
+internal final class InvalidFieldDiagnosticException: GenericException<String> {
+    override var reason: String { param }
+}
+
 public class Loc8MeshModule: Module {
     public func definition() -> ModuleDefinition {
         Name("Loc8Mesh")
@@ -61,6 +65,56 @@ public class Loc8MeshModule: Module {
                 throw InvalidPacketSizeException(packet.count)
             }
             MeshService.shared.broadcast(payload: packet)
+        }
+
+        AsyncFunction("startFieldDiagnostics") {
+            (runID: String, cohortID: String, blockID: String, deviceRole: String, originRole: String) in
+            do {
+                try MeshDiagnostics.shared.start(
+                    runID: runID,
+                    cohortID: cohortID,
+                    blockID: blockID,
+                    deviceRole: deviceRole,
+                    originRole: originRole
+                )
+            } catch {
+                throw InvalidFieldDiagnosticException("Invalid MESH-01 diagnostic context: \(error)")
+            }
+        }
+
+        AsyncFunction("stopFieldDiagnostics") {
+            do {
+                try MeshDiagnostics.shared.stop()
+            } catch {
+                throw InvalidFieldDiagnosticException("Cannot stop MESH-01 diagnostics: \(error)")
+            }
+        }
+
+        AsyncFunction("getFieldDiagnostics") {
+            MeshDiagnostics.shared.snapshot()
+        }
+
+        AsyncFunction("releaseFieldDiagnostics") {
+            do {
+                try MeshDiagnostics.shared.release()
+            } catch {
+                throw InvalidFieldDiagnosticException("Cannot release MESH-01 diagnostics: \(error)")
+            }
+        }
+
+        AsyncFunction("broadcastFieldTest") { (packet: Data, sequence: Int) in
+            guard packet.count == MeshConstants.payloadSize else {
+                throw InvalidPacketSizeException(packet.count)
+            }
+            guard (0...99).contains(sequence) else {
+                throw InvalidFieldDiagnosticException("MESH-01 sequence must be between 0 and 99")
+            }
+            do {
+                try MeshDiagnostics.shared.assertCanOriginate(sequence: sequence, payload: packet)
+            } catch {
+                throw InvalidFieldDiagnosticException("Cannot originate MESH-01 attempt: \(error)")
+            }
+            MeshService.shared.broadcast(payload: packet, diagnosticSequence: sequence)
         }
     }
 }

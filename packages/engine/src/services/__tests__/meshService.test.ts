@@ -31,12 +31,18 @@ describe('meshService', () => {
   const nowSec = () => clock;
 
   beforeEach(() => {
+    jest.useFakeTimers();
     clock = 1000;
     useCrewStore.getState().reset();
     useCrewStore.getState().setProfile({ id: 1, name: 'Me', color: '#fff' });
     useCrewStore.getState().registerFriends([{ id: 101, name: 'Maya', color: '#4be3c0' }]);
     useCrewStore.getState().setMyLocation({ latitude: 37.77, longitude: -122.41 });
     transport = new FakeTransport();
+  });
+
+  afterEach(() => {
+    jest.clearAllTimers();
+    jest.useRealTimers();
   });
 
   it('accepted packets reach the store; replays are dropped', () => {

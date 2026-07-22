@@ -1,0 +1,75 @@
+{
+  "runId": "REPLACE-with-lowercase-run-id",
+  "createdAt": "REPLACE-with-ISO-8601-run-start",
+  "build": {
+    "gitCommit": "REPLACE-with-40-lowercase-hex-commit",
+    "appVersion": "1.0.0-field.1",
+    "expoVersion": "57.0.8",
+    "reactNativeVersion": "0.86.0",
+    "diagnosticSchema": "loc8.mesh-field-evidence.v1",
+    "wireVersion": "loc8-bitchat-v1-raw47",
+    "serviceUuid": "4C4F4338-4D45-5348-B1E5-4C4F43384D01",
+    "identicalOnAllDevices": true
+  },
+  "devices": [
+    {
+      "role": "A",
+      "model": "REPLACE",
+      "osName": "iOS",
+      "osVersion": "REPLACE",
+      "nativeBuildId": "REPLACE",
+      "syntheticSenderId": 1278738593,
+      "batteryStartPct": 100,
+      "permissions": { "bluetooth": true, "location": true, "foregroundService": true }
+    },
+    {
+      "role": "B",
+      "model": "REPLACE",
+      "osName": "iOS",
+      "osVersion": "REPLACE",
+      "nativeBuildId": "REPLACE",
+      "syntheticSenderId": 1278738609,
+      "batteryStartPct": 100,
+      "permissions": { "bluetooth": true, "location": true, "foregroundService": true }
+    },
+    {
+      "role": "C",
+      "model": "REPLACE",
+      "osName": "iOS",
+      "osVersion": "REPLACE",
+      "nativeBuildId": "REPLACE",
+      "syntheticSenderId": 1278738625,
+      "batteryStartPct": 100,
+      "permissions": { "bluetooth": true, "location": true, "foregroundService": true }
+    }
+  ],
+  "cohort": {
+    "cohortId": "ios-ios-ios",
+    "composition": "iOS iOS iOS",
+    "foregroundOnly": true
+  },
+  "geometry": {
+    "aToBM": 0,
+    "bToCM": 0,
+    "aToCM": 0,
+    "heightM": 0,
+    "orientation": "REPLACE with measured fixed phone orientation",
+    "barrier": "REPLACE with measured barriers/materials",
+    "isolationMethod": "REPLACE with physical RF isolation method; never a software filter",
+    "fixedAcrossBlocks": true
+  },
+  "privacy": {
+    "siteAuthorised": false,
+    "operatorAuthorised": false,
+    "syntheticPayloadsOnly": true,
+    "gpsCaptured": false,
+    "personalNamesCaptured": false,
+    "rawRadioIdentifiersCaptured": false,
+    "rawBundleUri": "research://mesh-01/REPLACE",
+    "encryptedAtRest": false,
+    "accessLogged": false,
+    "retentionDays": 30,
+    "deletionOwner": "REPLACE"
+  },
+  "overflowCounts": { "A": 0, "B": 0, "C": 0 }
+}

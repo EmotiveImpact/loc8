@@ -1,0 +1,189 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://loc8.local/schemas/loc8.mesh-field-manifest.v1.json",
+  "title": "Loc8 MESH-01 physical run manifest",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "schema",
+    "protocol",
+    "runId",
+    "evidenceClass",
+    "createdAt",
+    "build",
+    "devices",
+    "cohorts",
+    "blocks",
+    "clockSync",
+    "geometry",
+    "privacy",
+    "diagnostics"
+  ],
+  "properties": {
+    "schema": { "const": "loc8.mesh-field-manifest.v1" },
+    "protocol": { "const": "mesh-01.e01.v1" },
+    "runId": { "type": "string", "minLength": 8, "maxLength": 64, "pattern": "^[a-z0-9][a-z0-9-]*$" },
+    "evidenceClass": { "enum": ["physical", "synthetic"] },
+    "createdAt": { "type": "string", "format": "date-time", "minLength": 20, "maxLength": 32 },
+    "build": { "$ref": "#/$defs/build" },
+    "devices": {
+      "type": "array",
+      "minItems": 3,
+      "maxItems": 3,
+      "items": { "$ref": "#/$defs/device" }
+    },
+    "cohorts": {
+      "type": "array",
+      "minItems": 1,
+      "maxItems": 8,
+      "items": { "$ref": "#/$defs/cohort" }
+    },
+    "blocks": {
+      "type": "array",
+      "minItems": 1,
+      "maxItems": 64,
+      "items": { "$ref": "#/$defs/block" }
+    },
+    "clockSync": {
+      "type": "array",
+      "minItems": 3,
+      "maxItems": 3,
+      "items": { "$ref": "#/$defs/clock" }
+    },
+    "geometry": { "$ref": "#/$defs/geometry" },
+    "privacy": { "$ref": "#/$defs/privacy" },
+    "diagnostics": { "$ref": "#/$defs/diagnostics" }
+  },
+  "$defs": {
+    "build": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["gitCommit", "appVersion", "expoVersion", "reactNativeVersion", "diagnosticSchema", "wireVersion", "serviceUuid", "identicalOnAllDevices"],
+      "properties": {
+        "gitCommit": { "type": "string", "pattern": "^[a-f0-9]{40}$" },
+        "appVersion": { "type": "string", "minLength": 1, "maxLength": 64, "pattern": "^[A-Za-z0-9._+~-]+$" },
+        "expoVersion": { "type": "string", "minLength": 1, "maxLength": 64, "pattern": "^[A-Za-z0-9._+~-]+$" },
+        "reactNativeVersion": { "type": "string", "minLength": 1, "maxLength": 64, "pattern": "^[A-Za-z0-9._+~-]+$" },
+        "diagnosticSchema": { "const": "loc8.mesh-field-evidence.v1" },
+        "wireVersion": { "type": "string", "minLength": 1, "maxLength": 64, "pattern": "^[A-Za-z0-9._+~-]+$" },
+        "serviceUuid": { "type": "string", "pattern": "^[A-F0-9]{8}(-[A-F0-9]{4}){3}-[A-F0-9]{12}$" },
+        "identicalOnAllDevices": { "const": true }
+      }
+    },
+    "permissions": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["bluetooth", "location", "foregroundService"],
+      "properties": {
+        "bluetooth": { "const": true },
+        "location": { "const": true },
+        "foregroundService": { "const": true }
+      }
+    },
+    "device": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["role", "model", "osName", "osVersion", "nativeBuildId", "syntheticSenderId", "batteryStartPct", "permissions"],
+      "properties": {
+        "role": { "enum": ["A", "B", "C"] },
+        "model": { "type": "string", "minLength": 1, "maxLength": 80, "pattern": "^[A-Za-z0-9 ._+()-]+$" },
+        "osName": { "enum": ["iOS", "Android", "synthetic"] },
+        "osVersion": { "type": "string", "minLength": 1, "maxLength": 64, "pattern": "^[A-Za-z0-9 ._+()-]+$" },
+        "nativeBuildId": { "type": "string", "minLength": 1, "maxLength": 80, "pattern": "^[A-Za-z0-9._+-]+$" },
+        "syntheticSenderId": { "type": "integer", "minimum": 1, "maximum": 4294967295 },
+        "batteryStartPct": { "type": "number", "minimum": 0, "maximum": 100 },
+        "permissions": { "$ref": "#/$defs/permissions" }
+      }
+    },
+    "cohort": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["cohortId", "composition", "foregroundOnly"],
+      "properties": {
+        "cohortId": { "type": "string", "minLength": 1, "maxLength": 48, "pattern": "^[a-z0-9][a-z0-9-]*$" },
+        "composition": { "type": "string", "minLength": 1, "maxLength": 80, "pattern": "^[A-Za-z0-9 ./+()-]+$" },
+        "foregroundOnly": { "const": true }
+      }
+    },
+    "block": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["blockId", "cohortId", "kind", "direction", "sourceRole", "destinationRole", "relayRole", "expectedAttempts", "intervalMs", "deliveryDeadlineMs"],
+      "properties": {
+        "blockId": { "type": "string", "minLength": 1, "maxLength": 64, "pattern": "^[a-z0-9][a-z0-9-]*$" },
+        "cohortId": { "type": "string", "minLength": 1, "maxLength": 48, "pattern": "^[a-z0-9][a-z0-9-]*$" },
+        "kind": { "enum": ["near", "isolation-pre", "relay", "isolation-post"] },
+        "direction": { "enum": ["A-B", "B-A", "B-C", "C-B", "A-C", "C-A"] },
+        "sourceRole": { "enum": ["A", "B", "C"] },
+        "destinationRole": { "enum": ["A", "B", "C"] },
+        "relayRole": { "enum": ["B", null] },
+        "expectedAttempts": { "type": "integer", "minimum": 1, "maximum": 255 },
+        "intervalMs": { "const": 1000 },
+        "deliveryDeadlineMs": { "const": 10000 }
+      }
+    },
+    "clock": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["role", "offsetNs", "uncertaintyNs"],
+      "properties": {
+        "role": { "enum": ["A", "B", "C"] },
+        "offsetNs": { "type": "string", "pattern": "^-?(0|[1-9][0-9]{0,19})$" },
+        "uncertaintyNs": { "type": "string", "pattern": "^(0|[1-9][0-9]{0,19})$" }
+      }
+    },
+    "geometry": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["aToBM", "bToCM", "aToCM", "heightM", "orientation", "barrier", "isolationMethod", "fixedAcrossBlocks"],
+      "properties": {
+        "aToBM": { "type": "number", "minimum": 0.1, "maximum": 10000 },
+        "bToCM": { "type": "number", "minimum": 0.1, "maximum": 10000 },
+        "aToCM": { "type": "number", "minimum": 0.1, "maximum": 10000 },
+        "heightM": { "type": "number", "minimum": 0.1, "maximum": 5 },
+        "orientation": { "type": "string", "minLength": 1, "maxLength": 160 },
+        "barrier": { "type": "string", "minLength": 1, "maxLength": 160 },
+        "isolationMethod": { "type": "string", "minLength": 1, "maxLength": 160 },
+        "fixedAcrossBlocks": { "const": true }
+      }
+    },
+    "privacy": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["siteAuthorised", "operatorAuthorised", "syntheticPayloadsOnly", "gpsCaptured", "personalNamesCaptured", "rawRadioIdentifiersCaptured", "rawBundleUri", "encryptedAtRest", "accessLogged", "retentionDays", "deletionOwner"],
+      "properties": {
+        "siteAuthorised": { "const": true },
+        "operatorAuthorised": { "const": true },
+        "syntheticPayloadsOnly": { "const": true },
+        "gpsCaptured": { "const": false },
+        "personalNamesCaptured": { "const": false },
+        "rawRadioIdentifiersCaptured": { "const": false },
+        "rawBundleUri": { "type": "string", "minLength": 1, "maxLength": 200, "pattern": "^research://[a-z0-9][a-z0-9./_-]*$" },
+        "encryptedAtRest": { "const": true },
+        "accessLogged": { "const": true },
+        "retentionDays": { "type": "integer", "minimum": 1, "maximum": 366 },
+        "deletionOwner": { "type": "string", "minLength": 1, "maxLength": 80 }
+      }
+    },
+    "diagnostics": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["maxEventsPerDevice", "overflowCounts", "linkHandlesRunScoped", "rawIdentifiersExported"],
+      "properties": {
+        "maxEventsPerDevice": { "const": 20000 },
+        "overflowCounts": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["A", "B", "C"],
+          "properties": {
+            "A": { "const": 0 },
+            "B": { "const": 0 },
+            "C": { "const": 0 }
+          }
+        },
+        "linkHandlesRunScoped": { "const": true },
+        "rawIdentifiersExported": { "const": false }
+      }
+    }
+  }
+}

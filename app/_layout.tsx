@@ -35,7 +35,11 @@ export default function RootLayout() {
   useEffect(() => {
     if (!hydrated) return; // wait for AsyncStorage — the id may already exist
     const inOnboarding = (segments[0] as string) === 'onboarding';
-    if (!profile && !inOnboarding) router.replace(ONBOARDING);
+    const inEnabledFieldKit = __DEV__ &&
+      process.env.EXPO_PUBLIC_MESH_FIELD_KIT === '1' &&
+      process.env.EXPO_PUBLIC_TRANSPORT === 'ble' &&
+      (segments[0] as string) === 'mesh-field';
+    if (!profile && !inOnboarding && !inEnabledFieldKit) router.replace(ONBOARDING);
     if (profile && inOnboarding) router.replace('/');
   }, [hydrated, profile, segments]);
 
@@ -95,6 +99,7 @@ export default function RootLayout() {
         <Stack.Screen name="onboarding" />
         <Stack.Screen name="compass/[id]" />
         <Stack.Screen name="rally" options={{ presentation: 'modal' }} />
+        <Stack.Screen name="mesh-field" />
         <Stack.Screen
           name="settings"
           options={{
