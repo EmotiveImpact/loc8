@@ -24,9 +24,13 @@ Do not begin unless all are true:
 - `npx expo-doctor` reports 20/20; and
 - the field build is not distributed as a production or safety system.
 
-This workstation currently has Xcode 16.2 and no Java runtime. It therefore
-cannot close either native build gate. Do not treat the macOS Swift typecheck
-as an iOS app build.
+This workstation currently has Xcode 16.2, which cannot close the Expo SDK 57
+iOS native-build gate. Homebrew OpenJDK 17, Android SDK/API 36 and NDK
+27.1.12297006 are now installed. An isolated generated Expo/Gradle project has
+compiled and packaged the `loc8-mesh` Android module as a debug AAR, but no full
+app APK/AAB has been installed or exercised on a phone. Do not treat the macOS
+Swift harness, Android module AAR or generated-project compile as an iOS app
+build, complete Android app build, installation or radio result.
 
 ## 2. Freeze metadata and build one labelled client
 

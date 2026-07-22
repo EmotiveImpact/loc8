@@ -255,3 +255,87 @@ Supersedes/superseded by:
 - **Next:** execute `SEC-05`. Product development may adopt the pure graph
   contract separately; MAP-04/MAP-10 must preregister real plan and operator
   evidence before any building/commissioning claim.
+
+### RDD-016 — promote security contracts, not a cryptographic provider
+
+- **Questions:** `SEC-05`, with bounded evidence for `SEC-03`, `SEC-06`,
+  `SEC-08` and `SEC-10`
+- **Decision:** PROMOTE carrier/logical-frame/provider/policy/key-lifecycle
+  separation, the strict 32-byte logical header, deterministic credential/cache
+  handles, full 64-bit explicit Noise nonces when required, and fail-closed
+  atomic prekey invariants into product specification. REPEAT three isolated
+  native lanes: CryptoKit iOS 17+ plus Tink Java HPKE; Tink C++/BoringSSL as a
+  shared-provider fallback; and a reviewed native COSE/CWT provider. HOLD final
+  provider/algorithm selection and every cryptographic/security claim. STOP
+  custom cryptography, BitChat crypto-code copying, 32-bit live Noise nonce
+  framing, silent identity/key fallback, direct AGPL libsignal adoption and
+  authorisation inferred from a static fingerprint.
+- **Evidence:** preregistration commit `5ac8e76`; result commit `9afbf85`;
+  [result](results/SEC-05/2026-07-22-crypto-provider-bakeoff/README.md). The
+  dependency-free non-cryptographic contract suite passed 88/88 and rejected
+  67/67 parser adversaries. Both 50,000-operation benchmarks agreed on all
+  deterministic outputs in 487.096/485.770 ms. Ten provider candidates were
+  assessed; none cleared all ten gates, so there is no direct provider adoption.
+- **Constraints:** no key generation, encryption, decryption, signing or
+  verification occurred. No phone, Keychain, Keystore, reboot, radio or
+  specialist review evidence exists. Permissive licence does not establish
+  cryptographic suitability.
+- **Next:** freeze E07 releases/suites/domain separators and run public
+  pass/fail vectors, lifecycle faults, cross-platform interoperability and
+  specialist review before selecting a provider.
+
+### RDD-017 — promote the MESH-01 evidence kit, not physical relay
+
+- **Questions:** `MESH-01`, supporting `MESH-02`, `MESH-04`, `MESH-05`,
+  `MESH-07` and `X-01`
+- **Decision:** PROMOTE the manifest/event contracts, strict evaluator,
+  conservative clock method, bounded privacy-preserving native diagnostics,
+  development-only 14-block operator route, runbook and verified Android module
+  packaging into controlled R&D/product-development use. REPEAT supported native
+  app builds/installs and separately labelled physical iOS, Android and mixed
+  three-phone cohorts with independent evaluation. HOLD the MESH-01 relay and
+  phone-mesh architecture decisions. STOP synthetic/unit/counter/`relayVia`
+  evidence as physical proof, software isolation, threshold changes, discarded
+  failed blocks, cohort pooling, unsafe exports, production field-route exposure
+  and every unsupported range/background/battery/building/capacity/pilot claim.
+- **Evidence:** preregistration commits `29938c4` and `88b7182`; kit commit
+  `5815608`; tooling/Android gate commit `9f394b8`;
+  [result](results/MESH-01/2026-07-22-three-phone-relay-kit/README.md). Evaluator
+  100/100 and TypeScript protocol 5/5 passed. Two 61,100-event runs completed in
+  334.859/240.196 ms with identical deterministic outputs. Pure iOS recorder and
+  Android source/recorder harnesses passed. An actual generated Expo/Gradle
+  project compiled and packaged the Android module as a 94,067-byte AAR, SHA-256
+  `a580b4e8dabcccbabc88829fd72ef5d0a8c0711cc84a740db2ae4e8c9bc36b4f`.
+- **Constraints:** all 200/200-per-direction path/latency figures are labelled
+  synthetic counterfactuals. Zero physical phones and zero radio attempts were
+  measured. Xcode 16.2 cannot build the SDK 57 iOS client; no full Android app,
+  install or BLE session exists. The top-level decision is `HOLD-PHYSICAL`.
+- **Next:** obtain three authorised phones, a fixed radio-isolated layout,
+  approved evidence storage and a supported iOS toolchain; then execute E01
+  without changing its frozen 190/200-per-direction, full-path, zero-duplicate
+  and bracketed-isolation gates.
+
+### RDD-018 — dependency/tooling repair clears the audit hold, not native readiness
+
+- **Questions:** product supply-chain gate, `CONN-01`, `SEC-06`, `MESH-01`
+- **Decision:** PROMOTE the targeted SDK-57-compatible dependency and lint
+  repair. The dependency-hygiene HOLD in `RDD-011` is closed. HOLD complete
+  native-app and operational readiness until full development clients build,
+  install and pass their physical/integration cohorts.
+- **Evidence:** repair commit `9f394b8`. `npm audit` reports zero advisories;
+  SDK 57 ESLint reports zero findings after the initial 14 errors/77 warnings
+  were corrected; Expo Doctor passes 20/20; Expo install/config plus isolated
+  iOS/Android prebuild and autolinking pass; 28/28 Jest suites and 279/279 tests
+  pass; all three TypeScript configurations pass; and the generated Android
+  module compiles/packages under API 36/Kotlin 2.1.20. The high
+  `brace-expansion` path is fixed at 1.1.16. The residual `xcode@3.0.1` path is
+  narrowly overridden to `uuid` 11.1.1; its used `uuid.v4()` call was
+  smoke-tested.
+- **Constraints:** the override is not upstream support evidence. Xcode remains
+  below SDK 57's supported iOS toolchain; the Android AAR is not a full APK/AAB
+  or phone run. Supply-chain checks must be repeated whenever the lockfile or
+  Expo patch changes.
+- **Supersedes:** `RDD-011` and only the stale Node/Expo/audit status paragraph
+  within `RDD-013`; it does not supersede `RDD-013`'s connected-service holds.
+- **Next:** keep the exact lockfile, repeat audit/Doctor/lint/tests in CI, and
+  close full native build/install gates on supported toolchains before a pilot.

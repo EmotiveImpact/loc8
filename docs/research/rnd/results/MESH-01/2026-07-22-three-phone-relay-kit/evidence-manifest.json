@@ -1,0 +1,146 @@
+{
+  "schema": "loc8-rnd-evidence-manifest/v1",
+  "question": "MESH-01",
+  "experiment": "E01",
+  "protocol": "mesh-01.e01.v1",
+  "date": "2026-07-22",
+  "loc8PreRegistrationCommit": "29938c4673c589844fc7946b45a1912b0c41859f",
+  "loc8PreRegistrationAmendmentCommit": "88b7182e0896e463c6c168734869a5b29cd63657",
+  "loc8FieldKitCommit": "58156086ea957d572751a34ec29da3cb5bc5b78f",
+  "loc8ToolingAndAndroidRepairCommit": "9f394b889cf98c449bda5265a301a4b3c7364df5",
+  "evidenceBoundary": "The recorded measurements validate contracts, evaluator logic, recorder semantics and Android module compilation/packaging. No physical phone, BLE path, radio isolation, building, security, battery, capacity or pilot evidence exists.",
+  "physicalEvidence": {
+    "collected": false,
+    "rawFiles": 0,
+    "decision": "HOLD-PHYSICAL"
+  },
+  "commands": [
+    "node --test docs/research/rnd/prototypes/mesh-field-kit/mesh-field-kit.test.mjs",
+    "node docs/research/rnd/prototypes/mesh-field-kit/benchmark.mjs",
+    "node docs/research/rnd/prototypes/mesh-field-kit/benchmark.mjs",
+    "npx jest src/research/__tests__/meshFieldProtocol.test.ts --runInBand",
+    "xcrun swiftc -O -target arm64-apple-macosx14.0 -o <temp>/mesh-diagnostics-harness modules/loc8-mesh/ios/MeshConstants.swift modules/loc8-mesh/ios/MeshFrameCodec.swift modules/loc8-mesh/ios/MeshDeduplicator.swift modules/loc8-mesh/ios/MeshDiagnostics.swift docs/research/rnd/prototypes/mesh-field-kit/ios-diagnostics-harness.swift",
+    "<temp>/mesh-diagnostics-harness",
+    "JAVA_HOME=<openjdk17> KOTLINC_BIN=<verified-kotlin-2.1.20>/bin/kotlinc ANDROID_JAR=<android-sdk>/platforms/android-36/android.jar docs/research/rnd/prototypes/mesh-field-kit/verify-android-kotlin.sh",
+    "<generated-expo-gradle-project>/gradlew :loc8-mesh:compileDebugKotlin :loc8-mesh:assembleDebug"
+  ],
+  "artifacts": [
+    {
+      "path": "docs/research/rnd/results/MESH-01/2026-07-22-three-phone-relay-kit/pre-registration.md",
+      "sha256": "8526328b4dae3547a608395d432d7a3cb1c185ebaafcdb680bb64c85acf52d8c"
+    },
+    {
+      "path": "docs/research/rnd/prototypes/mesh-field-kit/README.md",
+      "sha256": "0cfe4d105d5c0c6717f79b9737388a86ff79f581f567ee798a3ea76bdf40d45a"
+    },
+    {
+      "path": "docs/research/rnd/prototypes/mesh-field-kit/mesh-field-kit.mjs",
+      "sha256": "41cf9f667533a762648c89a368f311e8da09ca27a6a1987fff8c06628cfa0e3d"
+    },
+    {
+      "path": "docs/research/rnd/prototypes/mesh-field-kit/mesh-field-kit.test.mjs",
+      "sha256": "c6b5f9e4e9104c866497da2eb04bb3afca8631b7325a3ec225e6fc0ae98fb012"
+    },
+    {
+      "path": "docs/research/rnd/prototypes/mesh-field-kit/manifest.schema.json",
+      "sha256": "3db419083784f72d2c3f2d1f23defb1ed62215eb5bd7f4a80b68801a9fe997f6"
+    },
+    {
+      "path": "docs/research/rnd/prototypes/mesh-field-kit/event.schema.json",
+      "sha256": "90859254d2bd5eb1a35ee4f5a9bdd1e90d9ff396f910d610b7eac3f48c2b05a7"
+    },
+    {
+      "path": "docs/research/rnd/prototypes/mesh-field-kit/derive-clock-sync.mjs",
+      "sha256": "7b0a3890afb64544c1a1a25533f291190ad431943b03d5a03df956c34b169f14"
+    },
+    {
+      "path": "docs/research/rnd/prototypes/mesh-field-kit/create-physical-manifest.mjs",
+      "sha256": "cbcc03c8b445fa7a4d6215dee3fee0697f87204c7e7c60aa027ab0f29a4c3c20"
+    },
+    {
+      "path": "docs/research/rnd/prototypes/mesh-field-kit/run-metadata.template.json",
+      "sha256": "592c6d753f81d229be8e08006639da8d73ae794f7586958e9efd233755def8a1"
+    },
+    {
+      "path": "docs/research/rnd/prototypes/mesh-field-kit/runbook.md",
+      "sha256": "e2ba88b48377d9c2c5af3ae2663639f4ad25a535684e4bfedd76ec6f459bbc87"
+    },
+    {
+      "path": "docs/research/rnd/prototypes/mesh-field-kit/benchmark.mjs",
+      "sha256": "19de336d131b4703559215ec88083407744bc01c7418c63989d9d5c82bcea65d"
+    },
+    {
+      "path": "docs/research/rnd/prototypes/mesh-field-kit/evaluate.mjs",
+      "sha256": "1c695a030f00871b1180177e71f20ce490d37672254a5c54f5ed7da2173195c7"
+    },
+    {
+      "path": "docs/research/rnd/prototypes/mesh-field-kit/fixtures.mjs",
+      "sha256": "b3d236a15a99c0392134bccfd8e35b19929e14578edfb82daa84007af2cad2ae"
+    },
+    {
+      "path": "docs/research/rnd/prototypes/mesh-field-kit/ios-diagnostics-harness.swift",
+      "sha256": "17924cf1e9b088a836503d2fd7b9f3def6f11e9b9cb0c4492f4660374c812107"
+    },
+    {
+      "path": "docs/research/rnd/prototypes/mesh-field-kit/android-diagnostics-harness.kt",
+      "sha256": "c1bb07dac7d74316fba310676289de34d9de34976e1c575a3ad659566f11feb5"
+    },
+    {
+      "path": "docs/research/rnd/prototypes/mesh-field-kit/verify-android-kotlin.sh",
+      "sha256": "58a6e202f12a2bd3df2d33c38647415b8d53e480a7dcec228ed555d0a9525c24"
+    },
+    {
+      "path": "modules/loc8-mesh/android/src/main/java/expo/modules/loc8mesh/Loc8MeshModule.kt",
+      "sha256": "818a1016ea00f9777a9d9f6f98abb40f0b14254e13f0e2127ef0ca8ac5896f62"
+    },
+    {
+      "path": "modules/loc8-mesh/android/src/main/java/expo/modules/loc8mesh/MeshBleService.kt",
+      "sha256": "c7fbf74f0f621aaf8014448fa37ac741de3f02eceb0bbf17e060bb6de4a8403e"
+    },
+    {
+      "path": "modules/loc8-mesh/android/src/main/java/expo/modules/loc8mesh/MeshDiagnostics.kt",
+      "sha256": "37cb326aa51e56f7cdfc96f67d26baaf88763bc6fae208eb2d95f70c76a5181a"
+    },
+    {
+      "path": "modules/loc8-mesh/ios/Loc8MeshModule.swift",
+      "sha256": "8950692475797503e93a870a52206ed4ee54e7d6b1f4447510140f3822d1348c"
+    },
+    {
+      "path": "modules/loc8-mesh/ios/MeshService.swift",
+      "sha256": "e23fb453858bbed62681081b8c892d23c41c26c134fe6cb620625153260bf2e9"
+    },
+    {
+      "path": "modules/loc8-mesh/ios/MeshDiagnostics.swift",
+      "sha256": "b577ffaf55091fb5369143caf8f5ba2227915b6a5d3bf7b72ce278e1d6f90e50"
+    },
+    {
+      "path": "app/mesh-field.tsx",
+      "sha256": "aaa1e0c64b0e5123337b4a107c4420ca17f5f6679378c094e4cafb7a739f66bf"
+    },
+    {
+      "path": "modules/loc8-mesh/index.ts",
+      "sha256": "c0ea0ae6be19c6fb33b3f6b45014ce7b681efc0fcf877c92a173ac62a6b5ace2"
+    },
+    {
+      "path": "src/research/meshFieldProtocol.ts",
+      "sha256": "90ad900b5b413981179d554d51d0c220226bf07bb1ca596e3b1da8ed82b84232"
+    },
+    {
+      "path": "src/research/__tests__/meshFieldProtocol.test.ts",
+      "sha256": "837a8f0fd723518f04c0d3aa2821ca57325157fb4ee0487b0c808efbdb698d4c"
+    }
+  ],
+  "ephemeralBuildArtifact": {
+    "name": "loc8-mesh-debug.aar",
+    "bytes": 94067,
+    "sha256": "a580b4e8dabcccbabc88829fd72ef5d0a8c0711cc84a740db2ae4e8c9bc36b4f",
+    "retained": false,
+    "reason": "The isolated generated project and cache were removed after hashing to recover constrained local storage.",
+    "evidenceLimitation": "Terminal build output was observed but not retained as a raw log. Reproduce the full app build before physical execution."
+  },
+  "verifiedExternalToolArtifact": {
+    "name": "kotlin-compiler-2.1.20.zip",
+    "sha256": "a118197b0de55ffab2bc8d5cd03a5e39033cfb53383d6931bc761dec0784891a",
+    "verification": "Matched JetBrains' separately published SHA-256 file."
+  }
+}

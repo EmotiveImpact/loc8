@@ -1,0 +1,168 @@
+{
+  "schema": "loc8-rnd-mesh-01-measurements/v1",
+  "question": "MESH-01",
+  "experiment": "E01",
+  "protocol": "mesh-01.e01.v1",
+  "date": "2026-07-22",
+  "evidenceClass": "synthetic-evaluator-native-harness-and-android-module-build",
+  "status": {
+    "kitGates": "PASS",
+    "physicalExperiment": "NOT_RUN",
+    "topLevelDecision": "HOLD-PHYSICAL",
+    "counterfactualSyntheticDecision": "GO"
+  },
+  "commits": {
+    "preRegistration": "29938c4673c589844fc7946b45a1912b0c41859f",
+    "preRegistrationAmendment": "88b7182e0896e463c6c168734869a5b29cd63657",
+    "fieldKit": "58156086ea957d572751a34ec29da3cb5bc5b78f",
+    "toolingAndAndroidRepair": "9f394b889cf98c449bda5265a301a4b3c7364df5"
+  },
+  "runtime": {
+    "node": "v22.22.3",
+    "platform": "darwin",
+    "arch": "arm64",
+    "xcode": "16.2 (16C5032a)",
+    "java": "OpenJDK 17.0.20",
+    "androidCompileSdk": 36,
+    "androidTargetSdk": 36,
+    "kotlin": "2.1.20",
+    "ndk": "27.1.12297006"
+  },
+  "tests": {
+    "strictEvaluator": {
+      "command": "node --test docs/research/rnd/prototypes/mesh-field-kit/mesh-field-kit.test.mjs",
+      "tests": 100,
+      "passed": 100,
+      "failed": 0,
+      "durationMs": 1184.613917,
+      "namedMalformedCasesRejected": 78
+    },
+    "typescriptFieldProtocol": {
+      "command": "npx jest src/research/__tests__/meshFieldProtocol.test.ts --runInBand",
+      "tests": 5,
+      "passed": 5,
+      "failed": 0,
+      "jestReportedTimeSeconds": 0.329
+    },
+    "iosDiagnosticsHarness": {
+      "result": "PASS",
+      "asserted": [
+        "privacy",
+        "synthetic-only-origin",
+        "sequence",
+        "canonical-frame-identity",
+        "ttl-stable-identity",
+        "lifecycle",
+        "event-bound"
+      ],
+      "limitations": "Pure Swift/macOS semantic harness only; no CoreBluetooth, Expo binary ABI, iOS app build or phone."
+    },
+    "androidDiagnosticsAndSourceHarness": {
+      "result": "PASS",
+      "compilerSha256": "a118197b0de55ffab2bc8d5cd03a5e39033cfb53383d6931bc761dec0784891a",
+      "asserted": [
+        "privacy",
+        "frozen-packet",
+        "sequence",
+        "canonical-frame-identity",
+        "ttl-stable-identity",
+        "lifecycle",
+        "event-bound",
+        "all-production-kotlin-sources-compile-against-api-36"
+      ],
+      "limitations": "Compile-only Expo surface stubs; no Expo binary ABI, Gradle packaging, Bluetooth or phone in this gate."
+    }
+  },
+  "benchmarks": [
+    {
+      "run": 1,
+      "iterations": 25,
+      "eventsPerIteration": 2444,
+      "totalEventEvaluations": 61100,
+      "elapsedMs": 334.859,
+      "underFiveSeconds": true,
+      "uniqueResultFingerprints": 1
+    },
+    {
+      "run": 2,
+      "iterations": 25,
+      "eventsPerIteration": 2444,
+      "totalEventEvaluations": 61100,
+      "elapsedMs": 240.196,
+      "underFiveSeconds": true,
+      "uniqueResultFingerprints": 1
+    }
+  ],
+  "determinism": {
+    "resultFingerprintSha256": "b445abe6269e49fa9887d7aa100d94e78c7fb6ad62ce8879867e85424d55fdfe",
+    "deterministicBenchmarkSha256": "5304e3ef65f5e80e1e5a7eec71b65f4080b979a0d80839da0cae14677822d4a3",
+    "runsAgreeExceptElapsedTime": true
+  },
+  "syntheticCounterfactual": {
+    "claimBoundary": "Evaluator arithmetic and classification fixture only; not phone, Bluetooth, radio-isolation or building evidence.",
+    "directions": {
+      "A-C": {
+        "blocks": 2,
+        "attempted": 200,
+        "deliveredWithinDeadline": 200,
+        "deliveryRatio": 1,
+        "applicationDuplicates": 0,
+        "relayProved": 200,
+        "relayProofRatio": 1,
+        "relayForwards": 200,
+        "exactForwardFrames": 200,
+        "multipleForwardFrames": 0,
+        "latencyMs": { "count": 200, "p50": 90, "p95": 90, "p99": 90, "max": 90 }
+      },
+      "C-A": {
+        "blocks": 2,
+        "attempted": 200,
+        "deliveredWithinDeadline": 200,
+        "deliveryRatio": 1,
+        "applicationDuplicates": 0,
+        "relayProved": 200,
+        "relayProofRatio": 1,
+        "relayForwards": 200,
+        "exactForwardFrames": 200,
+        "multipleForwardFrames": 0,
+        "latencyMs": { "count": 200, "p50": 90, "p95": 90, "p99": 90, "max": 90 }
+      }
+    }
+  },
+  "androidModuleBuild": {
+    "generatedExpoGradleProject": "PASS",
+    "tasks": [
+      ":loc8-mesh:compileDebugKotlin",
+      ":loc8-mesh:assembleDebug"
+    ],
+    "aarBytes": 94067,
+    "aarSha256": "a580b4e8dabcccbabc88829fd72ef5d0a8c0711cc84a740db2ae4e8c9bc36b4f",
+    "artifactRetained": false,
+    "warnings": "Upstream Expo Modules Core only.",
+    "limitations": "No complete APK/AAB, install, permissions, BLE run or physical phone. Terminal build output was not retained as a raw log; repeat in the full app/device cohort."
+  },
+  "toolingRegression": {
+    "eslintFindings": 0,
+    "npmAuditAdvisories": 0,
+    "expoDoctorChecksPassed": 20,
+    "expoDoctorChecksTotal": 20,
+    "isolatedExpoPrebuild": { "ios": "PASS", "android": "PASS" },
+    "isolatedAutolinking": { "ios": "PASS", "android": "PASS" },
+    "fullProductJest": { "suitesPassed": 28, "testsPassed": 279 },
+    "typescript": { "root": "PASS", "guard": "PASS", "command": "PASS" }
+  },
+  "physicalEvidence": {
+    "phones": 0,
+    "nearControlAttempts": 0,
+    "isolationAttempts": 0,
+    "relayAttempts": 0,
+    "rawPhysicalFiles": 0,
+    "physicalDecisionAvailable": false
+  },
+  "decisions": {
+    "promote": "Evidence contracts, evaluator, clock method, bounded diagnostic seam, development-only operator route, runbook and Android module packaging for controlled R&D/product-development use.",
+    "repeat": "Supported native app builds/installs followed by separately labelled iOS, Android and mixed-platform three-phone physical cohorts with independent reproduction.",
+    "hold": "All phone-relay capability and range, background, battery, capacity, building, venue, security, safety and pilot-readiness claims.",
+    "stop": "Synthetic or unit evidence as physical proof, software isolation, counter/relayVia-only path claims, threshold changes, failed-block deletion, cohort pooling, unsafe/unapproved data handling and production field-route exposure."
+  }
+}
