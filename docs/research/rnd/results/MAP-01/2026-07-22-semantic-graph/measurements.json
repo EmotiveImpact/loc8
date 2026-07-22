@@ -1,0 +1,204 @@
+{
+  "schemaVersion": "loc8.rnd.measurements.v1",
+  "questionId": "MAP-01",
+  "experiment": "semantic-building-graph-v1",
+  "measuredAt": "2026-07-22",
+  "evidenceClass": "synthetic-pure-contract-router-regression",
+  "preRegistrationCommit": "37e9eb1",
+  "baselineCommit": "51bbbb7",
+  "runtime": {
+    "node": "v22.22.3",
+    "platform": "darwin",
+    "architecture": "arm64"
+  },
+  "canonicalFixture": {
+    "buildingId": "building-synthetic-a001",
+    "mapVersion": "map-synthetic-v1",
+    "levels": 3,
+    "spaces": 12,
+    "zones": 5,
+    "connectors": 5,
+    "portals": 7,
+    "finalExits": 2,
+    "places": 1,
+    "routeNodes": 39,
+    "routeEdges": 45,
+    "validationErrors": 0,
+    "fullFingerprintSha256": "fb7dff2d7529e86dd0d5bb000a718d8834f92811e7e865e2cad4fb1307e88ec8",
+    "semanticIdentityFingerprintSha256": "d4bf246671c8f8f3f8615d4e467bf0d6e940362ee142cc48efb7585bdf7e40a4",
+    "reorderedFullFingerprintSha256": "fb7dff2d7529e86dd0d5bb000a718d8834f92811e7e865e2cad4fb1307e88ec8",
+    "renamedSemanticIdentityFingerprintSha256": "d4bf246671c8f8f3f8615d4e467bf0d6e940362ee142cc48efb7585bdf7e40a4"
+  },
+  "focusedTests": {
+    "tests": 123,
+    "passed": 123,
+    "failed": 0,
+    "namedInvalidMutations": 71,
+    "unexpectedMutationAccepts": 0
+  },
+  "routes": {
+    "walkingB1To2A": {
+      "outcome": "ok",
+      "connectorIds": ["connector-central-lift"],
+      "levelIds": ["level-b1", "level-ground", "level-2a"],
+      "totalDurationSec": 71,
+      "semanticFingerprintSha256": "28a10b53abaa72b33c700a52a8be0f914fa1d5524017147351ffbe230b279161"
+    },
+    "stepFreeB1To2A": {
+      "outcome": "ok",
+      "connectorIds": ["connector-central-lift"],
+      "totalDurationSec": 71,
+      "semanticFingerprintSha256": "d26638bf9b6453ad2e6e36fe94d3c3f200e4ad4c61584f80f3f59dd3662d7a8e"
+    },
+    "stepFreeLiftClosed": {
+      "outcome": "ok",
+      "connectorIds": ["connector-access-ramp"],
+      "totalDurationSec": 183,
+      "semanticFingerprintSha256": "302555a392f50eb632b00da006795cbe58a36d68bef9b61f66855172ff749d10"
+    },
+    "stepFreeLiftAndRampClosed": {
+      "outcome": "no-route",
+      "reason": "no-eligible-route"
+    },
+    "evacuation2AToExit": {
+      "outcome": "ok",
+      "connectorIds": ["connector-east-stairs"],
+      "exitPortalId": "portal-final-exit-east",
+      "totalDurationSec": 91.5,
+      "semanticFingerprintSha256": "ad6926f7b79fe86480a38924a43b6fe23ce60cc59bcfa4c5a27f5123c23e700d"
+    },
+    "evacuationStepFree2AToExit": {
+      "outcome": "ok",
+      "connectorIds": ["connector-access-ramp"],
+      "exitPortalId": "portal-final-exit-east",
+      "totalDurationSec": 125.5,
+      "semanticFingerprintSha256": "93b400bbdadbc169feab489457aac9552c315b8692fde07d66e8e7ce32e0f953"
+    }
+  },
+  "egressAudit": {
+    "walking": {
+      "required": 8,
+      "reachable": 8,
+      "percent": 100,
+      "failures": 0
+    },
+    "stepFree": {
+      "required": 7,
+      "reachable": 7,
+      "percent": 100,
+      "failures": 0
+    }
+  },
+  "scaleBenchmark": {
+    "routeNodes": 1002,
+    "routeEdges": 1001,
+    "queryCount": 10000,
+    "pointQueryCount": 8000,
+    "exitQueryCount": 2000,
+    "closureQueryCount": 770,
+    "profileQueryCounts": {
+      "walking": 2500,
+      "step-free": 2500,
+      "evacuation-walking": 2500,
+      "evacuation-step-free": 2500
+    },
+    "maximumDurationMs": 5000,
+    "independentCommandRuns": [
+      {
+        "durationsMs": [3706.137, 3676.832],
+        "outcomes": {
+          "ok": 9718,
+          "no-route": 282,
+          "invalid-request": 0
+        },
+        "traversedEdges": 3499328,
+        "resultFingerprintSha256": "6d832d23700431b26c3b1d9971abbb62950447a73a6b628aa6e339484239a5ea"
+      },
+      {
+        "durationsMs": [3684.56, 3679.83],
+        "outcomes": {
+          "ok": 9718,
+          "no-route": 282,
+          "invalid-request": 0
+        },
+        "traversedEdges": 3499328,
+        "resultFingerprintSha256": "6d832d23700431b26c3b1d9971abbb62950447a73a6b628aa6e339484239a5ea"
+      }
+    ],
+    "queryFingerprintSha256": "946d76d7a7171ccfbc80b5a16985b1d940941b6b90b66bd9cd2103a287fc38b4",
+    "graphFingerprintSha256": "86ce81261678940c63babf3ee60b6dbd9489304bbf3e2f14530dfe937d80415d",
+    "semanticIdentityFingerprintSha256": "ee3ef923be46241349052470bc3be7a988128aa064ad042ebbc18c449659eb1d",
+    "allDurationsBelowLimit": true,
+    "resultFingerprintsMatch": true,
+    "gatePass": true
+  },
+  "regressions": {
+    "combinedPureRnd": {
+      "tests": 188,
+      "passed": 188,
+      "failed": 0
+    },
+    "relayService": {
+      "tests": 24,
+      "passed": 24,
+      "failed": 0
+    },
+    "productJest": {
+      "discoveredSuites": 27,
+      "passedSuites": 27,
+      "tests": 274,
+      "passed": 274,
+      "failed": 0,
+      "forceExitUsedForAuthoritativeProcessExit": true,
+      "knownOpenHandleWarningStillPresent": true
+    },
+    "typescript": {
+      "root": "pass",
+      "guard": "pass",
+      "command": "pass"
+    }
+  },
+  "gates": {
+    "G1_contract": true,
+    "G2_domainCoverage": true,
+    "G3_adversarialValidation": true,
+    "G4_routing": true,
+    "G5_accessibility": true,
+    "G6_reachability": true,
+    "G7_identity": true,
+    "G8_productSeam": true,
+    "G9_regressionQuality": true,
+    "G10_scaleRegression": true,
+    "G11_reproduction": true,
+    "G12_evidence": true
+  },
+  "decisions": {
+    "promote": [
+      "schema-validator-contract",
+      "semantic-and-route-graph-separation",
+      "deterministic-profile-router",
+      "egress-publication-audit",
+      "level-zone-place-projections",
+      "explicit-legacy-floor-code-adapter"
+    ],
+    "repeat": [
+      "real-plan-and-building-commissioning",
+      "second-operator-reproduction",
+      "guard-command-integration",
+      "specialist-accessibility-fire-route-review"
+    ],
+    "hold": [
+      "real-site-sensitive-map-storage-or-deployment",
+      "regulatory-safety-accessibility-claims"
+    ],
+    "stop": [
+      "display-label-or-consecutive-integer-identity",
+      "straight-line-2d-cross-floor-route-truth",
+      "geometry-as-connectivity",
+      "unknown-accessibility-as-accessible",
+      "automatic-lift-or-escalator-evacuation-use",
+      "zero-or-missing-edge-cost-defaults",
+      "synthetic-route-as-building-or-safety-evidence"
+    ]
+  }
+}

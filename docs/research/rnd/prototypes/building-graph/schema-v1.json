@@ -1,0 +1,373 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://loc8.example/schemas/building-graph-v1.json",
+  "title": "Loc8 semantic building graph v1",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "schemaVersion",
+    "buildingId",
+    "mapVersion",
+    "name",
+    "status",
+    "validFrom",
+    "validTo",
+    "coordinateFrame",
+    "provenance",
+    "levels",
+    "spaces",
+    "zones",
+    "connectors",
+    "portals",
+    "places",
+    "routeNodes",
+    "routeEdges",
+    "legacyFloorCodes"
+  ],
+  "properties": {
+    "schemaVersion": { "const": "loc8.building-graph.v1" },
+    "buildingId": { "$ref": "#/$defs/stableId" },
+    "mapVersion": { "$ref": "#/$defs/stableId" },
+    "name": { "$ref": "#/$defs/text" },
+    "status": { "enum": ["draft", "reviewed", "retired"] },
+    "validFrom": { "type": "string", "format": "date-time" },
+    "validTo": {
+      "oneOf": [
+        { "type": "string", "format": "date-time" },
+        { "type": "null" }
+      ]
+    },
+    "coordinateFrame": { "$ref": "#/$defs/coordinateFrame" },
+    "provenance": { "$ref": "#/$defs/provenance" },
+    "levels": {
+      "type": "array",
+      "minItems": 1,
+      "items": { "$ref": "#/$defs/level" }
+    },
+    "spaces": {
+      "type": "array",
+      "minItems": 1,
+      "items": { "$ref": "#/$defs/space" }
+    },
+    "zones": {
+      "type": "array",
+      "minItems": 1,
+      "items": { "$ref": "#/$defs/zone" }
+    },
+    "connectors": {
+      "type": "array",
+      "items": { "$ref": "#/$defs/connector" }
+    },
+    "portals": {
+      "type": "array",
+      "minItems": 1,
+      "items": { "$ref": "#/$defs/portal" }
+    },
+    "places": {
+      "type": "array",
+      "minItems": 1,
+      "items": { "$ref": "#/$defs/place" }
+    },
+    "routeNodes": {
+      "type": "array",
+      "minItems": 2,
+      "items": { "$ref": "#/$defs/routeNode" }
+    },
+    "routeEdges": {
+      "type": "array",
+      "minItems": 1,
+      "items": { "$ref": "#/$defs/routeEdge" }
+    },
+    "legacyFloorCodes": {
+      "type": "array",
+      "minItems": 1,
+      "items": { "$ref": "#/$defs/legacyFloorCode" }
+    }
+  },
+  "$defs": {
+    "stableId": {
+      "type": "string",
+      "pattern": "^[a-z][a-z0-9._-]{2,95}$"
+    },
+    "text": {
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 240
+    },
+    "nullableText": {
+      "oneOf": [
+        { "$ref": "#/$defs/text" },
+        { "type": "null" }
+      ]
+    },
+    "nullableStableId": {
+      "oneOf": [
+        { "$ref": "#/$defs/stableId" },
+        { "type": "null" }
+      ]
+    },
+    "accessibility": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["stepFree", "wheelchair"],
+      "properties": {
+        "stepFree": { "enum": ["yes", "no", "unknown"] },
+        "wheelchair": { "enum": ["yes", "no", "unknown"] }
+      }
+    },
+    "coordinateFrame": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["frameId", "unit", "originDescription", "xAxis", "yAxis", "zAxis"],
+      "properties": {
+        "frameId": { "$ref": "#/$defs/stableId" },
+        "unit": { "const": "m" },
+        "originDescription": { "$ref": "#/$defs/text" },
+        "xAxis": { "$ref": "#/$defs/text" },
+        "yAxis": { "$ref": "#/$defs/text" },
+        "zAxis": { "$ref": "#/$defs/text" }
+      }
+    },
+    "sourceRef": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["sourceId", "kind", "sha256", "licence", "permission", "synthetic"],
+      "properties": {
+        "sourceId": { "$ref": "#/$defs/stableId" },
+        "kind": { "enum": ["synthetic", "plan", "survey", "scan", "import", "operator"] },
+        "sha256": {
+          "oneOf": [
+            { "type": "string", "pattern": "^[a-f0-9]{64}$" },
+            { "type": "null" }
+          ]
+        },
+        "licence": { "$ref": "#/$defs/text" },
+        "permission": { "$ref": "#/$defs/text" },
+        "synthetic": { "type": "boolean" }
+      }
+    },
+    "review": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["status", "reviewedBy", "reviewedAt"],
+      "properties": {
+        "status": { "enum": ["unreviewed", "reviewed", "rejected"] },
+        "reviewedBy": { "$ref": "#/$defs/nullableStableId" },
+        "reviewedAt": {
+          "oneOf": [
+            { "type": "string", "format": "date-time" },
+            { "type": "null" }
+          ]
+        }
+      }
+    },
+    "provenance": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["sourceRefs", "review"],
+      "properties": {
+        "sourceRefs": {
+          "type": "array",
+          "minItems": 1,
+          "items": { "$ref": "#/$defs/sourceRef" }
+        },
+        "review": { "$ref": "#/$defs/review" }
+      }
+    },
+    "level": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["levelId", "levelRef", "name", "ordinal", "elevationM"],
+      "properties": {
+        "levelId": { "$ref": "#/$defs/stableId" },
+        "levelRef": { "$ref": "#/$defs/text" },
+        "name": { "$ref": "#/$defs/text" },
+        "ordinal": { "type": "integer" },
+        "elevationM": { "type": "number" }
+      }
+    },
+    "space": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "spaceId",
+        "levelId",
+        "kind",
+        "name",
+        "ref",
+        "navigable",
+        "egressRequired",
+        "stepFreeEgressRequired",
+        "nodeId"
+      ],
+      "properties": {
+        "spaceId": { "$ref": "#/$defs/stableId" },
+        "levelId": { "$ref": "#/$defs/stableId" },
+        "kind": { "enum": ["room", "corridor", "lobby", "service", "outdoor", "void"] },
+        "name": { "$ref": "#/$defs/text" },
+        "ref": { "$ref": "#/$defs/nullableText" },
+        "navigable": { "type": "boolean" },
+        "egressRequired": { "type": "boolean" },
+        "stepFreeEgressRequired": { "type": "boolean" },
+        "nodeId": { "$ref": "#/$defs/nullableStableId" }
+      }
+    },
+    "zone": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["zoneId", "levelId", "name", "spaceIds"],
+      "properties": {
+        "zoneId": { "$ref": "#/$defs/stableId" },
+        "levelId": { "$ref": "#/$defs/stableId" },
+        "name": { "$ref": "#/$defs/text" },
+        "spaceIds": {
+          "type": "array",
+          "minItems": 1,
+          "uniqueItems": true,
+          "items": { "$ref": "#/$defs/stableId" }
+        }
+      }
+    },
+    "landing": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["landingId", "levelId", "spaceId", "nodeId"],
+      "properties": {
+        "landingId": { "$ref": "#/$defs/stableId" },
+        "levelId": { "$ref": "#/$defs/stableId" },
+        "spaceId": { "$ref": "#/$defs/stableId" },
+        "nodeId": { "$ref": "#/$defs/stableId" }
+      }
+    },
+    "connector": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "connectorId",
+        "kind",
+        "name",
+        "availability",
+        "emergencyUse",
+        "accessibility",
+        "landings"
+      ],
+      "properties": {
+        "connectorId": { "$ref": "#/$defs/stableId" },
+        "kind": { "enum": ["stairs", "lift", "escalator", "ramp"] },
+        "name": { "$ref": "#/$defs/text" },
+        "availability": { "enum": ["open", "closed", "unknown"] },
+        "emergencyUse": { "type": "boolean" },
+        "accessibility": { "$ref": "#/$defs/accessibility" },
+        "landings": {
+          "type": "array",
+          "minItems": 2,
+          "items": { "$ref": "#/$defs/landing" }
+        }
+      }
+    },
+    "portal": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "portalId",
+        "levelId",
+        "kind",
+        "name",
+        "fromSpaceId",
+        "toSpaceId",
+        "direction",
+        "finalExit",
+        "availability",
+        "emergencyUse",
+        "accessibility"
+      ],
+      "properties": {
+        "portalId": { "$ref": "#/$defs/stableId" },
+        "levelId": { "$ref": "#/$defs/stableId" },
+        "kind": { "enum": ["door", "opening", "gate"] },
+        "name": { "$ref": "#/$defs/text" },
+        "fromSpaceId": { "$ref": "#/$defs/stableId" },
+        "toSpaceId": { "$ref": "#/$defs/stableId" },
+        "direction": { "enum": ["both", "forward"] },
+        "finalExit": { "type": "boolean" },
+        "availability": { "enum": ["open", "closed", "unknown"] },
+        "emergencyUse": { "type": "boolean" },
+        "accessibility": { "$ref": "#/$defs/accessibility" }
+      }
+    },
+    "place": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["placeId", "kind", "name", "spaceId", "nodeId"],
+      "properties": {
+        "placeId": { "$ref": "#/$defs/stableId" },
+        "kind": { "enum": ["assembly", "aed", "anchor", "gateway", "other"] },
+        "name": { "$ref": "#/$defs/text" },
+        "spaceId": { "$ref": "#/$defs/stableId" },
+        "nodeId": { "$ref": "#/$defs/stableId" }
+      }
+    },
+    "position": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["xM", "yM"],
+      "properties": {
+        "xM": { "type": "number" },
+        "yM": { "type": "number" }
+      }
+    },
+    "routeNode": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["nodeId", "levelId", "spaceId", "kind", "position"],
+      "properties": {
+        "nodeId": { "$ref": "#/$defs/stableId" },
+        "levelId": { "$ref": "#/$defs/stableId" },
+        "spaceId": { "$ref": "#/$defs/stableId" },
+        "kind": { "enum": ["space", "landing", "portal", "place"] },
+        "position": { "$ref": "#/$defs/position" }
+      }
+    },
+    "routeEdge": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "edgeId",
+        "fromNodeId",
+        "toNodeId",
+        "kind",
+        "bidirectional",
+        "distanceM",
+        "durationSec",
+        "availability",
+        "emergencyUse",
+        "accessibility",
+        "connectorId",
+        "portalId"
+      ],
+      "properties": {
+        "edgeId": { "$ref": "#/$defs/stableId" },
+        "fromNodeId": { "$ref": "#/$defs/stableId" },
+        "toNodeId": { "$ref": "#/$defs/stableId" },
+        "kind": { "enum": ["walk", "door", "stairs", "lift", "escalator", "ramp", "exit"] },
+        "bidirectional": { "type": "boolean" },
+        "distanceM": { "type": "number", "exclusiveMinimum": 0 },
+        "durationSec": { "type": "number", "exclusiveMinimum": 0 },
+        "availability": { "enum": ["open", "closed", "unknown"] },
+        "emergencyUse": { "type": "boolean" },
+        "accessibility": { "$ref": "#/$defs/accessibility" },
+        "connectorId": { "$ref": "#/$defs/nullableStableId" },
+        "portalId": { "$ref": "#/$defs/nullableStableId" }
+      }
+    },
+    "legacyFloorCode": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["levelId", "code"],
+      "properties": {
+        "levelId": { "$ref": "#/$defs/stableId" },
+        "code": { "type": "integer", "minimum": -64, "maximum": 63 }
+      }
+    }
+  }
+}

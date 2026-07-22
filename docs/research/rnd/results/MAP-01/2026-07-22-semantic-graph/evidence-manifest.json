@@ -1,0 +1,144 @@
+{
+  "schemaVersion": "loc8.rnd.evidence-manifest.v1",
+  "questionId": "MAP-01",
+  "experiment": "semantic-building-graph-v1",
+  "evidenceDate": "2026-07-22",
+  "baselineCommit": "51bbbb7",
+  "preRegistrationCommit": "37e9eb1",
+  "implementation": {
+    "authorship": "independent Loc8 implementation",
+    "dependencies": "Node standard library only",
+    "thirdPartySourceCopied": false,
+    "productOrExpoCodeChanged": false,
+    "claimClass": "synthetic pure schema-validator-router evidence"
+  },
+  "runtime": {
+    "node": "v22.22.3",
+    "platform": "darwin",
+    "architecture": "arm64"
+  },
+  "sources": [
+    {
+      "source": "Loc8 product and R&D source",
+      "version": "51bbbb7",
+      "licence": "in-house",
+      "use": "current workflow gaps, packet seam and FLOOR-01 stable identity",
+      "copied": false
+    },
+    {
+      "source": "anyplace",
+      "path": "docs/research/rnd/repos/anyplace",
+      "version": "722955182375",
+      "licence": "MIT",
+      "use": "learn-only building/floor/POI/connection/router comparison",
+      "copied": false
+    },
+    {
+      "source": "lidar_situational_graphs",
+      "path": "docs/research/rnd/repos/lidar_situational_graphs",
+      "version": "35dd3561730a",
+      "branch": "feature/multi_floor",
+      "licence": "GPL-3.0",
+      "use": "learn/reimplement-only transition and landing architecture",
+      "copied": false
+    },
+    {
+      "source": "HOV-SG",
+      "path": "docs/research/rnd/repos/HOV-SG",
+      "version": "d6e65a53c8be",
+      "licence": "conflicting commercial terms: MIT file/badge plus README commercial-contact restriction",
+      "use": "learn-only hierarchy comparison",
+      "copied": false
+    },
+    {
+      "source": "OpenStreetMap Simple Indoor Tagging and level guidance",
+      "url": "https://wiki.openstreetmap.org/wiki/Simple_Indoor_Tagging",
+      "accessed": "2026-07-22",
+      "licence": "CC BY-SA 2.0 wiki content; OSM data not imported",
+      "use": "interoperability concepts only",
+      "copied": false
+    },
+    {
+      "source": "OGC IndoorGML 2.0",
+      "url": "https://docs.ogc.org/is/22-045r5/22-045r5.html",
+      "version": "OGC 22-045r5",
+      "accessed": "2026-07-22",
+      "licence": "OGC standard copyright",
+      "use": "conceptual physical-space and dual-graph alignment only; no conformance claim",
+      "copied": false
+    }
+  ],
+  "verification": {
+    "focusedTests": "123/123 pass",
+    "namedInvalidMutations": "71/71 rejected with expected issue code",
+    "combinedPureRndTests": "188/188 pass",
+    "relayServiceTests": "24/24 pass",
+    "productJest": "27/27 suites and 274/274 tests pass; forceExit used because known open handle remains",
+    "typescript": "root, Guard and Command pass",
+    "scaleRunsMs": [3706.137, 3676.832, 3684.56, 3679.83],
+    "scaleLimitMs": 5000,
+    "scaleResultFingerprintSha256": "6d832d23700431b26c3b1d9971abbb62950447a73a6b628aa6e339484239a5ea",
+    "scaleResultFingerprintsMatch": true,
+    "hashAlgorithm": "SHA-256",
+    "artifactHashCount": 10
+  },
+  "artifacts": [
+    {
+      "path": "docs/research/rnd/prototypes/building-graph/README.md",
+      "sha256": "d0800e69196912bf13c7fc2e0300590ad6c35c0c6d228d3c37784ea6572b389f",
+      "role": "prototype scope and reproduction guide"
+    },
+    {
+      "path": "docs/research/rnd/prototypes/building-graph/schema-v1.json",
+      "sha256": "8ddee2e5c1a2c13ef8ef60990bb6c2a2912fe93b8a26e3439604f47c8b0037f0",
+      "role": "machine-readable structural schema"
+    },
+    {
+      "path": "docs/research/rnd/prototypes/building-graph/building-graph.mjs",
+      "sha256": "6ec97f6f800280df2b7c9d7645d8a75e7b950ea79ebb6f611917b54613120b23",
+      "role": "validator, canonicalisation, router, audit and projections"
+    },
+    {
+      "path": "docs/research/rnd/prototypes/building-graph/fixture.mjs",
+      "sha256": "25d02162b9eb7abfec657317cc0541c478aa37dd86829a8e974274f92db84f8f",
+      "role": "canonical and scale synthetic fixtures"
+    },
+    {
+      "path": "docs/research/rnd/prototypes/building-graph/building-graph.test.mjs",
+      "sha256": "53f7f31cc044beb4db5a4267e91d6f0c51e0c42616a09a7e2f74c1ea005e18c3",
+      "role": "focused and adversarial tests"
+    },
+    {
+      "path": "docs/research/rnd/prototypes/building-graph/benchmark.mjs",
+      "sha256": "fe2a97de00cc306feace1bf5a35ec27617581cfe2b45fc764db4e2ad2023e90e",
+      "role": "scale and deterministic reproduction gate"
+    },
+    {
+      "path": "docs/research/rnd/results/MAP-01/2026-07-22-semantic-graph/pre-registration.md",
+      "sha256": "78cf3fd1a407dc62542f7ee564a5e229cfed132e02cec5b2b5a6c5b9e2682f28",
+      "role": "thresholds frozen before implementation"
+    },
+    {
+      "path": "docs/research/rnd/results/MAP-01/2026-07-22-semantic-graph/README.md",
+      "sha256": "76ea904eab5ec69e82b75598d36457d338d17b055e4ae2f27142e4f9c54c654f",
+      "role": "finding, gate audit and decision"
+    },
+    {
+      "path": "docs/research/rnd/results/MAP-01/2026-07-22-semantic-graph/data-contract.md",
+      "sha256": "426c148834061ac657b9e5265f03d94777d95cd0574a0a542cd056ded46e6709",
+      "role": "field invariants and integration seam"
+    },
+    {
+      "path": "docs/research/rnd/results/MAP-01/2026-07-22-semantic-graph/measurements.json",
+      "sha256": "32979d57e145123bd70a1ab564baeeb2b10dccf15ec4378ab4791db099b94364",
+      "role": "machine-readable measurements and decisions"
+    }
+  ],
+  "claimBoundary": [
+    "not a real or surveyed building",
+    "not accessibility, evacuation, fire or regulatory compliance",
+    "not safe incident navigation evidence",
+    "not geometry, positioning, floor-estimation or commissioning accuracy",
+    "not product integration, mobile runtime, server capacity or venue load evidence"
+  ]
+}
