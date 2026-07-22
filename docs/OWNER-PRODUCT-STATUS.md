@@ -6,7 +6,8 @@ opened, what is still experimental and what needs the owner.
 
 **Last updated:** 2026-07-22
 
-**Current product phase:** Building foundation and Command commissioning
+**Current product phase:** Offline Gateway package simulation complete; phone
+sensor adapter and replay next
 
 **Working branch:** `claude/recursing-montalcini-d59018`
 
@@ -30,13 +31,17 @@ remain untouched.
   editable rooms/zones/geometry, validation, route/closure preview and durable
   browser-local draft/demo state.
 - Guard floor and zone projections from the same semantic venue package.
+- A fail-closed production distribution contract with injected digest,
+  signature, trusted-clock and atomic-store boundaries.
+- Command → Commissioning → Gateway simulation: an explicitly browser-local,
+  offline copy that can install, reload, reconcile versions and be removed
+  without changing the Command venue package.
 
 ## Being built next
 
-- Gateway authority, signed/versioned offline venue-package distribution and
-  reconciliation adapters.
 - Expo 57 phone sensor adapter and synthetic/recorded journey replay surface.
 - Installer plan import/control-point registration and second-operator workflow.
+- A durable Gateway process/store repeat and reviewed signing-provider bake-off.
 
 ## Built but experimental
 
@@ -48,7 +53,8 @@ remain untouched.
 
 ## Not yet built
 
-- Gateway venue-package storage/distribution.
+- Durable on-hardware Gateway venue-package storage/distribution and real
+  signing-provider integration.
 - Optional cloud backup and multi-site management.
 - Product phone sensor adapter and replay screen.
 - Calibrated anchor + barometer + topology floor estimator.
@@ -68,28 +74,27 @@ remain untouched.
 
 ## Current definition of success
 
-The current increment is successful only when a field operator can open Command,
-edit a four-level venue draft, validate it, create a clearly labelled local demo
-publication, switch operational floors, preview a cross-floor route, reload the
-draft, and see the same stable building/floor/zone identities projected through
-the shared engine. Product and focused tests, types, lint and browser interaction
-verification must pass.
+The current increment is successful only when Command refuses to install a
+draft, can copy a valid local demo into a separately labelled Gateway simulator,
+reload it offline, reconcile package lineage, remove it independently and make
+the missing production dependencies visible. The provider/store contract must
+fail closed under malformed input, provider failure, conflicts and forks.
 
 ## Latest result
 
-**PROMOTE the Phase 1 product foundation.** The frozen non-physical gates pass:
-31/31 suites and 326/326 tests, TypeScript, lint, Command production build, Expo
-Doctor 20/20, dependency audit with zero vulnerabilities, real browser workflow
-at desktop/tablet/mobile sizes with no final console errors, and passed visual
-QA after correcting four P1/P2 findings. This does not promote Gateway, physical
-building, positioning, safety or pilot claims. See
-`docs/product/PHASE-01-BUILDING-FOUNDATION-RESULT.md`.
+**PROMOTE the Phase 2 distribution contract and simulation tool.** The frozen
+local gates pass: 33/33 suites and 373/373 tests, TypeScript, lint, Command
+production build, Expo Doctor 20/20, dependency audit with zero vulnerabilities,
+install/reload/reconcile/remove browser workflow and desktop/mobile visual QA.
+This does not promote signing, durable Gateway storage, radio distribution,
+physical buildings or operational deployment. See
+`docs/product/PHASE-02-GATEWAY-VENUE-DISTRIBUTION-RESULT.md`.
 
 ## Next three actions
 
-1. Build a local fake Gateway authority/distribution adapter and freeze its
-   signed package/reconciliation contract before any network deployment.
-2. Implement the exact Expo 57 phone sensor adapter and journey replay surface
+1. Implement the exact Expo 57 phone sensor adapter and journey replay surface
    without collecting physical data.
+2. Preregister a durable Gateway runtime/store and reviewed signing-provider
+   repeat; do not substitute browser localStorage or fake cryptography.
 3. Extend Commissioning with plan import/control-point registration, then run a
    second-operator repeat when an authorised user/plan is available.

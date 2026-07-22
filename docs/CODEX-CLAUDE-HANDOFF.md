@@ -1175,3 +1175,76 @@ Canonical evidence:
 - The canonical worktree's user-owned `.claude/launch.json` remains modified,
   untouched and unstaged.
 - `claude/vibrant-yalow-620cd6` remains separate and untouched at `4f725df`.
+
+## 2026-07-22 product increment — Gateway venue-package distribution
+
+This is the newest continuation point. It supersedes the Phase 1 next action
+that described a “fake Gateway authority.” No fake signing provider or Gateway
+authority was created. Instead, the increment cleanly separates a production
+provider/store contract from an explicitly simulation-only browser replica.
+
+### What was implemented
+
+- `packages/engine/src/building/distribution.ts` defines and validates
+  `loc8.venue-distribution.v1`; canonical package/signature payloads; injected
+  digest, signature, clock and atomic-store ports; fail-closed installation;
+  idempotency; direct-lineage updates; immutable receipts; and typed replica
+  reconciliation.
+- The same module defines a separate
+  `loc8.gateway-venue-simulation.v1` format. It only accepts unsigned
+  browser-local `local-demo` packages, deep-clones/freezes them, records byte
+  size and reloads with strict validation.
+- `apps/command/src/domain/gatewaySimulation.ts` is the thin localStorage
+  adapter. It fails closed on corrupt/unavailable storage and verifies a write
+  by re-reading/parsing it.
+- Command Commissioning now has `Map builder` and `Gateway simulation` views.
+  The latter shows phone/Command/Gateway ownership, separate install state,
+  reconciliation, projected levels/places/zones and the actual production
+  promotion gates. It never claims signing, deployment or authority.
+
+### What was verified
+
+- Focused distribution + Command adapter: 47/47 tests.
+- Full regression: 33/33 suites, 373/373 tests.
+- Root, engine, Guard and Command TypeScript: PASS.
+- Command production build: PASS (73 transformed modules).
+- Expo lint: PASS. Expo Doctor: 20/20. `npm audit`: zero vulnerabilities.
+- Browser: draft block, local-demo install, offline reload, in-sync result,
+  successor `COMMAND AHEAD`, reset, independent removal and reinstall passed.
+- 1440×1000, 900×900 and 390×844 widths matched their viewports. Final browser
+  logs had no warning/error; root `design-qa.md` has no open P0/P1/P2.
+
+The existing Jest Expo Go remote-push warning remains non-failing and unrelated.
+No algorithm/provider, cryptographic operation, durable Gateway store/process,
+hardware, transfer or physical building evidence was introduced.
+
+### Decision and continuation order
+
+`RDD-021`: PROMOTE the contract/reconciliation/simulation tool; REPEAT a
+reviewed cryptographic provider and durable target-Gateway store/process; HOLD
+signed publication, radio/LAN/BLE transfer, Gateway authority and operational
+claims; STOP fake signing and localStorage-as-authority.
+
+Continue in this order:
+
+1. preregister and implement the exact Expo SDK 57 phone sensor adapter plus
+   deterministic synthetic/recorded journey replay—no physical data yet;
+2. separately preregister a durable Gateway runtime/store restart/concurrency/
+   power-loss repeat and a reviewed signing-provider vector/review lane;
+3. extend Commissioning with permissioned plan import and control-point
+   registration; and
+4. execute physical FLOOR/MAP/MESH repeats only after the owner supplies the
+   authorised phones/building/plan/participants and approves collection.
+
+Canonical evidence:
+
+- `docs/product/PHASE-02-GATEWAY-VENUE-DISTRIBUTION.md`
+- `docs/product/PHASE-02-GATEWAY-VENUE-DISTRIBUTION-RESULT.md`
+- `design-qa.md`
+- `docs/product/evidence/phase-02-*`
+- `docs/OWNER-PRODUCT-STATUS.md`
+- `docs/research/rnd/decision-log.md` (`RDD-021`)
+
+The canonical worktree's `.claude/launch.json` remains user-owned, modified,
+untouched and unstaged. No push, deployment, purchase, external contact or
+physical data collection occurred.

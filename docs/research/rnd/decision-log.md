@@ -394,3 +394,31 @@ Supersedes/superseded by:
 - **Next:** freeze and build local fake Gateway package authority/distribution,
   then the exact Expo 57 sensor/replay adapter. Real MAP/FLOOR repeats remain
   gated on authority, plans/building, participants and competent review.
+
+### RDD-021 — promote fail-closed distribution and simulation, not a Gateway
+
+- **Questions:** product adoption of the Gateway package seam, supporting
+  `SEC-05`, `MAP-01`, `CONN-01` and the future phone/Gateway reconciliation path
+- **Decision:** PROMOTE the strict venue-distribution envelope, injected
+  digest/signature/clock/atomic-store ports, direct-lineage update rules, typed
+  reconciliation and explicitly simulation-only Command replica. REPEAT with a
+  reviewed cryptographic provider, durable Gateway process/store, restart,
+  concurrency, power-loss and target-hardware evidence. HOLD signed site
+  publication, radio/LAN/BLE transfer, physical Gateway and operational claims.
+  STOP fake signing, localStorage authority, mutable-label reconciliation and
+  fail-open rollback/fork handling.
+- **Evidence:** frozen
+  [acceptance](../../product/PHASE-02-GATEWAY-VENUE-DISTRIBUTION.md), measured
+  [result](../../product/PHASE-02-GATEWAY-VENUE-DISTRIBUTION-RESULT.md) and root
+  [design QA](../../../design-qa.md). Focused distribution/adapter tests passed
+  47/47; root regression passed 33/33 suites and 373/373 tests; all TypeScript,
+  lint, Command build, Expo Doctor 20/20 and audit-zero gates passed. Browser
+  install/reload/lineage/remove and responsive checks passed with no final
+  warning/error logs.
+- **Constraints:** no algorithm/provider, key, certificate, cryptographic
+  operation, durable store, Gateway process, hardware, transfer or building
+  evidence exists. The runnable replica is one-browser localStorage and visibly
+  `simulation-only`.
+- **Next:** build the exact Expo SDK 57 phone sensor adapter and deterministic
+  replay. Separately preregister the durable Gateway/security-provider repeats;
+  do not let them block the locally provable sensor/replay product increment.

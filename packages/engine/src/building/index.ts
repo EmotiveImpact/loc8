@@ -4,3 +4,4 @@ export * from './venuePackage';
 export * from './routing';
 export * from './projections';
 export * from './demoVenue';
+export * from './distribution';

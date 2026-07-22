@@ -3,20 +3,32 @@ import {
   assertVenuePackage,
   createSyntheticFourLevelVenue,
   projectLevels,
+  projectPlaces,
   projectZones,
   routeToNearestExit,
   validateVenuePackage,
+  type GatewaySimulationSnapshot,
   type RouteProfile,
   type VenuePackage,
+  type VenueReconciliationResult,
   type VenueRouteResult,
   type VenueSpace,
 } from '../engine';
 import { Icon } from '../ui/Icon';
 import { Console, ConsoleTop, PageHead, Pill, SectionTitle } from '../ui/primitives';
 import { createCommandLocalDemo, createCommandSuccessorDraft } from '../domain/commissioning';
+import {
+  clearCommandGatewaySimulation,
+  installCommandGatewaySimulation,
+  loadCommandGatewaySimulation,
+  reconcileCommandGatewaySimulation,
+  type GatewaySimulationLoadResult,
+} from '../domain/gatewaySimulation';
 
 const STORAGE_KEY = 'loc8.command.commissioning.synthetic-v1';
 const ROUTE_PROFILES: RouteProfile[] = ['walking', 'step-free', 'evacuation-walking', 'evacuation-step-free'];
+
+type CommissioningView = 'map' | 'gateway';
 
 function cloneVenue(venue: VenuePackage): VenuePackage {
   return JSON.parse(JSON.stringify(venue)) as VenuePackage;
@@ -56,8 +68,125 @@ function mapLabel(space: VenueSpace) {
   return space.name;
 }
 
+function reconciliationCopy(result: VenueReconciliationResult) {
+  switch (result.outcome) {
+    case 'not-installed': return { label: 'NOT INSTALLED', tone: 'off' as const, detail: 'The simulator has no venue copy.' };
+    case 'in-sync': return { label: 'IN SYNC', tone: 'ok' as const, detail: 'Command and the simulated copy use the same stable package identity.' };
+    case 'update-available': return { label: 'UPDATE AVAILABLE', tone: 'info' as const, detail: 'The simulated Gateway has a direct successor to this Command package.' };
+    case 'client-ahead': return { label: 'COMMAND AHEAD', tone: 'amber' as const, detail: 'Command has a direct successor draft; the simulated copy remains unchanged.' };
+    case 'identity-conflict': return { label: 'IDENTITY CONFLICT', tone: 'alert' as const, detail: 'The copies do not share an accepted identity or lineage.' };
+  }
+}
+
+function GatewaySimulationView({
+  venue,
+  load,
+  reconciliation,
+  onOpenMap,
+}: {
+  venue: VenuePackage;
+  load: GatewaySimulationLoadResult;
+  reconciliation: VenueReconciliationResult;
+  onOpenMap: () => void;
+}) {
+  const snapshot: GatewaySimulationSnapshot | null = load.status === 'loaded' ? load.snapshot : null;
+  const copy = reconciliationCopy(reconciliation);
+  const installedLevels = snapshot ? projectLevels(snapshot.package) : [];
+  const installedPlaces = snapshot ? projectPlaces(snapshot.package) : [];
+  const installedZones = snapshot ? projectZones(snapshot.package) : [];
+
+  return (
+    <section className="gateway-sim" aria-labelledby="gateway-sim-title">
+      <div className="gateway-sim-head">
+        <div>
+          <div className="gateway-sim-eyebrow">Offline distribution exercise</div>
+          <h2 id="gateway-sim-title">Command → simulated Gateway venue copy</h2>
+          <p>This exercises installation, offline reload and version reconciliation in one browser. It is not a radio transfer, signed publication or durable Gateway.</p>
+        </div>
+        <Pill tone={copy.tone}>{copy.label}</Pill>
+      </div>
+
+      {load.status === 'invalid' && (
+        <div className="gateway-sim-error" role="alert">
+          <Icon name="triangle" size={17} />
+          <span><b>Simulated storage rejected.</b> {load.error === 'storage-unavailable' ? 'Browser storage is unavailable.' : 'The stored snapshot is corrupt or outside the schema.'}</span>
+        </div>
+      )}
+
+      <div className="gateway-flow" aria-label="Building data ownership">
+        <article>
+          <div className="gateway-flow-icon"><Icon name="radar" size={18} /></div>
+          <div><span>Phone / field adapter</span><b>Sensor evidence at source</b><p>Future live readings stay on the phone until bounded observations are sent. No phone sensor is connected in this phase.</p></div>
+        </article>
+        <Icon name="arrow" size={18} />
+        <article>
+          <div className="gateway-flow-icon"><Icon name="grid" size={18} /></div>
+          <div><span>Command browser</span><b>{venue.state === 'draft' ? 'Editable draft' : 'Immutable local demo'}</b><p>{venue.mapVersion} is stored in browser localStorage for this runnable demonstration.</p></div>
+        </article>
+        <Icon name="arrow" size={18} />
+        <article className={snapshot ? 'installed' : ''}>
+          <div className="gateway-flow-icon"><Icon name="shield" size={18} /></div>
+          <div><span>Gateway simulator</span><b>{snapshot ? 'Separate offline snapshot' : 'No package installed'}</b><p>{snapshot ? `${snapshot.mapVersion} · ${(snapshot.packageBytes / 1024).toFixed(1)} KiB` : 'Create a local demo, then install its simulated copy.'}</p></div>
+        </article>
+      </div>
+
+      <div className="gateway-sim-grid">
+        <article className="gateway-sim-card">
+          <SectionTitle>Reconciliation result</SectionTitle>
+          <div className={`gateway-reconcile ${reconciliation.outcome}`}>
+            <b>{copy.label}</b>
+            <span>{copy.detail}</span>
+          </div>
+          <dl>
+            <div><dt>Command map</dt><dd>{reconciliation.clientMapVersion}</dd></div>
+            <div><dt>Simulated map</dt><dd>{reconciliation.gatewayMapVersion ?? 'none'}</dd></div>
+            <div><dt>Comparison basis</dt><dd>stable IDs + lineage</dd></div>
+          </dl>
+        </article>
+
+        <article className="gateway-sim-card">
+          <SectionTitle>Installed operational projections</SectionTitle>
+          {snapshot ? (
+            <>
+              <div className="gateway-counts">
+                <span><b>{installedLevels.length}</b> levels</span>
+                <span><b>{installedPlaces.length}</b> places</span>
+                <span><b>{installedZones.length}</b> zones</span>
+              </div>
+              <dl>
+                <div><dt>Package</dt><dd>{snapshot.packageId}</dd></div>
+                <div><dt>Simulator</dt><dd>{snapshot.gatewaySimulatorId}</dd></div>
+                <div><dt>Installed</dt><dd>{new Date(snapshot.installedAtMs).toLocaleString()}</dd></div>
+              </dl>
+            </>
+          ) : (
+            <div className="gateway-empty">
+              <Icon name="doc" size={24} />
+              <b>No offline copy yet</b>
+              <span>{venue.state === 'local-demo' ? 'Use “Install simulated copy” above.' : 'The map must pass validation and become a local demo first.'}</span>
+              <button type="button" className="btn ghost" onClick={onOpenMap}>Open map builder</button>
+            </div>
+          )}
+        </article>
+      </div>
+
+      <div className="gateway-production-boundary">
+        <SectionTitle>Production promotion gates</SectionTitle>
+        <div>
+          <article><Pill tone="ok">CONTRACT READY</Pill><b>Fail-closed installer</b><p>Strict envelope, provider ports, atomic append and version lineage are exercised with deterministic tests.</p></article>
+          <article><Pill tone="amber">PROVIDER NEEDED</Pill><b>Signing and digest service</b><p>Choose and independently review a real cryptographic provider. Loc8 does not invent one here.</p></article>
+          <article><Pill tone="amber">NATIVE REPEAT</Pill><b>Durable Gateway store</b><p>Implement SQLite/WAL or equivalent, then run concurrency, restart and power-loss drills on target hardware.</p></article>
+          <article><Pill tone="off">PHYSICAL HOLD</Pill><b>Field evidence</b><p>Radio transfer, building survey and offline operations require approved hardware and a real multi-floor test venue.</p></article>
+        </div>
+      </div>
+    </section>
+  );
+}
+
 export function Commissioning() {
+  const [workspaceView, setWorkspaceView] = useState<CommissioningView>('map');
   const [venue, setVenue] = useState<VenuePackage>(loadLocalVenue);
+  const [gatewayLoad, setGatewayLoad] = useState<GatewaySimulationLoadResult>(() => loadCommandGatewaySimulation(window.localStorage));
   const [selectedLevelId, setSelectedLevelId] = useState('level.ground');
   const [selectedSpaceId, setSelectedSpaceId] = useState('space.ground.corridor');
   const [routeProfile, setRouteProfile] = useState<RouteProfile>('evacuation-step-free');
@@ -72,6 +201,8 @@ export function Commissioning() {
   const levelSpaces = venue.spaces.filter((space) => space.levelId === selectedLevel.levelId);
   const selectedSpace = venue.spaces.find((space) => space.spaceId === selectedSpaceId) ?? levelSpaces[0];
   const issues = useMemo(() => validateVenuePackage(venue), [venue]);
+  const gatewaySnapshot = gatewayLoad.status === 'loaded' ? gatewayLoad.snapshot : null;
+  const reconciliation = useMemo(() => reconcileCommandGatewaySimulation(gatewaySnapshot, venue), [gatewaySnapshot, venue]);
   const editable = venue.state === 'draft';
   const routeNodeIds = route?.outcome === 'ok' ? new Set(route.nodeIds) : new Set<string>();
   const routeSegments = route?.outcome === 'ok'
@@ -228,6 +359,27 @@ export function Commissioning() {
     setNotice('New editable draft forked with publication lineage preserved.');
   };
 
+  const installGatewaySimulation = () => {
+    try {
+      const snapshot = installCommandGatewaySimulation(venue, Date.now(), window.localStorage);
+      setGatewayLoad({ status: 'loaded', snapshot, error: null });
+      setNotice('Simulation-only offline copy installed and reloaded from browser storage. No Gateway, radio or signature claim.');
+    } catch {
+      setGatewayLoad(loadCommandGatewaySimulation(window.localStorage));
+      setNotice('Simulated install failed closed; no successful Gateway copy is being reported.');
+    }
+  };
+
+  const clearGatewaySimulation = () => {
+    try {
+      clearCommandGatewaySimulation(window.localStorage);
+      setGatewayLoad({ status: 'empty', snapshot: null, error: null });
+      setNotice('Simulated Gateway copy removed. The Command venue package was not changed.');
+    } catch {
+      setNotice('Browser storage could not remove the simulated copy.');
+    }
+  };
+
   return (
     <>
       <PageHead
@@ -240,39 +392,66 @@ export function Commissioning() {
           tag={{ text: venue.state === 'draft' ? 'BROWSER DRAFT' : 'LOCAL DEMO', variant: venue.state === 'draft' ? 'amber' : 'ok' }}
         />
 
+        <div className="commission-views" role="tablist" aria-label="Commissioning tools">
+          <button type="button" role="tab" aria-selected={workspaceView === 'map'} className={workspaceView === 'map' ? 'active' : ''} onClick={() => setWorkspaceView('map')}>
+            <Icon name="grid" size={15} /> Map builder
+          </button>
+          <button type="button" role="tab" aria-selected={workspaceView === 'gateway'} className={workspaceView === 'gateway' ? 'active' : ''} onClick={() => setWorkspaceView('gateway')}>
+            <Icon name="shield" size={15} /> Gateway simulation
+            {gatewaySnapshot && <span className="commission-view-dot">1</span>}
+          </button>
+        </div>
+
         <div className="commission-actions">
           <div>
             <div className="commission-kicker">Commissioning workspace</div>
-            <div className="commission-title">Four-level venue package</div>
-            <div className="commission-meta">{venue.mapVersion} · {statusCopy(venue)}</div>
+            <div className="commission-title">{workspaceView === 'map' ? 'Four-level venue package' : 'Offline Gateway distribution'}</div>
+            <div className="commission-meta">{workspaceView === 'map' ? `${venue.mapVersion} · ${statusCopy(venue)}` : `${reconciliationCopy(reconciliation).label} · simulation-only`}</div>
           </div>
           <div className="commission-action-buttons">
-            <button className="btn ghost" type="button" onClick={() => {
-              const reset = createSyntheticFourLevelVenue();
-              setVenue(reset);
-              setSelectedLevelId('level.ground');
-              setRoute(null);
-              setNotice('Synthetic fixture reset in browser-local draft state.');
-            }}>
-              Reset fixture
-            </button>
-            {editable ? (
-              <button className="btn go" type="button" onClick={publishLocalDemo} disabled={issues.length > 0}>
-                <Icon name="check" size={16} /> Create local demo
-              </button>
+            {workspaceView === 'map' ? (
+              <>
+                <button className="btn ghost" type="button" onClick={() => {
+                  const reset = createSyntheticFourLevelVenue();
+                  setVenue(reset);
+                  setSelectedLevelId('level.ground');
+                  setRoute(null);
+                  setNotice('Synthetic fixture reset in browser-local draft state.');
+                }}>
+                  Reset fixture
+                </button>
+                {editable ? (
+                  <button className="btn go" type="button" onClick={publishLocalDemo} disabled={issues.length > 0}>
+                    <Icon name="check" size={16} /> Create local demo
+                  </button>
+                ) : (
+                  <button className="btn go" type="button" onClick={startNewDraft}>
+                    <Icon name="plus" size={16} /> New draft
+                  </button>
+                )}
+              </>
             ) : (
-              <button className="btn go" type="button" onClick={startNewDraft}>
-                <Icon name="plus" size={16} /> New draft
-              </button>
+              <>
+                {(gatewaySnapshot || gatewayLoad.status === 'invalid') && (
+                  <button className="btn ghost" type="button" onClick={clearGatewaySimulation}>Remove simulated copy</button>
+                )}
+                <button className="btn go" type="button" onClick={installGatewaySimulation} disabled={venue.state !== 'local-demo'}>
+                  <Icon name="check" size={16} /> {gatewaySnapshot ? 'Replace simulated copy' : 'Install simulated copy'}
+                </button>
+              </>
             )}
           </div>
         </div>
 
         <div className="commission-truth" role="status">
           <Icon name="info" size={16} />
-          <span><b>Evidence boundary:</b> synthetic geometry, browser-local storage, unsigned package. Gateway distribution and physical survey remain unclaimed.</span>
+          <span><b>Evidence boundary:</b> {workspaceView === 'map'
+            ? 'synthetic geometry, browser-local storage, unsigned package. Gateway distribution and physical survey remain unclaimed.'
+            : 'this is a browser-local replica labelled simulation-only. Production signing, durable Gateway storage, radio transfer and physical proof remain unclaimed.'}</span>
         </div>
 
+        {workspaceView === 'map' ? (
+          <>
         <div className="commission-grid">
           <aside className="commission-levels" aria-label="Venue levels">
             <SectionTitle>Building levels</SectionTitle>
@@ -420,6 +599,15 @@ export function Commissioning() {
             <span><b>Draft record</b> · parent {venue.parentMapVersion ?? 'none'} · no publication authority or signature</span>
           )}
         </div>
+          </>
+        ) : (
+          <GatewaySimulationView
+            venue={venue}
+            load={gatewayLoad}
+            reconciliation={reconciliation}
+            onOpenMap={() => setWorkspaceView('map')}
+          />
+        )}
         <div className="commission-notice" aria-live="polite">{notice}</div>
       </Console>
     </>
