@@ -74,12 +74,14 @@
       "<rootDir>/node_modules/",
       "<rootDir>/.claude/",
       "<rootDir>/GUARDBACKUP/",
-      "<rootDir>/docs/research/rnd/repos/"
+      "<rootDir>/docs/research/rnd/repos/",
+      "<rootDir>/services/loc8-relayd/"
     ],
     "modulePathIgnorePatterns": [
       "<rootDir>/.claude/",
       "<rootDir>/GUARDBACKUP/",
-      "<rootDir>/docs/research/rnd/repos/"
+      "<rootDir>/docs/research/rnd/repos/",
+      "<rootDir>/services/loc8-relayd/"
     ],
     "moduleNameMapper": {
       "^@loc8/engine$": "<rootDir>/packages/engine/src/index.ts",

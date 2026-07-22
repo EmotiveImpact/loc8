@@ -17,10 +17,24 @@ the decision PROMOTE/REPEAT/HOLD/STOP.
 
 ## Current status — 2026-07-22
 
-- `CONN-01`: **PROMOTE bounded controls / REPEAT product integration**. Local
-  threat model, isolated prototype, 14 adversarial tests and 10,000-operation
-  measurements are recorded in the
-  [result](results/CONN-01/2026-07-22-secure-relay-prototype/README.md).
+- `CONN-01`: **PROMOTE corrected boundary / REPEAT real integration / HOLD
+  pilot**. The original 14-test
+  [prototype](results/CONN-01/2026-07-22-secure-relay-prototype/README.md)
+  is followed by the audited 24-test
+  [product-boundary repeat](results/CONN-01/2026-07-22-product-boundary-repeat/README.md).
+  Identity, durable stores, TLS/proxy, recovery and external review remain open.
+- `SEC-01`–`SEC-04`: **PROMOTE research model / REPEAT specialist review**.
+  Threat/identity and current-frame classification are recorded in the
+  [protocol result](results/SEC-01/2026-07-22-protocol-v2-boundary/README.md).
+- `SEC-05`: **NEXT reviewed-library/vector bake-off; HOLD implementation**.
+  Include the corrected BitChat one-time-prekey source finding; copy no crypto
+  merely because it is public domain.
+- `SEC-06`/`SEC-07`: **PROMOTE candidate invariants / REPEAT native and
+  interoperability**. Persistent replay/order and monotonic migration contracts
+  pass the pure seam only.
+- `MESH-06`–`MESH-10`: controlled fanout/routing/bounds now have useful
+  synthetic contracts; physical, lossy, moving-peer, battery and native evidence
+  remains REPEAT/HOLD according to `RDD-012`.
 - `MESH-01`: **BLOCKED** until three physical phones can run the existing field
   protocol with direct A↔C reception excluded.
 - `FLOOR-01`: **NEXT autonomous investigation**.
@@ -217,8 +231,8 @@ the decision PROMOTE/REPEAT/HOLD/STOP.
 
 1. `FLOOR-01` — floor corpus/logger schema and ground truth.
 2. `MAP-01` — minimum semantic building graph aligned to floor IDs.
-3. `CONN-01` integration repeat — product identity, durable audit and real TLS;
-   otherwise HOLD while its promotion brief is scheduled.
+3. `SEC-05` — reviewed crypto/library, logical-frame, credential and prekey
+   vector bake-off; implementation remains HOLD.
 
 `MESH-01` outranks these when the three-device physical setup is available; until
 then it is a named external-evidence blocker, not simulated progress.
@@ -228,7 +242,10 @@ then it is a named external-evidence blocker, not simulated progress.
 - `MESH-02`, `MESH-03` — device state and shift battery.
 - `MAP-01` through `MAP-04` — semantic graph and first building.
 - `OPS-01` through `OPS-03` — muster truth and pilot outcome.
-- `SEC-01` through `SEC-04` — protocol threat/identity/data classification.
+- `SEC-06`, `SEC-07` — native replay/migration/interoperability repeats after
+  `SEC-05` selects the reviewed provider boundary.
+- `CONN-01` — real identity, durable stores and pinned TLS/proxy adapter repeat
+  as product development; pilot remains HOLD.
 - `FLOOR-02` through `FLOOR-05` — baselines, anchors and fusion.
 
 ### LATER — explicitly gated

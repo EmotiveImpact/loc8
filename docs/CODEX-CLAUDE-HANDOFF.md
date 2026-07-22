@@ -582,3 +582,56 @@ Use this file as the continuity source for the Codex review. Before making a
 decision, read the directly cited current source and preserve the research
 precedence rules. If new evidence contradicts this handoff, update this file
 with the evidence and date instead of silently replacing the conclusion.
+
+## Principal temporary-sprint consolidation — 2026-07-22
+
+The authoritative continuity record is now
+[`research/rnd/PRINCIPAL-AUDIT-2026-07-22.md`](research/rnd/PRINCIPAL-AUDIT-2026-07-22.md).
+Read it before continuing R&D or product-boundary work.
+
+Three temporary Codex worktrees were an unnecessary default for research-only
+specialists. They were about 10 MiB each and shared Git objects; the apparent
+gigabytes came from older ignored research clones and installed dependencies,
+not three new copies. The correct default is one canonical R&D worktree with
+read-only/non-overlapping specialist tasks and one principal integrator.
+
+The empty floor task produced no files and was archived/removed. The other two
+outputs were treated as untrusted candidates, read completely, corrected and
+preserved as canonical commits:
+
+- `aaed1a6` — audited protocol-v2 boundary, 11/11 standalone tests;
+- `338612a` — hardened non-runnable `services/loc8-relayd` boundary, 24/24 tests.
+
+Protocol review corrected same-epoch migration allowlist conflict, invalid
+restored state, provider exception handling, topology rollback/conflict and a
+claimed-but-missing failed-next-hop gate. It also found that BitChat's pinned
+whitepaper is behind its source: the public-domain tree implements and tests
+one-time prekey courier sealing. That is now a bake-off candidate, not an
+automatic crypto approval. `RDD-012` promotes bounded candidate contracts only;
+cryptography, native/physical evidence and operational v2 remain HOLD/REPEAT.
+
+Connected review found seven gaps despite the earlier green 21-case suite:
+concurrent admission limits, shape-only frame acceptance, unlimited session age,
+wall-time queue aging, unknown-header retention, non-canonical/weak audit
+metadata and unsafe subprotocol capability text. The corrected suite is 24/24,
+with zero delivery in 1,000 fake cross-site frames and five 10,000-route local
+p95 repeats at 0.0018–0.0025 ms. These are fake-port regression results, not
+network or venue capacity. `RDD-013` promotes the boundary/tests only; real
+identity, stores, TLS/proxy, recovery, integration and pilot readiness remain
+REPEAT/HOLD.
+
+Dependency truth was reproduced, not fixed: the main checkout selects Node
+22.12.0 below Expo 57's documented 22.13.x minimum; canonical R&D selects
+22.22.3; installed Expo is 57.0.2 versus current 57.0.7; tool `ws` is 8.21.0,
+transitive `ws` is 7.5.11 and current registry is 8.21.1; audit remains 1 high/
+11 moderate. No install, force fix, Expo downgrade or lockfile mutation was made.
+
+The current autonomous queue is `FLOOR-01`, `MAP-01`, then the `SEC-05`
+reviewed-library/vector/prekey bake-off. Run `MESH-01` immediately when a real
+three-phone radio-isolated setup exists. Do not use simulation to close it.
+
+This section supersedes the earlier statement that no product source was added:
+the new `services/loc8-relayd` source boundary now exists, but it is deliberately
+not runnable or integrated. The existing apps, engine, native BLE, Command,
+Guard and demo relay remain unchanged. The user's `.claude/launch.json` edit
+remains untouched.

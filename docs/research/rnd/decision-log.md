@@ -142,3 +142,54 @@ Supersedes/superseded by:
 - **Next:** find compatible targeted upgrades/overrides, run Expo diagnostics,
   mobile/native builds and the full test/typecheck suite, then close or formally
   accept each residual advisory before an operational pilot.
+
+### RDD-012 — promote the protocol-v2 boundary, not encryption code
+
+- **Questions:** `SEC-01` through `SEC-07`, `MESH-06` through `MESH-10`,
+  `OSS-01`
+- **Decision:** PROMOTE the threat/identity/field-classification model and the
+  corrected bounded non-cryptographic prototype contracts into the engineering
+  specification. REPEAT the carrier, native, lossy and physical work. HOLD
+  cryptographic implementation, outbox/courier/gossip product work, v2-required
+  operational enablement and every security claim.
+- **Evidence:** corrected dependency-free seam passes 11/11 tests. Across five
+  deterministic connected 32-node cohorts, normal-traffic delivery was
+  97.40625–100%; attempted sends at target degrees 8/16/31 fell
+  57.38/73.47/83.38% versus that simulator's full-fanout baseline. See the
+  [result](results/SEC-01/2026-07-22-protocol-v2-boundary/README.md).
+- **Principal corrections:** fail closed on provider errors; reject same-epoch
+  migration allowlist conflict and invalid restored state; reject topology
+  rollback/conflict; and route around a recorded failed edge or fall back to
+  controlled flood.
+- **Upstream correction:** BitChat `733098bb633e` source implements one-time
+  prekey courier sealing even though its whitepaper calls prekeys future work.
+  Promote that public-domain design only as a reviewed bake-off candidate.
+- **Limit:** no radio loss, native BLE, device, battery, building or independent
+  cryptographic-review evidence exists.
+- **Next:** select reviewed libraries; produce public logical-frame, credential,
+  policy, session and prekey vectors; then fuzz/interoperate on both native
+  platforms before physical density and migration tests.
+
+### RDD-013 — promote the connected product boundary, not a runnable service
+
+- **Questions:** `CONN-01` through `CONN-07`, `SEC-03`, `SEC-06`, `X-02`
+- **Decision:** PROMOTE the corrected dependency-injected relay core/client/audit
+  contracts and adversarial suite. REPEAT with real identity, durable stores,
+  pinned TLS/proxy adapter and recovery. HOLD pilot integration/readiness and
+  STOP production use of the demo relay or research HMAC issuer.
+- **Evidence:** 24/24 tests across six suites; zero delivery across 1,000 fake
+  cross-site frames; 10,000/10,000 sequential in-process routes; five local p95
+  repeats from 0.0018 to 0.0025 ms. See the
+  [result](results/CONN-01/2026-07-22-product-boundary-repeat/README.md).
+- **Principal corrections:** post-await concurrent-capacity enforcement; real
+  binary frame validation; session expiry; monotonic queue age; allowlisted
+  header logging; canonical/strict audit metadata and chain verification; and
+  safe WebSocket-subprotocol capability syntax.
+- **Not promoted:** identity/token format, persistence, WebSocket/TLS listener,
+  certificate/proxy deployment, payload authentication/encryption, Command/Guard
+  integration, venue capacity or operational availability.
+- **Supply chain:** `RDD-011` still applies. Main selects unsupported Node
+  22.12.0 while canonical R&D selects 22.22.3; Expo 57.0.2 is behind the current
+  SDK-57 patch set; the 1-high/11-moderate audit remains open.
+- **Next:** execute the real-adapter/store/identity repeat and recovery drills on
+  a supported pinned Node after targeted Expo-57 dependency remediation.

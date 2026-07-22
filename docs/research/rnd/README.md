@@ -4,6 +4,11 @@
 **Branch:** `claude/recursing-montalcini-d59018`
 **Owner:** Codex R&D review, designed for continuation by Claude Code
 
+**Latest principal audit:**
+[`PRINCIPAL-AUDIT-2026-07-22.md`](PRINCIPAL-AUDIT-2026-07-22.md) records the
+temporary-worktree consolidation, corrections, retained commits, reproduced
+evidence and open gates. Read it before continuing this branch.
+
 ## Mission
 
 Find active and historical open-source projects that can accelerate Loc8's
@@ -62,28 +67,30 @@ shortlist in the final report.
 
 ## Read this package in order
 
-1. [`catalogue.md`](catalogue.md) — all 36 cloned projects, pinned revisions,
+1. [`PRINCIPAL-AUDIT-2026-07-22.md`](PRINCIPAL-AUDIT-2026-07-22.md) — latest
+   Codex/Claude continuity, audit corrections and current evidence boundary.
+2. [`catalogue.md`](catalogue.md) — all 36 cloned projects, pinned revisions,
    licences, inspected implementation value and adopt/adapt/learn/reject verdict.
-2. [`floor-detection.md`](floor-detection.md) — the research synthesis and
+3. [`floor-detection.md`](floor-detection.md) — the research synthesis and
    proposed absolute-floor/transition estimator.
-3. [`building-mapping.md`](building-mapping.md) — whole-building capture,
+4. [`building-mapping.md`](building-mapping.md) — whole-building capture,
    semantic graph, coordinate frames, commissioning and versioning.
-4. [`mesh-and-resilience.md`](mesh-and-resilience.md) — current Loc8 truth,
+5. [`mesh-and-resilience.md`](mesh-and-resilience.md) — current Loc8 truth,
    BitChat v2 opportunity, LoRa hardware paths and protocol-v2 gates.
-5. [`innovation-opportunities.md`](innovation-opportunities.md) — defensible
+6. [`innovation-opportunities.md`](innovation-opportunities.md) — defensible
    product/hardware/business synthesis and 12-month R&D sequence.
-6. [`experiments.md`](experiments.md) — prioritised experiments with measurable
+7. [`experiments.md`](experiments.md) — prioritised experiments with measurable
    pass/fail conditions.
-7. [`research-program.md`](research-program.md) — autonomous workstreams,
+8. [`research-program.md`](research-program.md) — autonomous workstreams,
    ownership contracts, portfolio allocation and 30/60/90-day execution.
-8. [`research-questions.md`](research-questions.md) — full P0/P1/P2 question
+9. [`research-questions.md`](research-questions.md) — full P0/P1/P2 question
    register and initial NOW/NEXT/LATER board.
-9. [`decision-log.md`](decision-log.md) — durable PROMOTE/REPEAT/HOLD/STOP
+10. [`decision-log.md`](decision-log.md) — durable PROMOTE/REPEAT/HOLD/STOP
    decisions and their evidence.
-10. [`results/README.md`](results/README.md) and
+11. [`results/README.md`](results/README.md) and
     [`templates/result-template.md`](templates/result-template.md) — standard
     evidence/result structure.
-11. [`repository-snapshot.tsv`](repository-snapshot.tsv) — exact clone provenance
+12. [`repository-snapshot.tsv`](repository-snapshot.tsv) — exact clone provenance
    for automation and later refreshes.
 
 `repos/` contains the ignored research clones. They are a source library, **not
@@ -117,6 +124,11 @@ signed identity, standard Noise sessions, topology, source routing, controlled
 fanout, encrypted persistent outboxes, privacy-limited couriers and gossip
 reconciliation. It is the P0 code-adoption candidate, but should enter Loc8 as a
 versioned, threat-modelled protocol rather than a monolithic merge.
+
+Principal source review also found that BitChat's pinned whitepaper is behind its
+source: it calls courier prekeys future work while the same public-domain tree
+implements and tests one-time prekey bundles and prekey-targeted Noise X. That is
+a high-value bake-off candidate, not an automatic cryptographic approval.
 
 ### The floor-detection answer
 
@@ -345,24 +357,43 @@ incident, route and search using both physical safety and communications reach.
   offered fix includes an invalid Expo 46 downgrade; product must find and fully
   validate targeted Expo-57-compatible fixes before pilot deployment.
 
+### Principal protocol and product-boundary audit — 2026-07-22
+
+- Audited every file from the temporary protocol-v2 and connected-product tasks
+  before consolidation; neither task's green count was accepted on trust.
+- Corrected four fail-closed/migration/topology gaps and the missing failed-edge
+  assertion in the protocol spike. Final standalone result remains 11/11 tests,
+  with deterministic fanout evidence explicitly limited to its simulator.
+- Corrected seven connected-core gaps involving concurrent admission, frame
+  type validation, session expiry, monotonic queue age, log allowlisting,
+  canonical/strict audit metadata and subprotocol-safe capability encoding.
+  Final result is 24/24 tests across six suites.
+- Added captured evidence manifests/hashes and five repeated relay timing runs;
+  fake-port timings remain local regressions, not capacity evidence.
+- Preserved the two reviewed commits in this canonical branch without importing
+  either sprint's conflicting shared-document edits.
+- Full details, adverse findings, runtime/dependency truth and Claude Code
+  continuation instructions are in the
+  [principal audit](PRINCIPAL-AUDIT-2026-07-22.md).
+
 ## What Claude Code should do next
 
-1. Do **E01 physical three-phone relay** before claiming a working mesh.
-2. Add the **E03 floor-transition logger**; it is an app-code change, so first
-   read the exact Expo SDK 57 documentation required by `AGENTS.md`.
-3. Write an architecture decision record for **mesh protocol v2**, mapping each
-   BitChat component to Loc8 and recording what remains public-domain-derived.
-4. Implement a pure TypeScript, dataset-driven **HMM/Viterbi floor-estimator
-   spike** behind the existing manual source of truth; do not alter production
-   behaviour until E04 data passes.
-5. Define the semantic `Building/Level/Space/Connector/Landing` schema and import
-   one real site's floor plan.
-6. Build a small **Bermuda-style categorical anchor** experiment plus fixed
-   pressure-reference logger.
-7. Run a **MeshCore vs LoRaMesher** hardware bake-off before choosing gateway
-   firmware.
-8. Create `THIRD_PARTY_NOTICES`/provenance entries for every upstream file
-   actually moved from `repos/` into shipped code.
+1. Freeze `FLOOR-01`'s privacy-aware sensor/event/ground-truth schema and corpus
+   manifest. Only then add the Expo logger, after reading the exact SDK 57 docs.
+2. Freeze `MAP-01`'s stable `Building/Level/Space/Connector/Landing/Zone` IDs and
+   import one real site plan aligned to the floor corpus.
+3. Run `SEC-05` as a reviewed-library and public-vector bake-off, including the
+   BitChat prekey candidate. Do not implement local cryptographic primitives.
+4. Do **E01 physical three-phone relay** immediately when suitable devices and a
+   radio-isolated layout are available; simulation cannot close `MESH-01`.
+5. Repeat the connected boundary with real identity, durable stores, pinned
+   TLS/proxy adapter and recovery drills; do not wire the demo relay into a pilot.
+6. After floor data exists, implement a pure dataset-driven HMM/Viterbi baseline
+   behind the current manual truth and compare it with Bermuda/Navigine/blelocpp.
+7. Keep MeshCore-vs-LoRaMesher hardware work gated until physical mesh/bench
+   evidence or a signed pilot need justifies it.
+8. Create `THIRD_PARTY_NOTICES`/file provenance for every upstream file actually
+   moved from `repos/` into shipped code.
 
 ## Guardrails for future agents
 

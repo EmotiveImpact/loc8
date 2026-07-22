@@ -519,15 +519,24 @@ the company while the other remains unproven.
 ## Execution update — 2026-07-22
 
 - `CONN-01` completed its first investigate→prototype→measure→decide cycle.
-- Result: **PROMOTE bounded relay security primitives; REPEAT at product
-  integration level**. Eleven adversarial tests and both 10,000-operation local
-  performance gates passed. See the
-  [result](results/CONN-01/2026-07-22-secure-relay-prototype/README.md).
+- Original result: **PROMOTE bounded relay security primitives; REPEAT at product
+  integration level**. Fourteen adversarial tests and both 10,000-operation
+  local performance gates passed. See the
+  [prototype](results/CONN-01/2026-07-22-secure-relay-prototype/README.md).
+- Principal repeat: the corrected dependency-injected product boundary passes
+  24/24 tests, but real identity, durable stores, TLS/proxy, recovery and external
+  review remain open. Pilot readiness is HOLD. See the
+  [repeat](results/CONN-01/2026-07-22-product-boundary-repeat/README.md).
+- `SEC-01` through `SEC-07` now have a corrected threat/identity/field model and
+  bounded non-cryptographic protocol seam. PROMOTE the candidate contracts,
+  REPEAT native/physical work and HOLD cryptographic implementation. See the
+  [protocol result](results/SEC-01/2026-07-22-protocol-v2-boundary/README.md).
 - `MESH-01` remains **BLOCKED on physical evidence**: three suitable phones and a
   test layout that proves A and C cannot hear one another directly. Simulation
   must not be used to close it.
 - The next locally autonomous work is `FLOOR-01` (corpus/logger schema), followed
-  by `MAP-01` (minimum semantic building graph).
+  by `MAP-01` (minimum semantic building graph) and `SEC-05` (reviewed-library
+  and public-vector bake-off).
 - Product security/connected-platform engineering may take the promoted units in
   the [promotion brief](results/CONN-01/2026-07-22-secure-relay-prototype/promotion-brief.md),
   but no pilot-security claim is authorised yet.
