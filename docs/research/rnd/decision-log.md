@@ -339,3 +339,32 @@ Supersedes/superseded by:
   within `RDD-013`; it does not supersede `RDD-013`'s connected-service holds.
 - **Next:** keep the exact lockfile, repeat audit/Doctor/lint/tests in CI, and
   close full native build/install gates on supported toolchains before a pilot.
+
+### RDD-019 — promote the 48-repository source ledger; keep broad discovery held
+
+- **Questions:** `OSS-01` through `OSS-08`, `X-04`, supporting `FLOOR-*`,
+  `MAP-*`, `MESH-*`, `RADIO-*` and `SEC-*`
+- **Decision:** PROMOTE the pinned source-object/licence/code-versus-idea/next-gate
+  ledger as the adoption queue. Continue only bounded component spikes and
+  named experiment comparators. HOLD broad cloning until a preregistered
+  experiment exposes a missing approach or the capped quarterly watch fires.
+  STOP wholesale repository imports and licence-as-quality reasoning.
+- **Evidence:**
+  [source assessment](RETAINED-REPOSITORY-ASSESSMENT-2026-07-22.md),
+  [48-row audit](retained-repository-source-audit.tsv) and corrected
+  [snapshot](repository-snapshot.tsv). Every retained source/evidence blob ID
+  re-resolved at its pinned commit. Live GitHub branch checks found 46/48 still
+  identical; Meshtastic `develop` and Tink C++ `main` had advanced and remain
+  deliberately pinned for reproducibility.
+- **Promoted candidates:** bounded Bermuda, Navigine, blelocpp, Anyplace,
+  non-cryptographic BitChat, MeshCore/LoRaMesher, conditional RadioLib, PALMS,
+  hdl_graph_slam, public vector and MeshCore lab-tool spikes—each with its own
+  licence, provenance, dependency, security and experiment gate.
+- **Held/stopped:** all wholesale applications; BitChat/MeshCore/custom primitive
+  cryptography; direct GPL/AGPL/custom/conflicting/unlicensed product copying;
+  legacy Tink monorepo adoption; and any dataset use beyond its recorded terms.
+- **Supersedes:** only the stale 36-project count in `RDD-001`; its decision to
+  hold broad discovery remains in force.
+- **Next:** execute the physical FLOOR corpus/estimator bake-off, MESH-01 E01,
+  real-building MAP repeat, RADIO-01 MeshCore-vs-LoRaMesher bake-off and SEC-05
+  E07. Refresh individual upstreams only as new experiment snapshots.

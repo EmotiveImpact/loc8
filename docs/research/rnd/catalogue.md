@@ -1,12 +1,16 @@
 # Open-source research catalogue
 
 **Snapshot date:** 2026-07-22
-**Scope:** 36 shallow, filtered clones under ignored `repos/`
+**Scope:** 48 pinned research repositories under ignored `repos/` (36 original
+discovery clones plus 12 SEC-05 provider/vector sources)
 **Rule:** a useful idea is not automatically reusable code. The licence, dependency
 tree, security properties, maintenance state and architectural fit all matter.
 
 This is an engineering screen, not legal advice. Before shipping copied code,
 record the exact files and copyright notices in a third-party notices manifest.
+The complete source-object, code-versus-idea and next-gate ledger is the
+[Principal retained-repository assessment](RETAINED-REPOSITORY-ASSESSMENT-2026-07-22.md)
+and its [48-row TSV](retained-repository-source-audit.tsv).
 
 ## Verdict key
 
@@ -81,6 +85,28 @@ record the exact files and copyright notices in a third-party notices manifest.
 | [HKUST-Aerial-Robotics/SLABIM](https://github.com/HKUST-Aerial-Robotics/SLABIM) `d4cfc0b527e9` | 2025-03-26; GPL-3.0 | Multi-session/multi-sensor data and BIM-linked semantic floor/wall/door maps. | **Learn/benchmark under GPL terms.** |
 | [Hilti 2026 SLAM challenge](https://github.com/Hilti-Research/hilti-trimble-slam-challenge-2026) `79b70b6d3623` | 2026-07-08; CC BY-NC-SA 3.0 | Current 360 visual-inertial SLAM/localisation against imperfect construction floor plans; useful as-as-built versus as-planned stress case. | **Non-commercial benchmark only.** Do not use its dataset or derived assets in commercial training/product work. |
 
+## Security provider and vector sources added by SEC-05
+
+These 12 repositories were added after the original 36-project discovery. Their
+source-level gate results are in the
+[SEC-05 provider assessment](results/SEC-05/2026-07-22-crypto-provider-bakeoff/provider-assessment.md).
+No provider was selected.
+
+| Repository and pinned revision | Licence | Bounded use | Verdict |
+|---|---|---|---|
+| cose-wg/Examples `53c9d634333b` | Unlicense | Exact COSE/CWT valid fixtures | **Adopt pinned test vectors**, paired with negative cases. |
+| veraison/go-cose `022cb5419154` | MPL-2.0 | Fuzzed/audited differential COSE/CWT oracle | **Hold as oracle**, not mobile product code. |
+| signalapp/libsignal `8e49f09bbcde` | AGPL-3.0 | Prekey/ratchet/recovery architecture | **Stop direct adoption; learn public specs.** |
+| jedisct1/libsodium `7014b204b6fb` | ISC | Maintained primitive/provider oracle | **Hold**; do not create custom composition. |
+| rweather/noise-c `cfe25410979a` | MIT | Older Noise handshake/cipher-state oracle | **Hold provider; use differential evidence.** |
+| openmls/openmls `65396d8ed312` | MIT | Future MLS group provider/reference | **Hold** until pairwise identity/delivery/recovery. |
+| mcginty/snow `8ac60f51cfe3` | MIT or Apache-2.0 | Active Noise/vector/fuzz oracle | **Hold provider** pending review/mobile gates. |
+| apple/swift-crypto `47d3869a7291` | Apache-2.0 | HPKE source, RFC vectors and shared-provider candidate | **Repeat** isolated native E07. |
+| tink-crypto/tink `1f4cd38874ec` | Apache-2.0 | Historical monorepo comparison | **Stop legacy adoption**; use split sources. |
+| tink-crypto/tink-cc `5bf527a8dc73` | Apache-2.0 | Shared BoringSSL HPKE candidate | **Repeat after refresh/pin**; upstream advanced after snapshot. |
+| tink-crypto/tink-java `1423887709cd` | Apache-2.0 | Android HPKE Base candidate | **Repeat** isolated native E07. |
+| tink-crypto/tink-objc `04e43ef89f8c` | Apache-2.0 | Evidence for Objective-C Hybrid surface, not selected HPKE | **Hold; not the HPKE path.** |
+
 ## Explicitly rejected shortcuts
 
 - **BLE RSSI trilateration as truth:** multipath, bodies, phone orientation and
@@ -98,7 +124,12 @@ record the exact files and copyright notices in a third-party notices manifest.
 
 ## Clone provenance
 
-Every clone used `--depth 1 --filter=blob:none --single-branch` where supported.
-The complete name/commit/date/branch/origin snapshot is in
-[`repository-snapshot.tsv`](repository-snapshot.tsv). Re-run metadata checks
-before adoption because activity and licensing can change.
+The original 36 discovery clones used `--depth 1 --filter=blob:none
+--single-branch` where supported. The 12 SEC-05 sources were retained as
+filtered/object-oriented evidence clones; several deliberately have no normal
+working-tree checkout and are read with `git show`. The complete 48-repository
+name/commit/date/branch/origin snapshot is in
+[`repository-snapshot.tsv`](repository-snapshot.tsv). Live branch tips were
+checked on 2026-07-22; Meshtastic `develop` and Tink C++ `main` had advanced.
+Re-run metadata and licence checks in a new snapshot before adoption because
+activity, code, dependencies and terms can change.
