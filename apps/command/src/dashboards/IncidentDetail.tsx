@@ -15,6 +15,13 @@ export function IncidentDetail({ nav }: { nav: Nav }) {
   const store = useCommandStore();
   const inc = store.activeIncident() ?? store.incidents.find((i) => i.kind === 'sos');
   const [dispatchText, setDispatchText] = useState('Converge on Gate C — hold cordon');
+  const availableResponders = Object.values(store.staff).filter(
+    (member) =>
+      member.status !== 'no_signal' &&
+      member.status !== 'sos' &&
+      !inc?.responders.some((responder) => responder.staffId === member.id),
+  );
+  const [candidateStaffId, setCandidateStaffId] = useState(availableResponders[0]?.id ?? 0);
   const liveElapsed = useElapsed(inc?.raisedAtSec ?? 0);
 
   // Viewing an incident that names an individual + their coordinates IS a
@@ -191,6 +198,31 @@ export function IncidentDetail({ nav }: { nav: Nav }) {
                 );
               })}
             </div>
+
+            <SectionTitle>Assign / reassign responder</SectionTitle>
+            <div className="field" style={{ marginBottom: 8 }}>
+              <select
+                className="sel"
+                value={candidateStaffId}
+                onChange={(event) => setCandidateStaffId(Number(event.target.value))}
+                aria-label="Responder to assign"
+                disabled={availableResponders.length === 0 || inc.status === 'resolved'}
+              >
+                {availableResponders.map((member) => (
+                  <option key={member.id} value={member.id}>
+                    Guard {String(member.id).padStart(2, '0')} · {member.name} · {zoneName(store.zones, member.zoneId)}
+                  </option>
+                ))}
+              </select>
+            </div>
+            <button
+              type="button"
+              className="btn"
+              disabled={!candidateStaffId || inc.status === 'resolved' || availableResponders.length === 0}
+              onClick={() => store.assignResponder(inc.id, candidateStaffId)}
+            >
+              <Icon name="users" /> Assign responder
+            </button>
 
             <SectionTitle>Dispatch (over mesh)</SectionTitle>
             <div className="field" style={{ marginBottom: 8 }}>

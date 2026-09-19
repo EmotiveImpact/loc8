@@ -1,0 +1,55 @@
+- generic [ref=f1e3] [box=0,0,1600,1000]:
+  - navigation [ref=f1e4] [box=0,0,224,1000]:
+    - generic [ref=f1e5] [box=12,20,199,63]:
+      - generic [ref=f1e6] [box=20,22,183,21]: Loc8
+      - generic [ref=f1e7] [box=20,47,183,13]: Command
+    - generic [ref=f1e8] [box=12,99,199,23]: Operations
+    - button "Live site" [ref=f1e9] [cursor=pointer] [box=12,126,199,39]
+    - button "Incidents SOS" [ref=f1e14] [cursor=pointer] [box=12,169,199,39]:
+      - text: Incidents
+      - generic [ref=f1e17] [box=171,180,29,17]: SOS
+    - button "Team & shift" [ref=f1e18] [cursor=pointer] [box=12,212,199,39]
+    - button "Coverage" [ref=f1e23] [cursor=pointer] [box=12,255,199,39]
+    - button "Muster" [ref=f1e29] [cursor=pointer] [box=12,298,199,39]
+    - button "Assets" [ref=f1e35] [cursor=pointer] [box=12,341,199,39]
+    - button "Assisted search" [ref=f1e38] [cursor=pointer] [box=12,384,199,39]
+    - button "Commissioning" [ref=f1e42] [cursor=pointer] [box=12,427,199,39]
+    - generic [ref=f1e46] [box=12,898,199,88]:
+      - generic [ref=f1e47] [box=21,912,181,12]: Operator
+      - generic [ref=f1e48] [box=21,928,181,16]: SUP · Night Control
+      - generic [ref=f1e49] [box=21,948,181,13]: The Chapelgate Rooms
+      - generic [ref=f1e50] [box=21,965,181,17]: Mesh · offline-first
+  - generic [ref=f1e52] [box=224,0,1376,1000]:
+    - banner [ref=f1e53] [box=224,0,1376,62]:
+      - generic [ref=f1e54] [box=224,0,288,61]:
+        - generic [ref=f1e55] [box=242,15,251,12]: Active site
+        - generic [ref=f1e56] [box=242,30,251,16]: The Chapelgate Rooms
+      - tablist "Operating mode" [ref=f1e57] [box=512,0,678,61]:
+        - tab "Live Site" [selected] [ref=f1e58] [cursor=pointer] [box=520,8,162,45]
+        - tab "Investigation" [ref=f1e59] [cursor=pointer] [box=686,8,162,45]
+        - tab "Person Search" [ref=f1e60] [cursor=pointer] [box=852,8,162,45]
+        - tab "Search & Rescue" [ref=f1e61] [cursor=pointer] [box=1019,8,162,45]
+      - generic "Current site status" [ref=f1e62] [box=1189,0,411,61]:
+        - generic [ref=f1e63] [box=1334,24,67,13]: 11 on site
+        - generic [ref=f1e65] [box=1417,24,83,13]: 1 active events
+        - generic [ref=f1e66] [box=1516,24,66,13]: 83% coverage
+    - generic [ref=f1e67] [box=224,62,1376,52]:
+      - generic [ref=f1e68] [box=246,72,126,31]:
+        - generic [ref=f1e69] [box=246,72,126,12]: Operating mode
+        - strong [ref=f1e70] [box=246,86,126,17]: Live Site
+      - paragraph [ref=f1e71] [box=390,81,1067,14]: Whole-site operating picture, active events, teams and infrastructure.
+      - generic [ref=f1e72] [box=1475,82,103,12]: Live · updated now
+    - main [ref=f1e73] [box=224,114,1376,792]:
+      - generic [ref=f1e74] [box=322,136,1180,46]:
+        - heading "Operations overview" [level=1] [ref=f1e75] [box=322,136,1180,25]
+        - paragraph [ref=f1e76] [box=322,165,1180,17]: Live team status, incident feed and tactical map — network-independent over the mesh.
+      - generic [ref=f1e77] [box=322,196,1180,650]:
+        - generic [ref=f1e78] [box=323,197,1178,58]:
+          - generic [ref=f1e79] [box=341,216,162,20]: Loc8 Command
+          - generic [ref=f1e80] [box=515,217,244,17]: · The Chapelgate Rooms · Night Shift
+          - generic [ref=f1e81] [box=1200,211,207,29]: ◈ MESH · NETWORK-INDEPENDENT
+          - generic [ref=f1e82] [box=1419,216,64,20]: 13:23:57
+        - generic [ref=f1e83] [box=323,255,1178,590]:
+          - generic [ref=f1e84] [box=323,255,240,590]
+          - img "Venue map — guard positions and active incident" [ref=f1e132] [box=563,255,678,590]
+          - generic [ref=f1e159] [box=1241,255,260,590]

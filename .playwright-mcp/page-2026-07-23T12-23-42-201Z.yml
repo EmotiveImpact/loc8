@@ -1,0 +1,148 @@
+- generic [ref=e3]:
+  - navigation [ref=e4]:
+    - generic [ref=e5]:
+      - generic [ref=e6]: Loc8
+      - generic [ref=e7]: Command
+    - generic [ref=e8]: Operations
+    - button "Live site" [ref=e9] [cursor=pointer]
+    - button "Incidents SOS" [ref=e14] [cursor=pointer]:
+      - text: Incidents
+      - generic [ref=e17]: SOS
+    - button "Team & shift" [ref=e18] [cursor=pointer]
+    - button "Coverage" [ref=e23] [cursor=pointer]
+    - button "Muster" [ref=e29] [cursor=pointer]
+    - button "Assets" [ref=e35] [cursor=pointer]
+    - button "Assisted search" [ref=e38] [cursor=pointer]
+    - button "Commissioning" [ref=e42] [cursor=pointer]
+    - generic [ref=e46]:
+      - generic [ref=e47]: Operator
+      - generic [ref=e48]: SUP · Night Control
+      - generic [ref=e49]: The Chapelgate Rooms
+      - generic [ref=e50]: Mesh · offline-first
+  - generic [ref=e52]:
+    - banner [ref=e53]:
+      - generic [ref=e54]:
+        - generic [ref=e55]: Active site
+        - generic [ref=e56]: The Chapelgate Rooms
+      - tablist "Operating mode" [ref=e57]:
+        - tab "Live Site" [selected] [ref=e58] [cursor=pointer]
+        - tab "Investigation" [ref=e59] [cursor=pointer]
+        - tab "Person Search" [ref=e60] [cursor=pointer]
+        - tab "Search & Rescue" [ref=e61] [cursor=pointer]
+      - generic "Current site status" [ref=e62]:
+        - generic [ref=e63]: 11 on site
+        - generic [ref=e65]: 1 active events
+        - generic [ref=e66]: 83% coverage
+    - generic [ref=e67]:
+      - generic [ref=e68]:
+        - generic [ref=e69]: Operating mode
+        - strong [ref=e70]: Live Site
+      - paragraph [ref=e71]: Whole-site operating picture, active events, teams and infrastructure.
+      - generic [ref=e72]: Live · updated now
+    - main [ref=e73]:
+      - generic [ref=e74]:
+        - heading "Operations overview" [level=1] [ref=e75]
+        - paragraph [ref=e76]: Live team status, incident feed and tactical map — network-independent over the mesh.
+      - generic [ref=e77]:
+        - generic [ref=e78]:
+          - generic [ref=e79]: Loc8 Command
+          - generic [ref=e80]: · The Chapelgate Rooms · Night Shift
+          - generic [ref=e81]: ◈ MESH · NETWORK-INDEPENDENT
+          - generic [ref=e82]: 13:23:42
+        - generic [ref=e83]:
+          - generic [ref=e84]:
+            - generic [ref=e85]:
+              - generic [ref=e86]:
+                - generic [ref=e87]: "11"
+                - generic [ref=e88]: On duty
+              - generic [ref=e89]:
+                - generic [ref=e90]: "2"
+                - generic [ref=e91]: Responding
+              - generic [ref=e92]:
+                - generic [ref=e93]: "1"
+                - generic [ref=e94]: SOS active
+              - generic [ref=e95]:
+                - generic [ref=e96]: 83%
+                - generic [ref=e97]: Coverage
+            - group "Communication links status" [ref=e98]:
+              - generic [ref=e99]:
+                - generic [ref=e101]: CELLULAR
+                - generic [ref=e102]: DOWN
+                - generic [ref=e103]: congested / no service
+              - generic [ref=e104]:
+                - generic [ref=e106]: VENUE WIFI
+                - generic [ref=e107]: DOWN
+                - generic [ref=e108]: unavailable
+              - generic [ref=e109]:
+                - generic [ref=e111]: MESH
+                - generic [ref=e112]: LIVE
+                - generic [ref=e113]: 11 nodes · phone-to-phone
+            - generic [ref=e114]: Live feed
+            - generic [ref=e115]:
+              - button "SOS — Guard 07 at Gate C2 dispatched · panic hold" [ref=e116] [cursor=pointer]
+              - button "Guard 09 lone in Car Parkauto check-in ok" [ref=e119] [cursor=pointer]
+              - button "Ejection logged — BarGuard 05 · resolved" [ref=e122] [cursor=pointer]
+              - button "Capacity check — Main Room78% full · resolved" [ref=e125] [cursor=pointer]
+              - button "Shift start — 12 checked inTeam B · resolved" [ref=e128] [cursor=pointer]
+          - img "Venue map — guard positions and active incident" [ref=e132]:
+            - generic [ref=e134]: MAIN ROOM
+            - generic [ref=e136]: BAR
+            - generic [ref=e138]: SMOKING TERRACE
+            - generic [ref=e140]: CAR PARK
+            - generic [ref=e142]: GATE C
+            - button "Guard 01 · Kofi · on_post" [ref=e143] [cursor=pointer]: "01"
+            - button "Guard 02 · Luca · on_post" [ref=e144] [cursor=pointer]: "02"
+            - button "Guard 03 · Paulo · responding" [ref=e145] [cursor=pointer]: "03"
+            - button "Guard 04 · Jan · on_post" [ref=e146] [cursor=pointer]: "04"
+            - button "Guard 05 · Marcus · responding" [ref=e147] [cursor=pointer]: "05"
+            - button "Guard 06 · Rami · on_post" [ref=e148] [cursor=pointer]: "06"
+            - button "Guard 08 · Erik · on_post" [ref=e149] [cursor=pointer]: "08"
+            - button "Guard 09 · Sofia · lone" [ref=e150] [cursor=pointer]: "09"
+            - button "Guard 10 · Ana · on_post" [ref=e151] [cursor=pointer]: "10"
+            - button "Guard 11 · Minh · on_post" [ref=e152] [cursor=pointer]: "11"
+            - generic [ref=e153]: SOS · Guard 07 · GATE C
+          - generic [ref=e159]:
+            - generic [ref=e160]: Roster · 12
+            - generic [ref=e161]:
+              - button "Guard 01 · Kofi MAIN" [ref=e162] [cursor=pointer]:
+                - generic [ref=e164]: Guard 01 · Kofi
+                - generic [ref=e165]: MAIN
+              - button "Guard 02 · Luca BAR" [ref=e166] [cursor=pointer]:
+                - generic [ref=e168]: Guard 02 · Luca
+                - generic [ref=e169]: BAR
+              - button "Guard 03 · Paulo RESPONDING GATE" [ref=e170] [cursor=pointer]:
+                - generic [ref=e172]: Guard 03 · Paulo
+                - generic [ref=e173]: RESPONDING
+                - generic [ref=e174]: GATE
+              - button "Guard 04 · Jan BAR" [ref=e175] [cursor=pointer]:
+                - generic [ref=e177]: Guard 04 · Jan
+                - generic [ref=e178]: BAR
+              - button "Guard 05 · Marcus RESPONDING GATE" [ref=e179] [cursor=pointer]:
+                - generic [ref=e181]: Guard 05 · Marcus
+                - generic [ref=e182]: RESPONDING
+                - generic [ref=e183]: GATE
+              - button "Guard 06 · Rami SMOKING" [ref=e184] [cursor=pointer]:
+                - generic [ref=e186]: Guard 06 · Rami
+                - generic [ref=e187]: SMOKING
+              - button "Guard 07 · Priya SOS GATE" [ref=e188] [cursor=pointer]:
+                - generic [ref=e190]: Guard 07 · Priya
+                - generic [ref=e191]: SOS
+                - generic [ref=e192]: GATE
+              - button "Guard 08 · Erik MAIN" [ref=e193] [cursor=pointer]:
+                - generic [ref=e195]: Guard 08 · Erik
+                - generic [ref=e196]: MAIN
+              - button "Guard 09 · Sofia LONE CAR" [ref=e197] [cursor=pointer]:
+                - generic [ref=e199]: Guard 09 · Sofia
+                - generic [ref=e200]: LONE
+                - generic [ref=e201]: CAR
+              - button "Guard 10 · Ana FOYER" [ref=e202] [cursor=pointer]:
+                - generic [ref=e204]: Guard 10 · Ana
+                - generic [ref=e205]: FOYER
+              - button "Guard 11 · Minh SMOKING" [ref=e206] [cursor=pointer]:
+                - generic [ref=e208]: Guard 11 · Minh
+                - generic [ref=e209]: SMOKING
+              - button "Guard 12 · Kwame NO SIGNAL PERIMETER" [ref=e210] [cursor=pointer]:
+                - generic [ref=e212]: Guard 12 · Kwame
+                - generic [ref=e213]: NO SIGNAL
+                - generic [ref=e214]: PERIMETER
+            - button "Call muster" [ref=e215] [cursor=pointer]

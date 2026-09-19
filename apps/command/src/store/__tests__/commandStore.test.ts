@@ -4,6 +4,8 @@
 import { useCommandStore } from '../commandStore';
 import { buildIncidents, buildStaff } from '../../domain/sim';
 
+const initialSearchOperation = structuredClone(useCommandStore.getState().searchOperation);
+
 const reset = () => {
   const staff = buildStaff(1_000_000);
   useCommandStore.setState({
@@ -14,6 +16,7 @@ const reset = () => {
     lastSearch: null,
     lastInboundStatus: null,
     activeIncidentId: 'SOS-0442',
+    searchOperation: structuredClone(initialSearchOperation),
   });
 };
 
@@ -46,6 +49,24 @@ describe('dispatch reuses the engine wire codec', () => {
     expect(st.auditLog[0].action).toBe('dispatch');
     expect(st.incidents.find((i) => i.id === 'SOS-0442')!.timeline.at(-1)!.text).toMatch(/Dispatch:/);
   });
+
+  it('assigns a responder to an incident and records the dispatch', () => {
+    const responderCount = useCommandStore
+      .getState()
+      .incidents.find((incident) => incident.id === 'SOS-0442')?.responders.length;
+
+    useCommandStore.getState().assignResponder('SOS-0442', 1);
+
+    const state = useCommandStore.getState();
+    const incident = state.incidents.find((item) => item.id === 'SOS-0442');
+
+    expect(incident?.responders).toHaveLength((responderCount ?? 0) + 1);
+    expect(incident?.responders.some((responder) => responder.staffId === 1)).toBe(true);
+    expect(incident?.timeline.at(-1)?.text).toContain('assigned as responder');
+    expect(state.staff[1]?.status).toBe('responding');
+    expect(state.dispatchLog[0]?.toTag).toBe(1);
+    expect(state.auditLog[0]?.reason).toBe('incident responder assigned');
+  });
 });
 
 describe('muster is logged', () => {
@@ -54,6 +75,27 @@ describe('muster is logged', () => {
     const st = useCommandStore.getState();
     expect(st.muster.active).toBe(true);
     expect(st.auditLog[0].action).toBe('muster');
+  });
+});
+
+describe('roster assignment and muster check-in are live mutations', () => {
+  it('reassigns a guard, recomputes coverage, and audits the change', () => {
+    const beforeCoverage = useCommandStore.getState().zoneDensity;
+    useCommandStore.getState().assignZone(1, 'perimeter');
+    const st = useCommandStore.getState();
+    expect(st.staff[1].zoneId).toBe('perimeter');
+    expect(st.zoneDensity).not.toBe(beforeCoverage);
+    expect(st.auditLog[0].action).toBe('assign_zone');
+    expect(st.auditLog[0].subjectIds).toEqual([1]);
+  });
+
+  it('records an operator-confirmed muster check-in', () => {
+    expect(useCommandStore.getState().staff[9].mustered).toBe(false);
+    useCommandStore.getState().checkIn(9);
+    const st = useCommandStore.getState();
+    expect(st.staff[9].mustered).toBe(true);
+    expect(st.auditLog[0].action).toBe('check_in');
+    expect(st.auditLog[0].subjectIds).toEqual([9]);
   });
 });
 
@@ -253,5 +295,25 @@ describe('assisted search through the store', () => {
     expect(res.ok).toBe(false);
     expect(st.auditLog.length).toBe(before); // nothing logged, but nothing revealed either
     expect(st.lastSearch).toBeNull();
+  });
+});
+
+describe('search and rescue coordination', () => {
+  it('reassigns a team and writes the command to radio + audit', () => {
+    useCommandStore.getState().reassignSearchTeam('bravo', 'C5');
+    const st = useCommandStore.getState();
+    expect(st.searchOperation.teams.find((team) => team.id === 'bravo')!.assignment).toBe('C5');
+    expect(st.searchOperation.sectors.find((sector) => sector.id === 'C5')!.status).toBe('searching');
+    expect(st.searchOperation.radio.at(-1)!.text).toMatch(/Bravo reassigned to C5/);
+    expect(st.auditLog[0].action).toBe('search_reassign');
+  });
+
+  it('marks a sector clear and audits the operational mutation', () => {
+    useCommandStore.getState().markSearchSectorClear('C4');
+    const st = useCommandStore.getState();
+    const sector = st.searchOperation.sectors.find((item) => item.id === 'C4')!;
+    expect(sector.progressPct).toBe(100);
+    expect(sector.status).toBe('clear');
+    expect(st.auditLog[0].action).toBe('search_clear');
   });
 });

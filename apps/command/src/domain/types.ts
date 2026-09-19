@@ -133,6 +133,11 @@ export interface AuditEntry {
     | 'escalate'
     | 'resolve'
     | 'muster'
+    | 'check_in'
+    | 'assign_zone'
+    | 'search_start'
+    | 'search_reassign'
+    | 'search_clear'
     | 'stand_down';
   reason: string;
   subjectIds: number[];
@@ -144,4 +149,37 @@ export interface MusterState {
   active: boolean;
   startedAtSec: number;
   assemblyPoint: string;
+}
+
+export interface SearchSectorState {
+  id: string;
+  label: string;
+  progressPct: number;
+  status: 'unsearched' | 'searching' | 'clear' | 'priority';
+}
+
+export interface SearchTeamState {
+  id: string;
+  label: string;
+  personnel: number;
+  assignment: string;
+  etaSec: number;
+  status: 'ready' | 'searching' | 'reassigned' | 'standby';
+}
+
+export interface SearchRadioEntry {
+  atSec: number;
+  source: string;
+  text: string;
+}
+
+export interface SearchOperationState {
+  active: boolean;
+  phase: 'assessment' | 'search' | 'recovery' | 'closed';
+  subjectName: string;
+  startedAtSec: number;
+  lastConfirmedSec: number;
+  sectors: SearchSectorState[];
+  teams: SearchTeamState[];
+  radio: SearchRadioEntry[];
 }

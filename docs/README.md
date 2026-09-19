@@ -144,6 +144,16 @@ Every open item across the whole system in dependency order: the five gates, doo
 | [market-model-simple.html](strategy/market-model-simple.html) · [market-model.html](strategy/market-model.html) | Interactive market models (plain-English + full). Drag sliders → live TAM/SOM. |
 | [coverage-maps.html](strategy/coverage-maps.html) | 3 coverage options (phones only / +BLE anchors / +LoRa backbone) on a real festival footprint. |
 
+### 🖥 Command product family (`docs/product/` + `docs/design/`)
+| Doc | What it covers |
+|---|---|
+| [COMMAND-PRODUCT-BLUEPRINT.md](product/COMMAND-PRODUCT-BLUEPRINT.md) | **Canonical Command plan:** Web, installed desktop, iPad/tablet Command Field, 2D/3D digital twin, workspaces, shared platform, phases and acceptance gates. |
+| [COMMAND-FEATURE-MANIFEST.md](product/COMMAND-FEATURE-MANIFEST.md) | **No-drop capability contract:** reconciles every existing Command, Commissioning, building, search, audit, digital-twin and future product-family feature so redesign work cannot silently remove anything. |
+| [COMMAND-APPLICATION-MAP.md](product/COMMAND-APPLICATION-MAP.md) | **Build contract:** maps modes, workspaces and shared surfaces to retained capabilities, then defines the implementation slices and definition of done. |
+| [COMMAND-VISUAL-FINISH.md](design/COMMAND-VISUAL-FINISH.md) | **The missing visual-quality contract:** the matte material system, typography, colour, components, texture policy, 3D finish and image-to-code fidelity workflow. |
+| [VISION-COMMAND-HANDOFF.md](product/VISION-COMMAND-HANDOFF.md) | Boundary and shared contract for reconciling the separate Vision/glasses plan with Command and Guard. |
+| [apps/command/BUILD-PROMPT.md](../apps/command/BUILD-PROMPT.md) | **Continuation prompt:** exact visual source, no-drop operational scope, implementation rules and verification gates for the complete Command application. |
+
 ### 🎨 Design (`docs/design/`)
 | File | What it shows |
 |---|---|

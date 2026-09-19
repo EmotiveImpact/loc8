@@ -39,6 +39,7 @@ import type {
   Incident,
   MusterState,
   ResponderState,
+  SearchOperationState,
   StaffMember,
   Zone,
   ZoneDensity,
@@ -68,6 +69,7 @@ interface CommandState {
   incidents: Incident[];
   zoneDensity: ZoneDensity[];
   muster: MusterState;
+  searchOperation: SearchOperationState;
   auditLog: AuditEntry[];
   dispatchLog: DispatchLogEntry[];
   activeIncidentId: string | null;
@@ -93,6 +95,7 @@ interface CommandState {
   escalate(id: string): void;
   resolve(id: string): void;
   dispatch(text: string, opts?: { incidentId?: string; toTag?: number }): void;
+  assignResponder(incidentId: string, staffId: number): void;
   applyGuardStatus(staffId: number, code: number, incidentId?: string): void;
   standDownMuster(): void;
   /** live bridge: real mesh frames rendered by the console */
@@ -110,6 +113,10 @@ interface CommandState {
   callMuster(): void;
   endMuster(): void;
   checkIn(staffId: number): void;
+  assignZone(staffId: number, zoneId: string): void;
+  startSearch(subjectName: string): void;
+  reassignSearchTeam(teamId: string, sectorId: string): void;
+  markSearchSectorClear(sectorId: string): void;
   runAssistedSearch(query: string, reason: string): { ok: boolean; error?: string };
 }
 
@@ -192,6 +199,32 @@ function patchIncident(list: Incident[], id: string, patch: (i: Incident) => Inc
 }
 
 const staff0 = buildStaff();
+const searchBase = nowSec();
+const searchOperation0: SearchOperationState = {
+  active: true,
+  phase: 'search',
+  subjectName: 'Priya Okafor',
+  startedAtSec: searchBase - 522,
+  lastConfirmedSec: searchBase - 732,
+  sectors: [
+    { id: 'C1', label: 'North concourse', progressPct: 100, status: 'clear' },
+    { id: 'C2', label: 'Service corridor', progressPct: 92, status: 'searching' },
+    { id: 'C3', label: 'Lower hospitality', progressPct: 64, status: 'priority' },
+    { id: 'C4', label: 'East perimeter', progressPct: 28, status: 'searching' },
+    { id: 'C5', label: 'Back-of-house stores', progressPct: 0, status: 'unsearched' },
+  ],
+  teams: [
+    { id: 'alpha', label: 'Alpha', personnel: 6, assignment: 'C3', etaSec: 130, status: 'searching' },
+    { id: 'bravo', label: 'Bravo', personnel: 6, assignment: 'C4', etaSec: 205, status: 'searching' },
+    { id: 'k9', label: 'K9 Unit', personnel: 2, assignment: 'C3', etaSec: 105, status: 'searching' },
+  ],
+  radio: [
+    { atSec: searchBase - 31, source: 'ALPHA', text: 'C3 corridor clear, moving south.' },
+    { atSec: searchBase - 24, source: 'COMMAND', text: 'Copy Alpha. Check service doors.' },
+    { atSec: searchBase - 15, source: 'BRAVO', text: 'Crowd build-up at East Gate.' },
+    { atSec: searchBase - 4, source: 'K9 UNIT', text: 'Indication at lower hospitality.' },
+  ],
+};
 
 export const useCommandStore = create<CommandState>((set, get) => ({
   operatorId: OPERATOR_ID,
@@ -202,6 +235,7 @@ export const useCommandStore = create<CommandState>((set, get) => ({
   incidents: buildIncidents(staff0),
   zoneDensity: buildZoneDensity(staff0),
   muster: buildMuster(),
+  searchOperation: searchOperation0,
   auditLog: audit0,
   dispatchLog: [],
   activeIncidentId: 'SOS-0442',
@@ -398,6 +432,79 @@ export const useCommandStore = create<CommandState>((set, get) => ({
           reason: 'dispatch order',
           subjectIds: [],
           detail: `→ tag ${toTag}: "${text}"`,
+        }),
+      };
+    }),
+
+  assignResponder: (incidentId, staffId) =>
+    set((st) => {
+      const incident = st.incidents.find((item) => item.id === incidentId);
+      const member = st.staff[staffId];
+      if (
+        !incident ||
+        incident.status === 'resolved' ||
+        !member ||
+        member.status === 'no_signal' ||
+        incident.responders.some((responder) => responder.staffId === staffId)
+      )
+        return {};
+      const at = nowSec();
+      const distanceM =
+        incident.location && member.location
+          ? Math.round(getHaversineDistance(member.location, incident.location))
+          : undefined;
+      const text = `Respond to ${incident.id} · ${incident.zoneId}`;
+      const frames = encodeDispatch({
+        fromId: COMMAND_ID,
+        toTag: staffId,
+        text: opsMsg.dispatch(text),
+        msgId: (dispatchMsgSeq = (dispatchMsgSeq + 1) & 0xffff),
+        nowSec: at,
+      });
+      frameSink?.(frames);
+      return {
+        staff: {
+          ...st.staff,
+          [staffId]: { ...member, status: 'responding', lastPingSec: at },
+        },
+        incidents: patchIncident(st.incidents, incidentId, (item) => ({
+          ...item,
+          responders: [
+            ...item.responders,
+            {
+              staffId,
+              name: `${member.name.split(' ')[0]} · Guard ${String(staffId).padStart(2, '0')}`,
+              distanceM,
+              state: 'en_route',
+            },
+          ],
+          timeline: [
+            ...item.timeline,
+            {
+              atSec: at,
+              tone: 'info',
+              text: `${member.name} assigned as responder`,
+              sub: `${distanceM == null ? 'distance unavailable' : `${distanceM}m`} · ${frames.length} mesh frame${frames.length === 1 ? '' : 's'}`,
+            },
+          ],
+        })),
+        dispatchLog: [
+          {
+            atSec: at,
+            toTag: staffId,
+            text,
+            frames: frames.length,
+            incidentId,
+          },
+          ...st.dispatchLog,
+        ].slice(0, 100),
+        auditLog: audit(st.auditLog, {
+          atSec: at,
+          operatorId: st.operatorId,
+          action: 'dispatch',
+          reason: 'incident responder assigned',
+          subjectIds: [staffId],
+          detail: `${incidentId} → ${member.name}`,
         }),
       };
     }),
@@ -829,7 +936,135 @@ export const useCommandStore = create<CommandState>((set, get) => ({
       if (!cur) return {};
       // A no-signal guard cannot self-report — never let a tap mark them safe.
       if (cur.status === 'no_signal') return {};
-      return { staff: { ...st.staff, [staffId]: { ...cur, mustered: true } } };
+      if (cur.mustered) return {};
+      return {
+        staff: { ...st.staff, [staffId]: { ...cur, mustered: true } },
+        auditLog: audit(st.auditLog, {
+          atSec: nowSec(),
+          operatorId: st.operatorId,
+          action: 'check_in',
+          reason: 'muster check-in confirmed',
+          subjectIds: [staffId],
+          detail: `${cur.name} · ${cur.zoneId}`,
+        }),
+      };
+    }),
+
+  assignZone: (staffId, zoneId) =>
+    set((st) => {
+      const cur = st.staff[staffId];
+      const zone = st.zones.find((item) => item.id === zoneId);
+      if (!cur || !zone || cur.zoneId === zoneId) return {};
+      const staff = {
+        ...st.staff,
+        [staffId]: {
+          ...cur,
+          zoneId,
+          lastPingSec: nowSec(),
+        },
+      };
+      return {
+        staff,
+        zoneDensity: buildZoneDensity(staff),
+        auditLog: audit(st.auditLog, {
+          atSec: nowSec(),
+          operatorId: st.operatorId,
+          action: 'assign_zone',
+          reason: 'zone assignment changed',
+          subjectIds: [staffId],
+          detail: `${cur.name}: ${cur.zoneId} → ${zone.id}`,
+        }),
+      };
+    }),
+
+  startSearch: (subjectName) =>
+    set((st) => {
+      const name = subjectName.trim() || st.searchOperation.subjectName;
+      if (st.searchOperation.active && st.searchOperation.subjectName === name) return {};
+      const at = nowSec();
+      return {
+        searchOperation: {
+          ...searchOperation0,
+          active: true,
+          phase: 'search',
+          subjectName: name,
+          startedAtSec: at,
+          lastConfirmedSec: at,
+          radio: [
+            { atSec: at, source: 'COMMAND', text: `Search opened for ${name}. Confirm sector assignments.` },
+          ],
+        },
+        auditLog: audit(st.auditLog, {
+          atSec: at,
+          operatorId: st.operatorId,
+          action: 'search_start',
+          reason: 'authorised search operation started',
+          subjectIds: st.activeIncident()?.raisedByStaffId ? [st.activeIncident()!.raisedByStaffId!] : [],
+          detail: name,
+        }),
+      };
+    }),
+
+  reassignSearchTeam: (teamId, sectorId) =>
+    set((st) => {
+      const team = st.searchOperation.teams.find((item) => item.id === teamId);
+      const sector = st.searchOperation.sectors.find((item) => item.id === sectorId);
+      if (!team || !sector) return {};
+      const at = nowSec();
+      return {
+        searchOperation: {
+          ...st.searchOperation,
+          teams: st.searchOperation.teams.map((item) =>
+            item.id === teamId
+              ? { ...item, assignment: sectorId, status: 'reassigned' as const, etaSec: Math.max(45, item.etaSec - 30) }
+              : item,
+          ),
+          sectors: st.searchOperation.sectors.map((item) =>
+            item.id === sectorId && item.status === 'unsearched'
+              ? { ...item, status: 'searching' as const }
+              : item,
+          ),
+          radio: [
+            ...st.searchOperation.radio,
+            { atSec: at, source: 'COMMAND', text: `${team.label} reassigned to ${sectorId} · ${sector.label}.` },
+          ],
+        },
+        auditLog: audit(st.auditLog, {
+          atSec: at,
+          operatorId: st.operatorId,
+          action: 'search_reassign',
+          reason: 'search team reassigned',
+          subjectIds: [],
+          detail: `${team.label}: ${team.assignment} → ${sectorId}`,
+        }),
+      };
+    }),
+
+  markSearchSectorClear: (sectorId) =>
+    set((st) => {
+      const sector = st.searchOperation.sectors.find((item) => item.id === sectorId);
+      if (!sector || sector.status === 'clear') return {};
+      const at = nowSec();
+      return {
+        searchOperation: {
+          ...st.searchOperation,
+          sectors: st.searchOperation.sectors.map((item) =>
+            item.id === sectorId ? { ...item, progressPct: 100, status: 'clear' as const } : item,
+          ),
+          radio: [
+            ...st.searchOperation.radio,
+            { atSec: at, source: 'COMMAND', text: `${sectorId} marked clear. Move to adjacent unsearched area.` },
+          ],
+        },
+        auditLog: audit(st.auditLog, {
+          atSec: at,
+          operatorId: st.operatorId,
+          action: 'search_clear',
+          reason: 'search sector marked clear',
+          subjectIds: [],
+          detail: `${sectorId} · ${sector.label}`,
+        }),
+      };
     }),
 
   runAssistedSearch: (query, reason) => {

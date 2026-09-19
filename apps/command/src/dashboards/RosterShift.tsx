@@ -1,3 +1,4 @@
+import { useState } from 'react';
 import { useCommandStore } from '../store/commandStore';
 import { zoneName } from '../domain/zones';
 import { fmtHM } from '../domain/time';
@@ -5,13 +6,12 @@ import { Console, ConsoleTop, CoverageBar, PageHead, Pill } from '../ui/primitiv
 import { Icon } from '../ui/Icon';
 import { staffStatusLabel, staffTone, type Tone } from '../ui/status';
 
-// Roster & shift management. The table + live zone coverage are real (driven by
-// the same store as every other dashboard); assign/reassign is a clean stub —
-// the interaction surface is wired but the write path is a TODO for the shift
-// back-office, not the live-ops critical path.
 export function RosterShift() {
   const store = useCommandStore();
   const staff = Object.values(store.staff).sort((a, b) => a.id - b.id);
+  const [selectedStaffId, setSelectedStaffId] = useState(staff[0]?.id ?? 0);
+  const [selectedZoneId, setSelectedZoneId] = useState(store.zones[0]?.id ?? '');
+  const [assignmentNotice, setAssignmentNotice] = useState('');
 
   const pillTone = (t: Tone): 'ok' | 'amber' | 'alert' | 'off' =>
     t === 'info' ? 'ok' : (t as 'ok' | 'amber' | 'alert' | 'off');
@@ -71,20 +71,44 @@ export function RosterShift() {
 
             <div className="card">
               <h4>Assign / reassign zone</h4>
-              <select className="sel" disabled aria-label="Guard to reassign" title="Available when shift back-office ships">
-                <option>Guard 01 · Adeyemi</option>
+              <select
+                className="sel"
+                aria-label="Guard to reassign"
+                value={selectedStaffId}
+                onChange={(event) => setSelectedStaffId(Number(event.target.value))}
+              >
+                {staff.map((member) => (
+                  <option key={member.id} value={member.id}>
+                    Guard {String(member.id).padStart(2, '0')} · {member.name}
+                  </option>
+                ))}
               </select>
-              <select className="sel" disabled aria-label="Target zone" title="Available when shift back-office ships">
-                <option>→ Perimeter</option>
+              <select
+                className="sel"
+                aria-label="Target zone"
+                value={selectedZoneId}
+                onChange={(event) => setSelectedZoneId(event.target.value)}
+              >
+                {store.zones.map((zone) => (
+                  <option key={zone.id} value={zone.id}>→ {zone.name}</option>
+                ))}
               </select>
               <div className="btnrow" style={{ marginTop: 4 }}>
-                <button type="button" className="btn go" disabled title="Available when shift back-office ships">
+                <button
+                  type="button"
+                  className="btn go"
+                  onClick={() => {
+                    const member = store.staff[selectedStaffId];
+                    const zone = store.zones.find((item) => item.id === selectedZoneId);
+                    if (!member || !zone) return;
+                    store.assignZone(selectedStaffId, selectedZoneId);
+                    setAssignmentNotice(`${member.name} assigned to ${zone.name}`);
+                  }}
+                >
                   <Icon name="arrow" /> Reassign zone
                 </button>
-                <button type="button" className="btn" disabled title="Available when shift back-office ships">
-                  <Icon name="plus" /> Add guard to shift
-                </button>
               </div>
+              {assignmentNotice && <div className="assignmentnotice" role="status">{assignmentNotice}</div>}
             </div>
           </div>
         </div>

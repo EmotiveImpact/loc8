@@ -29,6 +29,23 @@ it. Updated 2026-07-22.*
 | Loc8 Command | ✅ built | Browser app today; desktop (Tauri) wrap 🟡 for gateway claim flow |
 | Partner SDK | 🔴 unwritten | The fourth door — deferred by choice |
 
+## Command product family
+
+Canonical plan:
+`docs/product/COMMAND-PRODUCT-BLUEPRINT.md`. Visual quality contract:
+`docs/design/COMMAND-VISUAL-FINISH.md`.
+
+| Item | Status | Notes |
+|---|---|---|
+| Command information architecture prototype | ✅ interactive prototype | Four modes; incident/team/coverage/muster/asset workspaces; synthetic 2D/3D site |
+| Approve one Command visual master | 🔴 next design gate | Generate three Live Site directions from the strongest references; choose one before broad code polish |
+| Loc8 matte component/material system | 🟡 specified | Build tokens and accessible primitives after visual-master selection |
+| Command Web production integration | 🟡 foundation exists | Bind approved UI to real operational/venue packages and live transport |
+| 2D/3D semantic parity | 🟡 prototype | One venue model, stable IDs, cutaway/exploded/focus; needs production renderer/data contract |
+| Command Desktop / Tauri spike | 🟡 planned | Validate Gateway discovery, secure config, updates, notifications and managed deployment |
+| Command Field tablet app | 🟡 planned | React Native/Expo, touch-first; physical iPad/rugged Android performance and offline tests required |
+| Command/Vision shared contract | 🟡 handoff template written | Reconcile after the Vision conversation produces its own blueprint |
+
 ## Building, mapping and floor foundation
 
 | Item | Status | Notes |

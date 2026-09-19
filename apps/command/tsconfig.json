@@ -15,11 +15,11 @@
     "resolveJsonModule": true,
     "isolatedModules": true,
     "noEmit": true,
-    "types": ["node"],
+    "types": ["vite/client"],
     "paths": {
       "@loc8/engine/*": ["../../packages/engine/src/*"]
     }
   },
-  "include": ["src", "vite.config.ts"],
+  "include": ["src"],
   "exclude": ["src/**/*.test.ts", "src/**/__tests__/**"]
 }
