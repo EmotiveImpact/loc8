@@ -4,6 +4,7 @@ import type { Coordinate, Packet } from '../core/types';
 import { quickReplyLabel } from '../core/types';
 import type { PacketReceiptContext } from '../transport/LocationTransport';
 import { makePositionReceipt, newerPosition, validPosition, type PositionReceipt } from '../core/positionFreshness';
+import { captureSourceLocation, shouldReplaceSourceLocation, type SourceLocationInput, type SourceLocationSample } from '../core/sourceLocation';
 import { FRIEND_COLORS } from '../ui/theme';
 
 const PROFILE_KEY = 'loc8.profile.v1';
@@ -133,6 +134,8 @@ interface CrewState {
   friends: Record<number, FriendState>;
   rallyPin: RallyPin | null;
   myLocation: Coordinate | null;
+  /** Original device sample; never refreshed by publishing a heartbeat. */
+  myLocationSample: SourceLocationSample | null;
   /** My current floor/level (0 = ground). Driven by floorService via the FloorTracker. */
   myFloor: number;
   /**
@@ -171,7 +174,11 @@ interface CrewState {
   endSession(): void;
   isSessionActive(nowSec: number): boolean;
   setPrivacy(m: PrivacyMode): void;
+  /** Legacy/demo caller with no source evidence; clears any previous provenance. */
   setMyLocation(c: Coordinate): void;
+  setMyLocationSample(sample: SourceLocationInput): boolean;
+  setDemoLocation(c: Coordinate): void;
+  clearMyLocation(): void;
   /** Written by floorService whenever the FloorTracker's state changes. */
   setFloorState(floor: number, confidence: 'unknown' | 'anchored' | 'estimated', confirmNeeded: boolean): void;
   setMeshNearby(n: number): void;
@@ -208,7 +215,7 @@ const initial = {
   hydrated: false, autoAddPeers: false,
   privacyMode: 'live' as PrivacyMode, sessionEndsAtSec: null,
   notificationsEnabled: true, hapticsEnabled: true, units: 'm' as Units,
-  friends: {}, rallyPin: null, myLocation: null,
+  friends: {}, rallyPin: null, myLocation: null, myLocationSample: null,
   myFloor: 0, floorConfidence: 'unknown' as const, floorConfirmNeeded: false,
   meshNearby: 0,
   beaconMode: false, banner: null, celebrated: {},
@@ -436,7 +443,22 @@ export const useCrewStore = create<CrewState>((set, get) => ({
   },
 
   setPrivacy: (privacyMode) => set({ privacyMode }),
-  setMyLocation: (myLocation) => set({ myLocation }),
+  setMyLocation: (myLocation) => {
+    if (!validPosition(myLocation)) return;
+    set({ myLocation: { ...myLocation }, myLocationSample: null });
+  },
+  setMyLocationSample: (input) => {
+    const sample = captureSourceLocation(input);
+    if (!sample || !shouldReplaceSourceLocation(get().myLocationSample, sample)) return false;
+    set({ myLocation: { ...sample.coordinate }, myLocationSample: sample });
+    return true;
+  },
+  setDemoLocation: (coordinate) => {
+    const now = Date.now();
+    const sample = captureSourceLocation({ coords: coordinate, timestamp: now }, now, undefined, 'demo');
+    if (sample) set({ myLocation: { ...sample.coordinate }, myLocationSample: sample });
+  },
+  clearMyLocation: () => set({ myLocation: null, myLocationSample: null }),
   setFloorState: (myFloor, floorConfidence, floorConfirmNeeded) =>
     set({ myFloor, floorConfidence, floorConfirmNeeded }),
   setMeshNearby: (meshNearby) => set({ meshNearby }),

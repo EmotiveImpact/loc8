@@ -6,7 +6,7 @@
 //   2. a rally pin — the team's converge-here target (dispatch arrow, map marker);
 //   3. a fragmented free-text alert — human-readable in every activity feed.
 // The un-missable haptic is the engine's haptics.sos(). No forked transport.
-import { getMeshService, getTransport, useCrewStore, haptics, opsMsg, type Packet } from '@loc8/engine';
+import { getMeshService, getTransport, useCrewStore, haptics, opsMsg, legacySourceAccuracy, type Packet } from '@loc8/engine';
 import { useGuardStore, badgeLabel } from './guardStore';
 
 /** Broadcast the first-class 'sos' packet (Command's live-mode trigger). */
@@ -24,7 +24,7 @@ function broadcastSosPacket(): void {
     floor: crew.myFloor,
     batteryPct: 100,
     timestampSec: Math.floor(Date.now() / 1000),
-    accuracyM: 10,
+    accuracyM: legacySourceAccuracy(loc, crew.myLocationSample),
   };
   getTransport().broadcast(p);
 }

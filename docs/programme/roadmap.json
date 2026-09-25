@@ -1,0 +1,455 @@
+{
+  "schema": "loc8-programme-v1",
+  "prepared": "2026-09-25",
+  "application_base": "c141dd6ef351205b6d33fa5aace8222032718f8b",
+  "archive_base": "6ddbf4371a64d93d1299b6cba29276c6bf4273b8",
+  "status": "proposed integration roadmap; implemented-review is not production-ready",
+  "constraints": {
+    "wire_bytes": 25,
+    "wire_timestamp": "publication-time",
+    "merge_authorised": false,
+    "deployment_authorised": false,
+    "consumer_infrastructure_required": false,
+    "logical_gateway_per_site": 1,
+    "loc8os_daemons": [
+      "meshd",
+      "relayd",
+      "sited",
+      "syncd",
+      "provisiond",
+      "supervisord"
+    ]
+  },
+  "sources": [
+    {
+      "id": "SRC-R0",
+      "kind": "repository",
+      "locator": "docs/research/rnd/BLE-RND-2026-09-25.md",
+      "revision": "3421390a19643ac6f621d8b9faafa7d7b4fcae62",
+      "scope": "First hardening programme; does not prove physical mesh."
+    },
+    {
+      "id": "SRC-R1A",
+      "kind": "repository",
+      "locator": "docs/research/rnd/results/2026-09-25-position-freshness.md",
+      "revision": "c141dd6ef351205b6d33fa5aace8222032718f8b",
+      "scope": "Report-age integration with conservative live uncertainty."
+    },
+    {
+      "id": "SRC-ARCHIVE",
+      "kind": "repository",
+      "locator": "KNOWLEDGE.md",
+      "revision": "6ddbf4371a64d93d1299b6cba29276c6bf4273b8",
+      "scope": "Preservation entry point; not a replacement application."
+    },
+    {
+      "id": "SRC-TRANSFER",
+      "kind": "repository",
+      "locator": "docs/knowledge/TRANSFER-PACKS.md",
+      "revision": "6ddbf4371a64d93d1299b6cba29276c6bf4273b8",
+      "scope": "Four scoped integration packs; synthetic references are not production code."
+    },
+    {
+      "id": "SRC-PRINCIPAL",
+      "kind": "repository",
+      "locator": "docs/research/rnd/PRINCIPAL-AUDIT-2026-07-22.md",
+      "revision": "c141dd6ef351205b6d33fa5aace8222032718f8b",
+      "scope": "Historical contracts and gates; old test counts are not current CI."
+    },
+    {
+      "id": "SRC-FLOOR",
+      "kind": "repository",
+      "locator": "docs/research/rnd/floor-detection.md",
+      "revision": "c141dd6ef351205b6d33fa5aace8222032718f8b",
+      "scope": "Anchor + assist + topology proposal and research lineage."
+    },
+    {
+      "id": "SRC-MESH",
+      "kind": "repository",
+      "locator": "docs/research/rnd/mesh-and-resilience.md",
+      "revision": "c141dd6ef351205b6d33fa5aace8222032718f8b",
+      "scope": "Protocol boundaries, licensed reuse and native relay experiments."
+    },
+    {
+      "id": "SRC-INNOVATION",
+      "kind": "repository",
+      "locator": "docs/research/rnd/innovation-opportunities.md",
+      "revision": "c141dd6ef351205b6d33fa5aace8222032718f8b",
+      "scope": "Coverage-aware operational venue model; proposed outcomes, not proven novelty."
+    },
+    {
+      "id": "SRC-CATALOGUE",
+      "kind": "repository",
+      "locator": "docs/research/rnd/repository-snapshot.tsv",
+      "revision": "c141dd6ef351205b6d33fa5aace8222032718f8b",
+      "scope": "48 historical pinned candidates, not 48 installed runtime dependencies."
+    },
+    {
+      "id": "SRC-EXPERIMENTS",
+      "kind": "repository",
+      "locator": "docs/research/rnd/experiments.md",
+      "revision": "c141dd6ef351205b6d33fa5aace8222032718f8b",
+      "scope": "Existing question-scoped experiment IDs and physical acceptance gates."
+    },
+    {
+      "id": "SRC-EXPO",
+      "kind": "primary",
+      "locator": "https://docs.expo.dev/versions/v57.0.0/sdk/location/",
+      "revision": "accessed-2026-09-25",
+      "scope": "Provider timestamp is epoch milliseconds; accuracy can be null; watchPositionAsync is foreground only."
+    },
+    {
+      "id": "SRC-SANKOFA",
+      "kind": "library",
+      "locator": "file_000000006d7c81f480948e1ed84e27c5",
+      "revision": "1",
+      "scope": "10_SOFTWARE_MAP.md. Proposed reusable meaning layer; no Loc8 runtime adoption.",
+      "imported_path": "docs/programme/inputs/SANKOFA-SOFTWARE-MAP.v1.md",
+      "sha256": "abb28f8a9c7503e7a048daf81a8071de00af0255913abed05849acb36c8995bc"
+    }
+  ],
+  "concepts": [
+    {
+      "id": "permission",
+      "name": "Identity and permission",
+      "meaning": "Who may see or act, for this crew/site/shift. A sender ID or consent enum is not authentication."
+    },
+    {
+      "id": "observation",
+      "name": "Source observation",
+      "meaning": "Provider sample time, first receipt, measured accuracy, source and clock basis. Not a report or inferred location."
+    },
+    {
+      "id": "estimate",
+      "name": "Position and floor estimate",
+      "meaning": "A derived location/floor with age, confidence and evidence. Never silently turn uncertainty into precision."
+    },
+    {
+      "id": "place",
+      "name": "Versioned place",
+      "meaning": "Building, level, space and connector identities tied to a reviewed package and registration."
+    },
+    {
+      "id": "reachability",
+      "name": "Communications reachability",
+      "meaning": "Measured link/path availability for named device/state/direction/time cohorts, not geometry or crowd counts."
+    },
+    {
+      "id": "intent",
+      "name": "Operational intent",
+      "meaning": "Immutable message/task identity, actor, destination and incident correlation."
+    },
+    {
+      "id": "delivery",
+      "name": "Delivery evidence",
+      "meaning": "Distinct local submission, relay receipt, destination receipt and human acknowledgement facts."
+    },
+    {
+      "id": "action",
+      "name": "Human action and outcome",
+      "meaning": "Acknowledgement, assignment, attendance and completion each require their own evidence."
+    },
+    {
+      "id": "provenance",
+      "name": "Evidence and promotion",
+      "meaning": "Source revision, trace hash, method, cohort, limitations and explicit promotion decision."
+    }
+  ],
+  "relations": [
+    {
+      "from": "permission",
+      "to": "observation",
+      "meaning": "governs collection and visibility"
+    },
+    {
+      "from": "observation",
+      "to": "estimate",
+      "meaning": "supports, but does not guarantee"
+    },
+    {
+      "from": "estimate",
+      "to": "place",
+      "meaning": "references versioned place identities"
+    },
+    {
+      "from": "place",
+      "to": "reachability",
+      "meaning": "indexes survey context; does not prove a link"
+    },
+    {
+      "from": "permission",
+      "to": "intent",
+      "meaning": "authorises actor and destination"
+    },
+    {
+      "from": "estimate",
+      "to": "intent",
+      "meaning": "informs a human decision"
+    },
+    {
+      "from": "reachability",
+      "to": "intent",
+      "meaning": "informs delivery planning, never overrides safety"
+    },
+    {
+      "from": "intent",
+      "to": "delivery",
+      "meaning": "has correlated delivery facts"
+    },
+    {
+      "from": "delivery",
+      "to": "action",
+      "meaning": "may inform; never implies human action"
+    },
+    {
+      "from": "provenance",
+      "to": "observation",
+      "meaning": "records origin and limitations"
+    },
+    {
+      "from": "provenance",
+      "to": "delivery",
+      "meaning": "records receipt source and scope"
+    },
+    {
+      "from": "provenance",
+      "to": "action",
+      "meaning": "records outcome evidence"
+    }
+  ],
+  "workstreams": [
+    {
+      "id": "P0",
+      "name": "One durable programme",
+      "state": "in-progress",
+      "depends_on": [],
+      "sources": [
+        "SRC-ARCHIVE",
+        "SRC-TRANSFER",
+        "SRC-CATALOGUE"
+      ],
+      "products": "Research and recovery",
+      "deliverable": "Complete original-byte preservation, current branch receipts and one source-linked master plan. Never delete ignored work before inventory and verified backup.",
+      "gate": "Archive review, reference checks and exact byte verification. No app promotion implied."
+    },
+    {
+      "id": "R0",
+      "name": "Shared ingress and lifecycle hardening",
+      "state": "implemented-review",
+      "depends_on": [],
+      "sources": [
+        "SRC-R0"
+      ],
+      "products": "Consumer / Guard / Command",
+      "deliverable": "Strict packet ingress, bounded reassembly and generation-safe restart recovery in PR #1.",
+      "gate": "Exact-toolchain full regression, applicable app/native builds and review. Scoped tests are insufficient."
+    },
+    {
+      "id": "R1a",
+      "name": "Honest report freshness",
+      "state": "implemented-review",
+      "depends_on": [
+        "R0"
+      ],
+      "sources": [
+        "SRC-R1A"
+      ],
+      "products": "Consumer / Guard / Command",
+      "deliverable": "Existing position records expose reported time separately from first receipt; unknown live clock basis stays unknown.",
+      "gate": "Remaining consumer migration, UI review, local-fix checks and complete toolchain."
+    },
+    {
+      "id": "R1b",
+      "name": "Original GPS sample provenance",
+      "state": "implemented-review",
+      "depends_on": [
+        "R1a"
+      ],
+      "sources": [
+        "SRC-EXPO",
+        "SRC-R1A"
+      ],
+      "products": "Consumer / Guard / shared producer",
+      "deliverable": "Preserve original sample milliseconds and full accuracy locally; keep v1 publication timestamp/cadence; fix async watcher cleanup and real-mode demo fallback.",
+      "gate": "Stationary heartbeat, delayed callback, no-fix status, source-accuracy and cancellation regression; exact native/Expo checks still required."
+    },
+    {
+      "id": "R1c",
+      "name": "End-to-end observation semantics",
+      "state": "design-required",
+      "depends_on": [
+        "R1b"
+      ],
+      "sources": [
+        "SRC-R1A",
+        "SRC-MESH"
+      ],
+      "products": "All location-consuming views",
+      "deliverable": "Design capability-negotiated source metadata and trusted/uncertain clock handling; review own-fix age, remaining views and ranking. Do not overload legacy bytes.",
+      "gate": "Mixed-version fixtures, duplicated/late metadata, source/report correlation and no false fresh/found labels. Review before a wire-semantic change."
+    },
+    {
+      "id": "R2",
+      "name": "Truthful command delivery",
+      "state": "next",
+      "depends_on": [
+        "R1b"
+      ],
+      "sources": [
+        "SRC-TRANSFER",
+        "SRC-R0"
+      ],
+      "products": "Guard / Command",
+      "deliverable": "Immutable command/incident/recipient IDs; visible rejected/unknown submission; no simulated destination or human acknowledgement.",
+      "gate": "Loss, timeout, duplicates, wrong recipient/incident, late receipt and duress tests; keep no-drop features."
+    },
+    {
+      "id": "SEC",
+      "name": "Reviewed security and connected boundaries",
+      "state": "held-provider",
+      "depends_on": [],
+      "sources": [
+        "SRC-PRINCIPAL",
+        "SRC-MESH"
+      ],
+      "products": "Operational shared services",
+      "deliverable": "Advance existing CONN-01 and SEC-05 contracts into real reviewed TLS, identity, site/role enforcement, signing and storage providers.",
+      "gate": "No provider promoted solely from interface tests. Independent review and end-to-end isolation, revocation, replay and recovery tests."
+    },
+    {
+      "id": "CONN",
+      "name": "Authorised connected pilot",
+      "state": "held-evidence",
+      "depends_on": [
+        "R2",
+        "SEC"
+      ],
+      "sources": [
+        "SRC-PRINCIPAL",
+        "SRC-INNOVATION"
+      ],
+      "products": "Guard / Command / Gateway",
+      "deliverable": "Use the existing connected-first lane; do not make revenue universally depend on BLE proof. Do not label a plain WebSocket bridge production-safe.",
+      "gate": "Real authenticated transport, durable state, outage recovery and operator acceptance. No offline BLE claims by association."
+    },
+    {
+      "id": "MESH",
+      "name": "Measured phone mesh and adaptive relay experiment",
+      "state": "experiment-required",
+      "depends_on": [
+        "R0"
+      ],
+      "sources": [
+        "SRC-MESH",
+        "SRC-EXPERIMENTS"
+      ],
+      "products": "Public phone mesh / Guard",
+      "deliverable": "First prove isolated A-B-C relaying and locked/mixed-OS states; then controlled native fanout against current baseline. Preserve sole bridges.",
+      "gate": "MESH-01 E01: 200 small control packets, >=95% within 10s, both directions, no duplicate app delivery, B-absent control. Background/battery cohorts separately."
+    },
+    {
+      "id": "MAP",
+      "name": "Commissioning and multi-floor evidence",
+      "state": "software-built-field-required",
+      "depends_on": [],
+      "sources": [
+        "SRC-FLOOR",
+        "SRC-PRINCIPAL",
+        "SRC-EXPERIMENTS"
+      ],
+      "products": "Guard / Command / installation",
+      "deliverable": "Reuse existing semantic venue graph, plan registration, floor recorder and sensor replay. Add calibrated anchor + barometer/motion + topology evaluation.",
+      "gate": "Real-plan second-operator MAP-04 plus permissioned FLOOR cohorts; preserve unknown and manual correction. No certified egress claim."
+    },
+    {
+      "id": "EDGE",
+      "name": "Durable Gateway and Anchor integration",
+      "state": "held-provider",
+      "depends_on": [
+        "SEC"
+      ],
+      "sources": [
+        "SRC-TRANSFER",
+        "SRC-EXPERIMENTS"
+      ],
+      "products": "Gateway / Loc8OS / Anchors",
+      "deliverable": "One logical site brain with meshd/relayd/sited/syncd/provisiond/supervisord. Implement real atomic storage and restart/power-loss recovery; Anchor stays an extension.",
+      "gate": "Signing/storage provider review, target-hardware restart/concurrency/power-loss, uplink/downlink and Anchor/Gateway/LAN-loss tests."
+    },
+    {
+      "id": "TWIN",
+      "name": "Coverage-aware operational venue model",
+      "state": "planned",
+      "depends_on": [
+        "R1c",
+        "R2",
+        "MAP",
+        "EDGE",
+        "MESH"
+      ],
+      "sources": [
+        "SRC-INNOVATION",
+        "SRC-TRANSFER"
+      ],
+      "products": "Command / Guard / installation",
+      "deliverable": "Join versioned geometry, observation confidence, reachability and incident intent by stable references; do not collapse them into one score.",
+      "gate": "One existing synthetic site first, then measured survey cohort. Route/accessibility/hazard constraints cannot be overruled by radio coverage."
+    },
+    {
+      "id": "DTN",
+      "name": "Bounded interrupted delivery",
+      "state": "held-security",
+      "depends_on": [
+        "R2",
+        "SEC"
+      ],
+      "sources": [
+        "SRC-MESH",
+        "SRC-TRANSFER"
+      ],
+      "products": "Phone relay / Gateway",
+      "deliverable": "Authenticated message identity, expiry, privacy-scoped retention, copy/retry budgets and durable recovery. Position snapshots may supersede; incident intent must not vanish.",
+      "gate": "Crash/restart, duplicate/partition, expiry, quota/fairness and scope isolation before enabling persistent couriers."
+    },
+    {
+      "id": "VISION",
+      "name": "Evidence-aware camera and glasses view",
+      "state": "planned",
+      "depends_on": [
+        "R2",
+        "SEC"
+      ],
+      "sources": [
+        "SRC-TRANSFER"
+      ],
+      "products": "Command / separate media transport",
+      "deliverable": "Keep existing glasses boundary; show last-frame age, pause/stall/disconnect/end/denial distinctly. No video over the 25-byte mesh.",
+      "gate": "Frozen-frame, wrong source, privacy revocation and reconnect tests with a separately authorised media transport."
+    },
+    {
+      "id": "MEANING",
+      "name": "Optional semantic intent benchmark",
+      "state": "research-only",
+      "depends_on": [],
+      "sources": [
+        "SRC-SANKOFA",
+        "SRC-TRANSFER"
+      ],
+      "products": "Separate research adapter",
+      "deliverable": "Benchmark deterministic domain intents/templates and meaning-preserving encoding; an LLM never grants authority or invents a receipt. No new runtime dependency.",
+      "gate": "Compare bytes, critical semantic errors, ambiguity, rejection and version mismatch against existing ops grammar. Adopt only after a result."
+    },
+    {
+      "id": "TRANSFER",
+      "name": "Cross-conversation adoption",
+      "state": "prepared",
+      "depends_on": [],
+      "sources": [
+        "SRC-TRANSFER"
+      ],
+      "products": "Loc8 workstreams / separate noir input",
+      "deliverable": "Transfer named contracts, evidence and limitations into destination repositories. Preserve product and data separation.",
+      "gate": "Destination-specific acceptance/rejection note and tested remote-verified commit; a handoff is not completed integration."
+    }
+  ]
+}

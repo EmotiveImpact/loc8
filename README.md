@@ -1,5 +1,10 @@
 # Loc8
 
+Start with [the unified system map and build programme](LOC8_MASTER_PLAN.md).
+The next GPS-source increment extends PR #4; it does not merge or deploy it.
+Read its [source-provenance decision](docs/research/rnd/decisions/2026-09-25-source-location-v1.md)
+and [implementation receipt](docs/research/rnd/results/2026-09-25-source-location.md).
+
 ## Position-report freshness increment: 25 September 2026
 
 The next shared-engine increment is integrated into Consumer radar/crew/compass,

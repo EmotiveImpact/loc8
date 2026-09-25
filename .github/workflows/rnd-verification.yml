@@ -9,6 +9,7 @@ on:
       - 'app/**'
       - 'src/**'
       - 'tools/mesh-rnd/**'
+      - 'docs/programme/**'
       - '.github/workflows/rnd-verification.yml'
 permissions:
   contents: read
@@ -43,6 +44,8 @@ jobs:
         run: node --test tools/mesh-rnd/verify.node.cjs
       - name: Position freshness checks
         run: node --test tools/mesh-rnd/freshness.node.cjs
+      - name: Source sample and programme checks
+        run: node --test tools/mesh-rnd/source-location.node.cjs tools/mesh-rnd/programme.node.cjs
       - name: Existing Jest suite
         run: npm test -- --runInBand
       - name: Root TypeScript

@@ -1,45 +1,43 @@
 // src/hooks/useMyLocation.ts
 import { useEffect, useState } from 'react';
 import * as Location from 'expo-location';
-import { useCrewStore, getSimTransport, FALLBACK_ORIGIN } from '@loc8/engine';
+import {
+  useCrewStore, getSimTransport, FALLBACK_ORIGIN, startSourceLocationWatch,
+  type SourceLocationStatus,
+} from '@loc8/engine';
 
-export type LocationStatus = 'pending' | 'granted' | 'denied';
+export type LocationStatus = SourceLocationStatus;
 
-/** Watches real GPS; feeds store + sim origin (no-op on the BLE mesh). Falls back to demo origin if denied. */
+/** Preserve provider observation time/accuracy; fallback belongs only to the demo. */
 export function useMyLocation(): LocationStatus {
   const [status, setStatus] = useState<LocationStatus>('pending');
-  const setMyLocation = useCrewStore((s) => s.setMyLocation);
-
   useEffect(() => {
-    let sub: Location.LocationSubscription | null = null;
-    (async () => {
-      const perm = await Location.getForegroundPermissionsAsync();
-      if (perm.status !== 'granted') {
-        setStatus('denied');
-        setMyLocation(FALLBACK_ORIGIN);
-        getSimTransport()?.setOrigin(FALLBACK_ORIGIN);
-        return;
-      }
-      setStatus('granted');
-      try {
-        sub = await Location.watchPositionAsync(
-          { accuracy: Location.Accuracy.Balanced, timeInterval: 3000, distanceInterval: 2 },
-          (loc) => {
-            const c = { latitude: loc.coords.latitude, longitude: loc.coords.longitude };
-            setMyLocation(c);
-            getSimTransport()?.setOrigin(c);
-          },
-          // Swallow mid-session GPS errors so they don't become unhandled rejections.
-          () => {},
-        );
-      } catch {
-        // Watch rejected after grant (e.g. system Location Services off) — fall back.
-        setMyLocation(FALLBACK_ORIGIN);
-        getSimTransport()?.setOrigin(FALLBACK_ORIGIN);
-      }
-    })();
-    return () => sub?.remove();
-  }, [setMyLocation]);
-
+    const watcher = startSourceLocationWatch({
+      permitted: async () => (await Location.getForegroundPermissionsAsync()).status === 'granted',
+      watch: (onSample, onError) => Location.watchPositionAsync(
+        { accuracy: Location.Accuracy.Balanced, timeInterval: 3000, distanceInterval: 2 },
+        onSample, onError,
+      ),
+    }, {
+      status: setStatus,
+      accept: (sample) => {
+        const store = useCrewStore.getState();
+        if (!store.setMyLocationSample(sample)) return false;
+        const accepted = useCrewStore.getState().myLocation;
+        if (accepted) getSimTransport()?.setOrigin(accepted);
+        return true;
+      },
+      unavailable: () => {
+        const store = useCrewStore.getState();
+        store.clearMyLocation();
+        const sim = getSimTransport();
+        if (sim) {
+          store.setDemoLocation(FALLBACK_ORIGIN);
+          sim.setOrigin(FALLBACK_ORIGIN);
+        }
+      },
+    });
+    return () => watcher.stop();
+  }, []);
   return status;
 }
