@@ -36,10 +36,26 @@ jobs:
           retention-days: 7
       - uses: actions/setup-node@v4
         with:
-          node-version: '22.16.0'
+          node-version: '22.18.0'
           cache: npm
       - name: Install exact repository dependencies
-        run: npm ci
+        id: install
+        shell: bash
+        run: |
+          mkdir -p /tmp/loc8-ci-diagnostics
+          node --version > /tmp/loc8-ci-diagnostics/toolchain.txt
+          npm --version >> /tmp/loc8-ci-diagnostics/toolchain.txt
+          npm ci > /tmp/loc8-ci-diagnostics/npm-ci.log 2>&1 || {
+            tail -n 100 /tmp/loc8-ci-diagnostics/npm-ci.log
+            exit 1
+          }
+      - name: Preserve dependency diagnostics
+        if: ${{ always() && steps.install.outcome == 'failure' }}
+        uses: actions/upload-artifact@v4
+        with:
+          name: loc8-install-diagnostics-${{ github.sha }}
+          path: /tmp/loc8-ci-diagnostics/
+          retention-days: 7
       - name: Shared BLE regression checks
         run: node --test tools/mesh-rnd/verify.node.cjs
       - name: Position freshness checks
