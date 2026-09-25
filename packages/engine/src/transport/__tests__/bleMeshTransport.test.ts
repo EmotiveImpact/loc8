@@ -109,14 +109,39 @@ describe('BleMeshTransport', () => {
     expect(cb).toHaveBeenCalledWith({ nearbyCount: 3, connected: true });
   });
 
-  it('clearListeners stops delivery and detaches the native subscriptions', () => {
-    const cb = jest.fn();
-    transport.onPacket(cb);
+  it('clearListeners replaces app callbacks while stop owns native subscriptions', () => {
+    const oldPacket = jest.fn();
+    const oldStatus = jest.fn();
+    transport.onPacket(oldPacket);
+    transport.onMeshStatus(oldStatus);
     transport.start();
     transport.clearListeners();
+    // R0 contract: a running transport keeps its receive path. Only app
+    // callbacks are cleared; stop() detaches the native subscriptions.
+    expect(mesh.__listenerCounts()).toEqual({ packet: 1, status: 1 });
+    const event = { data: new Uint8Array(encodePacket(SAMPLE)) };
+    const status = { nearbyCount: 3, connected: true };
+    mesh.__emitPacket(event);
+    mesh.__emitStatus(status);
+    expect(oldPacket).not.toHaveBeenCalled();
+    expect(oldStatus).not.toHaveBeenCalled();
+
+    const nextPacket = jest.fn();
+    const nextStatus = jest.fn();
+    transport.onPacket(nextPacket);
+    transport.onMeshStatus(nextStatus);
+    mesh.__emitPacket(event);
+    mesh.__emitStatus(status);
+    expect(nextPacket).toHaveBeenCalledTimes(1);
+    expect(nextStatus).toHaveBeenCalledWith(status);
+    expect(mesh.start).toHaveBeenCalledTimes(1);
+
+    transport.stop();
     expect(mesh.__listenerCounts()).toEqual({ packet: 0, status: 0 });
-    mesh.__emitPacket({ data: new Uint8Array(encodePacket(SAMPLE)) });
-    expect(cb).not.toHaveBeenCalled();
+    mesh.__emitPacket(event);
+    mesh.__emitStatus(status);
+    expect(nextPacket).toHaveBeenCalledTimes(1);
+    expect(nextStatus).toHaveBeenCalledTimes(1);
   });
 
   it('start is idempotent — module.start called once for two start() calls', () => {

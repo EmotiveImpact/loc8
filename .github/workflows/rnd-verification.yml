@@ -1,0 +1,88 @@
+name: R&D verification
+on:
+  push:
+    branches: ['rnd/position-freshness-2026-09-25']
+  pull_request:
+    paths:
+      - 'packages/engine/**'
+      - 'apps/**'
+      - 'app/**'
+      - 'src/**'
+      - 'tools/mesh-rnd/**'
+      - 'docs/programme/**'
+      - '.github/workflows/rnd-verification.yml'
+permissions:
+  contents: read
+concurrency:
+  group: rnd-verification-${{ github.ref }}
+  cancel-in-progress: true
+jobs:
+  verify:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+      - name: Preserve exact source snapshot
+        run: |
+          mkdir -p /tmp/loc8-evidence /tmp/loc8-ci-diagnostics
+          git rev-parse HEAD > /tmp/loc8-evidence/commit.txt
+          git archive --format=tar HEAD > /tmp/loc8-evidence/source.tar
+      - uses: actions/upload-artifact@v4
+        with:
+          name: loc8-source-${{ github.sha }}
+          path: /tmp/loc8-evidence/
+          retention-days: 7
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22.18.0'
+          cache: npm
+      - name: Install exact repository dependencies
+        id: install
+        shell: bash
+        run: |
+          node --version > /tmp/loc8-ci-diagnostics/toolchain.txt
+          npm --version >> /tmp/loc8-ci-diagnostics/toolchain.txt
+          npm ci > /tmp/loc8-ci-diagnostics/npm-ci.log 2>&1 || {
+            tail -n 100 /tmp/loc8-ci-diagnostics/npm-ci.log
+            exit 1
+          }
+      - name: Scoped BLE, freshness, source and programme checks
+        if: ${{ always() && steps.install.outcome == 'success' }}
+        run: |
+          node --test tools/mesh-rnd/verify.node.cjs tools/mesh-rnd/freshness.node.cjs tools/mesh-rnd/source-location.node.cjs tools/mesh-rnd/programme.node.cjs > /tmp/loc8-ci-diagnostics/scoped.tap 2>&1 || {
+            grep -A 45 '^not ok' /tmp/loc8-ci-diagnostics/scoped.tap || true
+            tail -n 12 /tmp/loc8-ci-diagnostics/scoped.tap
+            exit 1
+          }
+          tail -n 12 /tmp/loc8-ci-diagnostics/scoped.tap
+      - name: Existing Jest suite
+        if: ${{ always() && steps.install.outcome == 'success' }}
+        run: |
+          npm test -- --runInBand > /tmp/loc8-ci-diagnostics/jest.log 2>&1 || {
+            tail -n 100 /tmp/loc8-ci-diagnostics/jest.log
+            exit 1
+          }
+          tail -n 12 /tmp/loc8-ci-diagnostics/jest.log
+      - name: Root TypeScript
+        if: ${{ always() && steps.install.outcome == 'success' }}
+        run: |
+          npx tsc --noEmit > /tmp/loc8-ci-diagnostics/typescript.log 2>&1 || {
+            tail -n 100 /tmp/loc8-ci-diagnostics/typescript.log
+            exit 1
+          }
+      - name: Lint
+        if: ${{ always() && steps.install.outcome == 'success' }}
+        run: |
+          npm run lint > /tmp/loc8-ci-diagnostics/lint.log 2>&1 || {
+            tail -n 100 /tmp/loc8-ci-diagnostics/lint.log
+            exit 1
+          }
+      - name: Preserve all verification diagnostics
+        if: ${{ always() }}
+        uses: actions/upload-artifact@v4
+        with:
+          name: loc8-verification-diagnostics-${{ github.sha }}
+          path: /tmp/loc8-ci-diagnostics/
+          retention-days: 7

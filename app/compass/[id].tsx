@@ -8,7 +8,7 @@ import { useEffect, useRef, useState } from 'react';
 import {
   colors,
   fonts,
-  freshnessSec,
+  friendPositionFreshness,
   getAbsoluteBearing,
   getHaversineDistance,
   gradients,
@@ -42,9 +42,8 @@ export default function CompassScreen() {
   const now = useNowSec();
   const rotation = useSharedValue(0);
 
-  const friendPos = friend?.lastPacket
-    ? { latitude: friend.lastPacket.latitude, longitude: friend.lastPacket.longitude }
-    : null;
+  const position = friendPositionFreshness(friend ?? {}, now);
+  const friendPos = position.location;
   const dist = friendPos && myLocation ? getHaversineDistance(myLocation, friendPos) : null;
   const bearing = friendPos && myLocation ? getAbsoluteBearing(myLocation, friendPos) : 0;
   const arrowDeg = ((bearing - heading) + 360) % 360;
@@ -55,10 +54,13 @@ export default function CompassScreen() {
   const accuracy = friend?.lastPacket?.accuracyM ?? 15;
   // Proximity threshold adapts to GPS accuracy (spec §3): never pretend arrow precision we don't have.
   const proximityAt = proximityRadiusM(accuracy);
-  const inProximity = dist !== null && dist < proximityAt;
-  const found = isFound(dist);
-  const [celebrationShown, setCelebrationShown] = useState(false);
+  const inProximity = position.isCurrent && dist !== null && dist < proximityAt;
+  const found = position.isCurrent && isFound(dist);
+  const [celebrationFriend, setCelebrationFriend] = useState<number | null>(null);
+  const celebrationShown = celebrationFriend === Number(id);
   const [shareOpen, setShareOpen] = useState(false);
+  const [confirmedFriend, setConfirmedFriend] = useState<number | null>(null);
+  const confirmedByUser = confirmedFriend === Number(id);
 
   // Proximity heartbeat. Once you're inside the zone (and not yet found/celebrating)
   // a self-rescheduling pulse fires; it reads the LATEST distance via a ref so the
@@ -70,7 +72,7 @@ export default function CompassScreen() {
     distRef.current = dist;
   }, [dist]);
   const inHeartbeatZone =
-    dist !== null && dist <= HEARTBEAT_START_M && !found && !celebrationShown;
+    position.isCurrent && dist !== null && dist <= HEARTBEAT_START_M && !found && !celebrationShown;
 
   useEffect(() => {
     if (!inHeartbeatZone) return;
@@ -99,7 +101,7 @@ export default function CompassScreen() {
       // GPS is the external source; this screen-local latch preserves the
       // specified once-per-visible-reunion celebration independently of store persistence.
       // eslint-disable-next-line react-hooks/set-state-in-effect
-      setCelebrationShown(true);
+      setCelebrationFriend(Number(id));
       markCelebrated(Number(id));
       haptics.found();
     }
@@ -108,13 +110,13 @@ export default function CompassScreen() {
   // Drifted apart after celebrating: dismiss the celebration view and re-arm for a
   // future reunion — but only past the hysteresis margin (proximity radius + margin),
   // so GPS jitter around the found radius can't flap the celebration or re-fire found().
-  const drifted = shouldRearmCelebration(dist, accuracy);
+  const drifted = position.isCurrent && !confirmedByUser && shouldRearmCelebration(dist, accuracy);
   useEffect(() => {
     if (drifted && celebrated) {
       clearCelebrated(Number(id));
       // This is the corresponding external-GPS hysteresis transition.
       // eslint-disable-next-line react-hooks/set-state-in-effect
-      setCelebrationShown(false);
+      setCelebrationFriend(null);
     }
   }, [clearCelebrated, drifted, celebrated, id]);
 
@@ -133,9 +135,8 @@ export default function CompassScreen() {
   }));
 
   if (!friend) return null;
-  const fresh = friend.lastPacket ? freshnessSec(friend, now) : null;
   const warmth =
-    dist === null
+    dist === null || !position.isCurrent
       ? null
       : dist < 70
         ? { Icon: Flame, text: 'very warm — almost there', color: colors.pink }
@@ -153,12 +154,13 @@ export default function CompassScreen() {
         </BlurView>
       </Pressable>
       <BlurView tint="dark" intensity={24} style={st.pill}><Text style={st.pillText}>Following · {friend.name}</Text></BlurView>
+      <Text style={st.staleNote}>{position.label}</Text>
 
-      {celebrationShown ? (
+      {celebrationShown && (confirmedByUser || position.isCurrent) ? (
         <View style={st.center}>
           <PartyPopper size={90} color={colors.pink} strokeWidth={2} />
           <Text style={st.foundH}>You found each other!</Text>
-          <Text style={st.warm}>{friend.name} is right here.</Text>
+          <Text style={st.warm}>{confirmedByUser ? 'You confirmed your reunion.' : `${friend.name} is right here.`}</Text>
           <Pressable style={st.doneBtn} onPress={() => router.back()}>
             <LinearGradient colors={gradients.sunset} start={{ x: 0, y: 0 }} end={{ x: 1, y: 1 }} style={st.doneInner}>
               <Text style={st.doneText}>Back to radar</Text>
@@ -179,27 +181,37 @@ export default function CompassScreen() {
             color={colors.teal}
             strokeWidth={2}
             fill={colors.teal}
-            style={[st.arrow, arrowStyle]}
+            style={[st.arrow, arrowStyle, !friendPos && { opacity: 0 }]}
           />
           <Text style={st.dist}>{dist !== null ? `${Math.round(dist)}m` : '—'}</Text>
-          <Text style={st.who}>{friend.name} · this way</Text>
+          <Text style={st.who}>{friend.name} · {position.isCurrent ? 'this way' : friendPos ? 'last reported position' : 'position unavailable'}</Text>
           {warmth && (
             <BlurView tint="dark" intensity={16} style={st.warmRow}>
               <warmth.Icon size={13} color={warmth.color} strokeWidth={2} />
               <Text style={[st.warm, { color: warmth.color }]}>{warmth.text}</Text>
             </BlurView>
           )}
-          {fresh !== null && fresh > 30 && <Text style={st.staleNote}>position is {fresh}s old</Text>}
+          {!position.isCurrent && <Text style={st.warm}>This does not confirm where they are now.</Text>}
+          {!position.isCurrent && (
+            <Pressable style={st.doneBtn} accessibilityLabel="I have found this person" onPress={() => {
+              setConfirmedFriend(Number(id));
+              setCelebrationFriend(Number(id));
+              markCelebrated(Number(id));
+              haptics.found();
+            }}>
+              <Text style={st.doneText}>I’ve found them</Text>
+            </Pressable>
+          )}
         </View>
       )}
-      <Pressable style={st.shareBtn} onPress={() => setShareOpen(true)}>
+      <Pressable disabled={!friendPos} accessibilityState={{ disabled: !friendPos }} style={[st.shareBtn, !friendPos && { opacity: 0.4 }]} onPress={() => setShareOpen(true)}>
         <BlurView tint="dark" intensity={24} style={st.shareInner}>
-          <Text style={st.shareT}>Share {friend.name}’s spot</Text>
+          <Text style={st.shareT}>Share {friend.name}’s reported spot</Text>
         </BlurView>
       </Pressable>
       <ShareSheet
-        visible={shareOpen}
-        title={`${friend.name}'s exact spot`}
+        visible={shareOpen && !!friendPos}
+        title={`${friend.name}'s last reported spot · ${position.label}`}
         location={friendPos}
         onClose={() => setShareOpen(false)}
       />

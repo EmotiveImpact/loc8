@@ -10,7 +10,8 @@ interface Props {
   x: number; y: number;                 // px offsets from radar center
   name: string; color: string;
   distanceM: number;
-  freshness: number | null;             // seconds since last packet
+  freshness: number | null;             // established report age, or unknown
+  freshnessLabel?: string;              // shared projection, including uncertainty
   relayVia?: string;
   stale: boolean; ghost: boolean;
   onPress(): void;
@@ -24,7 +25,7 @@ const AV_GRAD: Record<string, [string, string]> = {
   '#ffce4d': ['#ffce4d', '#ff9a3c'],
 };
 
-export function Blip({ x, y, name, color, distanceM, freshness, relayVia, stale, ghost, onPress }: Props) {
+export function Blip({ x, y, name, color, distanceM, freshness, freshnessLabel, relayVia, stale, ghost, onPress }: Props) {
   const tx = useSharedValue(x);
   const ty = useSharedValue(y);
   useEffect(() => {
@@ -39,22 +40,22 @@ export function Blip({ x, y, name, color, distanceM, freshness, relayVia, stale,
   const grad = AV_GRAD[color] ?? [color, color];
   const opacity = ghost ? 0.3 : stale ? 0.55 : 1;
   const showRelay = !ghost && !!relayVia;
-  const sub = ghost
+  const sub = freshnessLabel ?? (freshness === null ? 'Age unverified' : ghost
     ? `last seen ${Math.floor((freshness ?? 0) / 60)}m ago`
     : relayVia
       ? `${Math.round(distanceM)}m · via ${relayVia}`
-      : `${Math.round(distanceM)}m · ${freshness ?? 0}s`;
+      : `${Math.round(distanceM)}m · ${freshness}s`);
 
   return (
     <Animated.View style={[st.wrap, style, { opacity }]}>
-      <Pressable onPress={onPress} style={st.inner}>
+      <Pressable onPress={onPress} style={st.inner} accessibilityLabel={`${name} · ${sub}`}>
         <LinearGradient colors={grad as [string, string]} start={{ x: 0, y: 0 }} end={{ x: 1, y: 1 }} style={st.avatar}>
           <Text style={st.initial}>{name[0]}</Text>
         </LinearGradient>
         <View style={st.tag}>
           <Text style={st.tagName}>{name}</Text>
           <View style={st.tagSubRow}>
-            <Text style={st.tagSub}>{sub}</Text>
+            <Text style={[st.tagSub, { maxWidth: 150 }]} numberOfLines={2}>{sub}</Text>
             {showRelay && <Waypoints size={8} color={colors.signal2} strokeWidth={2} />}
           </View>
         </View>

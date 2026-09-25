@@ -1,0 +1,192 @@
+{
+  "increment": "R1a-2026-09-25",
+  "application_base": "3421390a19643ac6f621d8b9faafa7d7b4fcae62",
+  "publication_parent": "75f1c81895db946b169788200f6f8111df1db60d",
+  "archive_observed": "6ddbf4371a64d93d1299b6cba29276c6bf4273b8",
+  "verification": {
+    "node": "22.16.0",
+    "typescript": "5.8.3",
+    "new_focused_checks": 100,
+    "prior_focused_checks": 80,
+    "native_tests": false,
+    "complete_repo_tests": false
+  },
+  "files": [
+    {
+      "path": ".github/workflows/rnd-verification.yml",
+      "bytes": 1496,
+      "git_blob_sha1": "8e580d00923161c9d2f7ec78ff09ffb697b21e4f",
+      "sha256": "0ae6f77cf062b85b36035bb4b1c40b04417953d6eec2d1baf333d4869dbfeddc",
+      "baseline_blob_sha1": "b65f99e142d3ee50fd04d8134110982c46efbe03"
+    },
+    {
+      "path": "README.md",
+      "bytes": 2520,
+      "git_blob_sha1": "2ef850a2dfa0f20ec0e8228f08dd5a2778acc57d",
+      "sha256": "d61f5beddf152e7e94ef6cda47fc1fdad807cc851183e4fb81a599e2a9ea5a2d",
+      "baseline_blob_sha1": "10d2c6a301797d2e613a3e833b2edb7022f68fa7"
+    },
+    {
+      "path": "app/compass/[id].tsx",
+      "bytes": 12375,
+      "git_blob_sha1": "12d88d631e4d58031afde6699e5c3c232c5d8a30",
+      "sha256": "b93d9f3780ad86745fd7e4ea325192baeed83a00147bb6f918eb06f1b058a3c4",
+      "baseline_blob_sha1": "af390b01e8a6ebcd9ec40f461c862ed78a5f6989"
+    },
+    {
+      "path": "apps/command/src/dashboards/OperationsOverview.tsx",
+      "bytes": 5409,
+      "git_blob_sha1": "ce5cd689c5b03ec686b55ed434b32fe9183046cb",
+      "sha256": "82d68eda873b69d7605183db7a6aae997e469bd1f8ccd91d9eb53b6ef737f1b2",
+      "baseline_blob_sha1": "6be7c6d3895365e8370c130c6cb6adf48c47d373"
+    },
+    {
+      "path": "apps/command/src/dashboards/RosterShift.tsx",
+      "bytes": 5023,
+      "git_blob_sha1": "39047b64f72ee56ff0f0699e28f189ca021730aa",
+      "sha256": "8c75f1f9827990fb1329aa4fa9e762498bc776833f7901d49229c709e09013a4",
+      "baseline_blob_sha1": "5d0404d8082f94635e9d7027a4e10b8e70de64e6"
+    },
+    {
+      "path": "apps/command/src/domain/position.ts",
+      "bytes": 1383,
+      "git_blob_sha1": "e97042a4828836280b9b02a687e46acabbe1cb64",
+      "sha256": "b75329ce469a3cf0bec8045555d3af4dad93f60471220098b655169e3aae9331",
+      "baseline_blob_sha1": null
+    },
+    {
+      "path": "apps/command/src/domain/types.ts",
+      "bytes": 5740,
+      "git_blob_sha1": "b6beda7773bdfa9122bfb8d76e0d189adb24c9d4",
+      "sha256": "64aed3d2d0f96ae433025f6c7a87e00730479f039dad938eb4a9256a1862d73e",
+      "baseline_blob_sha1": "3882acc85b00dc553b2394544931949964c0d593"
+    },
+    {
+      "path": "apps/command/src/engine.ts",
+      "bytes": 3865,
+      "git_blob_sha1": "e2d657b85dff6f33aeb2a0f1dbb90f398111deb5",
+      "sha256": "1113c06c924618f34c0603168107c2ecbabcdc6eb9f2a6234f137cce023f719c",
+      "baseline_blob_sha1": "1c9a36a43fbd95f09cd47449cc42cc429508d3c7"
+    },
+    {
+      "path": "apps/command/src/services/liveBridge.ts",
+      "bytes": 4145,
+      "git_blob_sha1": "005a4e6a087039d72aa515035580c5662e2b0bb7",
+      "sha256": "7a314633c878a11cba1948c60611233de9c780755e0c2a7b311afb2c5cd0b135",
+      "baseline_blob_sha1": "d1058ab288e13443c6a8c03eb87e35d8c4e77a82"
+    },
+    {
+      "path": "apps/command/src/ui/hooks.ts",
+      "bytes": 1072,
+      "git_blob_sha1": "52bdaaf77fb6ccf3e296c6f25446a57b5c7355b5",
+      "sha256": "1f00407b8cdff84b9d88d9f3a1b0e34da338d04e170382428ee17547c8009950",
+      "baseline_blob_sha1": "27cee2fd28d1709932d766c8edd473183897ace6"
+    },
+    {
+      "path": "apps/guard/src/ui/TeamMap.tsx",
+      "bytes": 11403,
+      "git_blob_sha1": "e723db19e1616b739a5a90a4d54dc08e6227d6e1",
+      "sha256": "55cddba937bcf1bd2e148d2b44cabd6e87a46752ddffa5ecad318c173429863f",
+      "baseline_blob_sha1": "09e9340db4ccbb29636dda4d8e64b56e5dce4d81"
+    },
+    {
+      "path": "docs/research/rnd/results/2026-09-25-position-freshness.md",
+      "bytes": 9045,
+      "git_blob_sha1": "c174f73d95d9df815ba85b18228288cd7e292ea2",
+      "sha256": "e3b7309bf50dcbfa3fc7cdaf50bb273510cec5884ae44ad25cae0f4ab1b730d1",
+      "baseline_blob_sha1": null
+    },
+    {
+      "path": "docs/research/rnd/results/evidence/2026-09-25-position-freshness/freshness.tap.gz",
+      "bytes": 3870,
+      "git_blob_sha1": "602a4aef68c263459604c778f6f4b0b6f868065b",
+      "sha256": "d8b4ebc7fe17b23a8fb64cc6dc5d2283febc7a278700b19d88a9c48040648d13",
+      "baseline_blob_sha1": null
+    },
+    {
+      "path": "docs/research/rnd/results/evidence/2026-09-25-position-freshness/r0-rerun.tap.gz",
+      "bytes": 2584,
+      "git_blob_sha1": "7be95db4e2a5f5d393f17f614c4a00c87414b5e7",
+      "sha256": "0834c02d04a1b51702f16f83cbb542e779221ff8746336768322103454c943d9",
+      "baseline_blob_sha1": null
+    },
+    {
+      "path": "packages/engine/src/core/positionFreshness.ts",
+      "bytes": 7906,
+      "git_blob_sha1": "17e4ecd46cf051a0469c5c2f1e203b9d1ae8fff4",
+      "sha256": "48643fd33b960d4765dad305f741feb57e289d53487eb84707a5d7c9603bf5c0",
+      "baseline_blob_sha1": null
+    },
+    {
+      "path": "packages/engine/src/index.ts",
+      "bytes": 1772,
+      "git_blob_sha1": "319d776170cac3c0ce5bb49f4f96025a64fcd7b1",
+      "sha256": "3c13225f60a185ad7395b163b9c3536124f99c64ff17dcd25ef8c46eef4687b7",
+      "baseline_blob_sha1": "8d7245c242df1652e7d8c521af75275a2d36b4af"
+    },
+    {
+      "path": "packages/engine/src/services/meshService.ts",
+      "bytes": 11356,
+      "git_blob_sha1": "d6333ce5bde2822e18c41a0f6f8e6dc325d513ed",
+      "sha256": "c9e697fa440a64d8f169a513b0e5d06e9b74db7691510612c8f560696102889a",
+      "baseline_blob_sha1": "7023bc55ac8076c7a59aa7e1f0c34780763ade93"
+    },
+    {
+      "path": "packages/engine/src/state/crewStore.ts",
+      "bytes": 18616,
+      "git_blob_sha1": "8daf52f39740d6056e03907cb31c01ab04912d52",
+      "sha256": "b76698e960d1e408985f8bc72882e3afc20d064241d41bc2a595bc17f8b2d13b",
+      "baseline_blob_sha1": "206d063a126688392bcae09db23ad08e530a2f55"
+    },
+    {
+      "path": "packages/engine/src/transport/LocationTransport.ts",
+      "bytes": 969,
+      "git_blob_sha1": "d44ef09a24c3830a86e7249ffb54c898e30d984e",
+      "sha256": "246deb754ab9dc981486e965f2d7ffc2c1cffe4f0c7504141e8c296dd4f5fbed",
+      "baseline_blob_sha1": "6d983ef84b3fe26ea7d7462eaa3aab9ce4dfcc3a"
+    },
+    {
+      "path": "packages/engine/src/transport/SimulatedTransport.ts",
+      "bytes": 6791,
+      "git_blob_sha1": "347c7ce824a5eed7fe27cc496120bd291c98352c",
+      "sha256": "a3176387c530c6953773e2387a3bd46eb8787b86a5c3a0077aae1162f72d8dba",
+      "baseline_blob_sha1": "ec74e32ded86f60e7f74a3b72f8e427a43249f6c"
+    },
+    {
+      "path": "src/ui/Blip.tsx",
+      "bytes": 3537,
+      "git_blob_sha1": "b21910f18a403c7fabf39df3a35db720c35e60fc",
+      "sha256": "ca30cb0e9df3c6b79660a07c3c18b076446ed0a293b1ac47040149e3ba230e77",
+      "baseline_blob_sha1": "f380387e6a0d3164d0caf53b291aa05a5393baf4"
+    },
+    {
+      "path": "src/ui/CrewSheet.tsx",
+      "bytes": 7909,
+      "git_blob_sha1": "bf71c802948b87406524b9b4200ec1d8af1514c7",
+      "sha256": "b3027c6e04dc57800def388cd5a4807b4779629ea7704c2811e1326442368249",
+      "baseline_blob_sha1": "3054f83414ebc15d1c6e0b4de1b7980f7a8c8765"
+    },
+    {
+      "path": "src/ui/RadarCrewSheet.tsx",
+      "bytes": 3501,
+      "git_blob_sha1": "3a10a542456d853cbaa06a4094088ac58f6b9818",
+      "sha256": "27fb0bbc73ddd385081879e72943b2f1b30f5c9461e759018644cf6c0aaa6d3c",
+      "baseline_blob_sha1": "8afc9dcd10d3c0f5551d57eebb6962d331b7b486"
+    },
+    {
+      "path": "src/ui/RadarView.tsx",
+      "bytes": 7681,
+      "git_blob_sha1": "0ba80c882a3d2f76982a9f13ece12de187c8e557",
+      "sha256": "47f909ee010d53dd8665b64bdd9963dbe41e47d76ba9671215e7b07d34fb7e23",
+      "baseline_blob_sha1": "08ffc0c957e8e137c198e352bacabe190c62fb7c"
+    },
+    {
+      "path": "tools/mesh-rnd/freshness.node.cjs",
+      "bytes": 36918,
+      "git_blob_sha1": "15ac2494cb0da7abff7ffe1c1f93d81ba8c09983",
+      "sha256": "fe0fbc0facf77e5b679f6418ba0455461ae73275c8c5fb33546c8caf1fd4211c",
+      "baseline_blob_sha1": null
+    }
+  ],
+  "note": "This manifest excludes itself. Source subset, not a full checkout. Workflow base is the publication parent. Test evidence is losslessly gzip-compressed TAP."
+}

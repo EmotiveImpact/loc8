@@ -1,5 +1,27 @@
 # Loc8
 
+Start with [the unified system map and build programme](LOC8_MASTER_PLAN.md).
+The next GPS-source increment extends PR #4; it does not merge or deploy it.
+Read its [source-provenance decision](docs/research/rnd/decisions/2026-09-25-source-location-v1.md)
+and [implementation receipt](docs/research/rnd/results/2026-09-25-source-location.md).
+
+## Position-report freshness increment: 25 September 2026
+
+The next shared-engine increment is integrated into Consumer radar/crew/compass,
+Guard TeamMap and Command operations/roster. It separates report time from local
+receipt, labels unverified age, preserves delayed demo provenance and prevents
+stale reports from automatically claiming a reunion. Main is not changed by
+this review branch.
+
+Read the [R1a implementation and limits](docs/research/rnd/results/2026-09-25-position-freshness.md).
+The legacy sender currently publishes cached coordinates with publication time;
+true GPS-sample freshness and live clock verification remain explicit follow-up
+gates, not claims made by this patch.
+
+```sh
+node --test tools/mesh-rnd/freshness.node.cjs
+```
+
 ## Current R&D handover: 25 September 2026
 
 Loc8, Loc8 Guard and Loc8 Command share `@loc8/engine`. The native iPhone

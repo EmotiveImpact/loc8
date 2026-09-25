@@ -1,6 +1,16 @@
 import { useEffect, useState } from 'react';
 import { fmtClock, fmtElapsed, nowSec } from '../domain/time';
 
+/** Rerender age projections while a feed is silent; does not stamp any observation. */
+export function useNowSec(): number {
+  const [now, setNow] = useState(nowSec);
+  useEffect(() => {
+    const timer = setInterval(() => setNow(nowSec()), 1000);
+    return () => clearInterval(timer);
+  }, []);
+  return now;
+}
+
 /** Live wall-clock HH:MM:SS, ticking every second. */
 export function useClock(): string {
   const [t, setT] = useState(() => fmtClock(new Date()));

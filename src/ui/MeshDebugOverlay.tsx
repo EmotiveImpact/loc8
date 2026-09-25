@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { View, Text, Pressable, StyleSheet } from 'react-native';
-import { useMeshDebugStore, colors } from '@loc8/engine';
+import { useMeshDebugStore, useCrewStore, sourceLocationView, colors } from '@loc8/engine';
 import { ChevronDown, TriangleAlert } from 'lucide-react-native';
 import { useNowSec } from '../hooks/useNowSec';
 
@@ -18,6 +18,9 @@ function Hud() {
   const s = useMeshDebugStore();
   const [open, setOpen] = useState(true);
   const nowSec = useNowSec();
+  const location = useCrewStore((state) => state.myLocation);
+  const sample = useCrewStore((state) => state.myLocationSample);
+  const source = sourceLocationView(location, sample, nowSec * 1000);
 
   const rxAgo = s.lastRxSec == null ? '—' : `${Math.max(0, nowSec - s.lastRxSec)}s`;
   const health = s.connected ? (s.received > 0 ? colors.teal : colors.yellow) : colors.danger;
@@ -39,10 +42,13 @@ function Hud() {
         <ChevronDown size={12} color={colors.textDim} strokeWidth={2} />
       </Pressable>
       <Row label="peers" value={`${s.nearbyCount}${s.connected ? '' : ' (down)'}`} />
-      <Row label="sent" value={String(s.sent)} />
+      <Row label="attempts" value={String(s.sent)} />
       <Row label="recv" value={String(s.received)} good={s.received > 0} />
       <Row label="dropped" value={String(s.dropped)} bad={s.dropped > 0} />
       <Row label="last rx" value={rxAgo} />
+      <Row label="fix state" value={source.state} />
+      <Row label="fix age" value={source.ageMs == null ? 'unknown' : `${Math.floor(source.ageMs / 1000)}s`} />
+      <Row label="fix accuracy" value={source.accuracyM == null ? 'unknown' : `${source.accuracyM.toFixed(1)}m`} />
       {s.lastError && (
         <View style={st.errRow}>
           <TriangleAlert size={9} color={colors.danger} strokeWidth={2} />

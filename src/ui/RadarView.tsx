@@ -6,14 +6,12 @@ import Animated, { useSharedValue, useAnimatedStyle, withRepeat, withTiming, Eas
 import { LinearGradient } from 'expo-linear-gradient';
 import { useRouter, type Href } from 'expo-router';
 import {
-  GHOST_SEC,
   LINEAR_MAX_M,
   OUTER_MAX_M,
-  STALE_SEC,
   calculateRadarPoint,
   colors,
   fonts,
-  freshnessSec,
+  friendPositionFreshness,
   gradients,
   useCrewStore,
 } from '@loc8/engine';
@@ -122,11 +120,11 @@ export function RadarView() {
 
           {/* friends */}
           {myLocation && Object.values(friends).map((f) => {
-            if (!f.lastPacket) return null;
-            const fresh = freshnessSec(f, now);
+            const position = friendPositionFreshness(f, now);
+            if (!position.location) return null;
             const pt = calculateRadarPoint(
               myLocation,
-              { latitude: f.lastPacket.latitude, longitude: f.lastPacket.longitude },
+              position.location,
               radius,
             );
             return (
@@ -135,10 +133,11 @@ export function RadarView() {
                 x={pt.x} y={pt.y}
                 name={f.name} color={f.color}
                 distanceM={pt.distanceMeters}
-                freshness={fresh}
+                freshness={position.ageSec}
+                freshnessLabel={position.label}
                 relayVia={f.relayVia}
-                stale={fresh !== null && fresh > STALE_SEC}
-                ghost={fresh !== null && fresh > GHOST_SEC}
+                stale={!position.isCurrent}
+                ghost={position.ghost}
                 onPress={() => router.push(`/compass/${f.id}` as Href)}
               />
             );

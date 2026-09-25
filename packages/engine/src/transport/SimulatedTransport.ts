@@ -1,7 +1,7 @@
 import type { Coordinate, Packet } from '../core/types';
 import { movePoint, getAbsoluteBearing, getHaversineDistance } from '../core/geoMath';
 import { mulberry32 } from './seededRandom';
-import type { LocationTransport, MeshStatus } from './LocationTransport';
+import type { LocationTransport, MeshStatus, PacketReceiptContext } from './LocationTransport';
 
 export interface SimFriendSpec {
   id: number; name: string; color: string;
@@ -33,7 +33,7 @@ const TICK_SEC = 2;
 export class SimulatedTransport implements LocationTransport {
   private rng: () => number;
   private friends: SimFriend[];
-  private packetCbs: Array<(p: Packet, relayVia?: string) => void> = [];
+  private packetCbs: Array<(p: Packet, relayVia?: string, context?: PacketReceiptContext) => void> = [];
   private statusCbs: Array<(s: MeshStatus) => void> = [];
   private timer: ReturnType<typeof setInterval> | null = null;
   private origin: Coordinate;
@@ -67,7 +67,7 @@ export class SimulatedTransport implements LocationTransport {
     this.timer = null;
   }
 
-  onPacket(cb: (p: Packet, relayVia?: string) => void): void { this.packetCbs.push(cb); }
+  onPacket(cb: (p: Packet, relayVia?: string, context?: PacketReceiptContext) => void): void { this.packetCbs.push(cb); }
   onMeshStatus(cb: (s: MeshStatus) => void): void { this.statusCbs.push(cb); }
   clearListeners(): void { this.packetCbs = []; this.statusCbs = []; }
 
@@ -168,6 +168,6 @@ export class SimulatedTransport implements LocationTransport {
   }
 
   private emit(p: Packet, relayVia?: string): void {
-    this.packetCbs.forEach((cb) => cb(p, relayVia));
+    this.packetCbs.forEach((cb) => cb(p, relayVia, { source: 'simulation', receivedAtSec: this.nowSec() }));
   }
 }

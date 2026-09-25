@@ -1,3 +1,5 @@
+import { staffPositionFreshness } from '../domain/position';
+import { useNowSec } from '../ui/hooks';
 import { useCommandStore } from '../store/commandStore';
 import { zoneName } from '../domain/zones';
 import { projectToCanvas } from '../domain/coverage';
@@ -10,6 +12,7 @@ import type { Nav } from '../App';
 
 export function OperationsOverview({ nav }: { nav: Nav }) {
   const store = useCommandStore();
+  const now = useNowSec();
   const zones = store.zones.filter((z) => ['main_room', 'bar', 'terrace', 'car_park', 'gate_c'].includes(z.id));
   const staff = Object.values(store.staff);
   const feed = [...store.incidents].sort((a, b) => b.raisedAtSec - a.raisedAtSec);
@@ -48,6 +51,7 @@ export function OperationsOverview({ nav }: { nav: Nav }) {
 
           {/* center map */}
           <div className="ccenter">
+            <p className="mono">Muted points: ageing or unverified position reports.</p>
             <MapCanvas label="Venue map — guard positions and active incident">
               {zones.map((z) => (
                 <ZoneRect key={z.id} zone={z} />
@@ -55,15 +59,18 @@ export function OperationsOverview({ nav }: { nav: Nav }) {
               {staff
                 .filter((s) => s.location && s.status !== 'sos')
                 .map((s) => {
-                  const p = projectToCanvas(s.location!);
+                  const position = staffPositionFreshness(s, now);
+                  if (!position.location) return null;
+                  const p = projectToCanvas(position.location);
                   return (
                     <GuardDot
                       key={s.id}
                       x={p.x}
                       y={p.y}
-                      tone={staffDotTone(s.status)}
+                      tone={position.isCurrent ? staffDotTone(s.status) : 'off'}
                       label={String(s.id).padStart(2, '0')}
-                      title={`Guard ${String(s.id).padStart(2, '0')} · ${s.name.split(' ')[0]} · ${s.status}`}
+                      title={`Guard ${String(s.id).padStart(2, '0')} · ${s.name.split(' ')[0]} · ${s.status} · ${position.label}`}
+                      sublabel={position.state === 'clock-uncertain' ? 'Age unverified' : position.label}
                       onClick={() => nav.open('roster')}
                     />
                   );

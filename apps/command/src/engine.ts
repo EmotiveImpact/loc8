@@ -16,6 +16,7 @@
 //     coverage, on the same geo math as the radar.
 
 export type { Coordinate, Packet } from '@loc8/engine/core/types';
+export * from '@loc8/engine/core/positionFreshness';
 export { encodePacket, decodePacket, PACKET_SIZE } from '@loc8/engine/core/packetCodec';
 export { fragmentText, TextReassembler } from '@loc8/engine/core/textFragments';
 export { getHaversineDistance } from '@loc8/engine/core/geoMath';

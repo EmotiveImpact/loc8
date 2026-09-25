@@ -10,8 +10,7 @@ import { View, Text, Pressable, StyleSheet } from 'react-native';
 import Animated, { FadeIn, FadeOut, SlideInDown, SlideOutDown } from 'react-native-reanimated';
 import { BlurView } from 'expo-blur';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
-import { useCrewStore, freshnessSec, GHOST_SEC, haptics, colors, fonts } from '@loc8/engine';
-import { useNowSec } from '../hooks/useNowSec';
+import { useCrewStore, haptics, colors, fonts } from '@loc8/engine';
 import { CrewSheet } from './CrewSheet';
 import { ChevronUp, Users } from 'lucide-react-native';
 
@@ -21,13 +20,9 @@ export function RadarCrewSheet() {
   const [open, setOpen] = useState(false);
   const friends = useCrewStore((s) => s.friends);
   const meshNearby = useCrewStore((s) => s.meshNearby);
-  const now = useNowSec();
   const insets = useSafeAreaInsets();
 
   const count = Object.keys(friends).length;
-  const online = Object.values(friends).filter(
-    (f) => f.lastPacket && (freshnessSec(f, now) ?? Infinity) <= GHOST_SEC,
-  ).length;
 
   if (count === 0) return null; // no crew yet — nothing to act on
 
@@ -40,7 +35,7 @@ export function RadarCrewSheet() {
             <View style={st.grab} />
             <View style={st.peekRow}>
               <Users size={16} color={colors.signal} strokeWidth={2} />
-              <Text style={st.peekText}>Your crew · {online} online</Text>
+              <Text style={st.peekText}>Your crew · {count} members</Text>
               {meshNearby > 0 && <Text style={st.mesh}>· mesh {meshNearby}</Text>}
               <View style={{ flex: 1 }} />
               <ChevronUp size={18} color={colors.faint} strokeWidth={2.5} />

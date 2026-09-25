@@ -3,6 +3,7 @@ import { AppState, type AppStateStatus, type NativeEventSubscription } from 'rea
 import { useCrewStore } from '../state/crewStore';
 import { TrustLayer } from '../core/trustLayer';
 import { fragmentText, fragmentProfile, TextReassembler } from '../core/textFragments';
+import { legacySourceAccuracy } from '../core/sourceLocation';
 import { haptics } from './haptics';
 import type { LocationTransport } from '../transport/LocationTransport';
 import type { Packet, PacketType } from '../core/types';
@@ -75,13 +76,18 @@ export function createMeshService(
     return true;
   };
 
+  // Keep v1 publication time for heartbeat/replay compatibility. The original
+  // provider timestamp and full accuracy live in myLocationSample and are NOT
+  // restamped here. Remote source age remains unverified: v1 carries one clock.
   const myPacket = (type: PacketType, targetId = 0): Packet | null => {
     const s = store();
-    if (!s.profile || !s.myLocation) return null;
+    // Status replies carry no geo on the wire and must still work without GPS.
+    if (!s.profile || (!s.myLocation && type !== 'quickReply')) return null;
     return {
       type, senderId: s.profile.id, targetId,
-      latitude: s.myLocation.latitude, longitude: s.myLocation.longitude,
-      headingDeg: 0, batteryPct: 100, timestampSec: nowSec(), accuracyM: 10,
+      latitude: s.myLocation?.latitude ?? 0, longitude: s.myLocation?.longitude ?? 0,
+      headingDeg: 0, batteryPct: 100, timestampSec: nowSec(),
+      accuracyM: legacySourceAccuracy(s.myLocation, s.myLocationSample),
       // Stamp our current floor so peers can place us on the right level.
       floor: s.myFloor,
     };
@@ -105,7 +111,7 @@ export function createMeshService(
   const service: MeshService = {
     start() {
       if (timer) return;   // idempotent — don't re-register callbacks or start a 2nd interval
-      transport.onPacket((p, relayVia) => {
+      transport.onPacket((p, relayVia, receiptContext) => {
         if (p.type === 'text') {
           // Text is fragmented: route to the reassembler FIRST (fragments share
           // a timestamp, so the per-type trust gate would drop all but the
@@ -136,7 +142,7 @@ export function createMeshService(
           if (done && firstCompletion(`profile:${p.senderId}:${p.msgId}`)) s.setFriendName(done.senderId, done.text);
           return;
         }
-        if (trust.accept(p)) store().applyPacket(p, relayVia);
+        if (trust.accept(p)) store().applyPacket(p, relayVia, receiptContext);
       });
       transport.onMeshStatus((st) => store().setMeshNearby(st.nearbyCount));
       foreground = AppState.currentState !== 'background';
@@ -221,7 +227,7 @@ export function createMeshService(
       if (!s.profile) return;
       const trimmed = text.trim();
       if (!trimmed) return;
-      // Crew-scoped like position packets (0 = no crew / broadcast to all).
+      // Crew-scoped like position/text/profile (0 = no crew / broadcast to all).
       const targetId = s.crew?.tag ?? 0;
       const msgId = (msgIdCounter = (msgIdCounter + 1) & 0xffff);
       const frags = fragmentText({

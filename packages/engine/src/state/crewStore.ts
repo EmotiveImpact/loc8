@@ -2,6 +2,9 @@ import { create } from 'zustand';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import type { Coordinate, Packet } from '../core/types';
 import { quickReplyLabel } from '../core/types';
+import type { PacketReceiptContext } from '../transport/LocationTransport';
+import { makePositionReceipt, newerPosition, validPosition, type PositionReceipt } from '../core/positionFreshness';
+import { captureSourceLocation, shouldReplaceSourceLocation, type SourceLocationInput, type SourceLocationSample } from '../core/sourceLocation';
 import { FRIEND_COLORS } from '../ui/theme';
 
 const PROFILE_KEY = 'loc8.profile.v1';
@@ -65,6 +68,11 @@ function randomCrewCode(): string {
 export interface FriendState {
   id: number; name: string; color: string;
   lastPacket?: Packet; relayVia?: string;
+  /** First receipt of the retained position, never refreshed by chatter/reconnect. */
+  positionReceipt?: PositionReceipt;
+  /** Display gates supplied by the owning permission workflow, not radio claims. */
+  positionVisible?: boolean;
+  positionVisibleUntilSec?: number;
 }
 export interface RallyPin { latitude: number; longitude: number; droppedById: number; atSec: number; floor?: number; }
 
@@ -107,9 +115,10 @@ let activitySeq = 1;
 export const STALE_SEC = 90;    // desaturate blips older than this
 export const GHOST_SEC = 240;   // "went dark" ghost state
 
-/** Seconds since friend's last packet, or null if never seen. */
+/** Legacy reported age only. Prefer friendPositionFreshness for any current/live claim. */
 export function freshnessSec(f: FriendState, nowSec: number): number | null {
-  return f.lastPacket ? nowSec - f.lastPacket.timestampSec : null;
+  const age = f.lastPacket ? nowSec - f.lastPacket.timestampSec : NaN;
+  return Number.isFinite(age) && age >= 0 ? age : null;
 }
 
 interface CrewState {
@@ -125,6 +134,8 @@ interface CrewState {
   friends: Record<number, FriendState>;
   rallyPin: RallyPin | null;
   myLocation: Coordinate | null;
+  /** Original device sample; never refreshed by publishing a heartbeat. */
+  myLocationSample: SourceLocationSample | null;
   /** My current floor/level (0 = ground). Driven by floorService via the FloorTracker. */
   myFloor: number;
   /**
@@ -151,7 +162,7 @@ interface CrewState {
   hydrate(): Promise<void>;
   setAutoAddPeers(v: boolean): void;
   registerFriends(list: Array<Pick<FriendState, 'id' | 'name' | 'color'>>): void;
-  applyPacket(p: Packet, relayVia?: string): void;
+  applyPacket(p: Packet, relayVia?: string, receiptContext?: PacketReceiptContext): void;
   /** Apply a display name learned from a peer's 'profile' announce over the mesh. */
   setFriendName(senderId: number, name: string): void;
   /** Surface a fully-reassembled crew message from another member. */
@@ -163,7 +174,11 @@ interface CrewState {
   endSession(): void;
   isSessionActive(nowSec: number): boolean;
   setPrivacy(m: PrivacyMode): void;
+  /** Legacy/demo caller with no source evidence; clears any previous provenance. */
   setMyLocation(c: Coordinate): void;
+  setMyLocationSample(sample: SourceLocationInput): boolean;
+  setDemoLocation(c: Coordinate): void;
+  clearMyLocation(): void;
   /** Written by floorService whenever the FloorTracker's state changes. */
   setFloorState(floor: number, confidence: 'unknown' | 'anchored' | 'estimated', confirmNeeded: boolean): void;
   setMeshNearby(n: number): void;
@@ -200,7 +215,7 @@ const initial = {
   hydrated: false, autoAddPeers: false,
   privacyMode: 'live' as PrivacyMode, sessionEndsAtSec: null,
   notificationsEnabled: true, hapticsEnabled: true, units: 'm' as Units,
-  friends: {}, rallyPin: null, myLocation: null,
+  friends: {}, rallyPin: null, myLocation: null, myLocationSample: null,
   myFloor: 0, floorConfidence: 'unknown' as const, floorConfirmNeeded: false,
   meshNearby: 0,
   beaconMode: false, banner: null, celebrated: {},
@@ -287,7 +302,7 @@ export const useCrewStore = create<CrewState>((set, get) => ({
       friends: Object.fromEntries(list.map((f) => [f.id, { ...f }])),
     }),
 
-  applyPacket: (p, relayVia) => {
+  applyPacket: (p, relayVia, receiptContext) => {
     // Self-echo guard: never treat our own broadcast (relayed back through the
     // mesh) as a friend, in both sim and BLE modes.
     if (get().profile && p.senderId === get().profile!.id) return;
@@ -305,6 +320,12 @@ export const useCrewStore = create<CrewState>((set, get) => ({
     };
 
     if (p.type === 'position') {
+      if (!Number.isInteger(p.senderId) || p.senderId < 0 || p.senderId > 0xffffffff ||
+          !validPosition(p) || !newerPosition(p.timestampSec, get().friends[p.senderId]?.lastPacket?.timestampSec)) return;
+      const isSimulation = receiptContext?.source === 'simulation';
+      const positionReceipt = makePositionReceipt(p, p.timestampSec,
+        isSimulation ? receiptContext.receivedAtSec : Math.floor(Date.now() / 1000),
+        isSimulation ? 'simulation' : 'unverified');
       const crew = get().crew;
       // Crew filtering is a real-transport privacy feature: accept only packets
       // tagged for our crew. It's gated on autoAddPeers (true only on real BLE)
@@ -319,13 +340,13 @@ export const useCrewStore = create<CrewState>((set, get) => ({
           name: `Friend ${p.senderId % 1000}`,
           color: FRIEND_COLORS[p.senderId % FRIEND_COLORS.length],
         };
-        set({ friends: { ...get().friends, [p.senderId]: { ...f, lastPacket: p, relayVia } } });
+        set({ friends: { ...get().friends, [p.senderId]: { ...f, lastPacket: { ...p }, relayVia, positionReceipt } } });
         return;
       }
       // No crew set: keep existing sim/BLE behavior (known-sender / autoAddPeers).
       const f = ensureFriend(p.senderId) ?? get().friends[p.senderId];
       if (!f) return; // unknown sender (sim mode) — not our crew, drop
-      set({ friends: { ...get().friends, [p.senderId]: { ...f, lastPacket: p, relayVia } } });
+      set({ friends: { ...get().friends, [p.senderId]: { ...f, lastPacket: { ...p }, relayVia, positionReceipt } } });
     } else if (p.type === 'rally') {
       const crew = get().crew;
       // Real-crew mode (BLE): only accept rally pins tagged for our crew, mirroring
@@ -422,7 +443,22 @@ export const useCrewStore = create<CrewState>((set, get) => ({
   },
 
   setPrivacy: (privacyMode) => set({ privacyMode }),
-  setMyLocation: (myLocation) => set({ myLocation }),
+  setMyLocation: (myLocation) => {
+    if (!validPosition(myLocation)) return;
+    set({ myLocation: { ...myLocation }, myLocationSample: null });
+  },
+  setMyLocationSample: (input) => {
+    const sample = captureSourceLocation(input);
+    if (!sample || !shouldReplaceSourceLocation(get().myLocationSample, sample)) return false;
+    set({ myLocation: { ...sample.coordinate }, myLocationSample: sample });
+    return true;
+  },
+  setDemoLocation: (coordinate) => {
+    const now = Date.now();
+    const sample = captureSourceLocation({ coords: coordinate, timestamp: now }, now, undefined, 'demo');
+    if (sample) set({ myLocation: { ...sample.coordinate }, myLocationSample: sample });
+  },
+  clearMyLocation: () => set({ myLocation: null, myLocationSample: null }),
   setFloorState: (myFloor, floorConfidence, floorConfirmNeeded) =>
     set({ myFloor, floorConfidence, floorConfirmNeeded }),
   setMeshNearby: (meshNearby) => set({ meshNearby }),

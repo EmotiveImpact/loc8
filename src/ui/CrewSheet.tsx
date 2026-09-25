@@ -5,11 +5,10 @@ import { BlurView } from 'expo-blur';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useRouter, type Href } from 'expo-router';
 import {
-  GHOST_SEC,
   QUICK_REPLIES,
   colors,
   fonts,
-  freshnessSec,
+  friendPositionFreshness,
   getHaversineDistance,
   getMeshService,
   haptics,
@@ -32,9 +31,7 @@ export function CrewSheet() {
 
   const ping = (id: number, name: string) => setChooser({ id, name });
 
-  const online = Object.values(friends).filter(
-    (f) => f.lastPacket && (freshnessSec(f, now) ?? Infinity) <= GHOST_SEC,
-  ).length;
+  const count = Object.keys(friends).length;
 
   return (
     <BlurView tint="dark" intensity={28} style={[st.sheet, { paddingBottom: insets.bottom + 76 }]}>
@@ -47,21 +44,13 @@ export function CrewSheet() {
           MESH · {meshNearby} nearby
         </Text>
       </View>
-      <Text style={st.h}>YOUR CREW · {online} online</Text>
+      <Text style={st.h}>YOUR CREW · {count} members</Text>
       {Object.values(friends).map((f) => {
-        const fresh = freshnessSec(f, now);
-        const dist =
-          f.lastPacket && myLocation
-            ? Math.round(getHaversineDistance(myLocation, {
-                latitude: f.lastPacket.latitude, longitude: f.lastPacket.longitude,
-              }))
-            : null;
-        const relayed = !!f.lastPacket && fresh! <= GHOST_SEC && !!f.relayVia;
-        const sub = !f.lastPacket
-          ? 'not seen yet'
-          : fresh! > GHOST_SEC
-            ? `went dark · ${Math.floor(fresh! / 60)}m ago`
-            : `${dist}m · ${fresh}s ago${relayed ? ` · via ${f.relayVia}` : ''}`;
+        const position = friendPositionFreshness(f, now);
+        const dist = position.location && myLocation
+          ? Math.round(getHaversineDistance(myLocation, position.location)) : null;
+        const relayed = !!position.location && !position.ghost && !!f.relayVia;
+        const sub = `${position.label}${dist === null ? '' : ` · ${position.isCurrent ? '' : 'last reported '}~${dist}m`}${relayed ? ` · via ${f.relayVia}` : ''}`;
         return (
           <View key={f.id} style={st.row}>
             <View style={[st.av, { backgroundColor: f.color }]}>
@@ -77,7 +66,7 @@ export function CrewSheet() {
             <Pressable style={st.pingBtn} onPress={() => ping(f.id, f.name)}>
               <Text style={st.pingText}>Ping</Text>
             </Pressable>
-            <Pressable style={st.findBtn} onPress={() => { haptics.tap(); router.push(`/compass/${f.id}` as Href); }}>
+            <Pressable disabled={!position.location} accessibilityState={{ disabled: !position.location }} style={[st.findBtn, !position.location && { opacity: 0.4 }]} onPress={() => { haptics.tap(); router.push(`/compass/${f.id}` as Href); }}>
               <Text style={st.findText}>Find</Text>
               <ChevronRight size={12} color="#fff" strokeWidth={2.5} />
             </Pressable>
