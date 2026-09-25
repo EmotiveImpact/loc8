@@ -1,0 +1,108 @@
+{
+  "date": "2026-09-25",
+  "repo": "EmotiveImpact/loc8",
+  "main_at_read": "f6b09a492c362f1c73b775d67721da1cc345fe91",
+  "hardening_ref": "3421390a19643ac6f621d8b9faafa7d7b4fcae62",
+  "recovered_originals": [
+    {
+      "name": "LOC8-Codex-Handoff.md",
+      "source": "Library",
+      "file_id": "file_000000002260821093ff6f2bf0496b00",
+      "version": 1,
+      "bytes": 13130,
+      "sha256": "d94afdb7d9c6dee830b72bd6bac56decbc92d04840a51dffe23776a263bfb90b",
+      "git_blob_sha": "73ab5b8fd7666f2938b2f6a82db6c7b74a58b241",
+      "conversation_bundle_path": "originals/LOC8-Codex-Handoff.md",
+      "remote_original_status": "not asserted by inventory; see publication receipt"
+    },
+    {
+      "name": "LOC8-Command-Interactive.html",
+      "source": "Library",
+      "file_id": "file_000000000b9c81f48e7cfa5ab88d12a8",
+      "version": 1,
+      "bytes": 421889,
+      "sha256": "d4f1d57d7c9fac6053b3de161dd0751c3b5d2b2d3313abd1c0ca396c16def6c4",
+      "git_blob_sha": "9eca84158a4f6576f07970dd8a9d97a5290ed85d",
+      "conversation_bundle_path": "originals/LOC8-Command-Interactive.html",
+      "remote_original_status": "not asserted by inventory; see publication receipt"
+    },
+    {
+      "name": "LOC8-Command-React-App.html",
+      "source": "Library",
+      "file_id": "file_00000000595082108ab1e269c4ec8059",
+      "version": 1,
+      "bytes": 1412644,
+      "sha256": "09a2c5426cb879421a578a0e2d0b87d372ac99b7f8d26c09030b8f7603029223",
+      "git_blob_sha": "28182f857cb9219506da5db677e87067d6221cfc",
+      "conversation_bundle_path": "originals/LOC8-Command-React-App.html",
+      "remote_original_status": "not asserted by inventory; see publication receipt"
+    },
+    {
+      "name": "LOC8-Command-React-Handoff.md",
+      "source": "Library",
+      "file_id": "file_00000000f7e481f4a3fa14ca11465cb4",
+      "version": 1,
+      "bytes": 5853,
+      "sha256": "76a77933d358cf38e4023f6360398160413b48fc987da35854a102d3df2459ea",
+      "git_blob_sha": "ccb0ed8219dd3f90e0d5322d3e786255fabab293",
+      "conversation_bundle_path": "originals/LOC8-Command-React-Handoff.md",
+      "remote_original_status": "not asserted by inventory; see publication receipt"
+    },
+    {
+      "name": "LOC8-Command-React-README.md",
+      "source": "Library",
+      "file_id": "file_00000000aa588210b8a52692c247afd7",
+      "version": 1,
+      "bytes": 8828,
+      "sha256": "72d81ba0245a776f9655c4fc18aa76bad9d9d3947c16d550d31401b6dab07cf5",
+      "git_blob_sha": "fd6b7932d497c54c40efb280fac4e89041c8e769",
+      "conversation_bundle_path": "originals/LOC8-Command-React-README.md",
+      "remote_original_status": "not asserted by inventory; see publication receipt"
+    },
+    {
+      "name": "LOC8_CODEX_RESEARCH_HANDOVER.md",
+      "source": "Library",
+      "file_id": "file_0000000055508230813bce7067e867be",
+      "version": 1,
+      "bytes": 44828,
+      "sha256": "71c9178417b847cf46c7a35dd6275e68b513bc9e745bd2b12c64946129f554ad",
+      "git_blob_sha": "eb5851214017d537c0cb0ce31b65708143983922",
+      "conversation_bundle_path": "originals/LOC8_CODEX_RESEARCH_HANDOVER.md",
+      "remote_original_status": "not asserted by inventory; see publication receipt"
+    },
+    {
+      "name": "Loc8-RD-Programme-2026-09-25.md",
+      "source": "Library",
+      "file_id": "file_000000001dc481f4bba47612e6ade21e",
+      "version": 1,
+      "bytes": 15212,
+      "sha256": "e2b3ac3cfefac4a6542151870b2f626aaef17d5bf91f68234760adf15ca0483c",
+      "git_blob_sha": "2defa925867b261383a57f150facb67640840ea5",
+      "conversation_bundle_path": "originals/Loc8-RD-Programme-2026-09-25.md",
+      "remote_original_status": "not asserted by inventory; see publication receipt"
+    },
+    {
+      "name": "Loc8_Arena_Bluetooth_Mesh_Research_and_Build_Guide.pdf",
+      "source": "Library",
+      "file_id": "file_00000000d11c822fbd279c0ec5b1fd95",
+      "version": 1,
+      "bytes": 175733,
+      "sha256": "5b3cab5641b5dc50bfb4a43ff20ea8b08679120f5158d4bd379e06c42c914354",
+      "git_blob_sha": "fd8333594e2fe0f14e50a8750caa929774b5531e",
+      "conversation_bundle_path": "originals/Loc8_Arena_Bluetooth_Mesh_Research_and_Build_Guide.pdf",
+      "remote_original_status": "not asserted by inventory; see publication receipt"
+    }
+  ],
+  "gaps": [
+    "No inspection of owner computer disk or reflogs",
+    "No full standalone Command source repository or local history recovered",
+    "No actual ignored upstream clone bytes recovered",
+    "No full raw weekly conversation export",
+    "Historical test counts were not rerun by recovery task"
+  ],
+  "existing_tracked_sources": {
+    "docs/research/rnd/repository-snapshot.tsv": "97b925cb5d94b3322b410b3cc3410f0796f0551d",
+    "docs/research/rnd/retained-repository-source-audit.tsv": "de9cca222f2b71032bc136d1dc11df9ded7c1349",
+    "docs/research/arena-dossier-2026-07-21.pdf": "fd8333594e2fe0f14e50a8750caa929774b5531e"
+  }
+}
