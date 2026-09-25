@@ -75,6 +75,9 @@ export function createMeshService(
     return true;
   };
 
+  // Legacy publication time is not a preserved GPS-sample timestamp. Until
+  // sample provenance and clock estimation exist, live receivers label age
+  // unverified rather than treating this freshly-stamped report as a fresh fix.
   const myPacket = (type: PacketType, targetId = 0): Packet | null => {
     const s = store();
     if (!s.profile || !s.myLocation) return null;
@@ -105,7 +108,7 @@ export function createMeshService(
   const service: MeshService = {
     start() {
       if (timer) return;   // idempotent — don't re-register callbacks or start a 2nd interval
-      transport.onPacket((p, relayVia) => {
+      transport.onPacket((p, relayVia, receiptContext) => {
         if (p.type === 'text') {
           // Text is fragmented: route to the reassembler FIRST (fragments share
           // a timestamp, so the per-type trust gate would drop all but the
@@ -136,7 +139,7 @@ export function createMeshService(
           if (done && firstCompletion(`profile:${p.senderId}:${p.msgId}`)) s.setFriendName(done.senderId, done.text);
           return;
         }
-        if (trust.accept(p)) store().applyPacket(p, relayVia);
+        if (trust.accept(p)) store().applyPacket(p, relayVia, receiptContext);
       });
       transport.onMeshStatus((st) => store().setMeshNearby(st.nearbyCount));
       foreground = AppState.currentState !== 'background';

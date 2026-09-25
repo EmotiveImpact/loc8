@@ -4,6 +4,7 @@
 
 // --- core: packets, geo, plus codes, trust, text fragments, types ---
 export * from './core/types';
+export * from './core/positionFreshness';
 export * from './core/geoMath';
 export * from './core/plusCodes';
 export * from './core/trustLayer';

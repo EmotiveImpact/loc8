@@ -6,6 +6,7 @@ on:
     paths:
       - 'packages/engine/**'
       - 'apps/**'
+      - 'app/**'
       - 'src/**'
       - 'tools/mesh-rnd/**'
       - '.github/workflows/rnd-verification.yml'
@@ -40,11 +41,8 @@ jobs:
         run: npm ci
       - name: Shared BLE regression checks
         run: node --test tools/mesh-rnd/verify.node.cjs
-      - name: Position freshness checks when present
-        run: |
-          if [ -f tools/mesh-rnd/freshness.node.cjs ]; then
-            node --test tools/mesh-rnd/freshness.node.cjs
-          fi
+      - name: Position freshness checks
+        run: node --test tools/mesh-rnd/freshness.node.cjs
       - name: Existing Jest suite
         run: npm test -- --runInBand
       - name: Root TypeScript

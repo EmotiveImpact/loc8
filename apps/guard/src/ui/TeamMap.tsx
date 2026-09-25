@@ -1,13 +1,13 @@
 // apps/guard/src/ui/TeamMap.tsx — top-down tactical team map.
 //
-// Positions are REAL: each guard's blip is projected from the engine's
+// Positions are reported, not independently verified: each blip uses the engine's
 // crewStore.friends[].lastPacket using getHaversineDistance + getAbsoluteBearing
 // relative to your location. You sit at centre. The incident marker is the
 // engine rally pin (an SOS / dispatched incident). No map tiles — a grid + zone
 // boxes, per the gallery.
 import { useEffect, useRef, useState } from 'react';
 import { View, Text, Pressable, StyleSheet, Animated, Easing, type LayoutChangeEvent } from 'react-native';
-import { useCrewStore, getHaversineDistance, getAbsoluteBearing, freshnessSec, STALE_SEC, venueLevelName, venueLevelShort } from '@loc8/engine';
+import { useCrewStore, getHaversineDistance, getAbsoluteBearing, friendPositionFreshness, venueLevelName, venueLevelShort } from '@loc8/engine';
 import type { Coordinate } from '@loc8/engine';
 import { useGuardStore, badgeLabel } from '../state/guardStore';
 import { guardFor, friendFloor, VENUE_LEVELS } from '../state/guardTeam';
@@ -49,12 +49,15 @@ export function TeamMap({ onPressIncident }: { onPressIncident?: () => void }) {
 
   // Build the cross-section: venue levels ∪ any occupied/incident floor,
   // roof→basement, each with population + trouble markers.
+  const reportedFloors = new Set<number>();
   const countByFloor: Record<number, number> = {};
   const cautionByFloor: Record<number, boolean> = {};
   for (const f of Object.values(friends)) {
-    if (!f.lastPacket) continue;
+    const position = friendPositionFreshness(f, now);
+    if (!position.location) continue;
     const fl = friendFloor(f);
-    countByFloor[fl] = (countByFloor[fl] ?? 0) + 1;
+    reportedFloors.add(fl);
+    if (position.isCurrent) countByFloor[fl] = (countByFloor[fl] ?? 0) + 1;
     if (guardFor(f.id)?.status === 'caution') cautionByFloor[fl] = true;
   }
   countByFloor[myFloor] = (countByFloor[myFloor] ?? 0) + 1; // you
@@ -62,6 +65,7 @@ export function TeamMap({ onPressIncident }: { onPressIncident?: () => void }) {
   const allFloors = new Set<number>([
     ...VENUE_LEVELS.map((l) => l.floor),
     ...Object.keys(countByFloor).map(Number),
+    ...reportedFloors,
     ...(incidentFloor != null ? [incidentFloor] : []),
   ]);
   const rows: FloorRow[] = Array.from(allFloors)
@@ -145,19 +149,20 @@ export function TeamMap({ onPressIncident }: { onPressIncident?: () => void }) {
       {/* guard blips — only those on the viewed floor */}
       {me && maxR > 0 &&
         Object.values(friends).map((f) => {
-          if (!f.lastPacket) return null;
+          const position = friendPositionFreshness(f, now);
+          if (!position.location) return null;
           if (friendFloor(f) !== viewFloor) return null;
-          const at = { latitude: f.lastPacket.latitude, longitude: f.lastPacket.longitude };
+          const at = position.location;
           const p = project(me, at, cx, cy, maxR);
           const meta = guardFor(f.id);
           const status = meta?.status ?? 'ok';
           const color = status === 'caution' ? ops.caution : ops.ok;
-          const fresh = freshnessSec(f, now);
-          const stale = fresh != null && fresh > STALE_SEC;
+          const stale = !position.isCurrent;
           const label = meta ? badgeLabel(meta.badge) : badgeLabel(f.id);
           return (
-            <View key={f.id} style={[st.dot, { left: p.x, top: p.y, backgroundColor: color, opacity: stale ? 0.4 : 1 }]}>
+            <View key={f.id} accessible accessibilityLabel={`${f.name} · ${position.label}`} style={[st.dot, { left: p.x, top: p.y, backgroundColor: color, opacity: stale ? 0.4 : 1 }]}>
               <Text style={st.dotText}>{label}</Text>
+              <Text style={st.ageLabel} numberOfLines={2}>{position.state === 'clock-uncertain' ? 'Age unverified' : position.label}</Text>
             </View>
           );
         })}
@@ -168,6 +173,8 @@ export function TeamMap({ onPressIncident }: { onPressIncident?: () => void }) {
           <Text style={st.dotText}>{badgeLabel(myBadge)}</Text>
         </View>
       )}
+
+      <Text style={st.ageLegend}>Floor counts: recent peer reports + you</Text>
 
       {/* building cross-section (right edge) */}
       <View style={st.switcher}>
@@ -189,7 +196,7 @@ export function TeamMap({ onPressIncident }: { onPressIncident?: () => void }) {
       )}
       {viewedIsEmpty && maxR > 0 && (
         <View style={[st.emptyWrap, { left: cx, top: cy }]} pointerEvents="none">
-          <Text style={st.emptyTxt}>No one on {venueLevelName(VENUE_LEVELS, viewFloor)}</Text>
+          <Text style={st.emptyTxt}>No recent positions on {venueLevelName(VENUE_LEVELS, viewFloor)}</Text>
         </View>
       )}
     </View>
@@ -219,6 +226,8 @@ const st = StyleSheet.create({
     marginLeft: -DOT / 2, marginTop: -DOT / 2,
     borderWidth: 3, borderColor: ops.bg2,
   },
+  ageLegend: { position: 'absolute', left: 12, bottom: 12, color: ops.info, fontFamily: fonts.mono, fontSize: 9 },
+  ageLabel: { position: 'absolute', top: DOT, width: 110, textAlign: 'center', color: ops.info, fontFamily: fonts.mono, fontSize: 9 },
   dotText: { color: '#06070d', fontFamily: fonts.displaySemi, fontWeight: '700', fontSize: 11 },
   you: {
     position: 'absolute', width: DOT, height: DOT, borderRadius: DOT / 2,

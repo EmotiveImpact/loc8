@@ -2,6 +2,8 @@ import { create } from 'zustand';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import type { Coordinate, Packet } from '../core/types';
 import { quickReplyLabel } from '../core/types';
+import type { PacketReceiptContext } from '../transport/LocationTransport';
+import { makePositionReceipt, newerPosition, validPosition, type PositionReceipt } from '../core/positionFreshness';
 import { FRIEND_COLORS } from '../ui/theme';
 
 const PROFILE_KEY = 'loc8.profile.v1';
@@ -65,6 +67,11 @@ function randomCrewCode(): string {
 export interface FriendState {
   id: number; name: string; color: string;
   lastPacket?: Packet; relayVia?: string;
+  /** First receipt of the retained position, never refreshed by chatter/reconnect. */
+  positionReceipt?: PositionReceipt;
+  /** Display gates supplied by the owning permission workflow, not radio claims. */
+  positionVisible?: boolean;
+  positionVisibleUntilSec?: number;
 }
 export interface RallyPin { latitude: number; longitude: number; droppedById: number; atSec: number; floor?: number; }
 
@@ -107,9 +114,10 @@ let activitySeq = 1;
 export const STALE_SEC = 90;    // desaturate blips older than this
 export const GHOST_SEC = 240;   // "went dark" ghost state
 
-/** Seconds since friend's last packet, or null if never seen. */
+/** Legacy reported age only. Prefer friendPositionFreshness for any current/live claim. */
 export function freshnessSec(f: FriendState, nowSec: number): number | null {
-  return f.lastPacket ? nowSec - f.lastPacket.timestampSec : null;
+  const age = f.lastPacket ? nowSec - f.lastPacket.timestampSec : NaN;
+  return Number.isFinite(age) && age >= 0 ? age : null;
 }
 
 interface CrewState {
@@ -151,7 +159,7 @@ interface CrewState {
   hydrate(): Promise<void>;
   setAutoAddPeers(v: boolean): void;
   registerFriends(list: Array<Pick<FriendState, 'id' | 'name' | 'color'>>): void;
-  applyPacket(p: Packet, relayVia?: string): void;
+  applyPacket(p: Packet, relayVia?: string, receiptContext?: PacketReceiptContext): void;
   /** Apply a display name learned from a peer's 'profile' announce over the mesh. */
   setFriendName(senderId: number, name: string): void;
   /** Surface a fully-reassembled crew message from another member. */
@@ -287,7 +295,7 @@ export const useCrewStore = create<CrewState>((set, get) => ({
       friends: Object.fromEntries(list.map((f) => [f.id, { ...f }])),
     }),
 
-  applyPacket: (p, relayVia) => {
+  applyPacket: (p, relayVia, receiptContext) => {
     // Self-echo guard: never treat our own broadcast (relayed back through the
     // mesh) as a friend, in both sim and BLE modes.
     if (get().profile && p.senderId === get().profile!.id) return;
@@ -305,6 +313,12 @@ export const useCrewStore = create<CrewState>((set, get) => ({
     };
 
     if (p.type === 'position') {
+      if (!Number.isInteger(p.senderId) || p.senderId < 0 || p.senderId > 0xffffffff ||
+          !validPosition(p) || !newerPosition(p.timestampSec, get().friends[p.senderId]?.lastPacket?.timestampSec)) return;
+      const isSimulation = receiptContext?.source === 'simulation';
+      const positionReceipt = makePositionReceipt(p, p.timestampSec,
+        isSimulation ? receiptContext.receivedAtSec : Math.floor(Date.now() / 1000),
+        isSimulation ? 'simulation' : 'unverified');
       const crew = get().crew;
       // Crew filtering is a real-transport privacy feature: accept only packets
       // tagged for our crew. It's gated on autoAddPeers (true only on real BLE)
@@ -319,13 +333,13 @@ export const useCrewStore = create<CrewState>((set, get) => ({
           name: `Friend ${p.senderId % 1000}`,
           color: FRIEND_COLORS[p.senderId % FRIEND_COLORS.length],
         };
-        set({ friends: { ...get().friends, [p.senderId]: { ...f, lastPacket: p, relayVia } } });
+        set({ friends: { ...get().friends, [p.senderId]: { ...f, lastPacket: { ...p }, relayVia, positionReceipt } } });
         return;
       }
       // No crew set: keep existing sim/BLE behavior (known-sender / autoAddPeers).
       const f = ensureFriend(p.senderId) ?? get().friends[p.senderId];
       if (!f) return; // unknown sender (sim mode) — not our crew, drop
-      set({ friends: { ...get().friends, [p.senderId]: { ...f, lastPacket: p, relayVia } } });
+      set({ friends: { ...get().friends, [p.senderId]: { ...f, lastPacket: { ...p }, relayVia, positionReceipt } } });
     } else if (p.type === 'rally') {
       const crew = get().crew;
       // Real-crew mode (BLE): only accept rally pins tagged for our crew, mirroring

@@ -1,5 +1,22 @@
 # Loc8
 
+## Position-report freshness increment: 25 September 2026
+
+The next shared-engine increment is integrated into Consumer radar/crew/compass,
+Guard TeamMap and Command operations/roster. It separates report time from local
+receipt, labels unverified age, preserves delayed demo provenance and prevents
+stale reports from automatically claiming a reunion. Main is not changed by
+this review branch.
+
+Read the [R1a implementation and limits](docs/research/rnd/results/2026-09-25-position-freshness.md).
+The legacy sender currently publishes cached coordinates with publication time;
+true GPS-sample freshness and live clock verification remain explicit follow-up
+gates, not claims made by this patch.
+
+```sh
+node --test tools/mesh-rnd/freshness.node.cjs
+```
+
 ## Current R&D handover: 25 September 2026
 
 Loc8, Loc8 Guard and Loc8 Command share `@loc8/engine`. The native iPhone

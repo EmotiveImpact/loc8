@@ -9,6 +9,7 @@
 // Enable with ?bridge=ws://<host>:8787 (or ?bridge=1 for localhost).
 
 import { BridgedTransport, TextReassembler, DURESS_CODE, parseOpsMessage, type Packet } from '../engine';
+import { prepareStaffPosition } from '../domain/position';
 import { setFrameSink, useCommandStore } from '../store/commandStore';
 
 let bridge: BridgedTransport | null = null;
@@ -29,11 +30,23 @@ export function connectLiveBridge(url: string): void {
 
   const inbox = new TextReassembler();
   t.onPacket((p: Packet) => {
+    if (bridge !== t) return; // an old socket must not revive a disconnected feed
     const store = useCommandStore.getState();
     switch (p.type) {
-      case 'position':
+      case 'position': {
+        const receipt = prepareStaffPosition(store.staff[p.senderId], p, Math.floor(Date.now() / 1000));
+        if (!receipt) break;
+        // Keep the existing store's zone/status behaviour. The intermediate
+        // record has no new provenance and therefore cannot appear current.
         store.applyLivePosition(p.senderId, { latitude: p.latitude, longitude: p.longitude }, p.timestampSec);
+        useCommandStore.setState((state) => {
+          const current = state.staff[p.senderId];
+          if (!current || current.location?.latitude !== receipt.latitude ||
+              current.location?.longitude !== receipt.longitude || current.lastPingSec !== p.timestampSec) return {};
+          return { staff: { ...state.staff, [p.senderId]: { ...current, positionReceipt: receipt } } };
+        });
         break;
+      }
       case 'sos':
         store.raiseLiveSos(p.senderId, { latitude: p.latitude, longitude: p.longitude }, p.timestampSec);
         break;
@@ -67,6 +80,7 @@ export function connectLiveBridge(url: string): void {
   });
 
   t.onMeshStatus((s) => {
+    if (bridge !== t) return;
     useCommandStore.getState().setLiveConnected(s.connected);
     setFrameSink(s.connected ? (frames) => frames.forEach((f) => t.sendFrame(f)) : null);
   });
@@ -75,8 +89,10 @@ export function connectLiveBridge(url: string): void {
 }
 
 export function disconnectLiveBridge(): void {
-  bridge?.stop();
+  const previous = bridge;
   bridge = null;
+  previous?.clearListeners();
+  previous?.stop();
   setFrameSink(null);
   useCommandStore.getState().setLiveConnected(false);
 }

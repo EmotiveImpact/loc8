@@ -1,4 +1,6 @@
 import { useState } from 'react';
+import { staffPositionFreshness } from '../domain/position';
+import { useNowSec } from '../ui/hooks';
 import { useCommandStore } from '../store/commandStore';
 import { zoneName } from '../domain/zones';
 import { fmtHM } from '../domain/time';
@@ -8,6 +10,7 @@ import { staffStatusLabel, staffTone, type Tone } from '../ui/status';
 
 export function RosterShift() {
   const store = useCommandStore();
+  const now = useNowSec();
   const staff = Object.values(store.staff).sort((a, b) => a.id - b.id);
   const [selectedStaffId, setSelectedStaffId] = useState(staff[0]?.id ?? 0);
   const [selectedZoneId, setSelectedZoneId] = useState(store.zones[0]?.id ?? '');
@@ -41,7 +44,8 @@ export function RosterShift() {
                   <th>Zone</th>
                   <th>Status</th>
                   <th>On since</th>
-                  <th>Last ping</th>
+                  <th>Last contact / report</th>
+                  <th>Position report age</th>
                 </tr>
               </thead>
               <tbody>
@@ -55,6 +59,7 @@ export function RosterShift() {
                     </td>
                     <td className="mono">{fmtHM(s.onSinceSec)}</td>
                     <td className="mono">{fmtHM(s.lastPingSec)}</td>
+                    <td className="mono">{staffPositionFreshness(s, now).label}</td>
                   </tr>
                 ))}
               </tbody>

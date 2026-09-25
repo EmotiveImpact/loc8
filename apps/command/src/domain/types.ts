@@ -6,7 +6,7 @@
 // An individual is representable ONLY when there is a consent basis to see them
 // (ConsentBasis). This is the structural reason god-mode "can't be built."
 
-import type { Coordinate } from '../engine';
+import type { Coordinate, PositionReceipt } from '../engine';
 
 /** A named area of the venue — the ONLY spatial unit the crowd is expressed in. */
 export interface Zone {
@@ -59,6 +59,10 @@ export interface StaffMember {
   lastPingSec: number;
   consent: ConsentBasis; // 'on_duty_staff'
   location?: Coordinate;
+  /** Position report provenance; heartbeat/status timestamps must not replace it. */
+  positionReceipt?: PositionReceipt;
+  positionVisible?: boolean;
+  positionVisibleUntilSec?: number;
   batteryPct?: number;
   /** headcount state during an active muster */
   mustered?: boolean;
