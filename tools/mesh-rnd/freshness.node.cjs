@@ -26,7 +26,16 @@ function loader(mocks = {}, time = { wall: 1000, elapsed: 100 }) {
     assert.equal((output.diagnostics || []).filter(d => d.category === ts.DiagnosticCategory.Error).length, 0, file);
     const module = { exports: {} }; cache.set(file, module);
     const requireSource = spec => {
-      if (Object.hasOwn(mocks, spec)) return mocks[spec];
+      if (Object.hasOwn(mocks, spec)) {
+        const mock = mocks[spec];
+        // Explicit default-export mocks represent an ES module namespace.
+        // Preserve that shape across TypeScript interop modes, like real modules.
+        return mock != null &&
+          (typeof mock === 'object' || typeof mock === 'function') &&
+          Object.hasOwn(mock, 'default') && !Object.hasOwn(mock, '__esModule')
+          ? { ...mock, __esModule: true }
+          : mock;
+      }
       assert.ok(spec.startsWith('.'), `Unexpected dependency ${spec} in ${file}`);
       const base = path.resolve(path.dirname(file), spec);
       const target = [base + '.ts', base + '.tsx', path.join(base, 'index.ts')].find(fs.existsSync);
