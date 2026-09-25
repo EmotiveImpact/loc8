@@ -23,12 +23,16 @@ export class BleMeshTransport implements LocationTransport {
   private statusCbs: Array<(s: MeshStatus) => void> = [];
   private subs: Subscription[] = [];
   private started = false;
+  private generation = 0;
 
   start(): void {
     if (this.started) return;   // idempotent — mirror SimulatedTransport's guarded lifecycle
     this.started = true;
+    const generation = ++this.generation;
+    const current = () => this.started && this.generation === generation;
     this.subs.push(
       Loc8Mesh.addPacketListener((event) => {
+        if (!current()) return;
         let packet: Packet;
         try {
           const { buffer, byteOffset, byteLength } = event.data;
@@ -41,6 +45,7 @@ export class BleMeshTransport implements LocationTransport {
         this.packetCbs.forEach((cb) => cb(packet, event.relayVia));
       }),
       Loc8Mesh.addStatusListener((status) => {
+        if (!current()) return;
         dbg().setStatus(status);
         this.statusCbs.forEach((cb) => cb(status));
       }),
@@ -51,6 +56,7 @@ export class BleMeshTransport implements LocationTransport {
     // so a later start() (e.g. meshService's foreground retry) really retries.
     // Listeners see a zeroed onMeshStatus so the UI reflects "mesh down".
     Loc8Mesh.start().catch((e) => {
+      if (!current()) return; // a stopped/replaced start must not tear down a newer session
       this.started = false;
       this.subs.forEach((s) => s.remove());
       this.subs = [];
@@ -66,6 +72,7 @@ export class BleMeshTransport implements LocationTransport {
   stop(): void {
     if (!this.started) return;
     this.started = false;
+    ++this.generation;
     this.subs.forEach((s) => s.remove());
     this.subs = [];
     Loc8Mesh.stop().catch(() => {});
@@ -73,8 +80,15 @@ export class BleMeshTransport implements LocationTransport {
 
   /** Send my packet into the mesh — encode to 25 bytes, native adds bitchat framing. */
   broadcast(packet: Packet): void {
+    const bytes = new Uint8Array(encodePacket(packet));
+    // 'sent' remains an attempt counter, never evidence of radio/recipient delivery.
     dbg().markSent();
-    Loc8Mesh.broadcast(new Uint8Array(encodePacket(packet))).catch(() => {});
+    const generation = this.generation;
+    Loc8Mesh.broadcast(bytes).catch((e) => {
+      if (this.generation !== generation) return;
+      const msg = e instanceof Error ? e.message : String(e);
+      dbg().setError(`BLE broadcast failed: ${msg}`);
+    });
   }
 
   onPacket(cb: (p: Packet, relayVia?: string) => void): void { this.packetCbs.push(cb); }
@@ -83,8 +97,8 @@ export class BleMeshTransport implements LocationTransport {
   clearListeners(): void {
     this.packetCbs = [];
     this.statusCbs = [];
-    // Also detach from the native emitter so restarts don't accumulate subscriptions.
-    this.subs.forEach((s) => s.remove());
-    this.subs = [];
+    // The contract clears app callbacks only. Native subscriptions belong to the
+    // running generation and are detached by stop() or a current start failure.
+    // Detaching them here would leave started=true with no receive path.
   }
 }

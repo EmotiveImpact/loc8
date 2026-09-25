@@ -1,6 +1,8 @@
 // src/core/packetCodec.ts
 import type { Packet, PacketType } from './types';
 import { clampFloor } from './floorMath';
+import { TEXT_FRAG_BYTES, isValidFragment } from './fragmentValidation';
+export { TEXT_FRAG_BYTES } from './fragmentValidation';
 
 export const PACKET_SIZE = 25;
 
@@ -8,9 +10,6 @@ const TYPE_TO_CODE: Record<PacketType, number> = {
   position: 0, pingWhere: 1, pingComeFind: 2, rally: 3, quickReply: 4, text: 5, profile: 6, sos: 7,
 };
 const CODE_TO_TYPE: PacketType[] = ['position', 'pingWhere', 'pingComeFind', 'rally', 'quickReply', 'text', 'profile', 'sos'];
-
-/** Max UTF-8 bytes a single fragment ('text' or 'profile') carries (bytes 14–24). */
-export const TEXT_FRAG_BYTES = 11;
 
 // The heading slot (bytes 17–18) is a uint16, but heading only needs 9 bits
 // (0–359 < 512). We reuse the top 7 bits to carry a SIGNED floor (−64..+63), so
@@ -82,10 +81,11 @@ export function decodePacket(buf: ArrayBuffer): Packet {
   const type = CODE_TO_TYPE[typeCode];
   if (!type) throw new Error(`Unknown packet type code: ${typeCode}`);
   if (isFragmentType(type)) {
-    const fragLen = Math.min(TEXT_FRAG_BYTES, v.getUint8(13));
+    const fragLen = v.getUint8(13);
+    if (fragLen > TEXT_FRAG_BYTES) throw new Error(`Invalid fragment length: ${fragLen}`);
     const frag: number[] = [];
     for (let i = 0; i < fragLen; i++) frag.push(v.getUint8(14 + i));
-    return {
+    const fragment: Packet = {
       type,
       senderId: v.getUint32(1),
       targetId: v.getUint32(5),
@@ -96,6 +96,8 @@ export function decodePacket(buf: ArrayBuffer): Packet {
       total: v.getUint8(12),
       frag,
     };
+    if (!isValidFragment(fragment)) throw new Error('Invalid fragment metadata');
+    return fragment;
   }
   const headingSlot = v.getUint16(17);
   const packet: Packet = {
@@ -109,10 +111,15 @@ export function decodePacket(buf: ArrayBuffer): Packet {
     timestampSec: v.getUint32(20),
     accuracyM: v.getUint8(24),
   };
+  if (packet.batteryPct > 100) throw new Error('Invalid battery percentage');
   if (type === 'quickReply') {
     packet.quickReplyCode = v.getUint8(17);
     packet.headingDeg = 0; // heading slot held the reply code, not a heading
   } else {
+    if (Math.abs(packet.latitude) > 90 || Math.abs(packet.longitude) > 180) {
+      throw new Error('Invalid coordinates');
+    }
+    if (packet.headingDeg > 359) throw new Error('Invalid heading');
     packet.floor = unpackFloor(headingSlot);
   }
   return packet;
