@@ -1,0 +1,53 @@
+name: R&D verification
+on:
+  push:
+    branches: ['rnd/position-freshness-2026-09-25']
+  pull_request:
+    paths:
+      - 'packages/engine/**'
+      - 'apps/**'
+      - 'src/**'
+      - 'tools/mesh-rnd/**'
+      - '.github/workflows/rnd-verification.yml'
+permissions:
+  contents: read
+concurrency:
+  group: rnd-verification-${{ github.ref }}
+  cancel-in-progress: true
+jobs:
+  verify:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+      - name: Preserve exact source snapshot
+        run: |
+          mkdir -p /tmp/loc8-evidence
+          git rev-parse HEAD > /tmp/loc8-evidence/commit.txt
+          git archive --format=tar HEAD > /tmp/loc8-evidence/source.tar
+      - uses: actions/upload-artifact@v4
+        with:
+          name: loc8-source-${{ github.sha }}
+          path: /tmp/loc8-evidence/
+          retention-days: 7
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22.16.0'
+          cache: npm
+      - name: Install exact repository dependencies
+        run: npm ci
+      - name: Shared BLE regression checks
+        run: node --test tools/mesh-rnd/verify.node.cjs
+      - name: Position freshness checks when present
+        run: |
+          if [ -f tools/mesh-rnd/freshness.node.cjs ]; then
+            node --test tools/mesh-rnd/freshness.node.cjs
+          fi
+      - name: Existing Jest suite
+        run: npm test -- --runInBand
+      - name: Root TypeScript
+        run: npx tsc --noEmit
+      - name: Lint
+        run: npm run lint
