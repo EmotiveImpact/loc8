@@ -1,0 +1,258 @@
+{
+  "baseCommit": "f6b09a492c362f1c73b775d67721da1cc345fe91",
+  "codecBlob": "21304edcb7cf877588872eb29c4b7b821abc3959",
+  "fixtures": [
+    {
+      "packet": {
+        "type": "position",
+        "senderId": 42,
+        "targetId": 9,
+        "latitude": 51.5,
+        "longitude": -0.1,
+        "headingDeg": 275,
+        "batteryPct": 81,
+        "timestampSec": 1783300000,
+        "accuracyM": 12,
+        "floor": 63
+      },
+      "hex": "000000002a000000091eb246c0fff0bdc07f13516a4affa00c"
+    },
+    {
+      "packet": {
+        "type": "pingWhere",
+        "senderId": 42,
+        "targetId": 9,
+        "latitude": 51.5,
+        "longitude": -0.1,
+        "headingDeg": 275,
+        "batteryPct": 81,
+        "timestampSec": 1783300000,
+        "accuracyM": 12,
+        "floor": 63
+      },
+      "hex": "010000002a000000091eb246c0fff0bdc07f13516a4affa00c"
+    },
+    {
+      "packet": {
+        "type": "pingComeFind",
+        "senderId": 42,
+        "targetId": 9,
+        "latitude": 51.5,
+        "longitude": -0.1,
+        "headingDeg": 275,
+        "batteryPct": 81,
+        "timestampSec": 1783300000,
+        "accuracyM": 12,
+        "floor": 63
+      },
+      "hex": "020000002a000000091eb246c0fff0bdc07f13516a4affa00c"
+    },
+    {
+      "packet": {
+        "type": "rally",
+        "senderId": 42,
+        "targetId": 9,
+        "latitude": 51.5,
+        "longitude": -0.1,
+        "headingDeg": 275,
+        "batteryPct": 81,
+        "timestampSec": 1783300000,
+        "accuracyM": 12,
+        "floor": 63
+      },
+      "hex": "030000002a000000091eb246c0fff0bdc07f13516a4affa00c"
+    },
+    {
+      "packet": {
+        "type": "sos",
+        "senderId": 42,
+        "targetId": 9,
+        "latitude": 51.5,
+        "longitude": -0.1,
+        "headingDeg": 275,
+        "batteryPct": 81,
+        "timestampSec": 1783300000,
+        "accuracyM": 12,
+        "floor": -64
+      },
+      "hex": "070000002a000000091eb246c0fff0bdc08113516a4affa00c"
+    },
+    {
+      "packet": {
+        "type": "quickReply",
+        "senderId": 42,
+        "targetId": 9,
+        "latitude": 51.5,
+        "longitude": -0.1,
+        "headingDeg": 275,
+        "batteryPct": 81,
+        "timestampSec": 1783300000,
+        "accuracyM": 12,
+        "quickReplyCode": 1
+      },
+      "hex": "040000002a0000000900000000000000000100516a4affa00c"
+    },
+    {
+      "packet": {
+        "type": "quickReply",
+        "senderId": 42,
+        "targetId": 9,
+        "latitude": 51.5,
+        "longitude": -0.1,
+        "headingDeg": 275,
+        "batteryPct": 81,
+        "timestampSec": 1783300000,
+        "accuracyM": 12,
+        "quickReplyCode": 7
+      },
+      "hex": "040000002a0000000900000000000000000700516a4affa00c"
+    },
+    {
+      "packet": {
+        "type": "quickReply",
+        "senderId": 42,
+        "targetId": 9,
+        "latitude": 51.5,
+        "longitude": -0.1,
+        "headingDeg": 275,
+        "batteryPct": 81,
+        "timestampSec": 1783300000,
+        "accuracyM": 12,
+        "quickReplyCode": 20
+      },
+      "hex": "040000002a0000000900000000000000001400516a4affa00c"
+    },
+    {
+      "packet": {
+        "type": "quickReply",
+        "senderId": 42,
+        "targetId": 9,
+        "latitude": 51.5,
+        "longitude": -0.1,
+        "headingDeg": 275,
+        "batteryPct": 81,
+        "timestampSec": 1783300000,
+        "accuracyM": 12,
+        "quickReplyCode": 23
+      },
+      "hex": "040000002a0000000900000000000000001700516a4affa00c"
+    },
+    {
+      "packet": {
+        "type": "quickReply",
+        "senderId": 42,
+        "targetId": 9,
+        "latitude": 51.5,
+        "longitude": -0.1,
+        "headingDeg": 275,
+        "batteryPct": 81,
+        "timestampSec": 1783300000,
+        "accuracyM": 12,
+        "quickReplyCode": 255
+      },
+      "hex": "040000002a000000090000000000000000ff00516a4affa00c"
+    },
+    {
+      "packet": {
+        "type": "text",
+        "senderId": 7,
+        "targetId": 42,
+        "latitude": 0,
+        "longitude": 0,
+        "headingDeg": 0,
+        "batteryPct": 0,
+        "timestampSec": 1000,
+        "accuracyM": 0,
+        "msgId": 65535,
+        "seq": 0,
+        "total": 2,
+        "frag": [
+          109,
+          101,
+          101,
+          116,
+          32,
+          97,
+          116,
+          32,
+          240,
+          159,
+          142
+        ]
+      },
+      "hex": "05000000070000002affff00020b6d65657420617420f09f8e"
+    },
+    {
+      "packet": {
+        "type": "text",
+        "senderId": 7,
+        "targetId": 42,
+        "latitude": 0,
+        "longitude": 0,
+        "headingDeg": 0,
+        "batteryPct": 0,
+        "timestampSec": 1000,
+        "accuracyM": 0,
+        "msgId": 65535,
+        "seq": 1,
+        "total": 2,
+        "frag": [
+          137,
+          32,
+          116,
+          104,
+          101,
+          32,
+          102,
+          108,
+          97,
+          103
+        ]
+      },
+      "hex": "05000000070000002affff01020a892074686520666c616700"
+    },
+    {
+      "packet": {
+        "type": "profile",
+        "senderId": 7,
+        "targetId": 42,
+        "latitude": 0,
+        "longitude": 0,
+        "headingDeg": 0,
+        "batteryPct": 0,
+        "timestampSec": 1000,
+        "accuracyM": 0,
+        "msgId": 1,
+        "seq": 0,
+        "total": 1,
+        "frag": [
+          77,
+          97,
+          121,
+          97,
+          32,
+          240,
+          159,
+          140,
+          141
+        ]
+      },
+      "hex": "06000000070000002a00010001094d61796120f09f8c8d0000"
+    },
+    {
+      "packet": {
+        "type": "position",
+        "senderId": 42,
+        "targetId": 9,
+        "latitude": -90,
+        "longitude": 180,
+        "headingDeg": -1,
+        "batteryPct": 81,
+        "timestampSec": 1783300000,
+        "accuracyM": 900,
+        "floor": -1
+      },
+      "hex": "000000002a00000009ca5b17006b49d200ff67516a4affa0ff"
+    }
+  ]
+}
