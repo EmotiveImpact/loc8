@@ -1,19 +1,19 @@
 # Loc8: one system, one development programme
 
-**Prepared 25 September 2026. Current implementation work stays in PR #4. No merge or deployment is authorised by this document.**
+**Updated 3 October 2026. Current relay implementation work is in draft PR #5, stacked on PR #4. No merge or deployment is authorised by this document.**
 
 Read this first for sequence and meaning. Read `KNOWLEDGE.md` on the separate
 knowledge archive branch for recovered originals, history and transfer packs.
 They are complementary: this is the build map; that is the preserved evidence.
 The machine-readable companion is `docs/programme/roadmap.json`.
 
-## 1. What the three PRs actually are
+## 1. What the four PRs actually are
 
 | Review | Contents when inspected | Base | Integration decision |
 |---|---|---|---|
 | #3 | Knowledge entry point, preservation rules, research provenance, transfer packs, original Markdown handovers and isolated reference tests; 18 files at `6ddbf437`. | main | Review and integrate the archive first, keeping unresolved original-byte gaps explicit. Not a competing app. |
 | #1 | Shared packet validation, bounded assembly, BLE restart/lifecycle repairs, 80-check harness, wire fixtures and R&D programme; 9 files at `3421390a`. | main | Integrate after exact-toolchain regression and review. It is the runtime foundation for #4. |
-| #4 | Position-report provenance and selected Consumer/Guard/Command integrations, now extended with original local GPS sample retention. | #1 branch | Continue here. Once #1 is in main, retarget/reconcile #4 onto main and rerun combined gates. Do not merge #4 blindly into #1 and hide its review boundary. |
+| #4 | Position-report provenance and selected Consumer/Guard/Command integrations, now extended with original local GPS sample retention. | #1 branch | Once #1 is in main, retarget/reconcile #4 onto main and rerun combined gates. Do not merge #4 blindly into #1 and hide its review boundary. |\n| #5 | Opt-in native branch-preserving BLE forwarding, density/loss benchmarks, source intake and native integration evidence. Production default remains `current`; candidate mode is `branch`. | #4 branch | Continue the relay experiment here. Keep it draft until supported native builds and physical MESH-01 / duplicate-branch / churn-load / background-battery gates pass. |
 
 **#2 is the delivery tracker, not another PR.** PR numbers and issue numbers
 share a sequence. These reviews exist to separate archive work from runtime
@@ -61,7 +61,7 @@ for public phone-to-phone finding.
 
 | Research family | Existing evidence and code to reuse | Next useful application, not a restart |
 |---|---|---|
-| Mesh reliability | Native BLE/GATT modules; `mesh-and-resilience.md`; BitChat/Columba comparisons; bounded protocol-v2 prototype. | Three-phone and background proof, then measured controlled fanout. Native code retains relay ownership. |
+| Mesh reliability | Native BLE/GATT modules; `mesh-and-resilience.md`; the 30 Sep OEPB/OEPB-BLE drafts; Silicon Labs Mesh 1.1 performance controls; PR #5 branch-preserving candidate and retained Trickle/retry HOLD evidence. | Keep `current` as production default. Compare opt-in `branch` on real phones under MESH-01, duplicate/branch, churn/load, density, background and battery cohorts. Native code retains relay ownership. |
 | Source and delivery truth | R0, R1a and archive transfer/reference contracts. | Finish source provenance, then immutable command correlation and truthful delivery states. |
 | Connected operations/security | `services/loc8-relayd`, CONN-01 and SEC-05 contracts/results. | Real reviewed identity, TLS, authorisation, signing and storage providers. These are not already deployed services. |
 | Floor inference | `floor-detection.md`, corpus/recorder/evaluator, sensor replay and existing relative floor tracker. | Absolute anchor + relative motion/pressure + topology, uncertainty and manual confirmation; evaluate unseen buildings/devices. |
@@ -91,7 +91,7 @@ counts are valuable provenance, not fresh verification of today's branch.
 | Next runtime slice: R2 | Add truthful asynchronous command submission and immutable incident/recipient correlation to the existing store/bridge. | Failure/timeout/duplicate/wrong-recipient tests. Without an authenticated inbound receipt, show delivery unknown. |
 | Parallel R1c | Design end-to-end source-sample metadata and local/remote clock uncertainty without silently reusing v1 fields. Migrate remaining views and ranking. | Mixed-version and stale-input tests, source correlation and explicit protocol review before enabling new semantics. |
 | Parallel SEC / CONN | Advance existing connected/security contracts to real reviewed providers and an authorised connected pilot. | Identity/site isolation, revocation, durable audit and outage recovery. BLE proof is separate, not a false prerequisite for all commercial progress. |
-| Parallel MAP / EDGE / MESH | Commission one real site, validate floor transitions and phone cohorts, implement durable Gateway storage and test Anchors. | Permissioned real evidence with frozen MESH/FLOOR/MAP/RADIO criteria. |
+| Parallel R3 / MESH | PR #5 keeps branch-preserving forwarding opt-in and the bounded Trickle retry candidate on HOLD. Run frozen MESH-01, duplicate/branch, density, asymmetric-loss, churn/load, background and battery cohorts before selecting a default. | Supported native builds plus physical evidence showing equivalent delivery, bounded queues and measured cost. |\n| Parallel MAP / EDGE | Commission one real site, validate floor transitions, implement durable Gateway storage and test Anchors. | Permissioned real evidence with frozen FLOOR/MAP/RADIO criteria. |
 | Then TWIN / DTN / VISION | Join the validated place/confidence/reachability model, bounded interrupted delivery and separate media evidence. | Proven inputs and explicitly scoped permissions/security; no bulk import of prototypes. |
 | Research-only MEANING | Compare canonical intent/template packs with the existing ops grammar. | Demonstrated semantic correctness and size benefit, including ambiguity/rejection, before adoption. |
 
