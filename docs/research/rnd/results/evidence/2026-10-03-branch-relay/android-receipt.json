@@ -1,0 +1,63 @@
+{
+  "recorded_at": "2026-10-03T01:02:13.694419+00:00",
+  "implementation_scope": [
+    "modules/loc8-mesh/android/src/main/java/expo/modules/loc8mesh/MeshBleService.kt",
+    "tools/mesh-rnd/android-branch-harness.kt",
+    "tools/mesh-rnd/verify-android-branch.sh"
+  ],
+  "source_sha256": {
+    "modules/loc8-mesh/android/src/main/java/expo/modules/loc8mesh/MeshBleService.kt": "f143447035f937779046f72ebe59529cbcb91b81ec69f99519259b42a1fe546d",
+    "tools/mesh-rnd/android-branch-harness.kt": "fec0cb5a787ade26e2313e50ec98aaa4c44768736d4e034c925f2573210f3489",
+    "tools/mesh-rnd/verify-android-branch.sh": "0ad8e53fa486f85c69136796f140696f2262b6b350ff5cfc8fa0805180a8c00d"
+  },
+  "toolchain": {
+    "java_home": "/opt/homebrew/opt/openjdk@17/libexec/openjdk.jdk/Contents/Home",
+    "java_observed": "17.0.20+0",
+    "kotlin": "2.1.20",
+    "compiler_launcher": "/tmp/loc8-kotlinc-2.1.20",
+    "compiler_environment": "/tmp/loc8-android-branch-env.sh",
+    "android_jar": "/Users/augustusedem/Library/Android/sdk/platforms/android-36/android.jar",
+    "node_observed": "22.22.3",
+    "gradle": "9.3.1",
+    "ndk": "27.1.12297006"
+  },
+  "host_verification": {
+    "command": ". /tmp/loc8-android-branch-env.sh\nsh tools/mesh-rnd/verify-android-branch.sh",
+    "exit_code": 0,
+    "deterministic_assertions": 155,
+    "static_source_contract_groups": 10,
+    "service_compile": "PASS with real API36 jar",
+    "raw_log": "/tmp/loc8-android-branch-host.log"
+  },
+  "actual_expo_gradle": {
+    "prebuild": "PASS using existing node_modules symlink; no install or source mutation in product checkout",
+    "prebuild_command": "CI=1 node node_modules/expo/bin/cli prebuild --platform android --no-install",
+    "offline_attempt_exit_code": 1,
+    "offline_log": "/tmp/loc8-android-branch-gradle-offline.log",
+    "offline_failure": "foojay-resolver-convention 1.0.0 absent in cached plugin artifacts",
+    "online_command": "ANDROID_HOME=/Users/augustusedem/Library/Android/sdk ANDROID_SDK_ROOT=/Users/augustusedem/Library/Android/sdk ./gradlew :loc8-mesh:compileDebugKotlin :loc8-mesh:assembleDebug --no-daemon --console=plain",
+    "online_exit_code": 1,
+    "online_log": "/tmp/loc8-android-branch-gradle-online.log",
+    "status": "UNVERIFIED: agent terminated confirmed project daemon at storage reserve; no module compilation/package success observed",
+    "storage_boundary_receipt": "/tmp/loc8-android-branch-gradle-boundary.json",
+    "installed_by_gradle": [
+      "NDK27.1.12297006 approximately 2.4 GiB",
+      "Build-Tools35.0.0"
+    ],
+    "scratch_final_source_refreshed_after_abort": true,
+    "scratch_final_source_is_compilation_evidence": false
+  },
+  "limitations": [
+    "Pure production helper and mode-policy executed on JVM, not Android Handler/Looper",
+    "Native configuration retry, adapter cycling, radio reconnection callbacks and actual write/notify paths are checked only by static source contracts and source compile",
+    "No full Expo Gradle module success, APK/AAB, installation, hardware, range, battery or phone delivery measured"
+  ],
+  "reuse": "All branch code and tests independently authored; no third-party source copied",
+  "commits_created": false,
+  "diagnostic_boundary": {
+    "capacity": "OS warning log + native helper count; no field event because frozen validator has no truthful capacity reason",
+    "expiry": "relay-cancelled / scheduled-relay-cancelled",
+    "no_live_egress": "relay-cancelled / scheduled-relay-cancelled",
+    "nonempty_fully_witnessed_egress": "egress-skipped / duplicate"
+  }
+}

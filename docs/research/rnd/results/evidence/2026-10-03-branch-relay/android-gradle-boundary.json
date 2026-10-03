@@ -1,0 +1,12 @@
+{
+  "status": "STOPPED_FOR_STORAGE",
+  "at": "2026-10-03T00:58:15.162081+00:00",
+  "available_kib_at_stop": 1843352,
+  "reserve_kib": 2097152,
+  "daemon_pid": 15119,
+  "daemon_confirmed_project": "/private/tmp/loc8-android-branch-gradle-rqfe0583/android",
+  "command": "./gradlew :loc8-mesh:compileDebugKotlin :loc8-mesh:assembleDebug --no-daemon --console=plain",
+  "result": "No module compile or package success observed; configuration/plugin compilation and exact-toolchain resolution completed.",
+  "ndk": "27.1.12297006 installed automatically by Gradle; approximately 2.4 GiB; SDK temporary download cleaned by installer.",
+  "log": "/tmp/loc8-android-branch-gradle-rqfe0583/gradle-build.log"
+}

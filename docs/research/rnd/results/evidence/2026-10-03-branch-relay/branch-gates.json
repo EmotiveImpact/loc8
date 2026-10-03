@@ -1,0 +1,23 @@
+{
+  "evidenceClass": "registered-v2-static-model-gate",
+  "runs": 5400,
+  "pairedTrials": 1800,
+  "graphCohorts": 180,
+  "exactJitterArrivalMismatches": 0,
+  "branchAttemptRegressions": 0,
+  "historicalBaselineChecked": true,
+  "historicalBaselineMismatches": 0,
+  "denseCohorts": 100,
+  "denseCohortsWithStrictSaving": 100,
+  "denseMinimumMeanSavingFraction": 0.11700680272108832,
+  "denseMaximumMeanSavingFraction": 0.47724921103005846,
+  "meanAttemptsSavedPerPairedTrial": 394.3516666666667,
+  "branchCostGreaterThanCurrentCohorts": 120,
+  "branchCostMoreThanTwiceCurrentCohorts": 75,
+  "soleBridgeDuplicateRepair": true,
+  "horizonDroppedEvents": 0,
+  "denseDefinition": "mean canonical directed-link degree >=6; descriptive grouping",
+  "priorV1Decision": "HOLD_UNCHANGED",
+  "productionPromotion": false,
+  "decision": "REPEAT_NATIVE_SHADOW_ONLY"
+}

@@ -1,5 +1,12 @@
 # Loc8 R&D department
 
+**Latest 3 October continuation:** [native branch-forwarding handoff](results/2026-10-03-branch-relay.md)
+and [separate v2 protocol](BLE-BRANCH-PROTOCOL-2026-10-03.md). The one-shot
+candidate passes the static model comparison and is implemented behind an
+explicit native opt-in on both platforms. Default policy and main remain held;
+physical phones and full supported app builds are separate gates. The original
+Trickle retry result below remains adverse evidence, not a revised pass.
+
 **3 October 2026 experimental continuation:** read the [BLE source intake](intake/2026-10-03-ble/README.md),
 [registered R3 protocol](BLE-DENSITY-PROTOCOL-2026-10-03.md) and
 [result/handoff](results/2026-10-03-ble-density.md). This extends the September

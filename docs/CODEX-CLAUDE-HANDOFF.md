@@ -1471,3 +1471,28 @@ matrix and independent synthetic lifetime/contact model. No third-party
 implementation copied, packet format changed, native policy enabled or main
 merge. The candidate fails the dense send-cost gate; retain the adverse evidence
 and tune branch-safe/per-link forwarding before considering a native flag.
+
+## 3 October 2026 — native branch-preserving follow-up
+
+Read [the combined v2 handoff](research/rnd/results/2026-10-03-branch-relay.md)
+first. This continuation keeps the failed v1 evidence and adds a different
+one-shot candidate: duplicates exclude only witnessed ingress links, preserving
+the remaining branches. All 1,800 branch/jitter pairs match first deliveries and
+arrival times; dense cohort means save 11.7–47.7% directed attempts. This is
+static simulation, not RF/energy evidence. Costs relative to current are retained.
+
+Both native services implement bounded witness/pending state, frozen TTL,
+timer tokens, reconnect invalidation and sleep-inclusive expiry. Set
+`EXPO_PUBLIC_MESH_RELAY_MODE=branch` in a rebuilt dev client; actual mode is
+reported, default stays current. Payload25/native frame47 formats are unchanged.
+No new upstream implementation was copied, dependency added or main merged.
+
+335 scoped checks, 488 Jest tests, 100 frozen field-kit checks,20 actual iOS
+host checks and155 Android assertions pass; root types/lint and real-platform
+service source checks pass. Full iOS Expo build remains gated on supported Xcode;
+Android module build was stopped for storage without module success. No phones
+were exercised. Complete supported app build/install and controlled MESH-01,
+branch/churn/load tests before considering a default change. The linked receipt
+keeps raw logs, source hashes, source/licence intake and remaining gateway/courier
+experiments together. Use the new integration verifier; v1 sources are verified
+against their pinned historical Git commit.

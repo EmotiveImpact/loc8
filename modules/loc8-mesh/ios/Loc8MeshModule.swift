@@ -38,10 +38,11 @@ public class Loc8MeshModule: Module {
                 }
                 self?.sendEvent("onPacket", body)
             }
-            MeshService.shared.onStatus = { [weak self] nearbyCount, connected in
+            MeshService.shared.onStatus = { [weak self] nearbyCount, connected, relayMode in
                 self?.sendEvent("onMeshStatus", [
                     "nearbyCount": nearbyCount,
                     "connected": connected,
+                    "relayMode": relayMode,
                 ])
             }
         }
@@ -58,6 +59,18 @@ public class Loc8MeshModule: Module {
 
         AsyncFunction("stop") {
             MeshService.shared.stop()
+        }
+
+        AsyncFunction("configureRelayMode") { (mode: String, promise: Promise) in
+            MeshService.shared.configureRelayMode(
+                mode,
+                onConfigured: { selected in promise.resolve(selected) },
+                onFailure: { message in promise.reject("ERR_MESH_RELAY_MODE", message) }
+            )
+        }
+
+        AsyncFunction("getRelayMode") { (promise: Promise) in
+            MeshService.shared.getRelayMode { selected in promise.resolve(selected) }
         }
 
         AsyncFunction("broadcast") { (packet: Data) in

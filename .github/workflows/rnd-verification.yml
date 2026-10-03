@@ -9,6 +9,7 @@ on:
       - 'app/**'
       - 'src/**'
       - 'tools/mesh-rnd/**'
+      - 'modules/loc8-mesh/**'
       - 'docs/programme/**'
       - '.github/workflows/rnd-verification.yml'
 permissions:
@@ -24,6 +25,7 @@ jobs:
       - uses: actions/checkout@v4
         with:
           persist-credentials: false
+          fetch-depth: 0 # Retain the pinned V1 adverse-result source commit.
       - name: Preserve exact source snapshot
         run: |
           mkdir -p /tmp/loc8-evidence /tmp/loc8-ci-diagnostics
@@ -51,13 +53,18 @@ jobs:
       - name: Scoped BLE, freshness, source and programme checks
         if: ${{ always() && steps.install.outcome == 'success' }}
         run: |
-          node --test tools/mesh-rnd/verify.node.cjs tools/mesh-rnd/freshness.node.cjs tools/mesh-rnd/source-location.node.cjs tools/mesh-rnd/programme.node.cjs tools/mesh-rnd/relay-policy.node.cjs tools/mesh-rnd/relay-simulation.node.cjs > /tmp/loc8-ci-diagnostics/scoped.tap 2>&1 || {
+          node --test tools/mesh-rnd/verify.node.cjs tools/mesh-rnd/freshness.node.cjs tools/mesh-rnd/source-location.node.cjs tools/mesh-rnd/programme.node.cjs tools/mesh-rnd/relay-policy.node.cjs tools/mesh-rnd/relay-simulation.node.cjs tools/mesh-rnd/native-relay-api.node.cjs tools/mesh-rnd/branch-*.node.cjs > /tmp/loc8-ci-diagnostics/scoped.tap 2>&1 || {
             grep -A 45 '^not ok' /tmp/loc8-ci-diagnostics/scoped.tap || true
             tail -n 12 /tmp/loc8-ci-diagnostics/scoped.tap
             exit 1
           }
           tail -n 12 /tmp/loc8-ci-diagnostics/scoped.tap
-          node tools/mesh-rnd/verify-relay-evidence.cjs
+          node tools/mesh-rnd/verify-branch-integration.cjs
+          node --test docs/research/rnd/prototypes/mesh-field-kit/mesh-field-kit.test.mjs > /tmp/loc8-ci-diagnostics/field-contract.tap 2>&1 || {
+            tail -n 80 /tmp/loc8-ci-diagnostics/field-contract.tap
+            exit 1
+          }
+          tail -n 12 /tmp/loc8-ci-diagnostics/field-contract.tap
       - name: Existing Jest suite
         if: ${{ always() && steps.install.outcome == 'success' }}
         run: |

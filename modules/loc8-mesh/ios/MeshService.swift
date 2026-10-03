@@ -36,8 +36,8 @@ final class MeshService: NSObject {
 
     /// (25-byte payload, relayVia) — invoked on the main queue.
     var onPacket: ((Data, String?) -> Void)?
-    /// (nearbyCount, connected) — invoked on the main queue.
-    var onStatus: ((Int, Bool) -> Void)?
+    /// (nearbyCount, connected, relayMode) — invoked on the main queue.
+    var onStatus: ((Int, Bool, String) -> Void)?
 
     private let queue = DispatchQueue(label: "me.loc8.mesh.ble", qos: .userInitiated)
     private let log = Logger(subsystem: "me.loc8.mesh", category: "MeshService")
@@ -73,7 +73,9 @@ final class MeshService: NSObject {
 
     // Mesh logic.
     private let dedup = MeshDeduplicator()
-    private var pendingRelays: [String: DispatchWorkItem] = [:]
+    private let pendingRelays = MeshPendingRelays()
+    /// Experimental policy is opt-in and may only be configured while stopped.
+    private var relayMode: MeshRelayMode = .current
     /// senderID of our own frames (derived from the last broadcast payload).
     private var mySenderID: Data?
     private var lastReportedLinkCount = -1
@@ -83,6 +85,29 @@ final class MeshService: NSObject {
     }
 
     // MARK: - Public API (thread-safe; hops onto the BLE queue)
+
+    func configureRelayMode(_ rawMode: String,
+                            onConfigured: @escaping (String) -> Void,
+                            onFailure: @escaping (String) -> Void) {
+        queue.async { [self] in
+            guard let mode = MeshRelayMode(rawValue: rawMode) else {
+                onFailure("Relay mode must be current or branch")
+                return
+            }
+            guard !running else {
+                onFailure("Stop the mesh before configuring relay mode")
+                return
+            }
+            pendingRelays.clear()
+            relayMode = mode
+            emitStatusIfChanged(force: true)
+            onConfigured(mode.rawValue)
+        }
+    }
+
+    func getRelayMode(completion: @escaping (String) -> Void) {
+        queue.async { [self] in completion(relayMode.rawValue) }
+    }
 
     /// Idempotent: repeated calls while running are no-ops.
     func start() {
@@ -130,8 +155,7 @@ final class MeshService: NSObject {
             guard running else { return }
             running = false
 
-            for item in pendingRelays.values { item.cancel() }
-            pendingRelays.removeAll()
+            pendingRelays.clear()
 
             scanRestartTimer?.cancel()
             scanRestartTimer = nil
@@ -194,7 +218,7 @@ final class MeshService: NSObject {
             // Record our own frame so loopback arrivals (peer relaying back to
             // us, or our dual-role twin link) are dropped as duplicates.
             dedup.markProcessed(MeshDeduplicator.key(for: frame))
-            sendFrame(MeshFrameCodec.encode(frame), excludingLink: nil)
+            sendFrame(MeshFrameCodec.encode(frame), excludingLinks: [])
         }
     }
 
@@ -202,14 +226,14 @@ final class MeshService: NSObject {
 
     /// Send a wire frame to every connected link, minus the split-horizon exclusion.
     /// Full fanout — see header comment.
-    private func sendFrame(_ data: Data, excludingLink excluded: UUID?) {
+    private func sendFrame(_ data: Data, excludingLinks excluded: Set<UUID>) {
         let diagnosticFrame = MeshFrameCodec.decode(data)
         // Central role: write to each connected peer's characteristic.
         // Write-without-response ONLY — long (prepared) writes via
         // .withResponse are broken cross-platform, so links whose negotiated
         // MTU can't carry the frame are skipped, never downgraded.
         for (id, peripheral) in centralLinks {
-            if id == excluded { continue }
+            if excluded.contains(id) { continue }
             guard let characteristic = centralCharacteristics[id] else { continue }
             guard peripheral.maximumWriteValueLength(for: .withoutResponse) >= data.count else {
                 log.warning("mesh egress: skipping link \(id, privacy: .public) — MTU too small for \(data.count)-byte frame")
@@ -237,7 +261,7 @@ final class MeshService: NSObject {
         // frame would fail decode anyway).
         guard let characteristic = meshCharacteristic, !subscribers.isEmpty else { return }
         let targets = subscribers.values.filter { central in
-            guard central.identifier != excluded else { return false }
+            guard !excluded.contains(central.identifier) else { return false }
             guard central.maximumUpdateValueLength >= data.count else {
                 log.warning("mesh egress: skipping subscriber \(central.identifier, privacy: .public) — notify MTU too small for \(data.count)-byte frame")
                 if let diagnosticFrame {
@@ -317,10 +341,11 @@ final class MeshService: NSObject {
         let senderIsSelf = (frame.senderID == mySenderID)
         let key = MeshDeduplicator.key(for: frame)
 
-        // A duplicate arrival cancels our pending scheduled relay for the same
-        // frame — someone else already flooded it.
-        if let pending = pendingRelays.removeValue(forKey: key) {
-            pending.cancel()
+        // Current mode preserves whole-relay cancellation. Branch mode records
+        // only the matching arrival's link and keeps other branches scheduled.
+        // A collision in the short dedup key cannot become a receipt witness.
+        switch pendingRelays.duplicate(key: key, frame: frame, from: linkID) {
+        case .cancelled:
             MeshDiagnostics.shared.recordFrame(
                 action: "relay-cancelled",
                 frame: frame,
@@ -329,6 +354,16 @@ final class MeshService: NSObject {
                 onlyWhenRelayRole: true
             )
             return
+        case .witnessed, .identityMismatch:
+            MeshDiagnostics.shared.recordFrame(
+                action: "duplicate-drop",
+                frame: frame,
+                rawLinkID: linkID.uuidString,
+                reason: "duplicate"
+            )
+            return
+        case .absent:
+            break
         }
         if dedup.isDuplicate(key) || senderIsSelf {
             MeshDiagnostics.shared.recordFrame(
@@ -367,6 +402,16 @@ final class MeshService: NSObject {
 
         var relayFrame = frame
         relayFrame.ttl = decision.newTTL
+        guard let pending = pendingRelays.admit(
+            key: key, mode: relayMode, originalFrame: frame,
+            relayFrame: relayFrame, ingressLink: linkID
+        ) else {
+            // Application delivery above still succeeds when the experimental
+            // relay queue is full. The frozen evaluator has no relay-capacity
+            // reason; keep this in the OS log rather than misclassifying it.
+            log.warning("Experimental branch relay capacity reached (128)")
+            return
+        }
         MeshDiagnostics.shared.recordFrame(
             action: "relay-scheduled",
             frame: frame,
@@ -375,22 +420,34 @@ final class MeshService: NSObject {
             rawLinkID: linkID.uuidString,
             onlyWhenRelayRole: true
         )
-        let relayData = MeshFrameCodec.encode(relayFrame)
+        let token = pending.token
         let item = DispatchWorkItem { [weak self] in
-            guard let self else { return }
-            self.pendingRelays.removeValue(forKey: key)
-            guard self.running else { return }
+            guard let self,
+                  let scheduled = self.pendingRelays.take(key: key, token: token),
+                  self.running else { return }
+            let centralIDs = Set(self.centralLinks.keys)
+            let subscriberIDs = Set(self.subscribers.keys)
+            guard !scheduled.eligibleLinks(centralLinks: centralIDs, subscriberLinks: subscriberIDs).isEmpty else {
+                let noLiveLinks = centralIDs.isEmpty && subscriberIDs.isEmpty
+                MeshDiagnostics.shared.recordFrame(
+                    action: noLiveLinks ? "relay-cancelled" : "egress-skipped", frame: scheduled.relayFrame,
+                    rawLinkID: scheduled.ingressLink.uuidString,
+                    reason: noLiveLinks ? "scheduled-relay-cancelled" : "duplicate",
+                    onlyWhenRelayRole: true
+                )
+                return
+            }
             MeshDiagnostics.shared.recordFrame(
                 action: "relay-forwarded",
-                frame: relayFrame,
-                ttlBefore: frame.ttl,
-                ttlAfter: relayFrame.ttl,
-                rawLinkID: linkID.uuidString,
+                frame: scheduled.relayFrame,
+                ttlBefore: scheduled.originalFrame.ttl,
+                ttlAfter: scheduled.relayFrame.ttl,
+                rawLinkID: scheduled.ingressLink.uuidString,
                 onlyWhenRelayRole: true
             )
-            self.sendFrame(relayData, excludingLink: linkID)
+            self.sendFrame(MeshFrameCodec.encode(scheduled.relayFrame), excludingLinks: scheduled.excludedLinks)
         }
-        pendingRelays[key] = item
+        pending.workItem = item
         queue.asyncAfter(deadline: .now() + .milliseconds(decision.delayMs), execute: item)
     }
 
@@ -404,8 +461,9 @@ final class MeshService: NSObject {
         let count = linkCount()
         guard force || count != lastReportedLinkCount else { return }
         lastReportedLinkCount = count
+        let mode = relayMode.rawValue
         DispatchQueue.main.async { [weak self] in
-            self?.onStatus?(count, count > 0)
+            self?.onStatus?(count, count > 0, mode)
         }
     }
 
@@ -460,6 +518,7 @@ extension MeshService: CBCentralManagerDelegate {
             startScanningIfPossible()
         } else {
             // Links die with the radio; report honestly.
+            pendingRelays.clear()
             centralLinks.removeAll()
             centralCharacteristics.removeAll()
             pendingPeripherals.removeAll()
@@ -550,17 +609,20 @@ extension MeshService: CBCentralManagerDelegate {
     }
 
     func centralManager(_ central: CBCentralManager, didConnect peripheral: CBPeripheral) {
+        pendingRelays.forgetLink(peripheral.identifier)
         peripheral.delegate = self
         peripheral.discoverServices([MeshConstants.serviceUUID])
     }
 
     func centralManager(_ central: CBCentralManager, didFailToConnect peripheral: CBPeripheral, error: Error?) {
+        pendingRelays.forgetLink(peripheral.identifier)
         pendingPeripherals.removeValue(forKey: peripheral.identifier)
         pendingConnectTokens.removeValue(forKey: peripheral.identifier)
     }
 
     func centralManager(_ central: CBCentralManager, didDisconnectPeripheral peripheral: CBPeripheral, error: Error?) {
         let id = peripheral.identifier
+        pendingRelays.forgetLink(id)
         pendingPeripherals.removeValue(forKey: id)
         pendingConnectTokens.removeValue(forKey: id)
         if centralLinks.removeValue(forKey: id) != nil {
@@ -594,6 +656,7 @@ extension MeshService: CBPeripheralDelegate {
             return
         }
         let id = peripheral.identifier
+        pendingRelays.forgetLink(id)
         pendingPeripherals.removeValue(forKey: id)
         pendingConnectTokens.removeValue(forKey: id)
         centralLinks[id] = peripheral
@@ -612,6 +675,7 @@ extension MeshService: CBPeripheralDelegate {
         guard characteristic.uuid == MeshConstants.characteristicUUID else { return }
         if error != nil || !characteristic.isNotifying {
             let id = peripheral.identifier
+            pendingRelays.forgetLink(id)
             log.warning("mesh link \(id, privacy: .public): notify subscription failed/dropped — tearing down link")
             if centralLinks.removeValue(forKey: id) != nil {
                 MeshDiagnostics.shared.recordLifecycle(action: "link-down", rawLinkID: id.uuidString)
@@ -655,6 +719,7 @@ extension MeshService: CBPeripheralManagerDelegate {
         if peripheral.state == .poweredOn {
             startAdvertisingIfPossible()
         } else {
+            pendingRelays.clear()
             subscribers.removeAll()
             pendingNotifies.removeAll()
             serviceAdded = false
@@ -679,6 +744,7 @@ extension MeshService: CBPeripheralManagerDelegate {
                            central: CBCentral,
                            didSubscribeTo characteristic: CBCharacteristic) {
         guard characteristic.uuid == MeshConstants.characteristicUUID else { return }
+        pendingRelays.forgetLink(central.identifier)
         subscribers[central.identifier] = central
         MeshDiagnostics.shared.recordLifecycle(action: "link-up", rawLinkID: central.identifier.uuidString)
         emitStatusIfChanged()
@@ -687,6 +753,7 @@ extension MeshService: CBPeripheralManagerDelegate {
     func peripheralManager(_ peripheral: CBPeripheralManager,
                            central: CBCentral,
                            didUnsubscribeFrom characteristic: CBCharacteristic) {
+        pendingRelays.forgetLink(central.identifier)
         if subscribers.removeValue(forKey: central.identifier) != nil {
             MeshDiagnostics.shared.recordLifecycle(action: "link-down", rawLinkID: central.identifier.uuidString)
         }

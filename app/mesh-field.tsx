@@ -16,7 +16,9 @@ import {
   addPacketListener,
   addStatusListener,
   broadcastFieldTest,
+  configureRelayMode,
   getFieldDiagnostics,
+  getRelayMode,
   releaseFieldDiagnostics,
   start,
   startFieldDiagnostics,
@@ -37,6 +39,8 @@ import {
 const FIELD_MODE = __DEV__ &&
   process.env.EXPO_PUBLIC_MESH_FIELD_KIT === '1' &&
   process.env.EXPO_PUBLIC_TRANSPORT === 'ble';
+
+const FIELD_RELAY_MODE = process.env.EXPO_PUBLIC_MESH_RELAY_MODE ?? 'current';
 
 type Phase = 'idle' | 'active' | 'sending' | 'closed';
 
@@ -77,6 +81,7 @@ function FieldHarness() {
   const [received, setReceived] = useState(0);
   const [nearbyCount, setNearbyCount] = useState(0);
   const [degraded, setDegraded] = useState(false);
+  const [relayMode, setRelayMode] = useState<string>('UNKNOWN');
   const [snapshot, setSnapshot] = useState<MeshFieldDiagnosticsSnapshot | null>(null);
   const [sharedFileUri, setSharedFileUri] = useState<string | null>(null);
   const [exportConfirmed, setExportConfirmed] = useState(false);
@@ -107,7 +112,10 @@ function FieldHarness() {
           if (!active) return;
           setNearbyCount(status.nearbyCount);
           setDegraded(status.degraded === true);
+          if (status.relayMode) setRelayMode(status.relayMode);
         });
+        const selectedMode = await getRelayMode();
+        if (active) setRelayMode(selectedMode);
         const recovered = await getFieldDiagnostics();
         if (!active) return;
         const first = recovered.events[0];
@@ -188,6 +196,11 @@ function FieldHarness() {
     try {
       const allowed = await ensureBlePermissions();
       if (!allowed) throw new Error('Required Bluetooth/location permissions were not granted.');
+      if (FIELD_RELAY_MODE !== 'current' && FIELD_RELAY_MODE !== 'branch') {
+        throw new Error('EXPO_PUBLIC_MESH_RELAY_MODE must be current or branch.');
+      }
+      const selectedMode = await configureRelayMode(FIELD_RELAY_MODE);
+      setRelayMode(selectedMode);
       await startFieldDiagnostics(runId, cohortId, block.blockId, role, block.sourceRole);
       diagnosticsStarted = true;
       await start();
@@ -313,6 +326,7 @@ function FieldHarness() {
         <Text style={styles.title}>MESH-01 THREE-PHONE RELAY</Text>
         <Text style={styles.warning}>
           Synthetic packets only. Foreground/screen-on. No security, range, venue, background or pilot claim.
+          {'\n'}Record the relay mode with a separate run ID for each comparison; the frozen JSONL schema does not identify it.
         </Text>
 
         <Section title="Run context">
@@ -373,6 +387,7 @@ function FieldHarness() {
 
         <Section title="Live evidence">
           <Metric label="phase" value={recovering ? 'RECOVERING' : phase.toUpperCase()} />
+          <Metric label="native relay mode" value={relayMode.toUpperCase()} />
           <Metric label="nearby links" value={String(nearbyCount)} danger={block.kind.startsWith('isolation') && nearbyCount > 0} />
           <Metric label="attempts submitted" value={`${sent}/${isSource ? block.expectedAttempts : 0}`} />
           <Metric label="application deliveries" value={String(received)} />
