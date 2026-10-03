@@ -32,10 +32,11 @@ if (args[0] === '--rerun') {
   const temporary = fs.mkdtempSync(path.join(os.tmpdir(), 'loc8-branch-repeat-'));
   try {
     const repeated = writeArtifacts(benchmarkBranch(manifest.matrix), temporary);
-    assert.deepEqual(repeated.artifacts, manifest.artifacts, 'V2 benchmark artifacts differ');
+    require('./benchmark-artifacts.cjs').verifyRepeatedArtifacts(repeated.artifacts, manifest.artifacts,
+      temporary, directory);
     const executableCode = rows => rows.filter(row => !continuedMetadata.has(row.path));
     assert.deepEqual(executableCode(repeated.code), executableCode(manifest.code), 'V2 executable source objects differ');
     assert.deepEqual(repeated.historicalBaseline, manifest.historicalBaseline, 'V1 historical objects differ');
-    console.log(`Repeated ${manifest.runs} v2 runs; executable source and artifact hashes match (host Node and install-lock boundary reported separately).`);
+    console.log(`Repeated ${manifest.runs} v2 runs; executable source and result/payload bytes match (gzip host OS, Node and install-lock metadata reported separately).`);
   } finally { fs.rmSync(temporary, { recursive: true, force: true }); }
 } else console.log('Recorded software evidence only; --rerun repeats the model, not native/radio tests.');

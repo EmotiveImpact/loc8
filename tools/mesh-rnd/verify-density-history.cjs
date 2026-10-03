@@ -52,7 +52,8 @@ if (args[0] === '--rerun') {
   const temporary = fs.mkdtempSync(path.join(os.tmpdir(), 'loc8-density-history-'));
   try {
     const repeated = writeArtifacts(benchmarkRelay(recordedRun.matrix), temporary);
-    assert.deepEqual(repeated.artifacts, recordedRun.artifacts, 'V1 deterministic benchmark artifacts changed');
-    console.log(`Repeated ${recordedRun.runs} V1 synthetic runs; all benchmark artifacts match.`);
+    require('./benchmark-artifacts.cjs').verifyRepeatedArtifacts(repeated.artifacts, recordedRun.artifacts,
+      temporary, path.join(root, directory));
+    console.log(`Repeated ${recordedRun.runs} V1 synthetic runs; all result and compressed payload bytes match (only gzip host OS metadata may differ).`);
   } finally { fs.rmSync(temporary, { recursive: true, force: true }); }
 }

@@ -84,6 +84,21 @@ runs and exact result artifacts. Hash validation is not native execution.
 CI result receipts added later identify
 their own exact source commit and stages.
 
+Fresh rerun [37100340422](https://github.com/EmotiveImpact/loc8/actions/runs/37100340422)
+at receipt head `c834bb7` exposed a host metadata difference: V1 JSON/CSV and
+gzip size matched, while gzip header byte 9 was 19 on macOS and 3 on Linux.
+Changing only that byte in the retained archive reproduces the exact Linux
+SHA-256 from the failure. See [RFC 1952 section 2.3.1](https://www.rfc-editor.org/rfc/rfc1952.html)
+and [zlib's platform codes](https://github.com/madler/zlib/blob/v1.3.1/zutil.h).
+The historical archive and its receipt remain unchanged. The repeat verifier
+now allows only that observed 19/3 header difference: it checks each original
+and regenerated receipt hash, names, lengths, every other compressed byte,
+trailer and decompressed content. Six regression checks reject payload/result,
+other header, receipt, artifact-list and path-boundary drift. Frozen model
+sources and all historical artifact hashes are still strictly checked. The
+failed CI log/status and byte-level proof are retained under `ci-c834bb7/`.
+This changes verification only; APK/native/application source remains `26b5cf2`.
+
 ## Next physical step
 
 Install the same labelled build on A/B/C, stop all other variants, disable Metro
