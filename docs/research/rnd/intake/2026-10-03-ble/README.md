@@ -1,7 +1,7 @@
 # BLE mesh research intake — 3 October 2026
 
 This is a source-backed continuation of R3 / SEC-01 E06, R4 and RADIO-01 E07.
-Read the [registered local experiment](../../BLE-DENSITY-PROTOCOL-2026-10-03.md)
+Read the [2 October research brief](../../briefs/2026-10-02-offline-ble-mesh.md), the [registered local experiment](../../BLE-DENSITY-PROTOCOL-2026-10-03.md)
 and [implementation result](../../results/2026-10-03-ble-density.md) before
 making a production decision. Existing MESH-01 physical acceptance remains held.
 
