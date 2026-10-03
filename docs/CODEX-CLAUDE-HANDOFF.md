@@ -1454,3 +1454,20 @@ occurred.
 - `origin/main` remains at `eefad23`; no push/deployment was attempted.
 - Root `.codex-audit/`, the canonical worktree's user-owned
   `.claude/launch.json`, and `claude/vibrant-yalow-620cd6` remain untouched.
+
+## 3 October 2026 — BLE R3 density R&D continuation
+
+Branch `rnd/ble-density-2026-10-03` starts at R1 `f80e936`, which includes R0;
+the new draft PR targets `rnd/position-freshness-2026-09-25`. Main and existing
+PRs #1/#3/#4 remain separate. Existing Claude launch-file modifications are
+preserved in their original worktrees.
+
+Read the self-contained [result and receipt](research/rnd/results/2026-10-03-ble-density.md),
+[source intake](research/rnd/intake/2026-10-03-ble/README.md) and
+[registered protocol](research/rnd/BLE-DENSITY-PROTOCOL-2026-10-03.md).
+New code is detached from production: real current jitter/duplicate cancellation
+versus jitter-only versus bounded degree-adaptive Trickle; deterministic GATT
+matrix and independent synthetic lifetime/contact model. No third-party
+implementation copied, packet format changed, native policy enabled or main
+merge. The candidate fails the dense send-cost gate; retain the adverse evidence
+and tune branch-safe/per-link forwarding before considering a native flag.

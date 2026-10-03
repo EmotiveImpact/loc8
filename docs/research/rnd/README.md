@@ -1,5 +1,11 @@
 # Loc8 R&D department
 
+**3 October 2026 experimental continuation:** read the [BLE source intake](intake/2026-10-03-ble/README.md),
+[registered R3 protocol](BLE-DENSITY-PROTOCOL-2026-10-03.md) and
+[result/handoff](results/2026-10-03-ble-density.md). This extends the September
+R0/R1 branches and July experiment IDs; it does not promote native forwarding,
+wire changes, persistent courier storage or hardware coverage claims.
+
 **Started:** 2026-07-22
 **Branch:** `claude/recursing-montalcini-d59018`
 **Owner:** Codex R&D review, designed for continuation by Claude Code

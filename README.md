@@ -1,5 +1,20 @@
 # Loc8
 
+## Experimental BLE density intake: 3 October 2026
+
+Start with the [source-backed intake](docs/research/rnd/intake/2026-10-03-ble/README.md)
+and [self-contained result/handoff](docs/research/rnd/results/2026-10-03-ble-density.md).
+This branch adds a detached policy/benchmark and synthetic contact-lifetime model;
+the 25-byte payload, native forwarding and production clients are unchanged.
+Trickle-style retries recover some synthetic bridge paths but fail the registered
+dense send-cost gate. Keep the default held. No upstream implementation code was
+imported; gateway/periodic-advertising hardware plans remain untested.
+
+```sh
+node --test tools/mesh-rnd/relay-policy.node.cjs tools/mesh-rnd/relay-simulation.node.cjs
+node tools/mesh-rnd/verify-relay-evidence.cjs --rerun
+```
+
 Start with [the unified system map and build programme](LOC8_MASTER_PLAN.md).
 The next GPS-source increment extends PR #4; it does not merge or deploy it.
 Read its [source-provenance decision](docs/research/rnd/decisions/2026-09-25-source-location-v1.md)

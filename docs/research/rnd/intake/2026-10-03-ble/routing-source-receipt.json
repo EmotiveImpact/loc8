@@ -1,0 +1,373 @@
+{
+  "research_date_client": "2026-10-03",
+  "captured_at_utc": "2026-10-02T23:48:26.726353+00:00",
+  "copied_into_loc8": false,
+  "third_party_dependencies_added": false,
+  "upstream_test_suites_executed": false,
+  "repositories": [
+    {
+      "repository": "https://github.com/meshcore-dev/MeshCore",
+      "commit": "a366955cb2f67b8e6842d4f00d2b6a554dddd88a",
+      "branch": "main",
+      "commit_date": "2026-09-30T14:56:20+13:00",
+      "default_branch_tip_verified": "a366955cb2f67b8e6842d4f00d2b6a554dddd88a",
+      "tip_matches": true,
+      "archived": false,
+      "github_pushed_at": "2026-10-01T21:46:37Z",
+      "licence_screen": "MIT",
+      "inspection_scope": "root licence and selected file headers/implementation; dependencies not comprehensively cleared",
+      "files": [
+        {
+          "path": "license.txt",
+          "git_blob": "4b1f85cefcf80306f65e5066af20950bca0fff33",
+          "sha256": "3426328fb2c024c0374ec18e6f587bf0f35782bf04c5d3e90b52d282b156489d",
+          "bytes": 1087,
+          "url": "https://github.com/meshcore-dev/MeshCore/blob/a366955cb2f67b8e6842d4f00d2b6a554dddd88a/license.txt"
+        },
+        {
+          "path": "src/Mesh.cpp",
+          "git_blob": "c11f37cacf455729fe8ebffe035c56a751934195",
+          "sha256": "63cffc2438c1537dbe73c993c2331ae91b3adb14a6cad78222a939d5c73f757f",
+          "bytes": 27777,
+          "url": "https://github.com/meshcore-dev/MeshCore/blob/a366955cb2f67b8e6842d4f00d2b6a554dddd88a/src/Mesh.cpp"
+        },
+        {
+          "path": "src/Packet.h",
+          "git_blob": "c19d9e9d8fc9bb3bfab26f3d5808978200083dd9",
+          "sha256": "cd29311f7a9b0e52dc9c55f599718bfdcbdf3cc9b96ed247099c9d72ba774e99",
+          "bytes": 4905,
+          "url": "https://github.com/meshcore-dev/MeshCore/blob/a366955cb2f67b8e6842d4f00d2b6a554dddd88a/src/Packet.h"
+        },
+        {
+          "path": "docs/companion_protocol.md",
+          "git_blob": "8c6b84b973488aac4a10018b001a5b0761029470",
+          "sha256": "dcbcc465d6f65e3474014e2e29dcffd114ddc84721dbf327e7f61ff2dee94269",
+          "bytes": 34325,
+          "url": "https://github.com/meshcore-dev/MeshCore/blob/a366955cb2f67b8e6842d4f00d2b6a554dddd88a/docs/companion_protocol.md"
+        },
+        {
+          "path": "examples/companion_radio/MyMesh.cpp",
+          "git_blob": "2c334066326eddb04ab70c7b7b32c22fd36c7076",
+          "sha256": "3c746cc6cab9ca6f9c623ff861f02c14a3b3849b78559d1d5cadb019136687da",
+          "bytes": 84669,
+          "url": "https://github.com/meshcore-dev/MeshCore/blob/a366955cb2f67b8e6842d4f00d2b6a554dddd88a/examples/companion_radio/MyMesh.cpp"
+        }
+      ]
+    },
+    {
+      "repository": "https://github.com/LoRaMesher/LoRaMesher",
+      "commit": "6ffb8fcdeb509110cd8ec50a9ff785f9f3f0b794",
+      "branch": "main",
+      "commit_date": "2026-09-23T18:48:55+02:00",
+      "default_branch_tip_verified": "6ffb8fcdeb509110cd8ec50a9ff785f9f3f0b794",
+      "tip_matches": true,
+      "archived": false,
+      "github_pushed_at": "2026-09-29T19:44:44Z",
+      "licence_screen": "MIT",
+      "inspection_scope": "root licence and selected file headers/implementation; dependencies not comprehensively cleared",
+      "files": [
+        {
+          "path": "LICENSE",
+          "git_blob": "9d399f8b74a864bf174198766a5b936f84179397",
+          "sha256": "a56bbac6cd18a3bafb6219e8803ba208e4f2f3cf93232acb1dd212e03f98bc80",
+          "bytes": 1088,
+          "url": "https://github.com/LoRaMesher/LoRaMesher/blob/6ffb8fcdeb509110cd8ec50a9ff785f9f3f0b794/LICENSE"
+        },
+        {
+          "path": "src/protocols/lora_mesh/routing/distance_vector_routing_table.cpp",
+          "git_blob": "a8ff9327722d45bb44ec38c852a8875cee80d733",
+          "sha256": "467ecb86e309c8e177d8b6daa4a3b615080d983af8f812c008734026fd6b2e19",
+          "bytes": 46382,
+          "url": "https://github.com/LoRaMesher/LoRaMesher/blob/6ffb8fcdeb509110cd8ec50a9ff785f9f3f0b794/src/protocols/lora_mesh/routing/distance_vector_routing_table.cpp"
+        },
+        {
+          "path": "src/types/protocols/lora_mesh/network_node_route.hpp",
+          "git_blob": "3f43c9f24f538bdb96b5c62cd0fada3f476cab3a",
+          "sha256": "bdf0ac54560e6fee7c69072bfc67616e25696102c7c8d40b3a905277dc038e11",
+          "bytes": 14000,
+          "url": "https://github.com/LoRaMesher/LoRaMesher/blob/6ffb8fcdeb509110cd8ec50a9ff785f9f3f0b794/src/types/protocols/lora_mesh/network_node_route.hpp"
+        },
+        {
+          "path": "platformio.ini",
+          "git_blob": "ada3dfc931eb824fb80d309d2b9b3a32673d4fb8",
+          "sha256": "f4803e657ac53de3e675fbcb8fdfddcb1d80ec2cd176777cfc2fc3b7697ed066",
+          "bytes": 1824,
+          "url": "https://github.com/LoRaMesher/LoRaMesher/blob/6ffb8fcdeb509110cd8ec50a9ff785f9f3f0b794/platformio.ini"
+        },
+        {
+          "path": "CMakeLists.txt",
+          "git_blob": "eec327c4eda1cfc3a51c14a1ffb208077850f0a1",
+          "sha256": "e671513d249678e1abf26889dbc1dc857dfb8ea1296229efec20917e5d19cf06",
+          "bytes": 3219,
+          "url": "https://github.com/LoRaMesher/LoRaMesher/blob/6ffb8fcdeb509110cd8ec50a9ff785f9f3f0b794/CMakeLists.txt"
+        }
+      ]
+    },
+    {
+      "repository": "https://github.com/permissionlesstech/bitchat",
+      "commit": "5e9287fae1e5fea80ca741d4ea669829dc16f144",
+      "branch": "main",
+      "commit_date": "2026-09-24T09:35:50+02:00",
+      "default_branch_tip_verified": "5e9287fae1e5fea80ca741d4ea669829dc16f144",
+      "tip_matches": true,
+      "archived": false,
+      "github_pushed_at": "2026-09-28T13:37:51Z",
+      "licence_screen": "Unlicense",
+      "inspection_scope": "root licence and selected file headers/implementation; dependencies not comprehensively cleared",
+      "files": [
+        {
+          "path": "LICENSE",
+          "git_blob": "3c577b03e4bdf5bb5419c424394cb9b502a8ed62",
+          "sha256": "f0510d3b9d1223c45e8fdd2b49270ec8734fff491c7f7d1b948ee70162e1ceff",
+          "bytes": 1210,
+          "url": "https://github.com/permissionlesstech/bitchat/blob/5e9287fae1e5fea80ca741d4ea669829dc16f144/LICENSE"
+        },
+        {
+          "path": "WHITEPAPER.md",
+          "git_blob": "75e346fbad391984accfa6b91555aeece53103ec",
+          "sha256": "c81e1cb55ce33ec8daa0cabec4db6623b10f5d2eb7cbe2d7d47e565fa209b6e0",
+          "bytes": 14755,
+          "url": "https://github.com/permissionlesstech/bitchat/blob/5e9287fae1e5fea80ca741d4ea669829dc16f144/WHITEPAPER.md"
+        },
+        {
+          "path": "bitchat/Services/BLE/BLERouteForwardingPolicy.swift",
+          "git_blob": "aa12f7e0f5b2d81f461234ef6579a2a80105502c",
+          "sha256": "42688727ba733bef4a2c5625e2ce9ca2b3e39ec6c1309cc65bf238d004a8d71d",
+          "bytes": 3141,
+          "url": "https://github.com/permissionlesstech/bitchat/blob/5e9287fae1e5fea80ca741d4ea669829dc16f144/bitchat/Services/BLE/BLERouteForwardingPolicy.swift"
+        },
+        {
+          "path": "bitchat/Services/BLE/BLESourceRouteOriginationPolicy.swift",
+          "git_blob": "5cc8bf9c55559e983b07a1c562888ae81a55e42e",
+          "sha256": "e8d2c9dc737884cbba9cee740d6c10fb191328349ea7bccbbd117fa66427e22d",
+          "bytes": 1876,
+          "url": "https://github.com/permissionlesstech/bitchat/blob/5e9287fae1e5fea80ca741d4ea669829dc16f144/bitchat/Services/BLE/BLESourceRouteOriginationPolicy.swift"
+        },
+        {
+          "path": "bitchat/Services/Courier/CourierStore.swift",
+          "git_blob": "565eef17948b0ecdd38b3e309aaa0f01d301555d",
+          "sha256": "d79dceac127c4c4b50eca1b3f5c424d3b3c9c2d528f01c1cff57a53b7a198e38",
+          "bytes": 27607,
+          "url": "https://github.com/permissionlesstech/bitchat/blob/5e9287fae1e5fea80ca741d4ea669829dc16f144/bitchat/Services/Courier/CourierStore.swift"
+        }
+      ]
+    },
+    {
+      "repository": "https://github.com/BMSimulator/BMSim",
+      "commit": "7c6af2a1a566b7a892a779c750b48904d3191b88",
+      "branch": "main",
+      "commit_date": "2023-07-14T17:56:26+04:30",
+      "default_branch_tip_verified": "7c6af2a1a566b7a892a779c750b48904d3191b88",
+      "tip_matches": true,
+      "archived": false,
+      "github_pushed_at": "2023-07-14T13:26:47Z",
+      "licence_screen": "NOASSERTION-NO-LICENSE",
+      "inspection_scope": "root licence and selected file headers/implementation; dependencies not comprehensively cleared",
+      "files": [
+        {
+          "path": "README.md",
+          "git_blob": "8f7b1e8c70919a3c70f22d3503baf545f567deb5",
+          "sha256": "d1481fd732e6f82cea8d2c8d7e023d8aca870944b849588a0dcd3baf338d0c4a",
+          "bytes": 10946,
+          "url": "https://github.com/BMSimulator/BMSim/blob/7c6af2a1a566b7a892a779c750b48904d3191b88/README.md"
+        },
+        {
+          "path": "codes/initializer.py",
+          "git_blob": "aa7d7a5721773b0264cd6e4ce3571ef496e5e193",
+          "sha256": "1458043a41ce4f1e12688f682bffe20ca0274d07ee1621e4ab402d97d01051b1",
+          "bytes": 13504,
+          "url": "https://github.com/BMSimulator/BMSim/blob/7c6af2a1a566b7a892a779c750b48904d3191b88/codes/initializer.py"
+        },
+        {
+          "path": "codes/choice_feature.py",
+          "git_blob": "9fa4a3f7fa4f7a36ad0568dcbb5fb1134ccb832b",
+          "sha256": "0f1cef30be23a386e1755a43ffd75334b2e86d6cc2d9bc31970c6a805961ced1",
+          "bytes": 1709,
+          "url": "https://github.com/BMSimulator/BMSim/blob/7c6af2a1a566b7a892a779c750b48904d3191b88/codes/choice_feature.py"
+        },
+        {
+          "path": "codes/Network_Updater.py",
+          "git_blob": "b0d35dc2ce0e5d16e9bbab9c6377a01b28a136cf",
+          "sha256": "022f85fb3062c4e4f22539324462c71c059d1a4fead49e9305eb80879ec35606",
+          "bytes": 4625,
+          "url": "https://github.com/BMSimulator/BMSim/blob/7c6af2a1a566b7a892a779c750b48904d3191b88/codes/Network_Updater.py"
+        }
+      ]
+    },
+    {
+      "repository": "https://github.com/MSH19/MPR_Selection",
+      "commit": "44936916f9399d07faf141989494dc92cab50e5e",
+      "branch": "master",
+      "commit_date": "2026-05-22T10:26:14+01:00",
+      "default_branch_tip_verified": "44936916f9399d07faf141989494dc92cab50e5e",
+      "tip_matches": true,
+      "archived": false,
+      "github_pushed_at": "2026-05-22T09:26:14Z",
+      "licence_screen": "MIT",
+      "inspection_scope": "root licence and selected file headers/implementation; dependencies not comprehensively cleared",
+      "files": [
+        {
+          "path": "LICENSE",
+          "git_blob": "274b634fe388762fa34ca63fe0c2f6b7a4e75819",
+          "sha256": "8b9dad63e226694574e3851a94e400259c3fadfe3356b906a0106532630c941c",
+          "bytes": 1068,
+          "url": "https://github.com/MSH19/MPR_Selection/blob/44936916f9399d07faf141989494dc92cab50e5e/LICENSE"
+        },
+        {
+          "path": "mpr_select.m",
+          "git_blob": "82f764029d42ada261b04223e3e629d240b10742",
+          "sha256": "4bcdfbbe17436cf708331429a3dd5d94ee8f2e49ec99370b8750ef022a4a76f6",
+          "bytes": 4656,
+          "url": "https://github.com/MSH19/MPR_Selection/blob/44936916f9399d07faf141989494dc92cab50e5e/mpr_select.m"
+        },
+        {
+          "path": "mpr_stress_test.m",
+          "git_blob": "bf76ff1a395d19b8c30cb1377dbf51f4e8a84bb3",
+          "sha256": "95756046615426b7816423c63d8927d1072624cf49cdc40a47153af9c844744f",
+          "bytes": 11044,
+          "url": "https://github.com/MSH19/MPR_Selection/blob/44936916f9399d07faf141989494dc92cab50e5e/mpr_stress_test.m"
+        },
+        {
+          "path": "CITATION.cff",
+          "git_blob": "c68b06544b194519d3c96d37cfb186f7332cb253",
+          "sha256": "0a13bdd33fe744521ae04b1d2dead864b15f3386905d8a3fa79f9ddd86641725",
+          "bytes": 460,
+          "url": "https://github.com/MSH19/MPR_Selection/blob/44936916f9399d07faf141989494dc92cab50e5e/CITATION.cff"
+        }
+      ]
+    },
+    {
+      "repository": "https://github.com/akeranen/the-one",
+      "commit": "c973bfb892ee3d624549a0142018f4d1dedf17d7",
+      "branch": "master",
+      "commit_date": "2023-04-24T23:08:52+03:00",
+      "default_branch_tip_verified": "c973bfb892ee3d624549a0142018f4d1dedf17d7",
+      "tip_matches": true,
+      "archived": false,
+      "github_pushed_at": "2024-12-09T19:58:35Z",
+      "licence_screen": "GPL-3.0 + separately restricted maps",
+      "inspection_scope": "root licence and selected file headers/implementation; dependencies not comprehensively cleared",
+      "files": [
+        {
+          "path": "LICENSE.txt",
+          "git_blob": "77b0aee29ecf05a8433dfa305e35aee30fc3ab91",
+          "sha256": "07a23d41cccc608509de7141874b58c5908f9933588120cfdcaaced77366a2ce",
+          "bytes": 32780,
+          "url": "https://github.com/akeranen/the-one/blob/c973bfb892ee3d624549a0142018f4d1dedf17d7/LICENSE.txt"
+        },
+        {
+          "path": "src/routing/SprayAndWaitRouter.java",
+          "git_blob": "59b1e086b00e147e74f95141cb4edf9fb0fb533f",
+          "sha256": "5aa0789f135a3cdc3ddf3a2cec2766121d2bd0511b5b5e3fe1ee7ce0742bfcd1",
+          "bytes": 4749,
+          "url": "https://github.com/akeranen/the-one/blob/c973bfb892ee3d624549a0142018f4d1dedf17d7/src/routing/SprayAndWaitRouter.java"
+        },
+        {
+          "path": "src/core/Message.java",
+          "git_blob": "d037b890b4146167c3dd2994b0b96dc67e580245",
+          "sha256": "d56bf8e888fd8f6dd03a754bded261ff6491abf426b1af9c28f7610f55354fed",
+          "bytes": 9360,
+          "url": "https://github.com/akeranen/the-one/blob/c973bfb892ee3d624549a0142018f4d1dedf17d7/src/core/Message.java"
+        },
+        {
+          "path": "README.txt",
+          "git_blob": "1716269a79f8041fb5b806702f6f0b192542ef8a",
+          "sha256": "7a65aa8fd35720300b2afd75e07312e815623e95cd6832082c15f97cdacd054c",
+          "bytes": 33025,
+          "url": "https://github.com/akeranen/the-one/blob/c973bfb892ee3d624549a0142018f4d1dedf17d7/README.txt"
+        }
+      ]
+    },
+    {
+      "repository": "https://github.com/markqvist/Reticulum",
+      "commit": "e40191b3d193b46b7f2d8a44424a594cd758839b",
+      "branch": "master",
+      "licence_screen": "custom restrictive",
+      "inspection_scope": "HTTP pinned licence and canonical source header/forwarding logic only",
+      "files": [
+        {
+          "path": "LICENSE",
+          "sha256": "00d736d22a942ba144a5914d05877f0532288024dc189c1aadd1930ee9b4b295",
+          "bytes": 1510,
+          "url": "https://github.com/markqvist/Reticulum/blob/e40191b3d193b46b7f2d8a44424a594cd758839b/LICENSE"
+        },
+        {
+          "path": "RNS/Transport.py",
+          "sha256": "60ba0eed08d8a9b4fb2bef45de2f7bef1d0f2241fbc0fc664b2edb0e1c57add8",
+          "bytes": 249927,
+          "url": "https://github.com/markqvist/Reticulum/blob/e40191b3d193b46b7f2d8a44424a594cd758839b/RNS/Transport.py"
+        }
+      ]
+    },
+    {
+      "repository": "https://github.com/meshtastic/firmware",
+      "commit": "36201c8edbde7e8fa519749726fa8a5ad5d3138f",
+      "branch": "develop",
+      "licence_screen": "GPL-3.0",
+      "inspection_scope": "HTTP pinned licence and canonical source header/forwarding logic only",
+      "files": [
+        {
+          "path": "LICENSE",
+          "sha256": "0ae0485a5bd37a63e63603596417e4eb0e653334fa6c7f932ca3a0e85d4af227",
+          "bytes": 35148,
+          "url": "https://github.com/meshtastic/firmware/blob/36201c8edbde7e8fa519749726fa8a5ad5d3138f/LICENSE"
+        },
+        {
+          "path": "src/mesh/FloodingRouter.cpp",
+          "sha256": "58fb0688f2f449c80ceff29d6e1f2b74fa531c855ee1c6c5a39f41d11d972e9e",
+          "bytes": 7194,
+          "url": "https://github.com/meshtastic/firmware/blob/36201c8edbde7e8fa519749726fa8a5ad5d3138f/src/mesh/FloodingRouter.cpp"
+        }
+      ]
+    },
+    {
+      "repository": "https://github.com/LoRaMesher/LoRaMesher",
+      "commit": "d37dee7b69866dd052d342174e2e441bd356f068",
+      "tag": "v0.0.11-legacy",
+      "tag_ref_verified": "d37dee7b69866dd052d342174e2e441bd356f068",
+      "commit_date": "2025-11-01T17:10:22+01:00",
+      "licence_screen": "MIT",
+      "inspection_scope": "legacy ARQ service plus paper-linked LargePayload example; closest preserved implementation family, exact paper experimental commit not specified",
+      "files": [
+        {
+          "path": "LICENSE",
+          "git_blob": "552ee34962395ea4e732c92468dabcf6164c93af",
+          "sha256": "3caa4eeaca0c31e25d76a4f97b05800b5b19ee30813ce839c0e1bb686fae7623",
+          "bytes": 1067,
+          "url": "https://github.com/LoRaMesher/LoRaMesher/blob/d37dee7b69866dd052d342174e2e441bd356f068/LICENSE"
+        },
+        {
+          "path": "src/LoraMesher.cpp",
+          "git_blob": "2c6f6ed5c770455c81fcc63bbff2cac32be9b651",
+          "sha256": "14f26469bc1bec0948179ed88f6b08d8de2f4d11a498db30b949f8bfe5920fad",
+          "bytes": 60284,
+          "url": "https://github.com/LoRaMesher/LoRaMesher/blob/d37dee7b69866dd052d342174e2e441bd356f068/src/LoraMesher.cpp"
+        },
+        {
+          "path": "src/LoraMesher.h",
+          "git_blob": "696d9e30d602a24a23f1cbc14165f181a767bd82",
+          "sha256": "f9b375d6b046e2e3f767680d9ecd8163bb06f2005bd952dc9351b65903e047e6",
+          "bytes": 35917,
+          "url": "https://github.com/LoRaMesher/LoRaMesher/blob/d37dee7b69866dd052d342174e2e441bd356f068/src/LoraMesher.h"
+        },
+        {
+          "path": "src/BuildOptions.h",
+          "git_blob": "cdacc8c109cd32b653ee51a010ec9a3c97ace999",
+          "sha256": "2bc790a14f80d8debb0d19d32cb5bd156233c6fc2c41f69491ce60412ace0035",
+          "bytes": 2667,
+          "url": "https://github.com/LoRaMesher/LoRaMesher/blob/d37dee7b69866dd052d342174e2e441bd356f068/src/BuildOptions.h"
+        },
+        {
+          "path": "examples/LargePayload/src/main.cpp",
+          "git_blob": "5d365f3cb601a71cfa3bdb029f284c0345929dc6",
+          "sha256": "0d61de9ad0e4c6f17b40f298255ed0c6b7961490064058c23316def8f131d2de",
+          "bytes": 7804,
+          "url": "https://github.com/LoRaMesher/LoRaMesher/blob/d37dee7b69866dd052d342174e2e441bd356f068/examples/LargePayload/src/main.cpp"
+        }
+      ]
+    }
+  ],
+  "repository_count": 8,
+  "snapshot_count": 9,
+  "pinned_file_count": 36
+}
