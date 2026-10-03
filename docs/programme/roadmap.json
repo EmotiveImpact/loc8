@@ -1,6 +1,6 @@
 {
   "schema": "loc8-programme-v1",
-  "prepared": "2026-09-25",
+  "prepared": "2026-10-03",
   "application_base": "c141dd6ef351205b6d33fa5aace8222032718f8b",
   "archive_base": "6ddbf4371a64d93d1299b6cba29276c6bf4273b8",
   "status": "proposed integration roadmap; implemented-review is not production-ready",
@@ -18,7 +18,9 @@
       "syncd",
       "provisiond",
       "supervisord"
-    ]
+    ],
+    "relay_default": "current",
+    "relay_candidate": "branch"
   },
   "sources": [
     {
@@ -106,6 +108,48 @@
       "scope": "10_SOFTWARE_MAP.md. Proposed reusable meaning layer; no Loc8 runtime adoption.",
       "imported_path": "docs/programme/inputs/SANKOFA-SOFTWARE-MAP.v1.md",
       "sha256": "abb28f8a9c7503e7a048daf81a8071de00af0255913abed05849acb36c8995bc"
+    },
+    {
+      "id": "SRC-R3",
+      "kind": "repository",
+      "locator": "docs/research/rnd/results/2026-10-03-branch-relay.md",
+      "revision": "cee77cd7f63ffb4c1dc083919dd40f97a405f481",
+      "scope": "Opt-in branch-preserving native relay candidate and model/native evidence. Software and host checks, not RF/energy/background proof."
+    },
+    {
+      "id": "SRC-BLE-BRIEF-2026-10-02",
+      "kind": "repository",
+      "locator": "docs/research/rnd/briefs/2026-10-02-offline-ble-mesh.md",
+      "revision": "2026-10-03",
+      "scope": "Primary-source weekly delta mapping OEPB/OEPB-BLE, Silicon Labs and Bluetooth IP Link to Loc8 tests and PR #5."
+    },
+    {
+      "id": "SRC-OEPB-01",
+      "kind": "primary",
+      "locator": "https://datatracker.ietf.org/doc/draft-sharma-oepb/",
+      "revision": "draft-sharma-oepb-01; 2026-09-30",
+      "scope": "Individual Experimental Internet-Draft. Density/loss Trickle simulation; not IETF endorsement or Loc8 phone evidence."
+    },
+    {
+      "id": "SRC-OEPB-BLE-01",
+      "kind": "primary",
+      "locator": "https://datatracker.ietf.org/doc/draft-sharma-oepb-binding-ble/",
+      "revision": "draft-sharma-oepb-binding-ble-01; 2026-09-30",
+      "scope": "Individual BLE binding draft. Fragmentation/duty-cycle design input; explicitly no implementation or real BLE-controller testing."
+    },
+    {
+      "id": "SRC-SILABS-MESH11",
+      "kind": "primary",
+      "locator": "https://docs.silabs.com/btmesh/latest/btmesh-11-network-performance/",
+      "revision": "accessed-2026-10-03",
+      "scope": "Dedicated-hardware performance control up to 256 nodes; payload/segmentation and recovery guidance, not smartphone evidence."
+    },
+    {
+      "id": "SRC-BT-IPLINK",
+      "kind": "primary",
+      "locator": "https://www.bluetooth.com/specifications/specifications-in-development/",
+      "revision": "accessed-2026-10-03",
+      "scope": "Bluetooth SIG roadmap. IP Link completed IOP and targets fall 2026 adoption; standards watch only."
     }
   ],
   "concepts": [
@@ -333,6 +377,24 @@
       "gate": "Real authenticated transport, durable state, outage recovery and operator acceptance. No offline BLE claims by association."
     },
     {
+      "id": "R3",
+      "name": "Branch-preserving adaptive relay shadow",
+      "state": "implemented-shadow-candidate",
+      "depends_on": [
+        "R0"
+      ],
+      "sources": [
+        "SRC-R3",
+        "SRC-BLE-BRIEF-2026-10-02",
+        "SRC-OEPB-01",
+        "SRC-OEPB-BLE-01",
+        "SRC-SILABS-MESH11"
+      ],
+      "products": "Public phone mesh / Guard",
+      "deliverable": "Keep production default current; expose opt-in native branch mode that preserves the original jittered send and suppresses only witnessed return branches. Retain bounded Trickle/retry candidate on HOLD.",
+      "gate": "Supported native builds plus frozen MESH-01 and duplicate/branch, density, asymmetric-loss, churn/load, background and battery cohorts. No simulator-only default promotion."
+    },
+    {
       "id": "MESH",
       "name": "Measured phone mesh and adaptive relay experiment",
       "state": "experiment-required",
@@ -341,11 +403,16 @@
       ],
       "sources": [
         "SRC-MESH",
-        "SRC-EXPERIMENTS"
+        "SRC-EXPERIMENTS",
+        "SRC-R3",
+        "SRC-BLE-BRIEF-2026-10-02",
+        "SRC-OEPB-01",
+        "SRC-OEPB-BLE-01",
+        "SRC-SILABS-MESH11"
       ],
       "products": "Public phone mesh / Guard",
-      "deliverable": "First prove isolated A-B-C relaying and locked/mixed-OS states; then controlled native fanout against current baseline. Preserve sole bridges.",
-      "gate": "MESH-01 E01: 200 small control packets, >=95% within 10s, both directions, no duplicate app delivery, B-absent control. Background/battery cohorts separately."
+      "deliverable": "Prove isolated A-B-C relaying and locked/mixed-OS states, then compare current versus opt-in branch forwarding under duplicate/branch, density, asymmetric-loss and churn/load conditions while preserving sole bridges.",
+      "gate": "MESH-01 E01 unchanged: 200 small control packets, >=95% within 10s, both directions, no duplicate app delivery, B-absent control. Background/battery cohorts separately; select no default from paper/simulation alone."
     },
     {
       "id": "MAP",
@@ -451,5 +518,13 @@
       "deliverable": "Transfer named contracts, evidence and limitations into destination repositories. Preserve product and data separation.",
       "gate": "Destination-specific acceptance/rejection note and tested remote-verified commit; a handoff is not completed integration."
     }
-  ]
+  ],
+  "current_relay_review": {
+    "pr": 5,
+    "branch": "rnd/ble-density-2026-10-03",
+    "substantive_head": "cee77cd7f63ffb4c1dc083919dd40f97a405f481",
+    "default_mode": "current",
+    "candidate_mode": "branch",
+    "status": "draft; physical promotion gates remain"
+  }
 }
