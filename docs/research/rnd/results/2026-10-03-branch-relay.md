@@ -279,3 +279,17 @@ with queue/send instrumentation. Require equivalent delivery, bounded queues
 and measured energy/background behavior before selecting a default. Keep the
 25-byte format; evidence here does not justify changing it. Sparse/source retry,
 periodic hardware, authenticated courier and optional gateways remain separate.
+
+## GitHub delivery receipt
+
+Substantive implementation commit: `1a4cdac2f8871ab9b49f618a06a2949b65d61247`,
+pushed to `rnd/ble-density-2026-10-03`. Both exact-commit GitHub jobs passed:
+[push verification](https://github.com/EmotiveImpact/loc8/actions/runs/37085325145)
+and [PR verification](https://github.com/EmotiveImpact/loc8/actions/runs/37085327986).
+Their [metadata and compressed raw logs](evidence/2026-10-03-branch-relay/branch-ci.json)
+are retained alongside the integration receipt (71 current source objects,
+23 artifacts including CI). CI freshly executes 335 scoped, 100 field-contract
+and 488 Jest checks plus types/lint/hash verification; native compiler checks
+remain the separate local receipts. This follow-up receipt adds evidence only;
+the implementation/source hashes and registered model results are unchanged.
+PR #5 stays draft, base R1, and main remains unmerged.

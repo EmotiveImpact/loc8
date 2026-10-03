@@ -481,6 +481,21 @@
       "sha256": "1321bb576e8820767de444b124290166c0a88bdbe3aff31587010e05a93f4064"
     },
     {
+      "path": "docs/research/rnd/results/evidence/2026-10-03-branch-relay/branch-ci-pull_request.log.gz",
+      "bytes": 7407,
+      "sha256": "fa86f71751e66698b9b3f60ed912cc982826f1748722868c643f68bac39e2f1a"
+    },
+    {
+      "path": "docs/research/rnd/results/evidence/2026-10-03-branch-relay/branch-ci-push.log.gz",
+      "bytes": 7014,
+      "sha256": "c7da80382c3c2a3c8bdca9e359f032729faf0e3231a40e54f4855cd326b4863b"
+    },
+    {
+      "path": "docs/research/rnd/results/evidence/2026-10-03-branch-relay/branch-ci.json",
+      "bytes": 10436,
+      "sha256": "b55e13804748cf317b1942328439325b23089d8fb682160e59c3762248d2fa3d"
+    },
+    {
       "path": "docs/research/rnd/results/evidence/2026-10-03-branch-relay/branch-gates.json",
       "bytes": 855,
       "sha256": "60ebc1defe354672e12ad98136dd9324a8d528bbf5dc78016e21b02b8d57d519"
@@ -550,5 +565,21 @@
       "bytes": 20,
       "sha256": "f1b651238a58fe290baec6c5e32f3bdb1943dd2bd582f02569231f7a757c7837"
     }
-  ]
+  ],
+  "github_ci": {
+    "implementation_commit": "1a4cdac2f8871ab9b49f618a06a2949b65d61247",
+    "captured_at_utc": "2026-10-03T01:18:39.053163+00:00",
+    "runs": [
+      {
+        "url": "https://github.com/EmotiveImpact/loc8/actions/runs/37085325145",
+        "event": "push",
+        "conclusion": "success"
+      },
+      {
+        "url": "https://github.com/EmotiveImpact/loc8/actions/runs/37085327986",
+        "event": "pull_request",
+        "conclusion": "success"
+      }
+    ]
+  }
 }

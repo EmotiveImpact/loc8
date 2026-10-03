@@ -1,0 +1,291 @@
+{
+  "schema": "loc8.branch-relay-ci-receipt.v1",
+  "captured_at_utc": "2026-10-03T01:18:39.053163+00:00",
+  "implementation_commit": "1a4cdac2f8871ab9b49f618a06a2949b65d61247",
+  "implementation_tree": "62b0f138c341320160cf75fdd349466a3c283464",
+  "runs": [
+    {
+      "conclusion": "success",
+      "createdAt": "2026-10-03T01:14:27Z",
+      "databaseId": 37085325145,
+      "event": "push",
+      "headSha": "1a4cdac2f8871ab9b49f618a06a2949b65d61247",
+      "jobs": [
+        {
+          "completedAt": "2026-10-03T01:15:46Z",
+          "conclusion": "success",
+          "databaseId": 111094304731,
+          "name": "verify",
+          "startedAt": "2026-10-03T01:14:30Z",
+          "status": "completed",
+          "steps": [
+            {
+              "completedAt": "2026-10-03T01:14:32Z",
+              "conclusion": "success",
+              "name": "Set up job",
+              "number": 1,
+              "startedAt": "2026-10-03T01:14:31Z",
+              "status": "completed"
+            },
+            {
+              "completedAt": "2026-10-03T01:14:33Z",
+              "conclusion": "success",
+              "name": "Run actions/checkout@v4",
+              "number": 2,
+              "startedAt": "2026-10-03T01:14:32Z",
+              "status": "completed"
+            },
+            {
+              "completedAt": "2026-10-03T01:14:34Z",
+              "conclusion": "success",
+              "name": "Preserve exact source snapshot",
+              "number": 3,
+              "startedAt": "2026-10-03T01:14:33Z",
+              "status": "completed"
+            },
+            {
+              "completedAt": "2026-10-03T01:14:36Z",
+              "conclusion": "success",
+              "name": "Run actions/upload-artifact@v4",
+              "number": 4,
+              "startedAt": "2026-10-03T01:14:34Z",
+              "status": "completed"
+            },
+            {
+              "completedAt": "2026-10-03T01:14:43Z",
+              "conclusion": "success",
+              "name": "Run actions/setup-node@v4",
+              "number": 5,
+              "startedAt": "2026-10-03T01:14:36Z",
+              "status": "completed"
+            },
+            {
+              "completedAt": "2026-10-03T01:15:08Z",
+              "conclusion": "success",
+              "name": "Install exact repository dependencies",
+              "number": 6,
+              "startedAt": "2026-10-03T01:14:43Z",
+              "status": "completed"
+            },
+            {
+              "completedAt": "2026-10-03T01:15:18Z",
+              "conclusion": "success",
+              "name": "Scoped BLE, freshness, source and programme checks",
+              "number": 7,
+              "startedAt": "2026-10-03T01:15:08Z",
+              "status": "completed"
+            },
+            {
+              "completedAt": "2026-10-03T01:15:29Z",
+              "conclusion": "success",
+              "name": "Existing Jest suite",
+              "number": 8,
+              "startedAt": "2026-10-03T01:15:18Z",
+              "status": "completed"
+            },
+            {
+              "completedAt": "2026-10-03T01:15:36Z",
+              "conclusion": "success",
+              "name": "Root TypeScript",
+              "number": 9,
+              "startedAt": "2026-10-03T01:15:29Z",
+              "status": "completed"
+            },
+            {
+              "completedAt": "2026-10-03T01:15:44Z",
+              "conclusion": "success",
+              "name": "Lint",
+              "number": 10,
+              "startedAt": "2026-10-03T01:15:36Z",
+              "status": "completed"
+            },
+            {
+              "completedAt": "2026-10-03T01:15:45Z",
+              "conclusion": "success",
+              "name": "Preserve all verification diagnostics",
+              "number": 11,
+              "startedAt": "2026-10-03T01:15:44Z",
+              "status": "completed"
+            },
+            {
+              "completedAt": "2026-10-03T01:15:45Z",
+              "conclusion": "success",
+              "name": "Post Run actions/setup-node@v4",
+              "number": 21,
+              "startedAt": "2026-10-03T01:15:45Z",
+              "status": "completed"
+            },
+            {
+              "completedAt": "2026-10-03T01:15:45Z",
+              "conclusion": "success",
+              "name": "Post Run actions/checkout@v4",
+              "number": 22,
+              "startedAt": "2026-10-03T01:15:45Z",
+              "status": "completed"
+            },
+            {
+              "completedAt": "2026-10-03T01:15:45Z",
+              "conclusion": "success",
+              "name": "Complete job",
+              "number": 23,
+              "startedAt": "2026-10-03T01:15:45Z",
+              "status": "completed"
+            }
+          ],
+          "url": "https://github.com/EmotiveImpact/loc8/actions/runs/37085325145/job/111094304731"
+        }
+      ],
+      "status": "completed",
+      "updatedAt": "2026-10-03T01:15:47Z",
+      "url": "https://github.com/EmotiveImpact/loc8/actions/runs/37085325145",
+      "raw_log": {
+        "path": "branch-ci-push.log.gz",
+        "bytes": 7014,
+        "sha256": "c7da80382c3c2a3c8bdca9e359f032729faf0e3231a40e54f4855cd326b4863b",
+        "uncompressed_bytes": 37659
+      }
+    },
+    {
+      "conclusion": "success",
+      "createdAt": "2026-10-03T01:14:30Z",
+      "databaseId": 37085327986,
+      "event": "pull_request",
+      "headSha": "1a4cdac2f8871ab9b49f618a06a2949b65d61247",
+      "jobs": [
+        {
+          "completedAt": "2026-10-03T01:15:55Z",
+          "conclusion": "success",
+          "databaseId": 111094313234,
+          "name": "verify",
+          "startedAt": "2026-10-03T01:14:37Z",
+          "status": "completed",
+          "steps": [
+            {
+              "completedAt": "2026-10-03T01:14:39Z",
+              "conclusion": "success",
+              "name": "Set up job",
+              "number": 1,
+              "startedAt": "2026-10-03T01:14:38Z",
+              "status": "completed"
+            },
+            {
+              "completedAt": "2026-10-03T01:14:40Z",
+              "conclusion": "success",
+              "name": "Run actions/checkout@v4",
+              "number": 2,
+              "startedAt": "2026-10-03T01:14:39Z",
+              "status": "completed"
+            },
+            {
+              "completedAt": "2026-10-03T01:14:40Z",
+              "conclusion": "success",
+              "name": "Preserve exact source snapshot",
+              "number": 3,
+              "startedAt": "2026-10-03T01:14:40Z",
+              "status": "completed"
+            },
+            {
+              "completedAt": "2026-10-03T01:14:43Z",
+              "conclusion": "success",
+              "name": "Run actions/upload-artifact@v4",
+              "number": 4,
+              "startedAt": "2026-10-03T01:14:40Z",
+              "status": "completed"
+            },
+            {
+              "completedAt": "2026-10-03T01:14:50Z",
+              "conclusion": "success",
+              "name": "Run actions/setup-node@v4",
+              "number": 5,
+              "startedAt": "2026-10-03T01:14:43Z",
+              "status": "completed"
+            },
+            {
+              "completedAt": "2026-10-03T01:15:16Z",
+              "conclusion": "success",
+              "name": "Install exact repository dependencies",
+              "number": 6,
+              "startedAt": "2026-10-03T01:14:50Z",
+              "status": "completed"
+            },
+            {
+              "completedAt": "2026-10-03T01:15:26Z",
+              "conclusion": "success",
+              "name": "Scoped BLE, freshness, source and programme checks",
+              "number": 7,
+              "startedAt": "2026-10-03T01:15:16Z",
+              "status": "completed"
+            },
+            {
+              "completedAt": "2026-10-03T01:15:38Z",
+              "conclusion": "success",
+              "name": "Existing Jest suite",
+              "number": 8,
+              "startedAt": "2026-10-03T01:15:26Z",
+              "status": "completed"
+            },
+            {
+              "completedAt": "2026-10-03T01:15:45Z",
+              "conclusion": "success",
+              "name": "Root TypeScript",
+              "number": 9,
+              "startedAt": "2026-10-03T01:15:38Z",
+              "status": "completed"
+            },
+            {
+              "completedAt": "2026-10-03T01:15:53Z",
+              "conclusion": "success",
+              "name": "Lint",
+              "number": 10,
+              "startedAt": "2026-10-03T01:15:45Z",
+              "status": "completed"
+            },
+            {
+              "completedAt": "2026-10-03T01:15:53Z",
+              "conclusion": "success",
+              "name": "Preserve all verification diagnostics",
+              "number": 11,
+              "startedAt": "2026-10-03T01:15:53Z",
+              "status": "completed"
+            },
+            {
+              "completedAt": "2026-10-03T01:15:53Z",
+              "conclusion": "success",
+              "name": "Post Run actions/setup-node@v4",
+              "number": 21,
+              "startedAt": "2026-10-03T01:15:53Z",
+              "status": "completed"
+            },
+            {
+              "completedAt": "2026-10-03T01:15:54Z",
+              "conclusion": "success",
+              "name": "Post Run actions/checkout@v4",
+              "number": 22,
+              "startedAt": "2026-10-03T01:15:53Z",
+              "status": "completed"
+            },
+            {
+              "completedAt": "2026-10-03T01:15:54Z",
+              "conclusion": "success",
+              "name": "Complete job",
+              "number": 23,
+              "startedAt": "2026-10-03T01:15:54Z",
+              "status": "completed"
+            }
+          ],
+          "url": "https://github.com/EmotiveImpact/loc8/actions/runs/37085327986/job/111094313234"
+        }
+      ],
+      "status": "completed",
+      "updatedAt": "2026-10-03T01:15:56Z",
+      "url": "https://github.com/EmotiveImpact/loc8/actions/runs/37085327986",
+      "raw_log": {
+        "path": "branch-ci-pull_request.log.gz",
+        "bytes": 7407,
+        "sha256": "fa86f71751e66698b9b3f60ed912cc982826f1748722868c643f68bac39e2f1a",
+        "uncompressed_bytes": 38908
+      }
+    }
+  ],
+  "scope": "Fresh Ubuntu CI scoped335/field100/Jest488/types/lint and recorded-source/artifact verification. No native compiler, phone or deterministic fullmatrix rerun in these CI jobs."
+}
