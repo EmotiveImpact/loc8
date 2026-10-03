@@ -1,5 +1,36 @@
 # Loc8
 
+For native public/Guard builds and the Command web console, start with
+[BUILD.md](BUILD.md). The master programme is [LOC8_MASTER_PLAN.md](LOC8_MASTER_PLAN.md);
+the research map is [RESEARCH.md](RESEARCH.md). Continue the current draft PR #5
+line, retaining the `current` relay default and the separate physical gates.
+
+**3 October queue continuation:** [iOS relay queue implementation and checks](docs/research/rnd/results/2026-10-03-ios-egress.md)
+adds bounded notifications, queue expiry and reconnect cleanup on top of PR #5.
+This experimental continuation changes iOS queue behavior under load in both
+relay modes; physical tests and complete native app builds remain separate.
+
+## Experimental BLE density intake: 3 October 2026
+
+Start with the [native branch-forwarding handoff](docs/research/rnd/results/2026-10-03-branch-relay.md)
+and [source-backed intake](docs/research/rnd/intake/2026-10-03-ble/README.md).
+The experimental branch includes an opt-in native repair: one existing jittered
+send preserves outgoing branches and skips only links that supplied the exact
+same frame. Set `EXPO_PUBLIC_MESH_RELAY_MODE=branch` in a rebuilt native development
+client; native status reports the actual mode. The default remains `current`.
+The 25-byte payload and native frame format remain unchanged.
+
+The [original Trickle retry result](docs/research/rnd/results/2026-10-03-ble-density.md)
+remains HOLD: it failed its registered dense send-cost gate. New branch-forwarding
+evidence is separate. No upstream implementation code was imported. Native
+compilation and deterministic simulation are distinct from physical phone evidence;
+gateway/periodic-advertising hardware plans remain untested. Main is not merged.
+
+```sh
+node --test tools/mesh-rnd/branch-*.node.cjs tools/mesh-rnd/native-relay-api.node.cjs
+node tools/mesh-rnd/verify-branch-integration.cjs --rerun
+```
+
 Start with [the unified system map and build programme](LOC8_MASTER_PLAN.md).
 The next GPS-source increment extends PR #4; it does not merge or deploy it.
 Read its [source-provenance decision](docs/research/rnd/decisions/2026-09-25-source-location-v1.md)

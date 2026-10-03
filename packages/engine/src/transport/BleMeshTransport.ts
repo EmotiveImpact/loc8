@@ -55,7 +55,18 @@ export class BleMeshTransport implements LocationTransport {
     // restriction) UN-LATCHES `started` and detaches the native subscriptions,
     // so a later start() (e.g. meshService's foreground retry) really retries.
     // Listeners see a zeroed onMeshStatus so the UI reflects "mesh down".
-    Loc8Mesh.start().catch((e) => {
+    const relayMode = process.env.EXPO_PUBLIC_MESH_RELAY_MODE;
+    // Native selection is atomic on the BLE queue: the same running mode can
+    // be reused without resetting the mesh; a live mode change rejects.
+    // A stop during configuration must not revive the radio.
+    const nativeStart = relayMode === undefined ? Loc8Mesh.start() : (async () => {
+      if (relayMode !== 'current' && relayMode !== 'branch') {
+        throw new Error(`Invalid EXPO_PUBLIC_MESH_RELAY_MODE: ${relayMode}`);
+      }
+      await Loc8Mesh.configureRelayMode(relayMode);
+      if (current()) await Loc8Mesh.start();
+    })();
+    nativeStart.catch((e) => {
       if (!current()) return; // a stopped/replaced start must not tear down a newer session
       this.started = false;
       this.subs.forEach((s) => s.remove());

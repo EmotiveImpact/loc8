@@ -1,0 +1,80 @@
+{
+  "date_client": "2026-10-03",
+  "main_head": "f6b09a492c362f1c73b775d67721da1cc345fe91",
+  "baseline_r1": "f80e9366411945b050058f4df5466269e1f6b98d",
+  "r0": "3421390a19643ac6f621d8b9faafa7d7b4fcae62",
+  "initial_main_status": "clean",
+  "open_prs": [
+    {
+      "baseRefName": "rnd/ble-hardening-2026-09-25",
+      "headRefName": "rnd/position-freshness-2026-09-25",
+      "headRefOid": "f80e9366411945b050058f4df5466269e1f6b98d",
+      "isDraft": true,
+      "number": 4,
+      "title": "R1: position evidence, original GPS samples and unified Loc8 programme",
+      "url": "https://github.com/EmotiveImpact/loc8/pull/4"
+    },
+    {
+      "baseRefName": "main",
+      "headRefName": "archive/loc8-knowledge-2026-09-25",
+      "headRefOid": "83f966f9d51aae2c44acb96a4d9991b33fa3a622",
+      "isDraft": true,
+      "number": 3,
+      "title": "Loc8 knowledge recovery: central index, research continuity and reusable build packs",
+      "url": "https://github.com/EmotiveImpact/loc8/pull/3"
+    },
+    {
+      "baseRefName": "main",
+      "headRefName": "rnd/ble-hardening-2026-09-25",
+      "headRefOid": "3421390a19643ac6f621d8b9faafa7d7b4fcae62",
+      "isDraft": true,
+      "number": 1,
+      "title": "BLE R&D: shared packet hardening, bounded reassembly and restart recovery",
+      "url": "https://github.com/EmotiveImpact/loc8/pull/1"
+    }
+  ],
+  "open_issues": [
+    {
+      "number": 2,
+      "title": "R&D delivery tracker: BLE reliability for public Loc8, Guard and Command",
+      "url": "https://github.com/EmotiveImpact/loc8/issues/2"
+    }
+  ],
+  "remote_branches": [
+    {
+      "commit": "83f966f9d51aae2c44acb96a4d9991b33fa3a622",
+      "name": "archive/loc8-knowledge-2026-09-25"
+    },
+    {
+      "commit": "f6b09a492c362f1c73b775d67721da1cc345fe91",
+      "name": "main"
+    },
+    {
+      "commit": "3421390a19643ac6f621d8b9faafa7d7b4fcae62",
+      "name": "rnd/ble-hardening-2026-09-25"
+    },
+    {
+      "commit": "f80e9366411945b050058f4df5466269e1f6b98d",
+      "name": "rnd/position-freshness-2026-09-25"
+    }
+  ],
+  "preserved_worktrees": [
+    {
+      "head": "1bf217e16a4bf1aec4933675ef177bc52b696163",
+      "status": " M .claude/launch.json"
+    },
+    {
+      "head": "4f725df48a37189f77beefc7e7e3d69dac5f677e",
+      "status": "?? .claude/launch.json"
+    }
+  ],
+  "parent_ci_verified": {
+    "sha": "f80e9366411945b050058f4df5466269e1f6b98d",
+    "conclusion": "SUCCESS",
+    "runs": [
+      36195109445,
+      36195105689
+    ]
+  },
+  "source_mirror_changed": false
+}

@@ -1,0 +1,191 @@
+{
+  "research_date_client": "2026-10-03",
+  "copied_into_loc8": false,
+  "third_party_dependencies_added": false,
+  "upstream_test_suites_executed": false,
+  "inspection_scope": "Pinned selected upstream files downloaded for read-only inspection, not a complete dependency/legal audit",
+  "repositories": [
+    {
+      "repository": "https://github.com/sukgautamgit/DPCS-SimultaneousTx-Rx-BLE-Demo",
+      "commit": "469086d42b3e6a482a23595ec13c4f0d20f6b066",
+      "licence_screen": "Apache-2.0",
+      "files": [
+        {
+          "path": "CITATION.cff",
+          "bytes": 366,
+          "sha256": "f249b24c3704b1db40008a27368c92209ed4a36335cc5886a233573b5c3db185",
+          "git_blob": "3e07482b071acf5dc35316b17fe5167d3918a901",
+          "url": "https://github.com/sukgautamgit/DPCS-SimultaneousTx-Rx-BLE-Demo/blob/469086d42b3e6a482a23595ec13c4f0d20f6b066/CITATION.cff"
+        },
+        {
+          "path": "DPCS_Node1_Tx/src/main.c",
+          "bytes": 2649,
+          "sha256": "3f58024eff7dc51597699c30f54ef87f7b6e69afacc1dfafd83d0c127674b648",
+          "git_blob": "79f19bdda4706c5aa6c64ddb2d2c0ee37590a563",
+          "url": "https://github.com/sukgautamgit/DPCS-SimultaneousTx-Rx-BLE-Demo/blob/469086d42b3e6a482a23595ec13c4f0d20f6b066/DPCS_Node1_Tx/src/main.c"
+        },
+        {
+          "path": "DPCS_Node2_Relay/prj.conf",
+          "bytes": 211,
+          "sha256": "35a9259faa402aee80dc6683b25ef53d8640626ede8a2cb465eab12939fbe486",
+          "git_blob": "7c08c2d19bde2ed95b5f73bb4a0504c4a52ad80e",
+          "url": "https://github.com/sukgautamgit/DPCS-SimultaneousTx-Rx-BLE-Demo/blob/469086d42b3e6a482a23595ec13c4f0d20f6b066/DPCS_Node2_Relay/prj.conf"
+        },
+        {
+          "path": "DPCS_Node2_Relay/src/main.c",
+          "bytes": 10737,
+          "sha256": "be6fa082f5e9b577aaeab6772faf3b1d4cf9429016b99d61c2c5ae3a825e865a",
+          "git_blob": "8e8d974224a7eb0308ba3f65c92fb2bf8c14e921",
+          "url": "https://github.com/sukgautamgit/DPCS-SimultaneousTx-Rx-BLE-Demo/blob/469086d42b3e6a482a23595ec13c4f0d20f6b066/DPCS_Node2_Relay/src/main.c"
+        },
+        {
+          "path": "DPCS_Node3_Rx/src/main.c",
+          "bytes": 7644,
+          "sha256": "cb32da77bcaf1fa3adf5fc1f9f0e23a42b59bb58c5475c79eb3942f51e3c54ea",
+          "git_blob": "11efc9a8ca0a80cb8393b8df18c673c5733fd709",
+          "url": "https://github.com/sukgautamgit/DPCS-SimultaneousTx-Rx-BLE-Demo/blob/469086d42b3e6a482a23595ec13c4f0d20f6b066/DPCS_Node3_Rx/src/main.c"
+        },
+        {
+          "path": "LICENSE",
+          "bytes": 11357,
+          "sha256": "c71d239df91726fc519c6eb72d318ec65820627232b2f796219e87dcf35d0ab4",
+          "git_blob": "261eeb9e9f8b2b4b0d119366dda99c6fd7d35c64",
+          "url": "https://github.com/sukgautamgit/DPCS-SimultaneousTx-Rx-BLE-Demo/blob/469086d42b3e6a482a23595ec13c4f0d20f6b066/LICENSE"
+        },
+        {
+          "path": "README.md",
+          "bytes": 6145,
+          "sha256": "2e51c6fc99eba68cfd398e404869cfafdd95cf384f54d75b48cc2cb3d1fa8424",
+          "git_blob": "18f4682e31ac8a662db236c47a6b05a79d4e8c7c",
+          "url": "https://github.com/sukgautamgit/DPCS-SimultaneousTx-Rx-BLE-Demo/blob/469086d42b3e6a482a23595ec13c4f0d20f6b066/README.md"
+        }
+      ]
+    },
+    {
+      "repository": "https://github.com/NordicPlayground/nRF51-ble-bcast-mesh",
+      "commit": "9647fd7357a6a66741f30ea97913874d4cb30bcc",
+      "licence_screen": "Nordic processor-restricted",
+      "files": [
+        {
+          "path": "LICENSE.adoc",
+          "bytes": 1758,
+          "sha256": "3b6d5fec37a0f7c977b22602f9ac33f31dae82c4f27e4bb30ca920b7136ffe5d",
+          "git_blob": "317056aff878d6b090e6f2c8f52ee9b453995dff",
+          "url": "https://github.com/NordicPlayground/nRF51-ble-bcast-mesh/blob/9647fd7357a6a66741f30ea97913874d4cb30bcc/LICENSE.adoc"
+        },
+        {
+          "path": "README.adoc",
+          "bytes": 7418,
+          "sha256": "40f42d5fec1a7a3b1301646d1ff2753fab23f34c185258df220c3b4e874c30a5",
+          "git_blob": "db529cffd8e59363320235f93c683300eff4eb5e",
+          "url": "https://github.com/NordicPlayground/nRF51-ble-bcast-mesh/blob/9647fd7357a6a66741f30ea97913874d4cb30bcc/README.adoc"
+        },
+        {
+          "path": "docs/how_it_works.adoc",
+          "bytes": 12822,
+          "sha256": "2ef41652bbadbb7cbdeffca85a52ce60569bc27f45e06793ee1ed8c724dad061",
+          "git_blob": "1069aaf68c82aef6f6fd5ea2ad49fa60e3302e5d",
+          "url": "https://github.com/NordicPlayground/nRF51-ble-bcast-mesh/blob/9647fd7357a6a66741f30ea97913874d4cb30bcc/docs/how_it_works.adoc"
+        },
+        {
+          "path": "nRF51/rbc_mesh/include/trickle.h",
+          "bytes": 4226,
+          "sha256": "980d505c057febbde3671785a165253370926929d688eab3bec056d870a01022",
+          "git_blob": "4180b7ba6f8c96296667492cb3f61a3ca3b4728e",
+          "url": "https://github.com/NordicPlayground/nRF51-ble-bcast-mesh/blob/9647fd7357a6a66741f30ea97913874d4cb30bcc/nRF51/rbc_mesh/include/trickle.h"
+        },
+        {
+          "path": "nRF51/rbc_mesh/src/trickle.c",
+          "bytes": 5617,
+          "sha256": "bae6372e18f46b0664a0aa97d4c9d0b98daa30087d65687c2c9a41638c5fedc4",
+          "git_blob": "485060228814a6f75599c32abfc30d39681379d5",
+          "url": "https://github.com/NordicPlayground/nRF51-ble-bcast-mesh/blob/9647fd7357a6a66741f30ea97913874d4cb30bcc/nRF51/rbc_mesh/src/trickle.c"
+        }
+      ]
+    },
+    {
+      "repository": "https://github.com/zephyrproject-rtos/zephyr",
+      "commit": "2428837a26050e11d0d541432a5fa783666c0c8e",
+      "licence_screen": "Apache-2.0 in selected files",
+      "files": [
+        {
+          "path": "LICENSE",
+          "bytes": 11358,
+          "sha256": "c6596eb7be8581c18be736c846fb9173b69eccf6ef94c5135893ec56bd92ba08",
+          "git_blob": "8f71f43fee3f78649d238238cbde51e6d7055c82",
+          "url": "https://github.com/zephyrproject-rtos/zephyr/blob/2428837a26050e11d0d541432a5fa783666c0c8e/LICENSE"
+        },
+        {
+          "path": "include/zephyr/net/trickle.h",
+          "bytes": 3763,
+          "sha256": "7655a7a182ae716eda599fe490f1c1357ab1011fab34bea103abf4800d60be6e",
+          "git_blob": "6c34596450332e62c1bb6656ade29644d2766e4d",
+          "url": "https://github.com/zephyrproject-rtos/zephyr/blob/2428837a26050e11d0d541432a5fa783666c0c8e/include/zephyr/net/trickle.h"
+        },
+        {
+          "path": "samples/bluetooth/periodic_adv/README.rst",
+          "bytes": 862,
+          "sha256": "b6fd6cb992d77439a491f3f3a3b3b074788fd39d02787876845c7bab07c35008",
+          "git_blob": "515ba3015d91979db78a13e54a5cca2874d514c8",
+          "url": "https://github.com/zephyrproject-rtos/zephyr/blob/2428837a26050e11d0d541432a5fa783666c0c8e/samples/bluetooth/periodic_adv/README.rst"
+        },
+        {
+          "path": "samples/bluetooth/periodic_adv/src/main.c",
+          "bytes": 2292,
+          "sha256": "36a940646dd7ef2de5f714b7598d7428c6a53fec73b4797d96501f794e9d538d",
+          "git_blob": "a927c82e16c2b92568e637a83a1a125866e9070a",
+          "url": "https://github.com/zephyrproject-rtos/zephyr/blob/2428837a26050e11d0d541432a5fa783666c0c8e/samples/bluetooth/periodic_adv/src/main.c"
+        },
+        {
+          "path": "samples/bluetooth/periodic_sync/README.rst",
+          "bytes": 907,
+          "sha256": "e1e789141f6ad1e7392e198682c3d072e51ddbfa74a85545e780c995ab403e3e",
+          "git_blob": "609497fd9aad5a16e2929639e9a70c62f5794054",
+          "url": "https://github.com/zephyrproject-rtos/zephyr/blob/2428837a26050e11d0d541432a5fa783666c0c8e/samples/bluetooth/periodic_sync/README.rst"
+        },
+        {
+          "path": "samples/bluetooth/periodic_sync/prj.conf",
+          "bytes": 146,
+          "sha256": "9532c6286aaed82ac2f44ebb2ff837df62484243d30775311dd852197f86a276",
+          "git_blob": "5ae7d77144f33cd2c6ff6b8f9d902698d885db8d",
+          "url": "https://github.com/zephyrproject-rtos/zephyr/blob/2428837a26050e11d0d541432a5fa783666c0c8e/samples/bluetooth/periodic_sync/prj.conf"
+        },
+        {
+          "path": "samples/bluetooth/periodic_sync/src/main.c",
+          "bytes": 7456,
+          "sha256": "67405aac42e0afa16fd5f14422bd1f42b8f2d6fbc4e625f5f30ae8a8c5733f79",
+          "git_blob": "c58faef321a702cef690450deed2790927dd48a4",
+          "url": "https://github.com/zephyrproject-rtos/zephyr/blob/2428837a26050e11d0d541432a5fa783666c0c8e/samples/bluetooth/periodic_sync/src/main.c"
+        },
+        {
+          "path": "subsys/net/lib/trickle/trickle.c",
+          "bytes": 5063,
+          "sha256": "2e4a025ff951758442a24c96019c4fcb1caadf468966e4835a4ac9b9963c0cea",
+          "git_blob": "3a173cf76420f4044812170bf9b8812f834a0fbd",
+          "url": "https://github.com/zephyrproject-rtos/zephyr/blob/2428837a26050e11d0d541432a5fa783666c0c8e/subsys/net/lib/trickle/trickle.c"
+        },
+        {
+          "path": "tests/bsim/bluetooth/host/adv/periodic/src/per_adv_sync.c",
+          "bytes": 10888,
+          "sha256": "bede10bda8877f05f1ae9813e99934b228eafbb42ebe2686a88e70916386ceef",
+          "git_blob": "e925d0eaecdc78f17940007dc41b7ea872ec2bdf",
+          "url": "https://github.com/zephyrproject-rtos/zephyr/blob/2428837a26050e11d0d541432a5fa783666c0c8e/tests/bsim/bluetooth/host/adv/periodic/src/per_adv_sync.c"
+        },
+        {
+          "path": "tests/bsim/bluetooth/host/adv/periodic/tests.yaml",
+          "bytes": 1460,
+          "sha256": "413eb9319a49cee2ef63968c36300c10f9e8bac01271ec968bf6b00505ea3b40",
+          "git_blob": "ddb11b6b8bed5b4da2b88c27def5e60345e50d2e",
+          "url": "https://github.com/zephyrproject-rtos/zephyr/blob/2428837a26050e11d0d541432a5fa783666c0c8e/tests/bsim/bluetooth/host/adv/periodic/tests.yaml"
+        },
+        {
+          "path": "tests/bsim/bluetooth/host/adv/periodic/tests_scripts/per_adv_app_not_scanning.sh",
+          "bytes": 864,
+          "sha256": "2150e0a3a8964b6be86c5fa9ed1cc74bf47b9e8aaba526a1161b05695ad98282",
+          "git_blob": "4093c7baba4e3d53f3e698126f222c7d960f3f4d",
+          "url": "https://github.com/zephyrproject-rtos/zephyr/blob/2428837a26050e11d0d541432a5fa783666c0c8e/tests/bsim/bluetooth/host/adv/periodic/tests_scripts/per_adv_app_not_scanning.sh"
+        }
+      ]
+    }
+  ]
+}

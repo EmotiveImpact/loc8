@@ -1,7 +1,7 @@
 name: R&D verification
 on:
   push:
-    branches: ['rnd/position-freshness-2026-09-25']
+    branches: ['rnd/position-freshness-2026-09-25', 'rnd/ble-density-2026-10-03', 'rnd/ble-egress-2026-10-03']
   pull_request:
     paths:
       - 'packages/engine/**'
@@ -9,6 +9,7 @@ on:
       - 'app/**'
       - 'src/**'
       - 'tools/mesh-rnd/**'
+      - 'modules/loc8-mesh/**'
       - 'docs/programme/**'
       - '.github/workflows/rnd-verification.yml'
 permissions:
@@ -17,6 +18,28 @@ concurrency:
   group: rnd-verification-${{ github.ref }}
   cancel-in-progress: true
 jobs:
+  native-ios-queue:
+    runs-on: macos-15
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+      - uses: actions/setup-node@v4
+        with:
+          node-version-file: '.nvmrc'
+      - name: Execute actual iOS relay and queue code; typecheck service against SDK
+        shell: bash
+        run: |
+          set -o pipefail
+          node tools/mesh-rnd/native-relay/run-ios-branch-tests.cjs --typecheck-ios 2>&1 | tee "$RUNNER_TEMP/loc8-native-ios.log"
+      - name: Preserve native host diagnostics
+        if: ${{ always() }}
+        uses: actions/upload-artifact@v4
+        with:
+          name: loc8-native-ios-${{ github.sha }}
+          path: ${{ runner.temp }}/loc8-native-ios.log
+          retention-days: 7
   verify:
     runs-on: ubuntu-latest
     timeout-minutes: 20
@@ -24,6 +47,7 @@ jobs:
       - uses: actions/checkout@v4
         with:
           persist-credentials: false
+          fetch-depth: 0 # Retain the pinned V1 adverse-result source commit.
       - name: Preserve exact source snapshot
         run: |
           mkdir -p /tmp/loc8-evidence /tmp/loc8-ci-diagnostics
@@ -36,7 +60,7 @@ jobs:
           retention-days: 7
       - uses: actions/setup-node@v4
         with:
-          node-version: '22.18.0'
+          node-version-file: '.nvmrc'
           cache: npm
       - name: Install exact repository dependencies
         id: install
@@ -51,12 +75,22 @@ jobs:
       - name: Scoped BLE, freshness, source and programme checks
         if: ${{ always() && steps.install.outcome == 'success' }}
         run: |
-          node --test tools/mesh-rnd/verify.node.cjs tools/mesh-rnd/freshness.node.cjs tools/mesh-rnd/source-location.node.cjs tools/mesh-rnd/programme.node.cjs > /tmp/loc8-ci-diagnostics/scoped.tap 2>&1 || {
+          node --test tools/mesh-rnd/verify.node.cjs tools/mesh-rnd/freshness.node.cjs tools/mesh-rnd/source-location.node.cjs tools/mesh-rnd/programme.node.cjs tools/mesh-rnd/relay-policy.node.cjs tools/mesh-rnd/relay-simulation.node.cjs tools/mesh-rnd/native-relay-api.node.cjs tools/mesh-rnd/branch-*.node.cjs tools/native-field/field-build.node.cjs > /tmp/loc8-ci-diagnostics/scoped.tap 2>&1 || {
             grep -A 45 '^not ok' /tmp/loc8-ci-diagnostics/scoped.tap || true
             tail -n 12 /tmp/loc8-ci-diagnostics/scoped.tap
             exit 1
           }
           tail -n 12 /tmp/loc8-ci-diagnostics/scoped.tap
+          node tools/mesh-rnd/verify-branch-integration.cjs --rerun > /tmp/loc8-ci-diagnostics/branch-integration.log 2>&1 || {
+            tail -n 100 /tmp/loc8-ci-diagnostics/branch-integration.log
+            exit 1
+          }
+          tail -n 12 /tmp/loc8-ci-diagnostics/branch-integration.log
+          node --test docs/research/rnd/prototypes/mesh-field-kit/mesh-field-kit.test.mjs > /tmp/loc8-ci-diagnostics/field-contract.tap 2>&1 || {
+            tail -n 80 /tmp/loc8-ci-diagnostics/field-contract.tap
+            exit 1
+          }
+          tail -n 12 /tmp/loc8-ci-diagnostics/field-contract.tap
       - name: Existing Jest suite
         if: ${{ always() && steps.install.outcome == 'success' }}
         run: |
@@ -65,6 +99,17 @@ jobs:
             exit 1
           }
           tail -n 12 /tmp/loc8-ci-diagnostics/jest.log
+      - name: Expo SDK compatibility after fresh installation
+        if: ${{ always() && steps.install.outcome == 'success' }}
+        run: |
+          npx --yes expo-doctor > /tmp/loc8-ci-diagnostics/expo-doctor.log 2>&1 || {
+            tail -n 100 /tmp/loc8-ci-diagnostics/expo-doctor.log
+            exit 1
+          }
+          (cd apps/guard && npx --yes expo-doctor) > /tmp/loc8-ci-diagnostics/guard-expo-doctor.log 2>&1 || {
+            tail -n 100 /tmp/loc8-ci-diagnostics/guard-expo-doctor.log
+            exit 1
+          }
       - name: Root TypeScript
         if: ${{ always() && steps.install.outcome == 'success' }}
         run: |
@@ -77,6 +122,17 @@ jobs:
         run: |
           npm run lint > /tmp/loc8-ci-diagnostics/lint.log 2>&1 || {
             tail -n 100 /tmp/loc8-ci-diagnostics/lint.log
+            exit 1
+          }
+      - name: Guard TypeScript and Command build
+        if: ${{ always() && steps.install.outcome == 'success' }}
+        run: |
+          npx tsc --noEmit -p apps/guard/tsconfig.json > /tmp/loc8-ci-diagnostics/guard-typescript.log 2>&1 || {
+            tail -n 80 /tmp/loc8-ci-diagnostics/guard-typescript.log
+            exit 1
+          }
+          npm run build --workspace @loc8/command > /tmp/loc8-ci-diagnostics/command-build.log 2>&1 || {
+            tail -n 80 /tmp/loc8-ci-diagnostics/command-build.log
             exit 1
           }
       - name: Preserve all verification diagnostics

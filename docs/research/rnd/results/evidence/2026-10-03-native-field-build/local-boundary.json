@@ -1,0 +1,37 @@
+{
+  "schema": "loc8.native-field-local-boundary.v1",
+  "recorded_at": "2026-10-03",
+  "baseline_installed_versions": {
+    "expo": "57.0.8",
+    "react-native": "0.86.0",
+    "jest-expo": "57.0.2",
+    "@react-native/jest-preset": "0.86.0",
+    "react-native-worklets": "0.10.2"
+  },
+  "final_lock_versions": {
+    "expo": "57.0.26",
+    "react-native": "0.86.3",
+    "jest-expo": "57.0.5",
+    "@react-native/jest-preset": "0.86.3",
+    "react-native-worklets": "0.10.2"
+  },
+  "final_exact_install_local": false,
+  "final_exact_install_dry_run_exit": 0,
+  "dependency_resolution_exit": 0,
+  "android_full_local": "blocked before Gradle by less than 8 GiB free",
+  "ios_app_local": "blocked Xcode 16.2 below Expo 57 Xcode 26.4 requirement",
+  "physical_phone_attempts": 0,
+  "signing_inventory": {
+    "apple_development_identities": 1,
+    "developer_id_application_identities": 1,
+    "provisioning_verified": false
+  },
+  "connected_phones": 0,
+  "simulator_runtimes_available": 0,
+  "sdk_patch_source": "https://expo.dev/changelog/sdk-57",
+  "notes": [
+    "Local software/prebuild/export logs use the baseline installation, not the final SDK patch lockfile.",
+    "Fresh npm ci and final software/native builds must be verified in CI or on a clone with space.",
+    "Baselines preserve both failures and passes; the first integrity failure preceded the continuation receipt."
+  ]
+}

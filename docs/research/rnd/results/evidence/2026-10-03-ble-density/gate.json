@@ -1,0 +1,19 @@
+{
+  "evidenceClass": "registered-exploratory-software-gate",
+  "runs": 5400,
+  "graphCohorts": 180,
+  "repetitionsPerPolicyCohort": 10,
+  "deliveryRegressionsOverOnePoint": 0,
+  "targetRegressionsOverOnePoint": 0,
+  "targetCompletelyTTLIneligibleCohorts": 40,
+  "denseCohorts": 100,
+  "denseSavingAtLeast20PercentVsJitter": 0,
+  "denseExceedingTwiceCurrentAttempts": 100,
+  "worstDeliveredP95Ms": 3066.3709733914584,
+  "worstTargetDeliveredP95Ms": 3174.1494489517063,
+  "horizonDroppedEvents": 0,
+  "denseDefinition": "mean canonical directed-link degree >=6; descriptive cohort grouping",
+  "limitations": "10 paired seeds, one message/source attempt, ideal static GATT erasures. Missing delivery is excluded from delivered-latency quantiles; inspect success separately.",
+  "decision": "HOLD_CANDIDATE",
+  "productionPromotion": false
+}

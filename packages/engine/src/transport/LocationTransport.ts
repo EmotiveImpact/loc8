@@ -5,6 +5,8 @@ export interface MeshStatus {
   connected: boolean;
   /** Android BLE only: chipset can't advertise — scan-only degraded mode (undiscoverable). */
   degraded?: boolean;
+  /** Experimental native forwarding mode, reported locally by BLE only. */
+  relayMode?: 'current' | 'branch';
 }
 
 /** Local callback context created by the simulator, never decoded from radio data. */

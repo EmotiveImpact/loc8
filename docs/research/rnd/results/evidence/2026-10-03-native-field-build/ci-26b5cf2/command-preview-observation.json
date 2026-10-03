@@ -1,0 +1,13 @@
+{
+  "url": "http://127.0.0.1:4173/",
+  "title": "Loc8 Command",
+  "verified": "2026-10-03",
+  "source_checkout": "26b5cf24228576de7defaa4b0e81e01476594bf1",
+  "local_bundle_dependency_boundary": "built using prior installation; fresh Command production build separately passed in GitHub run 37098530069",
+  "observation": [
+    "Rendered Command header and Live Site, Investigation, Person Search, Search and Rescue tabs",
+    "Live Site explicitly labelled SCRIPTED DEMO",
+    "No radio/device/connected provider claim"
+  ],
+  "preview_type": "local-only production bundle"
+}

@@ -17,6 +17,7 @@ jest.mock('../../../../../modules/loc8-mesh', () => {
   return {
     __esModule: true,
     start: jest.fn(async () => {}),
+    configureRelayMode: jest.fn(async (mode: string) => mode),
     stop: jest.fn(async () => {}),
     broadcast: jest.fn(async () => {}),
     addPacketListener: jest.fn((cb: (e: unknown) => void) => {
@@ -45,6 +46,7 @@ type AnyMock = ReturnType<typeof jest.fn>;
 
 const mesh = Loc8MeshImport as unknown as {
   start: AnyMock;
+  configureRelayMode: AnyMock;
   stop: AnyMock;
   broadcast: AnyMock;
   __emitPacket: (e: unknown) => void;
@@ -66,6 +68,7 @@ describe('BleMeshTransport', () => {
   beforeEach(() => {
     jest.clearAllMocks();
     mesh.__reset();
+    delete process.env.EXPO_PUBLIC_MESH_RELAY_MODE;
     transport = new BleMeshTransport();
   });
 
@@ -177,5 +180,96 @@ describe('BleMeshTransport', () => {
     transport.start();   // restart re-attaches
     expect(mesh.start).toHaveBeenCalledTimes(2);
     expect(mesh.__listenerCounts()).toEqual({ packet: 1, status: 1 });
+  });
+
+  it('configures an explicit branch mode before starting, with one activation', async () => {
+    process.env.EXPO_PUBLIC_MESH_RELAY_MODE = 'branch';
+    let resolve!: (value: string) => void;
+    mesh.configureRelayMode.mockImplementationOnce(() => new Promise<string>((r) => { resolve = r; }));
+    transport.start();
+    transport.start();
+    expect(mesh.configureRelayMode).toHaveBeenCalledTimes(1);
+    expect(mesh.configureRelayMode).toHaveBeenCalledWith('branch');
+    expect(mesh.start).not.toHaveBeenCalled();
+    resolve('branch');
+    await new Promise((r) => setTimeout(r, 0));
+    expect(mesh.start).toHaveBeenCalledTimes(1);
+    transport.stop();
+  });
+
+  it.each(['current', 'branch'] as const)('reattaches to a running %s mesh and retains reception and stop ownership', async (mode) => {
+    // Native was started directly by the field harness before this JS transport
+    // existed. Matching configuration reports its state without restarting it.
+    process.env.EXPO_PUBLIC_MESH_RELAY_MODE = mode;
+    let nativeRunning = true;
+    const packet = jest.fn();
+    const status = jest.fn();
+    const activeStatus = { nearbyCount: 2, connected: true, relayMode: mode };
+    mesh.configureRelayMode.mockImplementationOnce(async (selected: unknown) => {
+      if (selected !== mode) throw new Error('Stop mesh before selecting mode');
+      mesh.__emitStatus(activeStatus);
+      return mode;
+    });
+    mesh.start.mockImplementationOnce(async () => { expect(nativeRunning).toBe(true); });
+    mesh.stop.mockImplementationOnce(async () => { nativeRunning = false; });
+    transport.onPacket(packet);
+    transport.onMeshStatus(status);
+    transport.start();
+    await new Promise((r) => setTimeout(r, 0));
+    expect(mesh.start).toHaveBeenCalledTimes(1);
+    expect(mesh.__listenerCounts()).toEqual({ packet: 1, status: 1 });
+    expect(status).toHaveBeenLastCalledWith(activeStatus);
+    mesh.__emitPacket({ data: new Uint8Array(encodePacket(SAMPLE)), relayVia: 'mesh' });
+    expect(packet).toHaveBeenCalledTimes(1);
+    transport.stop();
+    expect(mesh.stop).toHaveBeenCalledTimes(1);
+    expect(nativeRunning).toBe(false);
+    expect(mesh.__listenerCounts()).toEqual({ packet: 0, status: 0 });
+    mesh.__emitPacket({ data: new Uint8Array(encodePacket(SAMPLE)) });
+    expect(packet).toHaveBeenCalledTimes(1);
+  });
+
+  it('a stop while native configuration is pending prevents a delayed radio start', async () => {
+    process.env.EXPO_PUBLIC_MESH_RELAY_MODE = 'branch';
+    let resolve!: (value: string) => void;
+    mesh.configureRelayMode.mockImplementationOnce(() => new Promise<string>((r) => { resolve = r; }));
+    transport.start();
+    transport.stop();
+    resolve('branch');
+    await new Promise((r) => setTimeout(r, 0));
+    expect(mesh.start).not.toHaveBeenCalled();
+    expect(mesh.__listenerCounts()).toEqual({ packet: 0, status: 0 });
+  });
+
+  it('rejects a misspelled mode without starting and can retry a valid selection', async () => {
+    const warn = jest.spyOn(console, 'warn').mockImplementation(() => {});
+    process.env.EXPO_PUBLIC_MESH_RELAY_MODE = 'brnach';
+    transport.start();
+    await new Promise((r) => setTimeout(r, 0));
+    expect(mesh.configureRelayMode).not.toHaveBeenCalled();
+    expect(mesh.start).not.toHaveBeenCalled();
+    expect(mesh.__listenerCounts()).toEqual({ packet: 0, status: 0 });
+    process.env.EXPO_PUBLIC_MESH_RELAY_MODE = 'current';
+    transport.start();
+    await new Promise((r) => setTimeout(r, 0));
+    expect(mesh.configureRelayMode).toHaveBeenCalledWith('current');
+    expect(mesh.start).toHaveBeenCalledTimes(1);
+    transport.stop();
+    warn.mockRestore();
+  });
+
+  it('configuration rejection un-latches and does not start the radio', async () => {
+    const warn = jest.spyOn(console, 'warn').mockImplementation(() => {});
+    process.env.EXPO_PUBLIC_MESH_RELAY_MODE = 'branch';
+    mesh.configureRelayMode.mockImplementationOnce(() => Promise.reject(new Error('Stop mesh before selecting mode')));
+    transport.start();
+    await new Promise((r) => setTimeout(r, 0));
+    expect(mesh.start).not.toHaveBeenCalled();
+    expect(mesh.__listenerCounts()).toEqual({ packet: 0, status: 0 });
+    transport.start();
+    await new Promise((r) => setTimeout(r, 0));
+    expect(mesh.start).toHaveBeenCalledTimes(1);
+    transport.stop();
+    warn.mockRestore();
   });
 });

@@ -65,6 +65,117 @@ import android.os.HandlerThread
 import android.os.ParcelUuid
 import android.util.Log
 
+// BEGIN PURE BRANCH RELAY STATE
+/** Experimental forwarding must be selected explicitly before starting BLE. */
+enum class MeshRelayMode(val wireValue: String) {
+    CURRENT("current"), BRANCH("branch");
+
+    companion object {
+        fun fromWireValue(value: String): MeshRelayMode? = entries.firstOrNull { it.wireValue == value }
+
+        internal fun configurationFailure(value: String, running: Boolean, currentMode: MeshRelayMode): String? = when {
+            fromWireValue(value) == null -> "Relay mode must be current or branch"
+            running && fromWireValue(value) != currentMode -> "Stop the mesh before changing relay mode"
+            else -> null
+        }
+    }
+}
+
+/**
+ * Handler-confined, bounded state for one-shot branch-preserving forwarding.
+ * A duplicate witnesses only its ingress branch, never every other neighbour.
+ * The short dedup key is an index, not evidence: compare the complete immutable
+ * frame identity (fixed decoded v1 type, sender, timestamp and payload), ignoring TTL.
+ */
+internal class MeshBranchRelayState(
+    private val maxPending: Int = 128,
+    private val maxIngress: Int = 64,
+    private val nowMs: () -> Long = { System.nanoTime() / 1_000_000L },
+    private val lifetimeMs: Long = 4_550L
+) {
+    class Pending internal constructor(
+        val token: Any,
+        internal val original: MeshFrame,
+        internal val forwarded: MeshFrame,
+        val firstIngress: String,
+        val ttlBefore: Int,
+        internal val admittedAtMs: Long,
+        internal val ingress: LinkedHashSet<String>
+    )
+
+    data class Forward(
+        val frame: MeshFrame, val excludedLinks: Set<String>, val firstIngress: String,
+        val ttlBefore: Int, val expired: Boolean
+    )
+
+    private val entries = HashMap<String, Pending>()
+    val pendingCount: Int get() = entries.size
+    var capacityDrops: Int = 0
+        private set
+
+    init {
+        require(maxPending > 0 && maxIngress > 0 && lifetimeMs > 0)
+    }
+
+    fun hasPending(key: String): Boolean = entries.containsKey(key)
+
+    fun schedule(key: String, frame: MeshFrame, ingress: String, ttlAfter: Int): Pending? {
+        if (entries.containsKey(key) || entries.size >= maxPending) {
+            capacityDrops += 1
+            return null
+        }
+        val original = copyFrame(frame, frame.ttl)
+        val pending = Pending(Any(), original, copyFrame(frame, ttlAfter), ingress, frame.ttl, nowMs(), linkedSetOf(ingress))
+        entries[key] = pending
+        return pending
+    }
+
+    fun observeDuplicate(key: String, frame: MeshFrame, ingress: String): Boolean {
+        val pending = entries[key] ?: return false
+        if (!sameIdentity(pending.original, frame)) return false
+        // Fail open at the witness bound: retain known exclusions and forward
+        // to an additional, unrecorded branch rather than drop the whole relay.
+        if (pending.ingress.size < maxIngress) pending.ingress.add(ingress)
+        return true
+    }
+
+    fun take(key: String, token: Any): Forward? {
+        val pending = entries[key] ?: return null
+        if (pending.token !== token) return null
+        entries.remove(key)
+        return Forward(
+            copyFrame(pending.forwarded, pending.forwarded.ttl), pending.ingress.toSet(),
+            pending.firstIngress, pending.ttlBefore, nowMs() - pending.admittedAtMs >= lifetimeMs
+        )
+    }
+
+    fun forgetLink(linkId: String) {
+        // A reconnected MAC can refer to a peer that forgot the packet. Any
+        // role transition invalidates its old witness, retaining the timer.
+        for (pending in entries.values) pending.ingress.remove(linkId)
+    }
+
+    fun clear() {
+        entries.clear()
+        capacityDrops = 0
+    }
+
+    companion object {
+        // A dual-role MAC is one branch. Evaluate the live roles when the
+        // timer fires, rather than retaining a potentially stale peer list.
+        fun hasUnwitnessedEgress(
+            centralLinks: Collection<String>, subscribers: Collection<String>, excludedLinks: Set<String>
+        ): Boolean = centralLinks.any { it !in excludedLinks } || subscribers.any { it !in excludedLinks }
+    }
+
+    private fun sameIdentity(a: MeshFrame, b: MeshFrame): Boolean =
+        a.timestampMs == b.timestampMs && a.senderID.contentEquals(b.senderID) && a.payload.contentEquals(b.payload)
+
+    private fun copyFrame(frame: MeshFrame, ttl: Int): MeshFrame =
+        MeshFrame(ttl, frame.timestampMs, frame.senderID.copyOf(), frame.payload.copyOf())
+}
+// END PURE BRANCH RELAY STATE
+
 // Permissions are checked by Loc8MeshModule.start() before any BLE call; the
 // module rejects with the missing-permission list instead of requesting.
 @SuppressLint("MissingPermission")
@@ -79,9 +190,13 @@ class MeshBleService private constructor() {
     @Volatile
     var onPacket: ((ByteArray, String?) -> Unit)? = null
 
-    /** (nearbyCount, connected, degraded) — invoked on the mesh handler thread. */
+    /** (nearbyCount, connected, degraded, relayMode) — invoked on the mesh handler thread. */
     @Volatile
-    var onStatus: ((Int, Boolean, Boolean) -> Unit)? = null
+    var onStatus: ((Int, Boolean, Boolean, String) -> Unit)? = null
+
+    @Volatile
+    var relayMode: MeshRelayMode = MeshRelayMode.CURRENT
+        private set
 
     @Volatile
     private var handler: Handler? = null
@@ -125,12 +240,61 @@ class MeshBleService private constructor() {
     // Mesh logic.
     private val dedup = MeshDeduplicator()
     private val pendingRelays = HashMap<String, Runnable>()
+    private val branchRelays = MeshBranchRelayState(nowMs = android.os.SystemClock::elapsedRealtime)
 
     /** senderID of our own frames (derived from the last broadcast payload). */
     private var mySenderID: ByteArray? = null
     private var lastReportedLinkCount = -1
 
     // MARK: - Public API (thread-safe; hops onto the mesh handler thread)
+
+    /** Serializes selection with start/stop; changing a live mesh is rejected. */
+    fun configureRelayMode(
+        mode: String,
+        onConfigured: (MeshRelayMode) -> Unit,
+        onFailure: (String) -> Unit
+    ) {
+        enqueueRelayMode(mode, onConfigured, onFailure, retriesLeft = 2)
+    }
+
+    private fun enqueueRelayMode(
+        mode: String,
+        onConfigured: (MeshRelayMode) -> Unit,
+        onFailure: (String) -> Unit,
+        retriesLeft: Int,
+        rejectedHandler: Handler? = null
+    ) {
+        val h = ensureHandler(rejectedHandler)
+        val accepted = h.post {
+            if (handler !== h) {
+                // stop() can drain a previously accepted configuration on a
+                // dying handler after the caller's stop Promise resolves.
+                if (retriesLeft > 0) enqueueRelayMode(mode, onConfigured, onFailure, retriesLeft - 1)
+                else onFailure("Mesh handler kept changing while configuring; retry while stopped")
+                return@post
+            }
+            val failure = MeshRelayMode.configurationFailure(mode, running, relayMode)
+            if (failure != null) {
+                onFailure(failure)
+                return@post
+            }
+            val selected = MeshRelayMode.fromWireValue(mode)!!
+            // A new JS transport may attach to the shared native mesh. Reusing
+            // its mode must preserve live links, dedup and pending relay work.
+            if (selected == relayMode) {
+                emitStatusIfChanged(force = true)
+                onConfigured(selected)
+                return@post
+            }
+            relayMode = selected
+            emitStatusIfChanged(force = true)
+            onConfigured(selected)
+        }
+        if (!accepted) {
+            if (retriesLeft > 0) enqueueRelayMode(mode, onConfigured, onFailure, retriesLeft - 1, rejectedHandler = h)
+            else onFailure("Mesh handler kept stopping; retry while stopped")
+        }
+    }
 
     /** Idempotent: repeated calls while running are no-ops. */
     fun start(context: Context) {
@@ -171,7 +335,7 @@ class MeshBleService private constructor() {
         // thread just to find nothing to tear down.
         val h = handler ?: return
         h.post {
-            if (!running) return@post
+            if (handler !== h) return@post
             running = false
 
             stateReceiver?.let { r -> runCatching { appContext?.unregisterReceiver(r) } }
@@ -259,6 +423,7 @@ class MeshBleService private constructor() {
         val h = handler
         for (r in pendingRelays.values) h?.removeCallbacks(r)
         pendingRelays.clear()
+        branchRelays.clear()
 
         for (address in centralLinks.keys) {
             MeshDiagnostics.recordLifecycle("link-down", address)
@@ -331,15 +496,18 @@ class MeshBleService private constructor() {
             // Record our own frame so loopback arrivals (peer relaying back to
             // us, or our dual-role twin link) are dropped as duplicates.
             dedup.markProcessed(MeshDeduplicator.key(frame))
-            sendFrame(MeshFrameCodec.encode(frame), excludedLinkId = null)
+            sendFrame(MeshFrameCodec.encode(frame), excludedLinkIds = emptySet())
         }
     }
 
     // MARK: - Handler
 
     @Synchronized
-    private fun ensureHandler(): Handler {
-        handler?.let { return it }
+    private fun ensureHandler(rejectedHandler: Handler? = null): Handler {
+        handler?.let { if (it !== rejectedHandler) return it }
+        // A Handler that rejected post() has a quitting Looper. Replacing
+        // only that known unusable instance leaves a concurrent fresh one.
+        if (handler != null) handlerThread?.quitSafely()
         val thread = HandlerThread("Loc8MeshBle").also { it.start() }
         handlerThread = thread
         return Handler(thread.looper).also { handler = it }
@@ -352,7 +520,7 @@ class MeshBleService private constructor() {
      * exclusion (both the central-role write set AND the server-side notify
      * set — the writing central must not be notified back). Full fanout.
      */
-    private fun sendFrame(data: ByteArray, excludedLinkId: String?) {
+    private fun sendFrame(data: ByteArray, excludedLinkIds: Set<String>) {
         val diagnosticFrame = MeshFrameCodec.decode(data)
         // Central role: write to each connected peer's characteristic.
         // Write-without-response ONLY — a link whose usable ATT payload
@@ -362,7 +530,10 @@ class MeshBleService private constructor() {
         // frames any negotiated MTU ≥ 50 passes; the ATT floor of 23 only
         // bites until our DESIRED_MTU request lands.
         for ((address, gatt) in centralLinks) {
-            if (address == excludedLinkId) continue
+            if (address in excludedLinkIds) {
+                recordBranchEgressSkip(diagnosticFrame, address)
+                continue
+            }
             val characteristic = centralCharacteristics[address] ?: continue
             val mtu = linkMtus[address] ?: 23
             if (mtu - 3 < data.size) {
@@ -396,7 +567,10 @@ class MeshBleService private constructor() {
         val server = gattServer ?: return
         val characteristic = meshCharacteristic ?: return
         for ((address, device) in subscribers) {
-            if (address == excludedLinkId) continue
+            if (address in excludedLinkIds) {
+                recordBranchEgressSkip(diagnosticFrame, address)
+                continue
+            }
             val mtu = subscriberMtus[address] ?: 23
             if (mtu - 3 < data.size) {
                 if (mtuSkipLogged.add(address)) {
@@ -419,6 +593,12 @@ class MeshBleService private constructor() {
                     legacyNotify(server, device, characteristic, data)
                 }
             }.onFailure { Log.w(TAG, "notifyCharacteristicChanged failed for $address", it) }
+        }
+    }
+
+    private fun recordBranchEgressSkip(frame: MeshFrame?, address: String) {
+        if (relayMode == MeshRelayMode.BRANCH && frame != null) {
+            MeshDiagnostics.recordFrame("egress-skipped", frame, rawLinkId = address, reason = "duplicate", onlyWhenRelayRole = true)
         }
     }
 
@@ -482,7 +662,7 @@ class MeshBleService private constructor() {
 
         // A duplicate arrival cancels our pending scheduled relay for the same
         // frame — someone else already flooded it.
-        pendingRelays.remove(key)?.let { pending ->
+        if (relayMode == MeshRelayMode.CURRENT) pendingRelays.remove(key)?.let { pending ->
             handler?.removeCallbacks(pending)
             MeshDiagnostics.recordFrame(
                 "relay-cancelled",
@@ -491,6 +671,14 @@ class MeshBleService private constructor() {
                 reason = "scheduled-relay-cancelled",
                 onlyWhenRelayRole = true
             )
+            return
+        }
+        if (relayMode == MeshRelayMode.BRANCH && branchRelays.hasPending(key)) {
+            // Matching bytes witness this ingress; a short-key collision is
+            // dropped without witnessing it. Neither admits an application
+            // delivery, even if the independent dedup LRU evicted the key.
+            branchRelays.observeDuplicate(key, frame, linkId)
+            MeshDiagnostics.recordFrame("duplicate-drop", frame, rawLinkId = linkId, reason = "duplicate")
             return
         }
         if (dedup.isDuplicate(key) || senderIsSelf) {
@@ -504,7 +692,9 @@ class MeshBleService private constructor() {
         // so we honestly report "mesh".
         val relayVia = if (frame.ttl == MeshConstants.ORIGIN_TTL) null else "mesh"
         MeshDiagnostics.recordFrame("application-delivery", frame, rawLinkId = linkId)
-        onPacket?.invoke(frame.payload, relayVia)
+        // Keep experimental admission bytes independent of an application
+        // callback mutating its delivered payload. Baseline behavior stays.
+        onPacket?.invoke(if (relayMode == MeshRelayMode.BRANCH) frame.payload.copyOf() else frame.payload, relayVia)
 
         // Relay decision (TTL clamp + decrement + jitter), split horizon.
         val decision = MeshRelayController.decide(
@@ -513,6 +703,11 @@ class MeshBleService private constructor() {
             degree = linkCount()
         )
         if (!decision.shouldRelay) return
+
+        if (relayMode == MeshRelayMode.BRANCH) {
+            scheduleBranchRelay(key, frame, linkId, decision)
+            return
+        }
 
         val ttlBefore = frame.ttl
         MeshDiagnostics.recordFrame(
@@ -536,11 +731,72 @@ class MeshBleService private constructor() {
                     rawLinkId = linkId,
                     onlyWhenRelayRole = true
                 )
-                sendFrame(relayData, excludedLinkId = linkId)
+                sendFrame(relayData, excludedLinkIds = setOf(linkId))
             }
         }
         pendingRelays[key] = relayRunnable
         handler?.postDelayed(relayRunnable, decision.delayMs.toLong())
+    }
+
+    private fun scheduleBranchRelay(key: String, frame: MeshFrame, linkId: String, decision: MeshRelayDecision) {
+        val pending = branchRelays.schedule(key, frame, linkId, decision.newTTL)
+        if (pending == null) {
+            // Preserve application delivery above; only relay work is dropped.
+            // The frozen field contract has no truthful capacity-drop reason;
+            // retain an OS log/counter instead of minting or mislabelling one.
+            Log.w(TAG, "Experimental branch relay capacity reached (128); drops=${branchRelays.capacityDrops}")
+            return
+        }
+        MeshDiagnostics.recordFrame(
+            "relay-scheduled", frame, ttlBefore = frame.ttl, ttlAfter = decision.newTTL,
+            rawLinkId = linkId, onlyWhenRelayRole = true
+        )
+        val h = handler
+        lateinit var relayRunnable: Runnable
+        relayRunnable = Runnable {
+            // Look up live state at fire time. A stale callback must neither
+            // remove nor forward a newer entry with the same short key.
+            if (pendingRelays[key] !== relayRunnable) return@Runnable
+            pendingRelays.remove(key)
+            val forward = branchRelays.take(key, pending.token) ?: return@Runnable
+            if (running && handler === h && relayMode == MeshRelayMode.BRANCH) {
+                if (forward.expired) {
+                    MeshDiagnostics.recordFrame(
+                        "relay-cancelled", forward.frame, ttlBefore = forward.ttlBefore,
+                        ttlAfter = forward.frame.ttl, rawLinkId = forward.firstIngress,
+                        reason = "scheduled-relay-cancelled", onlyWhenRelayRole = true
+                    )
+                    return@Runnable
+                }
+                if (centralLinks.isEmpty() && subscribers.isEmpty()) {
+                    MeshDiagnostics.recordFrame(
+                        "relay-cancelled", forward.frame, ttlBefore = forward.ttlBefore,
+                        ttlAfter = forward.frame.ttl, rawLinkId = forward.firstIngress,
+                        reason = "scheduled-relay-cancelled", onlyWhenRelayRole = true
+                    )
+                    return@Runnable
+                }
+                if (!MeshBranchRelayState.hasUnwitnessedEgress(centralLinks.keys, subscribers.keys, forward.excludedLinks)) {
+                    MeshDiagnostics.recordFrame(
+                        "egress-skipped", forward.frame, ttlBefore = forward.ttlBefore,
+                        ttlAfter = forward.frame.ttl, rawLinkId = forward.firstIngress,
+                        reason = "duplicate", onlyWhenRelayRole = true
+                    )
+                    return@Runnable
+                }
+                MeshDiagnostics.recordFrame(
+                    "relay-forwarded", forward.frame, ttlBefore = forward.ttlBefore,
+                    ttlAfter = forward.frame.ttl, rawLinkId = forward.firstIngress,
+                    onlyWhenRelayRole = true
+                )
+                sendFrame(MeshFrameCodec.encode(forward.frame), excludedLinkIds = forward.excludedLinks)
+            }
+        }
+        pendingRelays[key] = relayRunnable
+        if (h == null || !h.postDelayed(relayRunnable, decision.delayMs.toLong())) {
+            branchRelays.take(key, pending.token)
+            if (pendingRelays[key] === relayRunnable) pendingRelays.remove(key)
+        }
     }
 
     // MARK: - Status
@@ -560,7 +816,7 @@ class MeshBleService private constructor() {
         val count = linkCount()
         if (!force && count == lastReportedLinkCount) return
         lastReportedLinkCount = count
-        onStatus?.invoke(count, count > 0, scanOnlyMode)
+        onStatus?.invoke(count, count > 0, scanOnlyMode, relayMode.wireValue)
     }
 
     // MARK: - Scanning (central role)
@@ -704,6 +960,7 @@ class MeshBleService private constructor() {
         }
 
         pendingGatts.remove(address)
+        if (!centralLinks.containsKey(address)) branchRelays.forgetLink(address)
         centralLinks[address] = gatt
         centralCharacteristics[address] = characteristic
         MeshDiagnostics.recordLifecycle("link-up", address)
@@ -724,6 +981,7 @@ class MeshBleService private constructor() {
     }
 
     private fun dropClientLink(address: String, gatt: BluetoothGatt) {
+        branchRelays.forgetLink(address)
         pendingGatts.remove(address)
         if (centralLinks.remove(address) != null) {
             MeshDiagnostics.recordLifecycle("link-down", address)
@@ -831,6 +1089,7 @@ class MeshBleService private constructor() {
             if (newState == BluetoothProfile.STATE_DISCONNECTED) {
                 val address = device.address ?: return
                 handler?.post {
+                    branchRelays.forgetLink(address)
                     subscriberMtus.remove(address)
                     mtuSkipLogged.remove(address)
                     if (subscribers.remove(address) != null) {
@@ -909,8 +1168,12 @@ class MeshBleService private constructor() {
                 if (!running) return@post
                 if (enable) {
                     val wasAbsent = subscribers.put(address, device) == null
-                    if (wasAbsent) MeshDiagnostics.recordLifecycle("link-up", address)
+                    if (wasAbsent) {
+                        branchRelays.forgetLink(address)
+                        MeshDiagnostics.recordLifecycle("link-up", address)
+                    }
                 } else if (subscribers.remove(address) != null) {
+                    branchRelays.forgetLink(address)
                     MeshDiagnostics.recordLifecycle("link-down", address)
                 }
                 emitStatusIfChanged()

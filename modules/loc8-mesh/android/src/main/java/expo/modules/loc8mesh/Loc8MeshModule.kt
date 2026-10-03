@@ -20,6 +20,7 @@ import android.content.Context
 import android.content.pm.PackageManager
 import android.os.Build
 import expo.modules.kotlin.exception.CodedException
+import expo.modules.kotlin.Promise
 import expo.modules.kotlin.exception.Exceptions
 import expo.modules.kotlin.modules.Module
 import expo.modules.kotlin.modules.ModuleDefinition
@@ -60,13 +61,14 @@ class Loc8MeshModule : Module() {
                 }
                 sendEvent("onPacket", body)
             }
-            MeshBleService.shared.onStatus = { nearbyCount, connected, degraded ->
+            MeshBleService.shared.onStatus = { nearbyCount, connected, degraded, relayMode ->
                 sendEvent(
                     "onMeshStatus",
                     mapOf(
                         "nearbyCount" to nearbyCount,
                         "connected" to connected,
-                        "degraded" to degraded
+                        "degraded" to degraded,
+                        "relayMode" to relayMode
                     )
                 )
             }
@@ -105,6 +107,18 @@ class Loc8MeshModule : Module() {
         AsyncFunction<Unit>("stop") {
             MeshBleService.shared.stop()
             appContext.reactContext?.let { Loc8MeshService.stop(it) }
+        }
+
+        AsyncFunction("configureRelayMode") { mode: String, promise: Promise ->
+            MeshBleService.shared.configureRelayMode(
+                mode,
+                onConfigured = { selected -> promise.resolve(selected.wireValue) },
+                onFailure = { message -> promise.reject("ERR_MESH_RELAY_MODE", message, null) }
+            )
+        }
+
+        AsyncFunction("getRelayMode") {
+            MeshBleService.shared.relayMode.wireValue
         }
 
         AsyncFunction("broadcast") { packet: ByteArray ->

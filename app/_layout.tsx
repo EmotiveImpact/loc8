@@ -8,6 +8,7 @@ import { useFonts, Unbounded_600SemiBold, Unbounded_800ExtraBold } from '@expo-g
 import { Sora_300Light, Sora_400Regular, Sora_500Medium, Sora_600SemiBold, Sora_700Bold } from '@expo-google-fonts/sora';
 import { SpaceMono_400Regular, SpaceMono_700Bold } from '@expo-google-fonts/space-mono';
 import { useCrewStore, parseCrewDeepLink, resolveNotificationNav, colors, fonts } from '@loc8/engine';
+import { MESH_FIELD_ACCESS } from '../src/research/meshFieldBuild';
 
 // `/onboarding` (app/onboarding.tsx) is created in the next task, so the
 // generated typed-routes union does not include it yet. Reference it through
@@ -33,10 +34,14 @@ export default function RootLayout() {
 
   useEffect(() => {
     if (!hydrated) return; // wait for AsyncStorage — the id may already exist
+    // Dedicated internal builds cold-start into the synthetic harness without
+    // joining a crew or starting the normal location/session producers.
+    if (MESH_FIELD_ACCESS.internal) {
+      if ((segments[0] as string) !== 'mesh-field') router.replace('/mesh-field' as Href);
+      return;
+    }
     const inOnboarding = (segments[0] as string) === 'onboarding';
-    const inEnabledFieldKit = __DEV__ &&
-      process.env.EXPO_PUBLIC_MESH_FIELD_KIT === '1' &&
-      process.env.EXPO_PUBLIC_TRANSPORT === 'ble' &&
+    const inEnabledFieldKit = MESH_FIELD_ACCESS.enabled &&
       (segments[0] as string) === 'mesh-field';
     if (!profile && !inOnboarding && !inEnabledFieldKit) router.replace(ONBOARDING);
     if (profile && inOnboarding) router.replace('/');
@@ -48,6 +53,7 @@ export default function RootLayout() {
 
   // Warm tap: app already running when the notification is tapped.
   useEffect(() => {
+    if (MESH_FIELD_ACCESS.internal) return;
     const sub = Notifications.addNotificationResponseReceivedListener((resp) => {
       const url = resolveNotificationNav(resp, seenNotifIds.current);
       if (url) router.push(url as never);
@@ -61,6 +67,7 @@ export default function RootLayout() {
   // yet; null → no response; dedupe via the shared seen-set.
   const lastNotifResponse = Notifications.useLastNotificationResponse();
   useEffect(() => {
+    if (MESH_FIELD_ACCESS.internal) return;
     const url = resolveNotificationNav(lastNotifResponse, seenNotifIds.current);
     if (url) router.push(url as never);
   }, [lastNotifResponse, router]);
@@ -68,6 +75,7 @@ export default function RootLayout() {
   // Deep link: loc8://crew/<CODE> — join the crew, then route to the Crew tab.
   // Wrapped so a malformed link (bad %-encoding, etc.) can never crash the app.
   useEffect(() => {
+    if (MESH_FIELD_ACCESS.internal) return;
     const handleUrl = (url: string | null) => {
       try {
         const code = parseCrewDeepLink(url);
@@ -94,22 +102,24 @@ export default function RootLayout() {
           contentStyle: { backgroundColor: colors.bg },
         }}
       >
-        <Stack.Screen name="(tabs)" />
-        <Stack.Screen name="onboarding" />
-        <Stack.Screen name="compass/[id]" />
-        <Stack.Screen name="rally" options={{ presentation: 'modal' }} />
+        <Stack.Protected guard={!MESH_FIELD_ACCESS.internal}>
+          <Stack.Screen name="(tabs)" />
+          <Stack.Screen name="onboarding" />
+          <Stack.Screen name="compass/[id]" />
+          <Stack.Screen name="rally" options={{ presentation: 'modal' }} />
+          <Stack.Screen
+            name="settings"
+            options={{
+              presentation: 'card',
+              headerShown: true,
+              title: 'Settings',
+              headerStyle: { backgroundColor: colors.bg },
+              headerTintColor: colors.text,
+              headerTitleStyle: { fontFamily: fonts.displaySemi },
+            }}
+          />
+        </Stack.Protected>
         <Stack.Screen name="mesh-field" />
-        <Stack.Screen
-          name="settings"
-          options={{
-            presentation: 'card',
-            headerShown: true,
-            title: 'Settings',
-            headerStyle: { backgroundColor: colors.bg },
-            headerTintColor: colors.text,
-            headerTitleStyle: { fontFamily: fonts.displaySemi },
-          }}
-        />
       </Stack>
     </>
   );

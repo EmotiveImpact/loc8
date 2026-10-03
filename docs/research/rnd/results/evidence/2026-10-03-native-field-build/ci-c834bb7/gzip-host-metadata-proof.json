@@ -1,0 +1,15 @@
+{
+  "schema": "loc8.gzip-host-metadata-proof.v1",
+  "run": "https://github.com/EmotiveImpact/loc8/actions/runs/37100340422",
+  "sourceCommit": "c834bb7c63c5148a46663ba76d5f2984262bdc0a",
+  "historicalFile": "docs/research/rnd/results/evidence/2026-10-03-ble-density/relay-trials.json.gz",
+  "historicalSha256": "598780cb2ae1b4718968b4593fda168308124c9d7eabe03fc06dc2c40ac3793c",
+  "historicalBytes": 778853,
+  "constructedChangedByte": 9,
+  "recordedOS": 19,
+  "constructedOS": 3,
+  "constructedSha256": "625c05e0a2479dba4f935c54e36b80778e57139d7fdde899146c941ff89b0474",
+  "observedFailedCIRerunSha256": "625c05e0a2479dba4f935c54e36b80778e57139d7fdde899146c941ff89b0474",
+  "contentSha256": "a12d16ddf877672d71c90ad48e0700e1b387cfcf4230f436405fdbac8ba26008",
+  "boundary": "The actual failed temporary rerun was removed by the verifier. This proves changing just byte 9 of the retained archive reproduces its observed Linux digest; it does not claim a phone result."
+}

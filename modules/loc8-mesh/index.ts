@@ -20,12 +20,16 @@ export interface MeshPacketEvent {
 }
 
 export interface MeshStatusEvent {
-  /** Distinct live GATT peer links (a dual-role peer counts once). */
+  /** Live GATT links; Android unions MACs, while iOS role IDs may count twice. */
   nearbyCount: number;
   connected: boolean;
+  /** Local forwarding configuration, never carried in the radio packet. */
+  relayMode?: MeshRelayMode;
   /** Android only: chipset can't advertise — scan-only degraded mode (absent on iOS). */
   degraded?: boolean;
 }
+
+export type MeshRelayMode = 'current' | 'branch';
 
 export type MeshFieldRole = 'A' | 'B' | 'C';
 
@@ -82,6 +86,8 @@ type Loc8MeshModuleEvents = {
 declare class Loc8MeshNativeModule extends NativeModule<Loc8MeshModuleEvents> {
   start(): Promise<void>;
   stop(): Promise<void>;
+  configureRelayMode(mode: MeshRelayMode): Promise<string>;
+  getRelayMode(): Promise<string>;
   broadcast(packet: Uint8Array): Promise<void>;
   startFieldDiagnostics(
     runId: string,
@@ -121,6 +127,32 @@ export async function start(): Promise<void> {
 /** Tear down all links, scanning and advertising. Idempotent on the native side. */
 export async function stop(): Promise<void> {
   await getModule().stop();
+}
+
+function checkedRelayMode(mode: string): MeshRelayMode {
+  if (mode !== 'current' && mode !== 'branch') {
+    throw new Error(`Unknown native relay mode: ${mode}`);
+  }
+  return mode;
+}
+
+/** Experimental local switch. Reusing the selected mode is safe; live mode changes reject. */
+export async function configureRelayMode(mode: MeshRelayMode): Promise<MeshRelayMode> {
+  checkedRelayMode(mode);
+  const native = getModule();
+  if (typeof native.configureRelayMode !== 'function') {
+    throw new Error('Rebuild the native development client to enable relay-mode configuration.');
+  }
+  return checkedRelayMode(await native.configureRelayMode(mode));
+}
+
+/** Read the actual native selection for a field receipt. */
+export async function getRelayMode(): Promise<MeshRelayMode> {
+  const native = getModule();
+  if (typeof native.getRelayMode !== 'function') {
+    throw new Error('Rebuild the native development client to read relay-mode configuration.');
+  }
+  return checkedRelayMode(await native.getRelayMode());
 }
 
 /** Broadcast one encoded 25-byte Loc8 packet; native wraps it in bitchat v1 framing. */

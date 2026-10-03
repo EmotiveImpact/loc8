@@ -1454,3 +1454,60 @@ occurred.
 - `origin/main` remains at `eefad23`; no push/deployment was attempted.
 - Root `.codex-audit/`, the canonical worktree's user-owned
   `.claude/launch.json`, and `claude/vibrant-yalow-620cd6` remain untouched.
+
+## 3 October 2026 — BLE R3 density R&D continuation
+
+Branch `rnd/ble-density-2026-10-03` starts at R1 `f80e936`, which includes R0;
+the new draft PR targets `rnd/position-freshness-2026-09-25`. Main and existing
+PRs #1/#3/#4 remain separate. Existing Claude launch-file modifications are
+preserved in their original worktrees.
+
+Read the self-contained [result and receipt](research/rnd/results/2026-10-03-ble-density.md),
+[source intake](research/rnd/intake/2026-10-03-ble/README.md) and
+[registered protocol](research/rnd/BLE-DENSITY-PROTOCOL-2026-10-03.md).
+New code is detached from production: real current jitter/duplicate cancellation
+versus jitter-only versus bounded degree-adaptive Trickle; deterministic GATT
+matrix and independent synthetic lifetime/contact model. No third-party
+implementation copied, packet format changed, native policy enabled or main
+merge. The candidate fails the dense send-cost gate; retain the adverse evidence
+and tune branch-safe/per-link forwarding before considering a native flag.
+
+## 3 October 2026 — native branch-preserving follow-up
+
+Read [the combined v2 handoff](research/rnd/results/2026-10-03-branch-relay.md)
+first. This continuation keeps the failed v1 evidence and adds a different
+one-shot candidate: duplicates exclude only witnessed ingress links, preserving
+the remaining branches. All 1,800 branch/jitter pairs match first deliveries and
+arrival times; dense cohort means save 11.7–47.7% directed attempts. This is
+static simulation, not RF/energy evidence. Costs relative to current are retained.
+
+Both native services implement bounded witness/pending state, frozen TTL,
+timer tokens, reconnect invalidation and sleep-inclusive expiry. Set
+`EXPO_PUBLIC_MESH_RELAY_MODE=branch` in a rebuilt dev client; actual mode is
+reported, default stays current. Payload25/native frame47 formats are unchanged.
+No new upstream implementation was copied, dependency added or main merged.
+
+335 scoped checks, 488 Jest tests, 100 frozen field-kit checks,20 actual iOS
+host checks and155 Android assertions pass; root types/lint and real-platform
+service source checks pass. Full iOS Expo build remains gated on supported Xcode;
+Android module build was stopped for storage without module success. No phones
+were exercised. Complete supported app build/install and controlled MESH-01,
+branch/churn/load tests before considering a default change. The linked receipt
+keeps raw logs, source hashes, source/licence intake and remaining gateway/courier
+experiments together. Use the new integration verifier; v1 sources are verified
+against their pinned historical Git commit.
+
+
+## 3 October 2026 — review fix: native relay reattachment
+
+The reviewed `f7a600b` checkpoint was confirmed pushed before fixing the P2
+reattachment issue. Both native services now accept the same selected mode
+while running and report actual status without clearing live relay state.
+Different active selections remain rejected. Read the
+[self-contained fix/evidence note](research/rnd/results/2026-10-03-relay-reattachment.md).
+490 Jest tests,335 scoped checks,100 field-kit tests,22 actual Swift host tests,
+171 Android assertions, service source compilation, types and lint pass.
+The two new Swift tests fail against the old service body. Original receipts
+remain frozen at their original commits; a separate receipt covers this fix.
+Phone tests and complete supported app builds remain open. Default and main
+remain held; PR #5 stays draft on the existing R&D branch.
