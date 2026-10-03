@@ -23,7 +23,10 @@ software chain. Those were host/source checks, not an Expo iOS app build.
 This continuation adds public/Guard current/branch internal build identities,
 bundled Release build commands, explicit EAS profiles, Guard local-module
 autolinking, and a shared narrowly gated synthetic field screen. Internal builds
-cold-start into that screen without creating a crew or starting normal producers.
+cold-start into that screen. SDK 57 `Stack.Protected` excludes ordinary
+screens in internal builds before they can mount and start mesh/location
+producers; ordinary notification/deep-link handlers are also gated there.
+A redirect alone would leave a producer-start race.
 Ordinary releases keep the field route disabled; other `__DEV__` protections
 remain. `expo-dev-client` was not added: a compiled native app is required, while
 its debug launcher library is optional for this bundled field path.

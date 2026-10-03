@@ -95,7 +95,9 @@ All four internal builds have distinct names, native IDs and URL schemes.
 relay would invalidate isolation. Current/branch field builds select BLE and
 their explicit mode. `LOC8_INTERNAL_FIELD_TEST=1` is the private config selector;
 public environment flags alone cannot enable the kit in an ordinary release.
-OTA updates are disabled for these dedicated field bundles.
+OTA updates are disabled for these dedicated field bundles. In these variants,
+SDK 57 protected navigation excludes the ordinary screens before their producers
+can mount; a redirect alone is insufficient.
 
 ## iOS on a supported Mac
 

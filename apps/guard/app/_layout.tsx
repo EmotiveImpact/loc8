@@ -53,12 +53,14 @@ export default function GuardRootLayout() {
           contentStyle: { backgroundColor: ops.bg },
         }}
       >
-        <Stack.Screen name="clockin" />
-        <Stack.Screen name="(tabs)" />
-        <Stack.Screen name="sos" options={{ presentation: 'fullScreenModal', animation: 'fade' }} />
-        <Stack.Screen name="dispatch" options={{ presentation: 'card' }} />
-        <Stack.Screen name="lone" options={{ presentation: 'modal' }} />
-        <Stack.Screen name="floor" options={{ presentation: 'modal' }} />
+        <Stack.Protected guard={!MESH_FIELD_ACCESS.internal}>
+          <Stack.Screen name="clockin" />
+          <Stack.Screen name="(tabs)" />
+          <Stack.Screen name="sos" options={{ presentation: 'fullScreenModal', animation: 'fade' }} />
+          <Stack.Screen name="dispatch" options={{ presentation: 'card' }} />
+          <Stack.Screen name="lone" options={{ presentation: 'modal' }} />
+          <Stack.Screen name="floor" options={{ presentation: 'modal' }} />
+        </Stack.Protected>
         <Stack.Screen name="mesh-field" />
       </Stack>
     </>

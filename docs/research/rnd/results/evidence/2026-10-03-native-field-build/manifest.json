@@ -34,8 +34,8 @@
     },
     {
       "path": "BUILD.md",
-      "bytes": 8885,
-      "sha256": "54c19b68cd1b0dfae0e1e04249dd1a9a1878349d22c9a6e8fe48fe08b49b2af0"
+      "bytes": 9030,
+      "sha256": "ded6132a4a9ccaaaf652857db539bba2ce84b724b215a75ce9ab889486e9fa1e"
     },
     {
       "path": "FIELD-TEST.md",
@@ -64,8 +64,8 @@
     },
     {
       "path": "app/_layout.tsx",
-      "bytes": 5165,
-      "sha256": "371cff1d87e85c046fe68aefbac2b36f83dc2004bab3d1dabcaa8393e49bd6c7"
+      "bytes": 5416,
+      "sha256": "be6bed2e6a466bccdb549c08083321ac619c1955fef94f78368ca5cbe0e55064"
     },
     {
       "path": "app/mesh-field.tsx",
@@ -79,8 +79,8 @@
     },
     {
       "path": "apps/guard/app/_layout.tsx",
-      "bytes": 2700,
-      "sha256": "9e0b73e0a0c0c4f7be41f8aeb81cf4786e5a1153ac4bf739d2db560b53665b88"
+      "bytes": 2801,
+      "sha256": "be2b3446bc0fa9ba8211933664c5f445ffc36f5c9a30cec56e3c8708f9de65e0"
     },
     {
       "path": "apps/guard/app/mesh-field.tsx",
@@ -219,8 +219,8 @@
     },
     {
       "path": "docs/research/rnd/results/2026-10-03-native-field-build.md",
-      "bytes": 8036,
-      "sha256": "4fdbe78be58a478d95acae802c76473aac2da4276f5ea9e42f4f26186e8a7aa3"
+      "bytes": 8225,
+      "sha256": "88017e33e3cf82de8bc7ba813cd794386eb3fe4febf67628c9430c819dcfc872"
     },
     {
       "path": "docs/research/rnd/results/2026-10-03-relay-reattachment.md",

@@ -53,6 +53,7 @@ export default function RootLayout() {
 
   // Warm tap: app already running when the notification is tapped.
   useEffect(() => {
+    if (MESH_FIELD_ACCESS.internal) return;
     const sub = Notifications.addNotificationResponseReceivedListener((resp) => {
       const url = resolveNotificationNav(resp, seenNotifIds.current);
       if (url) router.push(url as never);
@@ -66,6 +67,7 @@ export default function RootLayout() {
   // yet; null → no response; dedupe via the shared seen-set.
   const lastNotifResponse = Notifications.useLastNotificationResponse();
   useEffect(() => {
+    if (MESH_FIELD_ACCESS.internal) return;
     const url = resolveNotificationNav(lastNotifResponse, seenNotifIds.current);
     if (url) router.push(url as never);
   }, [lastNotifResponse, router]);
@@ -73,6 +75,7 @@ export default function RootLayout() {
   // Deep link: loc8://crew/<CODE> — join the crew, then route to the Crew tab.
   // Wrapped so a malformed link (bad %-encoding, etc.) can never crash the app.
   useEffect(() => {
+    if (MESH_FIELD_ACCESS.internal) return;
     const handleUrl = (url: string | null) => {
       try {
         const code = parseCrewDeepLink(url);
@@ -99,22 +102,24 @@ export default function RootLayout() {
           contentStyle: { backgroundColor: colors.bg },
         }}
       >
-        <Stack.Screen name="(tabs)" />
-        <Stack.Screen name="onboarding" />
-        <Stack.Screen name="compass/[id]" />
-        <Stack.Screen name="rally" options={{ presentation: 'modal' }} />
+        <Stack.Protected guard={!MESH_FIELD_ACCESS.internal}>
+          <Stack.Screen name="(tabs)" />
+          <Stack.Screen name="onboarding" />
+          <Stack.Screen name="compass/[id]" />
+          <Stack.Screen name="rally" options={{ presentation: 'modal' }} />
+          <Stack.Screen
+            name="settings"
+            options={{
+              presentation: 'card',
+              headerShown: true,
+              title: 'Settings',
+              headerStyle: { backgroundColor: colors.bg },
+              headerTintColor: colors.text,
+              headerTitleStyle: { fontFamily: fonts.displaySemi },
+            }}
+          />
+        </Stack.Protected>
         <Stack.Screen name="mesh-field" />
-        <Stack.Screen
-          name="settings"
-          options={{
-            presentation: 'card',
-            headerShown: true,
-            title: 'Settings',
-            headerStyle: { backgroundColor: colors.bg },
-            headerTintColor: colors.text,
-            headerTitleStyle: { fontFamily: fonts.displaySemi },
-          }}
-        />
       </Stack>
     </>
   );
