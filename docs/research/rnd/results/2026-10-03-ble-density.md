@@ -187,8 +187,15 @@ Existing Jest has Expo notification mock warnings; all tests passed. This is
 host software evidence, not app reconciliation, native compilation, BLE capture,
 radio, device, provider, security-certification or battery evidence. No affected
 production/native code was changed; native builds and physical gates were not run.
-CI results must be inspected at the draft PR's actual head; local logs do not
-assert remote CI success. Dependency warnings remain promotion blockers.
+GitHub independently passed installation, all 294 scoped checks and hash
+verification, all 484 Jest checks, root TypeScript and lint for application
+commit `f4436b54ceb1e0efb9762ad7c721c3b826c4fcc6` in both
+[push run 37080868420](https://github.com/EmotiveImpact/loc8/actions/runs/37080868420)
+and [PR run 37080933888](https://github.com/EmotiveImpact/loc8/actions/runs/37080933888).
+The [CI receipt](2026-10-03-ble-density-ci.json) and compressed CI log record that
+application snapshot; the follow-up receipt commit changes documentation and
+generated-diff attributes only. Inspect the draft PR's actual head before
+promotion. Dependency warnings remain promotion blockers.
 
 The simulator has ideal static directed links, canonical peers, independent
 erasures and one source attempt/message. It omits MAC/queues/link retries,

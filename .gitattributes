@@ -1,0 +1,4 @@
+# Keep generated R3 trial tables available while focusing the default PR diff.
+docs/research/rnd/results/evidence/2026-10-03-ble-density/relay-matrix.json linguist-generated=true
+docs/research/rnd/results/evidence/2026-10-03-ble-density/relay-matrix.csv linguist-generated=true
+docs/research/rnd/results/evidence/2026-10-03-ble-density/relay-trials.json.gz linguist-generated=true
