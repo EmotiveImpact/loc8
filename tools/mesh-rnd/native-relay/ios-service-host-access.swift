@@ -18,6 +18,8 @@ struct MeshHostServiceSnapshot: Equatable {
     let witnesses: Set<UUID>?
     let workCancelled: Bool?
     let dedupSeen: Bool
+    let queuedWrites: Int
+    let queuedNotifies: Int
 }
 
 extension MeshPendingRelays {
@@ -35,6 +37,11 @@ extension MeshService {
             running = true
             mySenderID = senderID
             dedup.markProcessed(key)
+            let egress = MeshEgressQueue(capacity: 16)
+            let now = MeshRelayContinuousClock.nowSeconds()
+            _ = egress.enqueue(MeshFrameCodec.encode(frame), recipients: [otherIngress], expiresAt: now + 4.55, now: now)
+            pendingWrites[otherIngress] = egress
+            _ = pendingNotifies.enqueue(MeshFrameCodec.encode(frame), recipients: [otherIngress], expiresAt: now + 4.55, now: now)
             var forwarded = frame
             forwarded.ttl = 6
             let pending = pendingRelays.admit(key: key, mode: mode, originalFrame: frame,
@@ -62,6 +69,8 @@ extension MeshService {
             witnesses: pending?.witnessedLinks, workCancelled: pending?.workItem?.isCancelled,
             // Existing public probe is non-renewing for retained keys. On the
             // final stop assertion a missing key is re-recorded by this probe.
-            dedupSeen: dedup.isDuplicate(key))
+            dedupSeen: dedup.isDuplicate(key),
+            queuedWrites: pendingWrites.values.reduce(0) { $0 + $1.count },
+            queuedNotifies: pendingNotifies.count)
     }
 }

@@ -76,6 +76,8 @@ private enum NativeRelayTests {
             catch { failed += 1; print("not ok \(total) - \(name): \(error)") }
         }
 
+        runEgressTests(test)
+
         test("current mode retains whole-relay cancellation on any duplicate") {
             let store = MeshPendingRelays()
             let entry = try admit(store, mode: .current)
@@ -306,6 +308,7 @@ private enum NativeRelayTests {
                 }
                 try check(before.running && before.mode == mode && !before.hasManagers, "active fixture started BLE or selected another mode")
                 try check(before.pendingCount == 1 && before.pendingToken != nil && before.workCancelled == false && before.dedupSeen, "fixture lacks retained relay/dedup")
+                try check(before.queuedWrites == 1 && before.queuedNotifies == 1, "fixture lacks queued egress")
                 try check(before.witnesses == (mode == .branch ? [link(1), link(2)] : [link(1)]), "fixture lacks expected ingress witnesses")
                 try check(before.originalWire?[2] == 7 && before.relayWire?[2] == 6 && before.senderID == owner, "fixture TTL or own sender differs")
                 var statuses: [(Int, Bool, String)] = []
@@ -337,6 +340,7 @@ private enum NativeRelayTests {
                 let stopped = try waitForHostSnapshot { service.hostSnapshot(key: key, completion: $0) }
                 try check(!stopped.running && !stopped.hasManagers && stopped.centralLinkCount == 0 && stopped.subscriberCount == 0, "actual stop did not clean up lifecycle")
                 try check(stopped.pendingCount == 0 && stopped.pendingToken == nil && !stopped.dedupSeen, "actual stop did not clear pending/seen state")
+                try check(stopped.queuedWrites == 0 && stopped.queuedNotifies == 0, "actual stop did not clear queued egress")
                 try waitForMainStatus { statuses.count == 4 }
                 try check(statuses.last!.2 == mode.rawValue, "stop status lost actual selection")
             }

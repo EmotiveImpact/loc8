@@ -59,7 +59,7 @@ final class MeshService: NSObject {
     private var pendingConnectTokens: [UUID: Date] = [:]
     /// Frames waiting on writeWithoutResponse backpressure, per peer.
     /// Bounded (drop-oldest); flushed from peripheralIsReady.
-    private var pendingWrites: [UUID: [Data]] = [:]
+    private var pendingWrites: [UUID: MeshEgressQueue] = [:]
     /// Periodic scan stop/start so iOS re-delivers already-seen peripherals.
     private var scanRestartTimer: DispatchSourceTimer?
 
@@ -69,7 +69,7 @@ final class MeshService: NSObject {
     private var subscribers: [UUID: CBCentral] = [:]
     /// Notifications that failed because the update queue was full; retried on
     /// peripheralManagerIsReady(toUpdateSubscribers:).
-    private var pendingNotifies: [(data: Data, centralIDs: [UUID])] = []
+    private let pendingNotifies = MeshEgressQueue(capacity: 128)
 
     // Mesh logic.
     private let dedup = MeshDeduplicator()
@@ -188,7 +188,7 @@ final class MeshService: NSObject {
             serviceAdded = false
             meshCharacteristic = nil
             subscribers.removeAll()
-            pendingNotifies.removeAll()
+            pendingNotifies.clear()
 
             central?.delegate = nil
             peripheralManager?.delegate = nil
@@ -233,7 +233,10 @@ final class MeshService: NSObject {
 
     /// Send a wire frame to every connected link, minus the split-horizon exclusion.
     /// Full fanout — see header comment.
-    private func sendFrame(_ data: Data, excludingLinks excluded: Set<UUID>) {
+    private func sendFrame(_ data: Data, excludingLinks excluded: Set<UUID>,
+                           expiresAt: TimeInterval? = nil) {
+        let now = MeshRelayContinuousClock.nowSeconds()
+        let deadline = expiresAt ?? now + MeshEgressQueue.maxLifetimeSeconds
         let diagnosticFrame = MeshFrameCodec.decode(data)
         // Central role: write to each connected peer's characteristic.
         // Write-without-response ONLY — long (prepared) writes via
@@ -256,17 +259,17 @@ final class MeshService: NSObject {
             }
             // Backpressure (M1): respect canSendWriteWithoutResponse and keep
             // per-peer FIFO order; queued frames flush from peripheralIsReady.
-            if peripheral.canSendWriteWithoutResponse, pendingWrites[id]?.isEmpty ?? true {
-                peripheral.writeValue(data, for: characteristic, type: .withoutResponse)
-            } else {
-                enqueueWrite(data, for: id)
-            }
+            let backlog = pendingWrites[id] ?? MeshEgressQueue(capacity: MeshConstants.maxPendingWritesPerPeer)
+            let wasEmpty = backlog.isEmpty
+            recordEgressDrops(backlog.enqueue(data, recipients: [id], expiresAt: deadline, now: now), writeLink: id)
+            pendingWrites[id] = backlog
+            if wasEmpty { flushWrites(to: peripheral, characteristic: characteristic) }
         }
 
         // Peripheral role: notify subscribed centrals whose notification MTU
         // can carry the frame; undersized subscribers are skipped (a truncated
         // frame would fail decode anyway).
-        guard let characteristic = meshCharacteristic, !subscribers.isEmpty else { return }
+        guard meshCharacteristic != nil, !subscribers.isEmpty else { return }
         let targets = subscribers.values.filter { central in
             guard !excluded.contains(central.identifier) else { return false }
             guard central.maximumUpdateValueLength >= data.count else {
@@ -284,29 +287,54 @@ final class MeshService: NSObject {
             return true
         }
         guard !targets.isEmpty else { return }
-        let ok = peripheralManager?.updateValue(data, for: characteristic, onSubscribedCentrals: targets) ?? false
-        if !ok {
-            // Update queue full — retry when CoreBluetooth signals readiness.
-            pendingNotifies.append((data: data, centralIDs: targets.map { $0.identifier }))
+        let wasEmpty = pendingNotifies.isEmpty
+        // Bound each recipient list as well as the number of queued frames.
+        for offset in stride(from: 0, to: targets.count, by: MeshEgressQueue.maxRecipients) {
+            let end = min(offset + MeshEgressQueue.maxRecipients, targets.count)
+            recordEgressDrops(pendingNotifies.enqueue(data,
+                recipients: targets[offset..<end].map { $0.identifier }, expiresAt: deadline, now: now))
+        }
+        // Never let a new frame overtake an older busy notification. Once busy,
+        // readiness is the authority to resume attempts, not another broadcast.
+        if wasEmpty, let manager = peripheralManager { flushNotifications(manager) }
+    }
+
+    private func recordEgressDrops(_ drops: [MeshEgressDrop], writeLink: UUID? = nil) {
+        for drop in drops {
+            // Preserve the frozen MESH-01 vocabulary. Expiry/notify overflow
+            // are OS diagnostics, not fabricated relay or delivery events.
+            if drop.reason == .overflow, let writeLink,
+               let frame = MeshFrameCodec.decode(drop.entry.data) {
+                MeshDiagnostics.shared.recordFrame(
+                    action: "egress-skipped", frame: frame,
+                    rawLinkID: writeLink.uuidString, reason: "write-backpressure-overflow")
+            }
+        }
+        for (reason, grouped) in Dictionary(grouping: drops, by: { $0.reason.rawValue }) {
+            log.warning("mesh egress queue: \(reason, privacy: .public), \(grouped.count) dropped entries/target groups")
         }
     }
 
-    /// Per-peer bounded FIFO for backpressured write-without-response frames.
-    private func enqueueWrite(_ data: Data, for id: UUID) {
-        var backlog = pendingWrites[id, default: []]
-        if backlog.count >= MeshConstants.maxPendingWritesPerPeer {
-            let dropped = backlog.removeFirst() // drop-oldest: stale positions are worthless
-            if let frame = MeshFrameCodec.decode(dropped) {
-                MeshDiagnostics.shared.recordFrame(
-                    action: "egress-skipped",
-                    frame: frame,
-                    rawLinkID: id.uuidString,
-                    reason: "write-backpressure-overflow"
-                )
-            }
-        }
-        backlog.append(data)
-        pendingWrites[id] = backlog
+    private func flushWrites(to peripheral: CBPeripheral, characteristic: CBCharacteristic) {
+        let id = peripheral.identifier
+        guard running, centralLinks[id] === peripheral, let backlog = pendingWrites[id] else { return }
+        recordEgressDrops(backlog.drain { entry in
+            guard peripheral.canSendWriteWithoutResponse else { return false }
+            guard peripheral.maximumWriteValueLength(for: .withoutResponse) >= entry.data.count else { return true }
+            peripheral.writeValue(entry.data, for: characteristic, type: .withoutResponse)
+            return true
+        }, writeLink: id)
+        if backlog.isEmpty { pendingWrites.removeValue(forKey: id) }
+    }
+
+    private func flushNotifications(_ manager: CBPeripheralManager) {
+        guard running, manager === peripheralManager, let characteristic = meshCharacteristic else { return }
+        recordEgressDrops(pendingNotifies.drain { entry in
+            let targets = entry.recipients.compactMap { subscribers[$0] }
+                .filter { $0.maximumUpdateValueLength >= entry.data.count }
+            if targets.isEmpty { return true }
+            return manager.updateValue(entry.data, for: characteristic, onSubscribedCentrals: targets)
+        })
     }
 
     // MARK: - Ingress
@@ -452,7 +480,10 @@ final class MeshService: NSObject {
                 rawLinkID: scheduled.ingressLink.uuidString,
                 onlyWhenRelayRole: true
             )
-            self.sendFrame(MeshFrameCodec.encode(scheduled.relayFrame), excludingLinks: scheduled.excludedLinks)
+            let deadline = scheduled.mode == .branch
+                ? scheduled.admittedUptime + MeshPendingRelays.maxBranchLifetimeSeconds : nil
+            self.sendFrame(MeshFrameCodec.encode(scheduled.relayFrame),
+                           excludingLinks: scheduled.excludedLinks, expiresAt: deadline)
         }
         pending.workItem = item
         queue.asyncAfter(deadline: .now() + .milliseconds(decision.delayMs), execute: item)
@@ -667,6 +698,7 @@ extension MeshService: CBPeripheralDelegate {
         pendingPeripherals.removeValue(forKey: id)
         pendingConnectTokens.removeValue(forKey: id)
         centralLinks[id] = peripheral
+        pendingWrites.removeValue(forKey: id)
         centralCharacteristics[id] = characteristic
         MeshDiagnostics.shared.recordLifecycle(action: "link-up", rawLinkID: id.uuidString)
         peripheral.setNotifyValue(true, for: characteristic)
@@ -697,19 +729,9 @@ extension MeshService: CBPeripheralDelegate {
     /// M1: flush the per-peer backpressure queue when the write channel drains.
     func peripheralIsReady(toSendWriteWithoutResponse peripheral: CBPeripheral) {
         let id = peripheral.identifier
-        guard var backlog = pendingWrites[id], !backlog.isEmpty else { return }
-        guard let characteristic = centralCharacteristics[id] else {
-            pendingWrites.removeValue(forKey: id)
-            return
-        }
-        while !backlog.isEmpty && peripheral.canSendWriteWithoutResponse {
-            peripheral.writeValue(backlog.removeFirst(), for: characteristic, type: .withoutResponse)
-        }
-        if backlog.isEmpty {
-            pendingWrites.removeValue(forKey: id)
-        } else {
-            pendingWrites[id] = backlog
-        }
+        guard running, centralLinks[id] === peripheral,
+              let characteristic = centralCharacteristics[id] else { return }
+        flushWrites(to: peripheral, characteristic: characteristic)
     }
 
     func peripheral(_ peripheral: CBPeripheral, didUpdateValueFor characteristic: CBCharacteristic, error: Error?) {
@@ -728,7 +750,7 @@ extension MeshService: CBPeripheralManagerDelegate {
         } else {
             pendingRelays.clear()
             subscribers.removeAll()
-            pendingNotifies.removeAll()
+            pendingNotifies.clear()
             serviceAdded = false
             emitStatusIfChanged()
         }
@@ -751,6 +773,8 @@ extension MeshService: CBPeripheralManagerDelegate {
                            central: CBCentral,
                            didSubscribeTo characteristic: CBCharacteristic) {
         guard characteristic.uuid == MeshConstants.characteristicUUID else { return }
+        guard running, peripheral === peripheralManager else { return }
+        recordEgressDrops(pendingNotifies.removeRecipient(central.identifier))
         pendingRelays.forgetLink(central.identifier)
         subscribers[central.identifier] = central
         MeshDiagnostics.shared.recordLifecycle(action: "link-up", rawLinkID: central.identifier.uuidString)
@@ -760,6 +784,9 @@ extension MeshService: CBPeripheralManagerDelegate {
     func peripheralManager(_ peripheral: CBPeripheralManager,
                            central: CBCentral,
                            didUnsubscribeFrom characteristic: CBCharacteristic) {
+        guard running, peripheral === peripheralManager,
+              characteristic.uuid == MeshConstants.characteristicUUID else { return }
+        recordEgressDrops(pendingNotifies.removeRecipient(central.identifier))
         pendingRelays.forgetLink(central.identifier)
         if subscribers.removeValue(forKey: central.identifier) != nil {
             MeshDiagnostics.shared.recordLifecycle(action: "link-down", rawLinkID: central.identifier.uuidString)
@@ -794,24 +821,6 @@ extension MeshService: CBPeripheralManagerDelegate {
     }
 
     func peripheralManagerIsReady(toUpdateSubscribers peripheral: CBPeripheralManager) {
-        guard let characteristic = meshCharacteristic else {
-            pendingNotifies.removeAll()
-            return
-        }
-        while !pendingNotifies.isEmpty {
-            let next = pendingNotifies[0]
-            let targets = next.centralIDs
-                .compactMap { subscribers[$0] }
-                .filter { $0.maximumUpdateValueLength >= next.data.count }
-            if targets.isEmpty {
-                pendingNotifies.removeFirst()
-                continue
-            }
-            if peripheral.updateValue(next.data, for: characteristic, onSubscribedCentrals: targets) {
-                pendingNotifies.removeFirst()
-            } else {
-                break // queue full again; wait for the next readiness callback
-            }
-        }
+        flushNotifications(peripheral)
     }
 }

@@ -1,5 +1,10 @@
 # Loc8
 
+**3 October queue continuation:** [iOS relay queue implementation and checks](docs/research/rnd/results/2026-10-03-ios-egress.md)
+adds bounded notifications, queue expiry and reconnect cleanup on top of PR #5.
+This experimental continuation changes iOS queue behavior under load in both
+relay modes; physical tests and complete native app builds remain separate.
+
 ## Experimental BLE density intake: 3 October 2026
 
 Start with the [native branch-forwarding handoff](docs/research/rnd/results/2026-10-03-branch-relay.md)

@@ -1,7 +1,7 @@
 name: R&D verification
 on:
   push:
-    branches: ['rnd/position-freshness-2026-09-25', 'rnd/ble-density-2026-10-03']
+    branches: ['rnd/position-freshness-2026-09-25', 'rnd/ble-density-2026-10-03', 'rnd/ble-egress-2026-10-03']
   pull_request:
     paths:
       - 'packages/engine/**'
@@ -18,6 +18,28 @@ concurrency:
   group: rnd-verification-${{ github.ref }}
   cancel-in-progress: true
 jobs:
+  native-ios-queue:
+    runs-on: macos-15
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22.18.0'
+      - name: Execute actual iOS relay and queue code; typecheck service against SDK
+        shell: bash
+        run: |
+          set -o pipefail
+          node tools/mesh-rnd/native-relay/run-ios-branch-tests.cjs --typecheck-ios 2>&1 | tee "$RUNNER_TEMP/loc8-native-ios.log"
+      - name: Preserve native host diagnostics
+        if: ${{ always() }}
+        uses: actions/upload-artifact@v4
+        with:
+          name: loc8-native-ios-${{ github.sha }}
+          path: ${{ runner.temp }}/loc8-native-ios.log
+          retention-days: 7
   verify:
     runs-on: ubuntu-latest
     timeout-minutes: 20

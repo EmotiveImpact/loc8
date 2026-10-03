@@ -14,7 +14,7 @@ if (args.some(arg => arg !== '--typecheck-ios')) throw new Error('Usage: node ru
 const root = path.resolve(__dirname, '../../..');
 const native = path.join(root, 'modules/loc8-mesh/ios');
 const files = ['MeshConstants.swift', 'MeshFrameCodec.swift', 'MeshDeduplicator.swift',
-  'MeshRelayController.swift', 'MeshDiagnostics.swift', 'MeshPendingRelays.swift', 'MeshService.swift']
+  'MeshRelayController.swift', 'MeshDiagnostics.swift', 'MeshPendingRelays.swift', 'MeshEgressQueue.swift', 'MeshService.swift']
   .map(file => path.join(native, file));
 const pendingSource = fs.readFileSync(path.join(native, 'MeshPendingRelays.swift'), 'utf8');
 assert.match(pendingSource, /Double\(mach_continuous_time\(\)\)/, 'relay age must include device sleep');
@@ -42,7 +42,7 @@ try {
   const hostFiles = files.filter(file => !combinedNames.includes(path.basename(file))).concat(hostSource);
   console.log('Compiling actual Loc8 native service/helper with host-only private access; BLE never started');
   run('xcrun', ['swiftc', '-swift-version', '5', '-sdk', sdk, ...hostFiles,
-    path.join(__dirname, 'ios-branch-tests.swift'), '-o', binary]);
+    path.join(__dirname, 'ios-branch-tests.swift'), path.join(__dirname, 'ios-egress-tests.swift'), '-o', binary]);
   run(binary, []);
   if (args.includes('--typecheck-ios')) {
     const simulatorSDK = run('xcrun', ['--sdk', 'iphonesimulator', '--show-sdk-path'], true);
