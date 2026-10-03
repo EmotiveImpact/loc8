@@ -99,6 +99,19 @@ sources and all historical artifact hashes are still strictly checked. The
 failed CI log/status and byte-level proof are retained under `ci-c834bb7/`.
 This changes verification only; APK/native/application source remains `26b5cf2`.
 
+The correction at `0b7e630d3864484001c855eb1414664804d99500` passed fresh
+Linux [push verification 37101094480](https://github.com/EmotiveImpact/loc8/actions/runs/37101094480)
+and [PR verification 37101098044](https://github.com/EmotiveImpact/loc8/actions/runs/37101098044).
+Exact `npm ci`, 348 scoped checks, both frozen 5,400-run model repeats, 100 field
+contract checks, 490 Jest tests in 36 suites, root/Guard TypeScript, lint, both
+Doctor checks 21/21 and Command production build passed. The native iOS job
+again passed 34 actual host checks and the Simulator source typecheck. Linux
+V1/V2 streams matched every recorded byte except the disclosed gzip OS header
+byte; both historical archive hashes remain unchanged. Complete successful
+logs/status are compressed under `ci-0b7e630/`, with the exact source commit.
+Later receipt-only commits do not relabel APKs or claim new application/native
+execution. Current phone attempts remain zero; physical promotion is pending.
+
 ## Next physical step
 
 Install the same labelled build on A/B/C, stop all other variants, disable Metro
