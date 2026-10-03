@@ -1496,3 +1496,18 @@ branch/churn/load tests before considering a default change. The linked receipt
 keeps raw logs, source hashes, source/licence intake and remaining gateway/courier
 experiments together. Use the new integration verifier; v1 sources are verified
 against their pinned historical Git commit.
+
+
+## 3 October 2026 — review fix: native relay reattachment
+
+The reviewed `f7a600b` checkpoint was confirmed pushed before fixing the P2
+reattachment issue. Both native services now accept the same selected mode
+while running and report actual status without clearing live relay state.
+Different active selections remain rejected. Read the
+[self-contained fix/evidence note](research/rnd/results/2026-10-03-relay-reattachment.md).
+490 Jest tests,335 scoped checks,100 field-kit tests,22 actual Swift host tests,
+171 Android assertions, service source compilation, types and lint pass.
+The two new Swift tests fail against the old service body. Original receipts
+remain frozen at their original commits; a separate receipt covers this fix.
+Phone tests and complete supported app builds remain open. Default and main
+remain held; PR #5 stays draft on the existing R&D branch.

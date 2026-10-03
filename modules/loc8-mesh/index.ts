@@ -136,7 +136,7 @@ function checkedRelayMode(mode: string): MeshRelayMode {
   return mode;
 }
 
-/** Experimental local switch. Native rejects changes while the mesh is running. */
+/** Experimental local switch. Reusing the selected mode is safe; live mode changes reject. */
 export async function configureRelayMode(mode: MeshRelayMode): Promise<MeshRelayMode> {
   checkedRelayMode(mode);
   const native = getModule();

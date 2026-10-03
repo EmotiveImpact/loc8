@@ -32,8 +32,16 @@ const temporary = fs.mkdtempSync(path.join(os.tmpdir(), 'loc8-ios-branch-'));
 try {
   const sdk = run('xcrun', ['--sdk', 'macosx', '--show-sdk-path'], true);
   const binary = path.join(temporary, 'ios-branch-tests');
-  console.log('Compiling actual Loc8 native service/helper against macOS SDK for host tests');
-  run('xcrun', ['swiftc', '-swift-version', '5', '-sdk', sdk, ...files,
+  // Copy actual production bytes unchanged into one temporary compilation unit.
+  // The appended, host-only fixture can inspect Swift private state without a
+  // shipped setter, CoreBluetooth stubs or starting BLE managers.
+  const hostSource = path.join(temporary, 'MeshService-host.swift');
+  const combinedNames = ['MeshPendingRelays.swift', 'MeshService.swift'];
+  fs.writeFileSync(hostSource, [...combinedNames.map(file => fs.readFileSync(path.join(native, file), 'utf8')),
+    fs.readFileSync(path.join(__dirname, 'ios-service-host-access.swift'), 'utf8')].join('\n'));
+  const hostFiles = files.filter(file => !combinedNames.includes(path.basename(file))).concat(hostSource);
+  console.log('Compiling actual Loc8 native service/helper with host-only private access; BLE never started');
+  run('xcrun', ['swiftc', '-swift-version', '5', '-sdk', sdk, ...hostFiles,
     path.join(__dirname, 'ios-branch-tests.swift'), '-o', binary]);
   run(binary, []);
   if (args.includes('--typecheck-ios')) {

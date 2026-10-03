@@ -47,6 +47,24 @@ private func waitForString(_ request: (@escaping (String) -> Void) -> Void) thro
     return received
 }
 
+private func waitForHostSnapshot(_ request: (@escaping (MeshHostServiceSnapshot) -> Void) -> Void) throws -> MeshHostServiceSnapshot {
+    let semaphore = DispatchSemaphore(value: 0)
+    var received: MeshHostServiceSnapshot?
+    request { value in received = value; semaphore.signal() }
+    guard semaphore.wait(timeout: .now() + 5) == .success, let received else {
+        throw TestFailure(description: "host snapshot timed out")
+    }
+    return received
+}
+
+private func waitForMainStatus(_ ready: () -> Bool) throws {
+    let deadline = Date().addingTimeInterval(5)
+    while !ready() && Date() < deadline {
+        _ = RunLoop.current.run(mode: .default, before: Date().addingTimeInterval(0.01))
+    }
+    try check(ready(), "native main-queue status timed out")
+}
+
 @main
 private enum NativeRelayTests {
     static func main() {
@@ -263,6 +281,65 @@ private enum NativeRelayTests {
             try check(rejected == "Relay mode must be current or branch", "invalid native mode was accepted")
             try check(try waitForString { service.getRelayMode(completion: $0) } == "branch", "invalid mode changed prior selection")
             _ = try waitForString { callback in service.configureRelayMode("current", onConfigured: callback, onFailure: callback) }
+        }
+
+        for mode in [MeshRelayMode.current, .branch] {
+            test("active \(mode.rawValue) reattachment retains state and reports actual selection") {
+                let service = MeshService.shared
+                let original = frame(timestamp: mode == .current ? 1_800_000_000_100 : 1_800_000_000_200)
+                let key = MeshDeduplicator.key(for: original)
+                defer {
+                    service.onStatus = nil
+                    service.stop()
+                    _ = try? waitForHostSnapshot { service.hostSnapshot(key: key, completion: $0) }
+                }
+                // Drain earlier queued status closures before installing this
+                // test's callback, which reflects the current module listener.
+                var drained = false
+                DispatchQueue.main.async { drained = true }
+                try waitForMainStatus { drained }
+                let owner = Data([0x4c, 0x4f, 0x43, 0x38, 0, 0, 0, 77])
+                let before = try waitForHostSnapshot { callback in
+                    service.hostSeedActiveState(mode: mode, key: key, frame: original,
+                                                ingress: link(1), otherIngress: link(2),
+                                                senderID: owner, completion: callback)
+                }
+                try check(before.running && before.mode == mode && !before.hasManagers, "active fixture started BLE or selected another mode")
+                try check(before.pendingCount == 1 && before.pendingToken != nil && before.workCancelled == false && before.dedupSeen, "fixture lacks retained relay/dedup")
+                try check(before.witnesses == (mode == .branch ? [link(1), link(2)] : [link(1)]), "fixture lacks expected ingress witnesses")
+                try check(before.originalWire?[2] == 7 && before.relayWire?[2] == 6 && before.senderID == owner, "fixture TTL or own sender differs")
+                var statuses: [(Int, Bool, String)] = []
+                service.onStatus = { statuses.append(($0, $1, $2)) }
+                for repetition in 1...3 {
+                    let selected = try waitForString { callback in
+                        service.configureRelayMode(mode.rawValue, onConfigured: callback,
+                                                   onFailure: { callback("ERROR:\($0)") })
+                    }
+                    try check(selected == mode.rawValue, "matching active reattachment rejected")
+                    try waitForMainStatus { statuses.count == repetition }
+                    try check(statuses.last!.0 == 0 && statuses.last!.1 == false && statuses.last!.2 == mode.rawValue, "status did not report actual native mode")
+                    let after = try waitForHostSnapshot { service.hostSnapshot(key: key, completion: $0) }
+                    try check(after == before, "same-mode reattachment changed pending token/witness/TTL/dedup/sender/lifecycle state")
+                }
+                let other = mode == .current ? MeshRelayMode.branch : .current
+                let changed = try waitForString { callback in
+                    service.configureRelayMode(other.rawValue, onConfigured: { callback("OK:\($0)") }, onFailure: callback)
+                }
+                try check(changed == "Stop the mesh before configuring relay mode", "active cross-mode change accepted")
+                let invalid = try waitForString { callback in
+                    service.configureRelayMode("Branch", onConfigured: { callback("OK:\($0)") }, onFailure: callback)
+                }
+                try check(invalid == "Relay mode must be current or branch", "active invalid mode accepted")
+                try check(try waitForString { service.getRelayMode(completion: $0) } == mode.rawValue, "rejected selection changed actual mode")
+                try check(try waitForHostSnapshot { service.hostSnapshot(key: key, completion: $0) } == before, "rejected selection changed retained state")
+                try check(statuses.count == 3, "rejected selections emitted acceptance status")
+                service.stop()
+                let stopped = try waitForHostSnapshot { service.hostSnapshot(key: key, completion: $0) }
+                try check(!stopped.running && !stopped.hasManagers && stopped.centralLinkCount == 0 && stopped.subscriberCount == 0, "actual stop did not clean up lifecycle")
+                try check(stopped.pendingCount == 0 && stopped.pendingToken == nil && !stopped.dedupSeen, "actual stop did not clear pending/seen state")
+                try waitForMainStatus { statuses.count == 4 }
+                try check(statuses.last!.2 == mode.rawValue, "stop status lost actual selection")
+            }
         }
 
         print("1..\(total)")

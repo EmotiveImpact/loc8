@@ -1,5 +1,7 @@
 # Result and handoff: branch-preserving forwarding, v2
 
+**Subsequent review fix:** [relay reattachment](2026-10-03-relay-reattachment.md) accepts the same active mode without resetting native state. The integration receipt below is now historical at `f7a600b`; the linked follow-up carries current source hashes and checks.
+
 **Date:** 3 October 2026, Europe/London. **Experiment:** R3 / SEC-01 E06,
 `loc8.directed-gatt-branch.v2`. **Model decision:** REPEAT_NATIVE_SHADOW_ONLY.
 The [v1 retry candidate](2026-10-03-ble-density.md) remains **HOLD** under its
@@ -234,7 +236,7 @@ cover final source. Handler races and active iOS configuration rejection are
 implemented/compiled but have not been exercised on phones.
 
 [Integration manifest](evidence/2026-10-03-branch-relay/integration-manifest.json)
-pins current native/API/check sources and compressed raw check/build logs.
+pins the reviewed native/API/check sources at `f7a600b` and compressed raw check/build logs.
 Hash verification is not a fresh check execution. `--rerun` repeats both
 models, not native builds or radio. Historical v1 sources are checked against
 exact `f4436b5` Git objects via `verify-density-history.cjs`: 44 source objects,

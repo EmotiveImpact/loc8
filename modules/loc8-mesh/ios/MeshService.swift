@@ -74,7 +74,7 @@ final class MeshService: NSObject {
     // Mesh logic.
     private let dedup = MeshDeduplicator()
     private let pendingRelays = MeshPendingRelays()
-    /// Experimental policy is opt-in and may only be configured while stopped.
+    /// Experimental policy is opt-in; active same-mode reattachment is idempotent.
     private var relayMode: MeshRelayMode = .current
     /// senderID of our own frames (derived from the last broadcast payload).
     private var mySenderID: Data?
@@ -92,6 +92,13 @@ final class MeshService: NSObject {
         queue.async { [self] in
             guard let mode = MeshRelayMode(rawValue: rawMode) else {
                 onFailure("Relay mode must be current or branch")
+                return
+            }
+            // A new JS transport can reattach to the already running singleton.
+            // Preserve its pending relays, dedup and links when selection agrees.
+            if mode == relayMode {
+                emitStatusIfChanged(force: true)
+                onConfigured(relayMode.rawValue)
                 return
             }
             guard !running else {

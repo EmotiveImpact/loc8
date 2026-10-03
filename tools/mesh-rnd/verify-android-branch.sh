@@ -54,7 +54,11 @@ assert 'dedup.reset()' not in radio_drop and 'dedup.reset()' in stop, 'radio off
 configuration = source.split('fun configureRelayMode(', 1)[1].split('/** Idempotent: repeated calls', 1)[0]
 assert 'enqueueRelayMode(mode, onConfigured, onFailure, retriesLeft = 2)' in configuration, 'configuration requeue must have two-retry initial budget'
 assert configuration.count('if (retriesLeft > 0)') == 2 and configuration.count('retriesLeft - 1') == 2, 'only handler churn and rejected posts retry, each consumes budget'
-assert configuration.index('MeshRelayMode.configurationFailure(mode, running)') < configuration.index('relayMode = selected'), 'actual serialized mode assignment requires stopped/valid policy'
+assert configuration.index('MeshRelayMode.configurationFailure(mode, running, relayMode)') < configuration.index('relayMode = selected'), 'mode selection must validate against the current mode on the owning handler'
+reattach = configuration.split('if (selected == relayMode)', 1)[1].split('relayMode = selected', 1)[0]
+assert 'emitStatusIfChanged(force = true)' in reattach and 'onConfigured(selected)' in reattach and 'return@post' in reattach, 'same-mode reattachment must report actual status and resolve without changing state'
+for destructive in ['clear(', 'reset(', 'stop(', 'start(', 'dropRadioState(']:
+    assert destructive not in reattach, 'same-mode reattachment must preserve live mesh state'
 capacity = timer.split('if (pending == null)', 1)[1].split('"relay-scheduled"', 1)[0]
 assert 'MeshDiagnostics.recordFrame' not in capacity.split('return', 1)[0], 'capacity must use OS log/counter; frozen contract has no truthful drop reason'
 expired = timer.split('if (forward.expired)', 1)[1].split('if (centralLinks.isEmpty()', 1)[0]
@@ -63,7 +67,7 @@ for cancellation in [expired, no_peers]:
     assert '"relay-cancelled"' in cancellation and 'reason = "scheduled-relay-cancelled"' in cancellation, 'expiry/no-peer timer cancellation needs a valid frozen-contract reason'
 fully_witnessed = timer.split('if (!MeshBranchRelayState.hasUnwitnessedEgress(', 1)[1].split('"relay-forwarded"', 1)[0]
 assert '"egress-skipped"' in fully_witnessed and 'reason = "duplicate"' in fully_witnessed, 'witness suppression uses existing duplicate reason'
-print('Android branch source integration contracts: PASS (10 static contracts; Android Handler not executed)')
+print('Android branch source integration contracts: PASS (11 static contracts; Android Handler not executed)')
 PY
 
 "$KOTLINC_BIN" -no-stdlib -no-reflect -jvm-target 17 \

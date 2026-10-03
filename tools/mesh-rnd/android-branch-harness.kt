@@ -13,12 +13,16 @@ private fun frame(ttl: Int = 7, timestamp: Long = 1_700_000_000_000L, seed: Int 
 private fun modeSelection() {
     expect(MeshRelayMode.fromWireValue("current") == MeshRelayMode.CURRENT, "baseline wire value")
     expect(MeshRelayMode.fromWireValue("branch") == MeshRelayMode.BRANCH, "experimental wire value")
-    for (invalid in listOf("", "Branch", "trickle", " branch ")) {
-        expect(MeshRelayMode.configurationFailure(invalid, false) != null, "strict mode selection: $invalid")
-    }
-    for (mode in listOf("current", "branch")) {
-        expect(MeshRelayMode.configurationFailure(mode, false) == null, "stopped selection: $mode")
-        expect(MeshRelayMode.configurationFailure(mode, true) == "Stop the mesh before changing relay mode", "running rejection: $mode")
+    for (current in MeshRelayMode.entries) for (running in listOf(false, true)) {
+        for (invalid in listOf("", "Branch", "trickle", " branch ")) {
+            expect(MeshRelayMode.configurationFailure(invalid, running, current) != null,
+                "strict selection: $invalid / running=$running / current=$current")
+        }
+        for (selected in MeshRelayMode.entries) {
+            val failure = MeshRelayMode.configurationFailure(selected.wireValue, running, current)
+            val expected = if (running && selected != current) "Stop the mesh before changing relay mode" else null
+            expect(failure == expected, "selection: $current -> $selected / running=$running")
+        }
     }
 }
 

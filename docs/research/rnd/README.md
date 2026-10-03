@@ -1,5 +1,7 @@
 # Loc8 R&D department
 
+**Latest review fix:** [same-mode native reattachment](results/2026-10-03-relay-reattachment.md) preserves reception and stop ownership when the shared mesh is already running.
+
 **Latest 3 October continuation:** [native branch-forwarding handoff](results/2026-10-03-branch-relay.md)
 and [separate v2 protocol](BLE-BRANCH-PROTOCOL-2026-10-03.md). The one-shot
 candidate passes the static model comparison and is implemented behind an

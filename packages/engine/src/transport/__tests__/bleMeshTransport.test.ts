@@ -197,6 +197,38 @@ describe('BleMeshTransport', () => {
     transport.stop();
   });
 
+  it.each(['current', 'branch'] as const)('reattaches to a running %s mesh and retains reception and stop ownership', async (mode) => {
+    // Native was started directly by the field harness before this JS transport
+    // existed. Matching configuration reports its state without restarting it.
+    process.env.EXPO_PUBLIC_MESH_RELAY_MODE = mode;
+    let nativeRunning = true;
+    const packet = jest.fn();
+    const status = jest.fn();
+    const activeStatus = { nearbyCount: 2, connected: true, relayMode: mode };
+    mesh.configureRelayMode.mockImplementationOnce(async (selected: unknown) => {
+      if (selected !== mode) throw new Error('Stop mesh before selecting mode');
+      mesh.__emitStatus(activeStatus);
+      return mode;
+    });
+    mesh.start.mockImplementationOnce(async () => { expect(nativeRunning).toBe(true); });
+    mesh.stop.mockImplementationOnce(async () => { nativeRunning = false; });
+    transport.onPacket(packet);
+    transport.onMeshStatus(status);
+    transport.start();
+    await new Promise((r) => setTimeout(r, 0));
+    expect(mesh.start).toHaveBeenCalledTimes(1);
+    expect(mesh.__listenerCounts()).toEqual({ packet: 1, status: 1 });
+    expect(status).toHaveBeenLastCalledWith(activeStatus);
+    mesh.__emitPacket({ data: new Uint8Array(encodePacket(SAMPLE)), relayVia: 'mesh' });
+    expect(packet).toHaveBeenCalledTimes(1);
+    transport.stop();
+    expect(mesh.stop).toHaveBeenCalledTimes(1);
+    expect(nativeRunning).toBe(false);
+    expect(mesh.__listenerCounts()).toEqual({ packet: 0, status: 0 });
+    mesh.__emitPacket({ data: new Uint8Array(encodePacket(SAMPLE)) });
+    expect(packet).toHaveBeenCalledTimes(1);
+  });
+
   it('a stop while native configuration is pending prevents a delayed radio start', async () => {
     process.env.EXPO_PUBLIC_MESH_RELAY_MODE = 'branch';
     let resolve!: (value: string) => void;

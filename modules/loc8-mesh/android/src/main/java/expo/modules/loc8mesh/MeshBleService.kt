@@ -73,9 +73,9 @@ enum class MeshRelayMode(val wireValue: String) {
     companion object {
         fun fromWireValue(value: String): MeshRelayMode? = entries.firstOrNull { it.wireValue == value }
 
-        internal fun configurationFailure(value: String, running: Boolean): String? = when {
+        internal fun configurationFailure(value: String, running: Boolean, currentMode: MeshRelayMode): String? = when {
             fromWireValue(value) == null -> "Relay mode must be current or branch"
-            running -> "Stop the mesh before changing relay mode"
+            running && fromWireValue(value) != currentMode -> "Stop the mesh before changing relay mode"
             else -> null
         }
     }
@@ -273,12 +273,19 @@ class MeshBleService private constructor() {
                 else onFailure("Mesh handler kept changing while configuring; retry while stopped")
                 return@post
             }
-            val failure = MeshRelayMode.configurationFailure(mode, running)
+            val failure = MeshRelayMode.configurationFailure(mode, running, relayMode)
             if (failure != null) {
                 onFailure(failure)
                 return@post
             }
             val selected = MeshRelayMode.fromWireValue(mode)!!
+            // A new JS transport may attach to the shared native mesh. Reusing
+            // its mode must preserve live links, dedup and pending relay work.
+            if (selected == relayMode) {
+                emitStatusIfChanged(force = true)
+                onConfigured(selected)
+                return@post
+            }
             relayMode = selected
             emitStatusIfChanged(force = true)
             onConfigured(selected)
