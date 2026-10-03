@@ -1,7 +1,7 @@
 'use strict';
 // Historical native/API evidence stays pinned to the reviewed commit. The
-// reattachment receipt is now historical; the egress continuation binds current
-// sources. --rerun repeats the unchanged models, not native or phone tests.
+// reattachment and egress receipts stay historical; the field continuation
+// binds current sources. --rerun repeats models, not native or phone tests.
 const assert = require('node:assert/strict');
 const fs = require('node:fs');
 const path = require('node:path');
@@ -50,4 +50,8 @@ console.log(`Historical reattachment ${reattachmentSnapshot}: ${current.sources.
 for (const script of ['verify-egress-evidence.cjs', 'verify-density-history.cjs', 'branch-verify.cjs']) {
   const forwardedArgs = script === 'verify-egress-evidence.cjs' ? [] : args;
   process.stdout.write(execFileSync(process.execPath, [path.join(__dirname, script), ...forwardedArgs], { cwd: root, maxBuffer: 10 * 1024 * 1024 }));
+}
+const fieldVerifier = path.join(root, 'tools/native-field/verify-evidence.cjs');
+if (fs.existsSync(fieldVerifier)) {
+  process.stdout.write(execFileSync(process.execPath, [fieldVerifier], { cwd: root, maxBuffer: 10 * 1024 * 1024 }));
 }

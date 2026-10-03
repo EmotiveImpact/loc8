@@ -8,6 +8,7 @@ import { useFonts, Unbounded_600SemiBold, Unbounded_800ExtraBold } from '@expo-g
 import { Sora_300Light, Sora_400Regular, Sora_500Medium, Sora_600SemiBold, Sora_700Bold } from '@expo-google-fonts/sora';
 import { SpaceMono_400Regular, SpaceMono_700Bold } from '@expo-google-fonts/space-mono';
 import { useCrewStore, parseCrewDeepLink, resolveNotificationNav, colors, fonts } from '@loc8/engine';
+import { MESH_FIELD_ACCESS } from '../src/research/meshFieldBuild';
 
 // `/onboarding` (app/onboarding.tsx) is created in the next task, so the
 // generated typed-routes union does not include it yet. Reference it through
@@ -33,10 +34,14 @@ export default function RootLayout() {
 
   useEffect(() => {
     if (!hydrated) return; // wait for AsyncStorage — the id may already exist
+    // Dedicated internal builds cold-start into the synthetic harness without
+    // joining a crew or starting the normal location/session producers.
+    if (MESH_FIELD_ACCESS.internal) {
+      if ((segments[0] as string) !== 'mesh-field') router.replace('/mesh-field' as Href);
+      return;
+    }
     const inOnboarding = (segments[0] as string) === 'onboarding';
-    const inEnabledFieldKit = __DEV__ &&
-      process.env.EXPO_PUBLIC_MESH_FIELD_KIT === '1' &&
-      process.env.EXPO_PUBLIC_TRANSPORT === 'ble' &&
+    const inEnabledFieldKit = MESH_FIELD_ACCESS.enabled &&
       (segments[0] as string) === 'mesh-field';
     if (!profile && !inOnboarding && !inEnabledFieldKit) router.replace(ONBOARDING);
     if (profile && inOnboarding) router.replace('/');

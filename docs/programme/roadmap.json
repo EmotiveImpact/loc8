@@ -150,6 +150,13 @@
       "locator": "https://www.bluetooth.com/specifications/specifications-in-development/",
       "revision": "accessed-2026-10-03",
       "scope": "Bluetooth SIG roadmap. IP Link completed IOP and targets fall 2026 adoption; standards watch only."
+    },
+    {
+      "id": "SRC-NATIVE-FIELD",
+      "kind": "repository",
+      "locator": "BUILD.md",
+      "revision": "2026-10-03",
+      "scope": "Internal bundled public/Guard field build path, actual native mode check and preserved three-device criteria; no physical promotion from compilation."
     }
   ],
   "concepts": [
@@ -395,6 +402,24 @@
       "gate": "Supported native builds plus frozen MESH-01 and duplicate/branch, density, asymmetric-loss, churn/load, background and battery cohorts. No simulator-only default promotion."
     },
     {
+      "id": "BUILD",
+      "name": "Installable native field clients",
+      "state": "build-verification",
+      "depends_on": [
+        "R0",
+        "R1b",
+        "R3"
+      ],
+      "sources": [
+        "SRC-NATIVE-FIELD",
+        "SRC-R3",
+        "SRC-MESH"
+      ],
+      "products": "Public Loc8 / Guard, with separate Command web build",
+      "deliverable": "Labelled bundled internal current/branch builds, explicit local/CI commands, narrow field gating and source/build receipts. Keep normal current default and public infrastructure independence.",
+      "gate": "Supported complete native app builds, installation and actual native mode on phones, offline cold start, then unchanged MESH-01 and separately registered R3/E02 cohorts."
+    },
+    {
       "id": "MESH",
       "name": "Measured phone mesh and adaptive relay experiment",
       "state": "experiment-required",
@@ -525,6 +550,8 @@
     "substantive_head": "cee77cd7f63ffb4c1dc083919dd40f97a405f481",
     "default_mode": "current",
     "candidate_mode": "branch",
-    "status": "draft; physical promotion gates remain"
+    "status": "draft; physical promotion gates remain",
+    "build_guide": "BUILD.md",
+    "field_procedure": "FIELD-TEST.md"
   }
 }

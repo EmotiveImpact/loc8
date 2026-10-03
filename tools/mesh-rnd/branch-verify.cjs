@@ -8,9 +8,15 @@ const root = path.resolve(__dirname, '../..');
 const directory = path.join(root, 'docs/research/rnd/results/evidence/2026-10-03-branch-relay');
 const manifest = JSON.parse(fs.readFileSync(path.join(directory, 'branch-manifest.json')));
 assert.equal(manifest.schema, 'loc8.branch-relay-receipt.v2');
+const continuedMetadata = new Set();
 for (const entry of [...manifest.code, ...manifest.historicalBaseline]) {
   const file = path.resolve(root, entry.path);
   assert.ok(file.startsWith(root + path.sep));
+  if (['package-lock.json', 'tools/mesh-rnd/branch-verify.cjs'].includes(entry.path) && fs.existsSync(path.join(root, 'tools/native-field/model-lock.cjs')) &&
+      require('../native-field/model-lock.cjs').validateModelLock(entry)) {
+    continuedMetadata.add(entry.path);
+    continue;
+  }
   assert.equal(sha256(fs.readFileSync(file)), entry.sha256, `Source/historical drift: ${entry.path}`);
 }
 for (const entry of manifest.artifacts) {
@@ -27,8 +33,9 @@ if (args[0] === '--rerun') {
   try {
     const repeated = writeArtifacts(benchmarkBranch(manifest.matrix), temporary);
     assert.deepEqual(repeated.artifacts, manifest.artifacts, 'V2 benchmark artifacts differ');
-    assert.deepEqual(repeated.code, manifest.code, 'V2 source objects differ');
+    const executableCode = rows => rows.filter(row => !continuedMetadata.has(row.path));
+    assert.deepEqual(executableCode(repeated.code), executableCode(manifest.code), 'V2 executable source objects differ');
     assert.deepEqual(repeated.historicalBaseline, manifest.historicalBaseline, 'V1 historical objects differ');
-    console.log(`Repeated ${manifest.runs} v2 runs; source and artifact hashes match (host Node version reported separately).`);
+    console.log(`Repeated ${manifest.runs} v2 runs; executable source and artifact hashes match (host Node and install-lock boundary reported separately).`);
   } finally { fs.rmSync(temporary, { recursive: true, force: true }); }
 } else console.log('Recorded software evidence only; --rerun repeats the model, not native/radio tests.');

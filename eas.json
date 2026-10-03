@@ -4,15 +4,60 @@
   },
   "build": {
     "development": {
-      "developmentClient": true,
+      "developmentClient": false,
       "distribution": "internal",
-      "android": { "buildType": "apk" }
+      "android": {
+        "buildType": "apk",
+        "gradleCommand": ":app:assembleDebug"
+      },
+      "ios": {
+        "buildConfiguration": "Debug"
+      },
+      "env": {
+        "EXPO_PUBLIC_TRANSPORT": "ble",
+        "EXPO_PUBLIC_MESH_RELAY_MODE": "current",
+        "EXPO_PUBLIC_MESH_FIELD_KIT": "0",
+        "LOC8_INTERNAL_FIELD_TEST": "0"
+      }
     },
     "preview": {
       "distribution": "internal",
-      "android": { "buildType": "apk" },
+      "android": {
+        "buildType": "apk"
+      },
       "env": {
-        "EXPO_PUBLIC_TRANSPORT": "ble"
+        "EXPO_PUBLIC_TRANSPORT": "ble",
+        "EXPO_PUBLIC_MESH_RELAY_MODE": "current",
+        "EXPO_PUBLIC_MESH_FIELD_KIT": "0",
+        "LOC8_INTERNAL_FIELD_TEST": "0"
+      }
+    },
+    "field-current": {
+      "extends": "preview",
+      "developmentClient": false,
+      "node": "22.23.2",
+      "ios": {
+        "buildConfiguration": "Release"
+      },
+      "env": {
+        "LOC8_INTERNAL_FIELD_TEST": "1",
+        "EXPO_PUBLIC_TRANSPORT": "ble",
+        "EXPO_PUBLIC_MESH_FIELD_KIT": "1",
+        "EXPO_PUBLIC_MESH_RELAY_MODE": "current"
+      }
+    },
+    "field-branch": {
+      "extends": "preview",
+      "developmentClient": false,
+      "node": "22.23.2",
+      "ios": {
+        "buildConfiguration": "Release"
+      },
+      "env": {
+        "LOC8_INTERNAL_FIELD_TEST": "1",
+        "EXPO_PUBLIC_TRANSPORT": "ble",
+        "EXPO_PUBLIC_MESH_FIELD_KIT": "1",
+        "EXPO_PUBLIC_MESH_RELAY_MODE": "branch"
       }
     }
   }

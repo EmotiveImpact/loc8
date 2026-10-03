@@ -9,6 +9,7 @@ import { SpaceMono_400Regular, SpaceMono_700Bold } from '@expo-google-fonts/spac
 import { useCrewStore } from '@loc8/engine';
 import { ops } from '../src/ui/opsTheme';
 import { useGuardStore } from '../src/state/guardStore';
+import { MESH_FIELD_ACCESS } from '../../../src/research/meshFieldBuild';
 
 const CLOCKIN: Href = '/clockin' as Href;
 const TABS: Href = '/(tabs)' as Href;
@@ -31,6 +32,11 @@ export default function GuardRootLayout() {
   // Gate: off-duty → clock-in; on-duty but stuck on clock-in → tabs.
   useEffect(() => {
     if (!hydrated) return;
+    if (MESH_FIELD_ACCESS.internal) {
+      if ((segments[0] as string) !== 'mesh-field') router.replace('/mesh-field' as Href);
+      return;
+    }
+    if (MESH_FIELD_ACCESS.enabled && (segments[0] as string) === 'mesh-field') return;
     const onClockIn = (segments[0] as string) === 'clockin';
     if (!onDuty && !onClockIn) router.replace(CLOCKIN);
     if (onDuty && onClockIn) router.replace(TABS);
@@ -53,6 +59,7 @@ export default function GuardRootLayout() {
         <Stack.Screen name="dispatch" options={{ presentation: 'card' }} />
         <Stack.Screen name="lone" options={{ presentation: 'modal' }} />
         <Stack.Screen name="floor" options={{ presentation: 'modal' }} />
+        <Stack.Screen name="mesh-field" />
       </Stack>
     </>
   );

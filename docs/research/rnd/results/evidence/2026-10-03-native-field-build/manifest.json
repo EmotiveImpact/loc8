@@ -1,0 +1,753 @@
+{
+  "schema": "loc8.native-field-continuation.v1",
+  "previous_checkpoint": "e18b999026e493c816ead39a0b6f1d06169b201c",
+  "previous_receipt_sha256": "00a2c540e26b44012d34b4b5726946c2d2204a4b7298c6b2eccf3191c4730933",
+  "physical_phone_attempts": 0,
+  "production_promotion": false,
+  "default_relay_mode": "current",
+  "execution_boundary": "Read each receipt/log and the field-build handoff. Hash validation does not execute checks or prove a native app/physical result. Pre-patch local logs use the prior shared installation; final dependency installation and native compilation are separate CI gates.",
+  "sources": [
+    {
+      "path": ".gitattributes",
+      "bytes": 689,
+      "sha256": "191da97cfa564750e193df8bce850c5d86548d0d7a6506f842fc07b84db6e438"
+    },
+    {
+      "path": ".github/workflows/native-field-build.yml",
+      "bytes": 1965,
+      "sha256": "1722fda036e1940f60da225cf260224cab1e5ec89d4dd1251f40138c324cb59f"
+    },
+    {
+      "path": ".github/workflows/rnd-verification.yml",
+      "bytes": 5831,
+      "sha256": "1020f8bd492c10efa5f1f697d69fa1340838e0b295948a5cc3599c78c98e60ba"
+    },
+    {
+      "path": ".gitignore",
+      "bytes": 509,
+      "sha256": "bc0b1e839e45c6b4469d4a4a4d926f0467559ac9c31f40738426bb3c3e21e1f8"
+    },
+    {
+      "path": ".nvmrc",
+      "bytes": 8,
+      "sha256": "08062faf0d7a2d22f5d7933c50e975dd1527034275597be7c1b3b9fd2b9d079a"
+    },
+    {
+      "path": "BUILD.md",
+      "bytes": 8649,
+      "sha256": "342c6219501c763d8ad767a6045324be0707438b4ce912699b335ca637dccf5c"
+    },
+    {
+      "path": "FIELD-TEST.md",
+      "bytes": 6512,
+      "sha256": "7a5a1975d54b412046a7b6b3a8ce8c7432fc2f6bc18adbe8983eb937af8dc12e"
+    },
+    {
+      "path": "LOC8_MASTER_PLAN.md",
+      "bytes": 15442,
+      "sha256": "82361489451b65df482a03eb14640a72658c48524dea802b116614afc3a1a140"
+    },
+    {
+      "path": "README.md",
+      "bytes": 4734,
+      "sha256": "22299314c491f35dfcfe0f4c5b1b9e49e6cebabf661d6662946092f7f809a657"
+    },
+    {
+      "path": "RESEARCH.md",
+      "bytes": 2861,
+      "sha256": "88b9ffe8cc571c06d7de1e9d13fa762ff9455a36e7ac0946a91efdc8e0d7ea48"
+    },
+    {
+      "path": "app.config.js",
+      "bytes": 144,
+      "sha256": "f1781783971edf11c8882a91119e6f5122fa5c5a7deee38b5d26347a3bb7f064"
+    },
+    {
+      "path": "app/_layout.tsx",
+      "bytes": 5165,
+      "sha256": "371cff1d87e85c046fe68aefbac2b36f83dc2004bab3d1dabcaa8393e49bd6c7"
+    },
+    {
+      "path": "app/mesh-field.tsx",
+      "bytes": 20525,
+      "sha256": "bdc1953f4dcc6454683c9685ecca66d1621fcb1f9cfd4616d1fc7c36bf2d19a6"
+    },
+    {
+      "path": "apps/guard/app.config.js",
+      "bytes": 147,
+      "sha256": "362b8af3843d68a306267b245dc8f202f118fb4f8232494bc02850b32df48a34"
+    },
+    {
+      "path": "apps/guard/app/_layout.tsx",
+      "bytes": 2700,
+      "sha256": "9e0b73e0a0c0c4f7be41f8aeb81cf4786e5a1153ac4bf739d2db560b53665b88"
+    },
+    {
+      "path": "apps/guard/app/mesh-field.tsx",
+      "bytes": 118,
+      "sha256": "7136eda1cd42f24cfa8be645c11c6e4fe294698cce8b5eb23d893ddc4db8b4a4"
+    },
+    {
+      "path": "apps/guard/eas.json",
+      "bytes": 1738,
+      "sha256": "4f22cf8208aae055d49cfdc1215f2a68474b14a373dcee3eaaea53689003b1b5"
+    },
+    {
+      "path": "apps/guard/package.json",
+      "bytes": 1596,
+      "sha256": "2adc1957d562c90cc10e9110fd42c9b5c8b7641b51be254484e2d383abecd343"
+    },
+    {
+      "path": "docs/CODEX-CLAUDE-HANDOFF.md",
+      "bytes": 79486,
+      "sha256": "fca72b37fa323140c4af2e7092c35329cf1384d7dc23f3e65bba2789ff3da4ef"
+    },
+    {
+      "path": "docs/programme/roadmap.json",
+      "bytes": 21227,
+      "sha256": "de63d69a3fc6842f2515fbf0c6de1bfc43b213eaeb3365dcad65936f6187ad62"
+    },
+    {
+      "path": "docs/research/rnd/BLE-BRANCH-PROTOCOL-2026-10-03.md",
+      "bytes": 5468,
+      "sha256": "0d7e5e8084005c6b3e2bbc4b0cb09df6170955064ccbbc932cde87c165cdb4e5"
+    },
+    {
+      "path": "docs/research/rnd/BLE-EGRESS-PROTOCOL-2026-10-03.md",
+      "bytes": 3963,
+      "sha256": "19ebaaf9aa8040f87ef40690078eb83afb192b994c6bacf366f7e8414844f4de"
+    },
+    {
+      "path": "docs/research/rnd/README.md",
+      "bytes": 33648,
+      "sha256": "a499151d9f2baa06a9b653e07579de6136ff23366bed5b61761aad182053f677"
+    },
+    {
+      "path": "docs/research/rnd/prototypes/mesh-field-kit/android-diagnostics-harness.kt",
+      "bytes": 4715,
+      "sha256": "c1bb07dac7d74316fba310676289de34d9de34976e1c575a3ad659566f11feb5"
+    },
+    {
+      "path": "docs/research/rnd/prototypes/mesh-field-kit/android-expo-exception-stubs.kt",
+      "bytes": 225,
+      "sha256": "574dad99eb25466562236e56d44fc35b3ba028e4d5509244ddf7ab37422118f9"
+    },
+    {
+      "path": "docs/research/rnd/prototypes/mesh-field-kit/android-expo-stubs.kt",
+      "bytes": 964,
+      "sha256": "783831d0755d68ed91ff32fa18b1f7c76c5033464dcb2c9fea38c22f441d1109"
+    },
+    {
+      "path": "docs/research/rnd/prototypes/mesh-field-kit/android-system-clock-stub.kt",
+      "bytes": 180,
+      "sha256": "001d9c6c931aff4c48174361553c988e71d54bec8a8b4ae66af37391eb01f575"
+    },
+    {
+      "path": "docs/research/rnd/prototypes/mesh-field-kit/benchmark.mjs",
+      "bytes": 1718,
+      "sha256": "19de336d131b4703559215ec88083407744bc01c7418c63989d9d5c82bcea65d"
+    },
+    {
+      "path": "docs/research/rnd/prototypes/mesh-field-kit/create-physical-manifest.mjs",
+      "bytes": 4067,
+      "sha256": "cbcc03c8b445fa7a4d6215dee3fee0697f87204c7e7c60aa027ab0f29a4c3c20"
+    },
+    {
+      "path": "docs/research/rnd/prototypes/mesh-field-kit/derive-clock-sync.mjs",
+      "bytes": 7829,
+      "sha256": "7b0a3890afb64544c1a1a25533f291190ad431943b03d5a03df956c34b169f14"
+    },
+    {
+      "path": "docs/research/rnd/prototypes/mesh-field-kit/evaluate.mjs",
+      "bytes": 1328,
+      "sha256": "1c695a030f00871b1180177e71f20ce490d37672254a5c54f5ed7da2173195c7"
+    },
+    {
+      "path": "docs/research/rnd/prototypes/mesh-field-kit/event.schema.json",
+      "bytes": 2676,
+      "sha256": "90859254d2bd5eb1a35ee4f5a9bdd1e90d9ff396f910d610b7eac3f48c2b05a7"
+    },
+    {
+      "path": "docs/research/rnd/prototypes/mesh-field-kit/fixtures.mjs",
+      "bytes": 8467,
+      "sha256": "b3d236a15a99c0392134bccfd8e35b19929e14578edfb82daa84007af2cad2ae"
+    },
+    {
+      "path": "docs/research/rnd/prototypes/mesh-field-kit/ios-diagnostics-harness.swift",
+      "bytes": 6361,
+      "sha256": "17924cf1e9b088a836503d2fd7b9f3def6f11e9b9cb0c4492f4660374c812107"
+    },
+    {
+      "path": "docs/research/rnd/prototypes/mesh-field-kit/manifest.schema.json",
+      "bytes": 8154,
+      "sha256": "3db419083784f72d2c3f2d1f23defb1ed62215eb5bd7f4a80b68801a9fe997f6"
+    },
+    {
+      "path": "docs/research/rnd/prototypes/mesh-field-kit/mesh-field-kit.mjs",
+      "bytes": 42686,
+      "sha256": "41cf9f667533a762648c89a368f311e8da09ca27a6a1987fff8c06628cfa0e3d"
+    },
+    {
+      "path": "docs/research/rnd/prototypes/mesh-field-kit/mesh-field-kit.test.mjs",
+      "bytes": 24636,
+      "sha256": "c6b5f9e4e9104c866497da2eb04bb3afca8631b7325a3ec225e6fc0ae98fb012"
+    },
+    {
+      "path": "docs/research/rnd/prototypes/mesh-field-kit/run-metadata.template.json",
+      "bytes": 2269,
+      "sha256": "592c6d753f81d229be8e08006639da8d73ae794f7586958e9efd233755def8a1"
+    },
+    {
+      "path": "docs/research/rnd/prototypes/mesh-field-kit/verify-android-kotlin.sh",
+      "bytes": 1483,
+      "sha256": "58a6e202f12a2bd3df2d33c38647415b8d53e480a7dcec228ed555d0a9525c24"
+    },
+    {
+      "path": "docs/research/rnd/results/2026-10-03-branch-relay.md",
+      "bytes": 19683,
+      "sha256": "235aa718257f6d3ab5fd7628a6042146a6a8f2bc34e26288edcab56779eb6dda"
+    },
+    {
+      "path": "docs/research/rnd/results/2026-10-03-ios-egress.md",
+      "bytes": 5469,
+      "sha256": "29448ed34349868f23068d1c3233d80f5fc7fdf909419e13cd7b005e69f2cc3b"
+    },
+    {
+      "path": "docs/research/rnd/results/2026-10-03-native-field-build.md",
+      "bytes": 7071,
+      "sha256": "0eafa7c74e5d091a2672ceb0b44189dcd2381ea9a54f8fa4ba55ba56c8b32122"
+    },
+    {
+      "path": "docs/research/rnd/results/2026-10-03-relay-reattachment.md",
+      "bytes": 4875,
+      "sha256": "07663588782cec9af62f869ba97ea0844ba6b20118fb73dd326a48bd6e18b778"
+    },
+    {
+      "path": "eas.json",
+      "bytes": 1586,
+      "sha256": "b757a4741fb46019010cf9f257165bfc50afbc12aac2d8f5bdb440248651f043"
+    },
+    {
+      "path": "jest.setup.js",
+      "bytes": 225,
+      "sha256": "fe6d10c708ef8529b002f8a907c5aba99686555efdf84fc9077f30b5ad6236ff"
+    },
+    {
+      "path": "modules/loc8-mesh/android/build.gradle",
+      "bytes": 222,
+      "sha256": "38c0b921390f97628290667ae29e8a45ea175e1eaa2fd7190ec568ec49d56e62"
+    },
+    {
+      "path": "modules/loc8-mesh/android/src/main/java/expo/modules/loc8mesh/Loc8MeshModule.kt",
+      "bytes": 8223,
+      "sha256": "8fbf35054916dd5258ba165c38fd0065071317c4bdabc1e9cf37f98574415d5d"
+    },
+    {
+      "path": "modules/loc8-mesh/android/src/main/java/expo/modules/loc8mesh/Loc8MeshService.kt",
+      "bytes": 3781,
+      "sha256": "eccc488a977b7b471d1132c121958af23b18316e97306169d62384aefb1304f5"
+    },
+    {
+      "path": "modules/loc8-mesh/android/src/main/java/expo/modules/loc8mesh/MeshBleService.kt",
+      "bytes": 52414,
+      "sha256": "b8a8be02582faf2f46462fc5d8511bc4302f510a24ce8a0e77b8609dd68f3397"
+    },
+    {
+      "path": "modules/loc8-mesh/android/src/main/java/expo/modules/loc8mesh/MeshConstants.kt",
+      "bytes": 3469,
+      "sha256": "58e428bbb6466668b69019e69336573e1fdda2b1411ae42f867f7dae8a23afe4"
+    },
+    {
+      "path": "modules/loc8-mesh/android/src/main/java/expo/modules/loc8mesh/MeshDeduplicator.kt",
+      "bytes": 3272,
+      "sha256": "089a8d55fa171f2bd5433ae4f207cd94d52ea98251880250f522fd86861a8b0a"
+    },
+    {
+      "path": "modules/loc8-mesh/android/src/main/java/expo/modules/loc8mesh/MeshDiagnostics.kt",
+      "bytes": 8132,
+      "sha256": "37cb326aa51e56f7cdfc96f67d26baaf88763bc6fae208eb2d95f70c76a5181a"
+    },
+    {
+      "path": "modules/loc8-mesh/android/src/main/java/expo/modules/loc8mesh/MeshFrameCodec.kt",
+      "bytes": 4918,
+      "sha256": "99eead61253679fd2708e1f58ae854bab1376375cb476b6aca96f3866a1abe05"
+    },
+    {
+      "path": "modules/loc8-mesh/android/src/main/java/expo/modules/loc8mesh/MeshRelayController.kt",
+      "bytes": 2251,
+      "sha256": "3286260927086b99daebe995c4997125b3b17ea87e9b0e7fdf09ae04859f84e3"
+    },
+    {
+      "path": "modules/loc8-mesh/expo-module.config.json",
+      "bytes": 168,
+      "sha256": "0aee3473892999089c50d2515de1a925febff769bc42252c8834e29145f379f9"
+    },
+    {
+      "path": "modules/loc8-mesh/index.ts",
+      "bytes": 7028,
+      "sha256": "6d20607aab4ed055827684db0a3b8f9cab51e45f3f754b1f8b399063e1f6ab21"
+    },
+    {
+      "path": "modules/loc8-mesh/ios/Loc8Mesh.podspec",
+      "bytes": 677,
+      "sha256": "8e7a221a26e221289120c4ca0dae13f7c299baab1040ed35a92b00cb227a5494"
+    },
+    {
+      "path": "modules/loc8-mesh/ios/Loc8MeshModule.swift",
+      "bytes": 4825,
+      "sha256": "6fd75f7d6ed3716f7acec5dd6c22c7cc92d00f335a5a3d9e8a70cd28a4c33d35"
+    },
+    {
+      "path": "modules/loc8-mesh/ios/MeshConstants.swift",
+      "bytes": 3789,
+      "sha256": "937d186ec52ab8cc7bd37d3330752c66662f27a4d547ae852563fd08efffcb68"
+    },
+    {
+      "path": "modules/loc8-mesh/ios/MeshDeduplicator.swift",
+      "bytes": 3225,
+      "sha256": "613c35f4a346a9a431937c4e41fae510673d03423cd2e74594e0b0d2c455a93b"
+    },
+    {
+      "path": "modules/loc8-mesh/ios/MeshDiagnostics.swift",
+      "bytes": 8806,
+      "sha256": "b577ffaf55091fb5369143caf8f5ba2227915b6a5d3bf7b72ce278e1d6f90e50"
+    },
+    {
+      "path": "modules/loc8-mesh/ios/MeshEgressQueue.swift",
+      "bytes": 4355,
+      "sha256": "f587e0578afe93b974baba8a6254dc84f8760c24d3c33a6a3c141fc1977f0e36"
+    },
+    {
+      "path": "modules/loc8-mesh/ios/MeshFrameCodec.swift",
+      "bytes": 4759,
+      "sha256": "348f77c443036a3da4f8efd8775e93505b9850566b44820d6d93d879e7f78e91"
+    },
+    {
+      "path": "modules/loc8-mesh/ios/MeshPendingRelays.swift",
+      "bytes": 6129,
+      "sha256": "08246b941f32c6b0ed7f5f0905fb7346e25227519f38ba61b583023d4681432b"
+    },
+    {
+      "path": "modules/loc8-mesh/ios/MeshRelayController.swift",
+      "bytes": 2188,
+      "sha256": "c335748c11d7f3f0e00dfbabee720d1cd918d0d6741766f942cab7b9d4f5d6c1"
+    },
+    {
+      "path": "modules/loc8-mesh/ios/MeshService.swift",
+      "bytes": 37884,
+      "sha256": "1c740580e22ec278f5e3fdbf37588dbc1d76aa0c0b60adf3bd22506091a47fbe"
+    },
+    {
+      "path": "package-lock.json",
+      "bytes": 626288,
+      "sha256": "a180adc2ba36df0e5537ca831248cc26d3ba69668c2b9f92b1623f75d58610b1"
+    },
+    {
+      "path": "package.json",
+      "bytes": 3343,
+      "sha256": "80ea6523a9382fc9ec06907a498f77e6305989ea03dc8e96340134c0b36a6ab5"
+    },
+    {
+      "path": "packages/engine/src/core/packetCodec.ts",
+      "bytes": 5083,
+      "sha256": "20615dfca4854b26bd84bd2dbf16bef72ae4a4f12780b58851b3c2de0b836c01"
+    },
+    {
+      "path": "packages/engine/src/core/types.ts",
+      "bytes": 2997,
+      "sha256": "db45b2114a14481e88de98fab3567a117c094b948963f7df5419f946501a4378"
+    },
+    {
+      "path": "packages/engine/src/experimental/branchRelayPolicy.ts",
+      "bytes": 7768,
+      "sha256": "9a6429bd2b5bf895c0723df5f044b39d22965e55e7197ac7301acdc9a2630de6"
+    },
+    {
+      "path": "packages/engine/src/experimental/relayPolicy.ts",
+      "bytes": 9744,
+      "sha256": "32ec266c2f0544c63550b5f7d9fd5c4f80cb1f382e1afdb5d364547552c6f2fa"
+    },
+    {
+      "path": "packages/engine/src/transport/BleMeshTransport.ts",
+      "bytes": 4984,
+      "sha256": "12dc93960c7bb672104288656e8d9f5fa4e2048e391a253df63c4886ce2f888a"
+    },
+    {
+      "path": "packages/engine/src/transport/LocationTransport.ts",
+      "bytes": 1081,
+      "sha256": "58a2bfebe4717abedae3eda630bb21978cf10d77dc5720e95ee9dba99fb6e297"
+    },
+    {
+      "path": "packages/engine/src/transport/__tests__/bleMeshTransport.test.ts",
+      "bytes": 11636,
+      "sha256": "2df09bd1aed411382466e0fe99cbf46f3fd6df803206155d72aa1f336b8cf156"
+    },
+    {
+      "path": "src/research/meshFieldAccess.ts",
+      "bytes": 1159,
+      "sha256": "08e4eab69ab584418a25fc5a580abca5e0b676d78545ef1c1c0b336587f80e43"
+    },
+    {
+      "path": "src/research/meshFieldBuild.ts",
+      "bytes": 535,
+      "sha256": "05cb225a388b28f5e24dc3a781e9a42f960ee6000fbb12396a946e7b763655a1"
+    },
+    {
+      "path": "src/research/meshFieldProtocol.ts",
+      "bytes": 3524,
+      "sha256": "90ad900b5b413981179d554d51d0c220226bf07bb1ca596e3b1da8ed82b84232"
+    },
+    {
+      "path": "tools/mesh-rnd/android-branch-harness.kt",
+      "bytes": 9558,
+      "sha256": "eb60a93484d4ac3c120ba290e7e4010e3665a3d30d384c151a4bf244ec64c7a0"
+    },
+    {
+      "path": "tools/mesh-rnd/branch-benchmark.cjs",
+      "bytes": 10242,
+      "sha256": "4f57bde1d4989e7532bb8e002522e840ece5f3f34d47d87b740844a6e4adce87"
+    },
+    {
+      "path": "tools/mesh-rnd/branch-benchmark.node.cjs",
+      "bytes": 1752,
+      "sha256": "fff518f520984e0d3fd8e6a880824fecf0361605c5958f60715233d52001276d"
+    },
+    {
+      "path": "tools/mesh-rnd/branch-field.env.example",
+      "bytes": 317,
+      "sha256": "544d0b019d658be10306e5afd125b0aa8b8e33261e6feddf1313cd37fe0867c9"
+    },
+    {
+      "path": "tools/mesh-rnd/branch-policy.node.cjs",
+      "bytes": 8843,
+      "sha256": "661b60897a9e30980bccac2adfd660d7e010c1f3c0da389adf37e899debd6782"
+    },
+    {
+      "path": "tools/mesh-rnd/branch-simulation.cjs",
+      "bytes": 9277,
+      "sha256": "aaf4fef7bca877a340915ecd59ca43ed328328da9e1a55e3b0fe73878cd604c7"
+    },
+    {
+      "path": "tools/mesh-rnd/branch-simulation.node.cjs",
+      "bytes": 3663,
+      "sha256": "8d6e8310ccc16c048ea463dc27364f91078d93f1f32a5a6c51aeda806c93a141"
+    },
+    {
+      "path": "tools/mesh-rnd/branch-verify.cjs",
+      "bytes": 2770,
+      "sha256": "4bfd15829d518472abac3d016a55c0d242ff7c639ac66d75aba5df5073bc40f9"
+    },
+    {
+      "path": "tools/mesh-rnd/freshness.node.cjs",
+      "bytes": 37340,
+      "sha256": "10a2e11e26d6c28eeeb559164defd03e462c48ae8956943b18b8eca5ac2addfb"
+    },
+    {
+      "path": "tools/mesh-rnd/native-relay-api.node.cjs",
+      "bytes": 2704,
+      "sha256": "dcc27eb1e5ecf2339a8cbc9423f5248d7e9629e5280c16206dd5448b956d237d"
+    },
+    {
+      "path": "tools/mesh-rnd/native-relay/ios-branch-tests.swift",
+      "bytes": 21949,
+      "sha256": "9ed7083fbd62c5a55741c08740322f26486c607fcbb879a3aba9817f7adc74c6"
+    },
+    {
+      "path": "tools/mesh-rnd/native-relay/ios-egress-tests.swift",
+      "bytes": 9480,
+      "sha256": "88765b0baeaf750abbfb5c635e113161870d124cc991886e9bd966577e6be483"
+    },
+    {
+      "path": "tools/mesh-rnd/native-relay/ios-service-host-access.swift",
+      "bytes": 3632,
+      "sha256": "a7430ade96416bb5088d6d91d6f2aecf389dfed365b7c6d9e3ecef43b7ee4f71"
+    },
+    {
+      "path": "tools/mesh-rnd/native-relay/run-ios-branch-tests.cjs",
+      "bytes": 3717,
+      "sha256": "04b7c63191b8cbd86fa0d6531fa13179cae8af30b745a3288c3bdde77c0d2cbb"
+    },
+    {
+      "path": "tools/mesh-rnd/programme.node.cjs",
+      "bytes": 2295,
+      "sha256": "2fdaf04874921fb21773af2bb181da5dc1b7e044cbd1169dfdbafc94b2cb0be4"
+    },
+    {
+      "path": "tools/mesh-rnd/source-location.node.cjs",
+      "bytes": 21227,
+      "sha256": "2c014eedcd2efce12be1080615e5333d084362e049c043d01fcf3d39c3c3577d"
+    },
+    {
+      "path": "tools/mesh-rnd/source-test-loader.cjs",
+      "bytes": 2872,
+      "sha256": "2da67b6dca3755fe063c12a820a57280452bee0f0e5932d17dbacf7e2e916a68"
+    },
+    {
+      "path": "tools/mesh-rnd/verify-android-branch.sh",
+      "bytes": 6856,
+      "sha256": "6ca2a23924afab717e7cac113f542724cf4f730a7b1080d3d218c2511db84129"
+    },
+    {
+      "path": "tools/mesh-rnd/verify-branch-integration.cjs",
+      "bytes": 3623,
+      "sha256": "6bebfd50017e6a56e21e53cafa5b3a95cee6cd1aa84a4a2c23d86ee9becf20cb"
+    },
+    {
+      "path": "tools/mesh-rnd/verify-density-history.cjs",
+      "bytes": 3464,
+      "sha256": "faa1d35bb6e5a110700afad91b913ce4cccd45de3ca8376faf5b14adfb051dd6"
+    },
+    {
+      "path": "tools/mesh-rnd/verify-egress-evidence.cjs",
+      "bytes": 3117,
+      "sha256": "97babbaedd322af5e91f8b69b85d1ef478da2f1eda0567fa24fce91376fe43cd"
+    },
+    {
+      "path": "tools/mesh-rnd/verify.node.cjs",
+      "bytes": 17940,
+      "sha256": "631a00ba1ba3ad9f88b451cbfcac70877c87fe316fbdcf4706c5f051c7405eb6"
+    },
+    {
+      "path": "tools/native-field/build.cjs",
+      "bytes": 7453,
+      "sha256": "da25c323d35cb65b63ac979aa0d388ed77297b9d334c503a87577ba0beb6d3a2"
+    },
+    {
+      "path": "tools/native-field/field-build.node.cjs",
+      "bytes": 2912,
+      "sha256": "2604ae8068461cc4968f7846191fba73048cce08ee56c8b8525bfd84d0d15a3d"
+    },
+    {
+      "path": "tools/native-field/field-config.cjs",
+      "bytes": 1848,
+      "sha256": "d623c9ed7e49ff013a4b0902d3d8774e5206e88e051ec09806fb233272ddf812"
+    },
+    {
+      "path": "tools/native-field/model-lock.cjs",
+      "bytes": 1824,
+      "sha256": "981c3c53f4ddb590df3982013ac5c5d95171b2d570960e77f3a680ec03558780"
+    },
+    {
+      "path": "tools/native-field/record-evidence.cjs",
+      "bytes": 2589,
+      "sha256": "4182da02d796b7a30856b0ffa94ae836f19881363d4cfbbf139e83a9fa64de56"
+    },
+    {
+      "path": "tools/native-field/verify-evidence.cjs",
+      "bytes": 2180,
+      "sha256": "c62ea41e38fea8bdee6c959c6de7ca95fd3a83e03246eb436007ed94aa4909ea"
+    },
+    {
+      "path": "tools/native-field/verify.cjs",
+      "bytes": 2189,
+      "sha256": "11e27508e2ba999d479a1abd5819feaae50e417535ca3779079f3c65a7b5c7e9"
+    },
+    {
+      "path": "tsconfig.json",
+      "bytes": 580,
+      "sha256": "3b9a94359cbda12fde619288b716f88280c56fc2f64e8e3d9553a37f338805b0"
+    }
+  ],
+  "artifacts": [
+    {
+      "path": "docs/research/rnd/results/evidence/2026-10-03-native-field-build/baseline-local/guard-branch-android-2026-10-03T04-10-22-912Z/autolinking.log.gz",
+      "bytes": 1579,
+      "sha256": "243a11feff962850a3d2a234e675679098d10bfa4eeebb348cd003d56c151f45"
+    },
+    {
+      "path": "docs/research/rnd/results/evidence/2026-10-03-native-field-build/baseline-local/guard-branch-android-2026-10-03T04-10-22-912Z/prebuild.log.gz",
+      "bytes": 156,
+      "sha256": "0866806ac267fd953b8fa67eedfeb5da75b4489a50246b51bf91ad5af7a9900b"
+    },
+    {
+      "path": "docs/research/rnd/results/evidence/2026-10-03-native-field-build/baseline-local/guard-branch-android-2026-10-03T04-10-22-912Z/receipt.json.gz",
+      "bytes": 681,
+      "sha256": "a884ed4dafb8387707263466f84ade07689bb54962156db608a4f7cf6c0ccaf6"
+    },
+    {
+      "path": "docs/research/rnd/results/evidence/2026-10-03-native-field-build/baseline-local/guard-current-android-2026-10-03T04-10-19-958Z/autolinking.log.gz",
+      "bytes": 1579,
+      "sha256": "243a11feff962850a3d2a234e675679098d10bfa4eeebb348cd003d56c151f45"
+    },
+    {
+      "path": "docs/research/rnd/results/evidence/2026-10-03-native-field-build/baseline-local/guard-current-android-2026-10-03T04-10-19-958Z/prebuild.log.gz",
+      "bytes": 136,
+      "sha256": "b2080d8f9f82a393230d43626e2a30ce8e42ecbcb2524c8ec668a7000f5f2234"
+    },
+    {
+      "path": "docs/research/rnd/results/evidence/2026-10-03-native-field-build/baseline-local/guard-current-android-2026-10-03T04-10-19-958Z/receipt.json.gz",
+      "bytes": 683,
+      "sha256": "e6838a4691379494681077208b81af1cb42579588034d0c226a7abf3fe69d338"
+    },
+    {
+      "path": "docs/research/rnd/results/evidence/2026-10-03-native-field-build/baseline-local/loc8-field-command-build-runner.log.gz",
+      "bytes": 486,
+      "sha256": "ff9384ecd41b7a40c2552de4768531442bd3b0413420b643feae18f4fa28b90b"
+    },
+    {
+      "path": "docs/research/rnd/results/evidence/2026-10-03-native-field-build/baseline-local/loc8-field-doctor.log.gz",
+      "bytes": 1244,
+      "sha256": "5fafb039a7bf686498234b63f2c3a3419008ef0b2e295864f97841c02177b9b8"
+    },
+    {
+      "path": "docs/research/rnd/results/evidence/2026-10-03-native-field-build/baseline-local/loc8-field-ios-host-approved.log.gz",
+      "bytes": 1337,
+      "sha256": "52ca7906122d82b05e79a4333daaf0c29095bd500e779fd99dc2d816bc2e444a"
+    },
+    {
+      "path": "docs/research/rnd/results/evidence/2026-10-03-native-field-build/baseline-local/loc8-field-ios-host-final.log.gz",
+      "bytes": 639,
+      "sha256": "364c258ccc9444660b567c27c07b7d3ee36f46d8280d9b9782abdf7f219005fb"
+    },
+    {
+      "path": "docs/research/rnd/results/evidence/2026-10-03-native-field-build/baseline-local/loc8-field-public-js-export.log.gz",
+      "bytes": 916,
+      "sha256": "ef62964a3395f88643084a4a25ee4b45af359cc49e3ac17674ca58799f6dfe7b"
+    },
+    {
+      "path": "docs/research/rnd/results/evidence/2026-10-03-native-field-build/baseline-local/public-branch-android-2026-10-03T04-10-16-778Z/autolinking.log.gz",
+      "bytes": 1738,
+      "sha256": "2e9f1e391fd7813aebcbaa6aaf3937df6227d3682a7f24dae671ea5f0786e707"
+    },
+    {
+      "path": "docs/research/rnd/results/evidence/2026-10-03-native-field-build/baseline-local/public-branch-android-2026-10-03T04-10-16-778Z/prebuild.log.gz",
+      "bytes": 156,
+      "sha256": "0866806ac267fd953b8fa67eedfeb5da75b4489a50246b51bf91ad5af7a9900b"
+    },
+    {
+      "path": "docs/research/rnd/results/evidence/2026-10-03-native-field-build/baseline-local/public-branch-android-2026-10-03T04-10-16-778Z/receipt.json.gz",
+      "bytes": 684,
+      "sha256": "052fd4ba2d5d010fdcea7c4d783188fae2fef9a7562026768fd81093dfedaaf3"
+    },
+    {
+      "path": "docs/research/rnd/results/evidence/2026-10-03-native-field-build/baseline-local/public-current-android-2026-10-03T04-07-09-631Z/autolinking.log.gz",
+      "bytes": 1738,
+      "sha256": "2e9f1e391fd7813aebcbaa6aaf3937df6227d3682a7f24dae671ea5f0786e707"
+    },
+    {
+      "path": "docs/research/rnd/results/evidence/2026-10-03-native-field-build/baseline-local/public-current-android-2026-10-03T04-07-09-631Z/prebuild.log.gz",
+      "bytes": 136,
+      "sha256": "b2080d8f9f82a393230d43626e2a30ce8e42ecbcb2524c8ec668a7000f5f2234"
+    },
+    {
+      "path": "docs/research/rnd/results/evidence/2026-10-03-native-field-build/baseline-local/public-current-android-2026-10-03T04-07-09-631Z/receipt.json.gz",
+      "bytes": 724,
+      "sha256": "75f853a9490d9263858279cf33dd868c84be0576a0c086f83c1622481b2c3bef"
+    },
+    {
+      "path": "docs/research/rnd/results/evidence/2026-10-03-native-field-build/baseline-local/public-current-ios-2026-10-03T04-10-24-855Z/receipt.json.gz",
+      "bytes": 404,
+      "sha256": "2e043c135aa9df8f29f94c0ab6eac58b182dae037e3289fd4ea9e2dfdf137ee7"
+    },
+    {
+      "path": "docs/research/rnd/results/evidence/2026-10-03-native-field-build/baseline-local/public-current-ios-2026-10-03T04-10-24-855Z/xcode-version.log.gz",
+      "bytes": 53,
+      "sha256": "daef49c1c91a9c2a254f915b74205345f001358c70ab8062d46c86da8868840a"
+    },
+    {
+      "path": "docs/research/rnd/results/evidence/2026-10-03-native-field-build/baseline-local/verification-2026-10-03T04-10-15-565Z/branch-integration.log.gz",
+      "bytes": 721,
+      "sha256": "b6d0a3f518404989f333f8514065a137188a6f52fcf46894d4ad457d919190ba"
+    },
+    {
+      "path": "docs/research/rnd/results/evidence/2026-10-03-native-field-build/baseline-local/verification-2026-10-03T04-10-15-565Z/field-contract.log.gz",
+      "bytes": 3081,
+      "sha256": "e33775c81b9845243c982d79d73c7780a1f802bd1ac96d24e291e8656d1c1598"
+    },
+    {
+      "path": "docs/research/rnd/results/evidence/2026-10-03-native-field-build/baseline-local/verification-2026-10-03T04-10-15-565Z/guard-typescript.log.gz",
+      "bytes": 20,
+      "sha256": "f1b651238a58fe290baec6c5e32f3bdb1943dd2bd582f02569231f7a757c7837"
+    },
+    {
+      "path": "docs/research/rnd/results/evidence/2026-10-03-native-field-build/baseline-local/verification-2026-10-03T04-10-15-565Z/jest.log.gz",
+      "bytes": 1043,
+      "sha256": "6d50397e33b1d4b832b25fcca0260722570ed59152710cad8b908234400e92fb"
+    },
+    {
+      "path": "docs/research/rnd/results/evidence/2026-10-03-native-field-build/baseline-local/verification-2026-10-03T04-10-15-565Z/lint.log.gz",
+      "bytes": 47,
+      "sha256": "69441110dba9500aff2539be6d3a9d1ea82f8702f84a34054f2b057af85ab76e"
+    },
+    {
+      "path": "docs/research/rnd/results/evidence/2026-10-03-native-field-build/baseline-local/verification-2026-10-03T04-10-15-565Z/results.json.gz",
+      "bytes": 212,
+      "sha256": "0ef5fedc6fefc6108e29a792ccd5ee3fe1b908201f9a894825bad42bd7355b66"
+    },
+    {
+      "path": "docs/research/rnd/results/evidence/2026-10-03-native-field-build/baseline-local/verification-2026-10-03T04-10-15-565Z/scoped.log.gz",
+      "bytes": 12028,
+      "sha256": "4a7ebb7478094b51bfdbe8b761222690c780070b3b8a16e27b3ecc14cb7747de"
+    },
+    {
+      "path": "docs/research/rnd/results/evidence/2026-10-03-native-field-build/baseline-local/verification-2026-10-03T04-10-15-565Z/typescript.log.gz",
+      "bytes": 20,
+      "sha256": "f1b651238a58fe290baec6c5e32f3bdb1943dd2bd582f02569231f7a757c7837"
+    },
+    {
+      "path": "docs/research/rnd/results/evidence/2026-10-03-native-field-build/baseline-local/verification-2026-10-03T04-48-29-095Z/branch-integration.log.gz",
+      "bytes": 1548,
+      "sha256": "d611a4a9128e4ad0e6578730703232f2b120ade52b7af8827bed01eea30c5438"
+    },
+    {
+      "path": "docs/research/rnd/results/evidence/2026-10-03-native-field-build/baseline-local/verification-2026-10-03T04-48-29-095Z/field-contract.log.gz",
+      "bytes": 3057,
+      "sha256": "33c59bc6c2d463d68e623260a5f61b9d456f2c97e96e6f27029e23f05e8db594"
+    },
+    {
+      "path": "docs/research/rnd/results/evidence/2026-10-03-native-field-build/baseline-local/verification-2026-10-03T04-48-29-095Z/guard-typescript.log.gz",
+      "bytes": 20,
+      "sha256": "f1b651238a58fe290baec6c5e32f3bdb1943dd2bd582f02569231f7a757c7837"
+    },
+    {
+      "path": "docs/research/rnd/results/evidence/2026-10-03-native-field-build/baseline-local/verification-2026-10-03T04-48-29-095Z/jest.log.gz",
+      "bytes": 1057,
+      "sha256": "2d30d67d5c177b907c6cd10a6d9768a27a063df2929c53030db4a8c997d8025c"
+    },
+    {
+      "path": "docs/research/rnd/results/evidence/2026-10-03-native-field-build/baseline-local/verification-2026-10-03T04-48-29-095Z/lint.log.gz",
+      "bytes": 47,
+      "sha256": "69441110dba9500aff2539be6d3a9d1ea82f8702f84a34054f2b057af85ab76e"
+    },
+    {
+      "path": "docs/research/rnd/results/evidence/2026-10-03-native-field-build/baseline-local/verification-2026-10-03T04-48-29-095Z/results.json.gz",
+      "bytes": 212,
+      "sha256": "0ef5fedc6fefc6108e29a792ccd5ee3fe1b908201f9a894825bad42bd7355b66"
+    },
+    {
+      "path": "docs/research/rnd/results/evidence/2026-10-03-native-field-build/baseline-local/verification-2026-10-03T04-48-29-095Z/scoped.log.gz",
+      "bytes": 11964,
+      "sha256": "b0fcc7e59d1331a9c18f1778031764b7f508ef1b566ac87e55fee0d5901e19d3"
+    },
+    {
+      "path": "docs/research/rnd/results/evidence/2026-10-03-native-field-build/baseline-local/verification-2026-10-03T04-48-29-095Z/typescript.log.gz",
+      "bytes": 20,
+      "sha256": "f1b651238a58fe290baec6c5e32f3bdb1943dd2bd582f02569231f7a757c7837"
+    },
+    {
+      "path": "docs/research/rnd/results/evidence/2026-10-03-native-field-build/dependency-alignment/loc8-field-sdk57-bundled-modules.json.gz",
+      "bytes": 1401,
+      "sha256": "ca045dacba1eaa7a101a3351a828ff87e6cba6dca75c3e82e58d97d2a0fa14cd"
+    },
+    {
+      "path": "docs/research/rnd/results/evidence/2026-10-03-native-field-build/dependency-alignment/loc8-field-sdk57-ci-dry-run-final.log.gz",
+      "bytes": 9468,
+      "sha256": "62f660a550093433caf6e11c863d4d8cf3282ca4073d2193992be2b8021a59d8"
+    },
+    {
+      "path": "docs/research/rnd/results/evidence/2026-10-03-native-field-build/dependency-alignment/loc8-field-sdk57-lock-final.log.gz",
+      "bytes": 364,
+      "sha256": "5c72eab70b1935f153524bd40622eee18857cd411b05e8e878c698494c114241"
+    },
+    {
+      "path": "docs/research/rnd/results/evidence/2026-10-03-native-field-build/local-boundary.json",
+      "bytes": 1388,
+      "sha256": "1cbbb0bcf0349a58e100b3deccbac426a88bc23b69b8a979d9cc52a434f31a0c"
+    },
+    {
+      "path": "docs/research/rnd/results/evidence/2026-10-03-native-field-build/model-repeat-local.log.gz",
+      "bytes": 784,
+      "sha256": "7f73fdc2975f845d6ad75a4c190cc7304c94246ee3f101d4d774332cb72e3195"
+    }
+  ]
+}

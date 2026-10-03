@@ -1,0 +1,64 @@
+name: Native Android field builds
+on:
+  push:
+    branches: ['rnd/ble-density-2026-10-03']
+    paths:
+      - 'tools/native-field/**'
+      - 'app/**'
+      - 'src/**'
+      - 'apps/guard/**'
+      - 'packages/engine/**'
+      - 'modules/loc8-mesh/**'
+      - 'package*.json'
+      - 'app.config.js'
+      - 'app.json'
+      - 'metro.config.js'
+      - '.github/workflows/native-field-build.yml'
+  workflow_dispatch:
+permissions:
+  contents: read
+concurrency:
+  group: native-field-${{ github.ref }}
+  cancel-in-progress: true
+jobs:
+  android:
+    runs-on: ubuntu-latest
+    timeout-minutes: 60
+    strategy:
+      fail-fast: false
+      max-parallel: 2
+      matrix:
+        app: [public, guard]
+        mode: [current, branch]
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+          fetch-depth: 0
+      - uses: actions/setup-node@v4
+        with:
+          node-version-file: '.nvmrc'
+          cache: npm
+      - uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: '17'
+      - uses: android-actions/setup-android@v3
+      - name: Install exact SDK packages
+        run: sdkmanager 'platforms;android-36' 'build-tools;35.0.0' 'ndk;27.1.12297006'
+      - name: Install exact repository dependencies
+        run: |
+          mkdir -p .native-field-artifacts/install
+          npm ci > .native-field-artifacts/install/npm-ci.log 2>&1 || {
+            tail -n 80 .native-field-artifacts/install/npm-ci.log
+            exit 1
+          }
+      - name: Build internal APK with embedded JavaScript
+        run: npm run build:field -- ${{ matrix.app }} ${{ matrix.mode }} android
+      - name: Preserve APK and complete build diagnostics
+        if: ${{ always() }}
+        uses: actions/upload-artifact@v4
+        with:
+          name: loc8-field-${{ matrix.app }}-${{ matrix.mode }}-${{ github.sha }}
+          path: .native-field-artifacts/
+          retention-days: 14

@@ -43,7 +43,11 @@ if (args[0] === '--rerun') {
   const recordedRun = JSON.parse(local(directory + '/relay-manifest.json'));
   // V1 model files remain byte-for-byte unchanged. Refuse a repeat using drifted
   // model code even though its historical source object is still available.
-  for (const row of recordedRun.code) assert.equal(sha256(local(row.path)), row.sha256, `Current V1 model source drift: ${row.path}`);
+  for (const row of recordedRun.code) {
+    if (row.path === 'package-lock.json' && fs.existsSync(path.join(root, 'tools/native-field/model-lock.cjs')) &&
+        require('../native-field/model-lock.cjs').validateModelLock(row)) continue;
+    assert.equal(sha256(local(row.path)), row.sha256, `Current V1 model source drift: ${row.path}`);
+  }
   const { benchmarkRelay, writeArtifacts } = require('./benchmark-relay.cjs');
   const temporary = fs.mkdtempSync(path.join(os.tmpdir(), 'loc8-density-history-'));
   try {

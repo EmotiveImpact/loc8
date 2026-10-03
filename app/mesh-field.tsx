@@ -35,10 +35,9 @@ import {
   fieldExportFilename,
   participatingRoles,
 } from '../src/research/meshFieldProtocol';
+import { MESH_FIELD_ACCESS } from '../src/research/meshFieldBuild';
 
-const FIELD_MODE = __DEV__ &&
-  process.env.EXPO_PUBLIC_MESH_FIELD_KIT === '1' &&
-  process.env.EXPO_PUBLIC_TRANSPORT === 'ble';
+const FIELD_MODE = MESH_FIELD_ACCESS.enabled;
 
 const FIELD_RELAY_MODE = process.env.EXPO_PUBLIC_MESH_RELAY_MODE ?? 'current';
 
@@ -63,8 +62,8 @@ function Unavailable() {
       <View style={styles.unavailable}>
         <Text style={styles.title}>MESH-01 FIELD KIT DISABLED</Text>
         <Text style={styles.body}>
-          Rebuild a native development client with EXPO_PUBLIC_TRANSPORT=ble and
-          EXPO_PUBLIC_MESH_FIELD_KIT=1. This route is intentionally unavailable in normal builds.
+          Install the labelled internal field build, or enable BLE and the field kit in a native debug build.
+          This route is intentionally unavailable in normal releases.
         </Text>
       </View>
     </SafeAreaView>
@@ -200,6 +199,10 @@ function FieldHarness() {
         throw new Error('EXPO_PUBLIC_MESH_RELAY_MODE must be current or branch.');
       }
       const selectedMode = await configureRelayMode(FIELD_RELAY_MODE);
+      const observedMode = await getRelayMode();
+      if (selectedMode !== FIELD_RELAY_MODE || observedMode !== FIELD_RELAY_MODE) {
+        throw new Error(`Native relay mode mismatch: expected ${FIELD_RELAY_MODE}, observed ${observedMode}.`);
+      }
       setRelayMode(selectedMode);
       await startFieldDiagnostics(runId, cohortId, block.blockId, role, block.sourceRole);
       diagnosticsStarted = true;
@@ -324,6 +327,10 @@ function FieldHarness() {
       <ScrollView contentContainerStyle={styles.content} keyboardShouldPersistTaps="handled">
         <Text style={styles.kicker}>RESEARCH BUILD · PHYSICAL EVIDENCE</Text>
         <Text style={styles.title}>MESH-01 THREE-PHONE RELAY</Text>
+        <Text style={styles.body}>
+          {MESH_FIELD_ACCESS.internal ? 'Internal offline build' : 'Native debug build'} · requested {FIELD_RELAY_MODE}
+          {MESH_FIELD_ACCESS.commit ? ` · ${MESH_FIELD_ACCESS.commit.slice(0, 12)}` : ''}
+        </Text>
         <Text style={styles.warning}>
           Synthetic packets only. Foreground/screen-on. No security, range, venue, background or pilot claim.
           {'\n'}Record the relay mode with a separate run ID for each comparison; the frozen JSONL schema does not identify it.

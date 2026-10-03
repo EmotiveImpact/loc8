@@ -1,5 +1,10 @@
 # Loc8
 
+For native public/Guard builds and the Command web console, start with
+[BUILD.md](BUILD.md). The master programme is [LOC8_MASTER_PLAN.md](LOC8_MASTER_PLAN.md);
+the research map is [RESEARCH.md](RESEARCH.md). Continue the current draft PR #5
+line, retaining the `current` relay default and the separate physical gates.
+
 **3 October queue continuation:** [iOS relay queue implementation and checks](docs/research/rnd/results/2026-10-03-ios-egress.md)
 adds bounded notifications, queue expiry and reconnect cleanup on top of PR #5.
 This experimental continuation changes iOS queue behavior under load in both
