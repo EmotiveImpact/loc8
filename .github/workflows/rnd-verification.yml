@@ -81,7 +81,11 @@ jobs:
             exit 1
           }
           tail -n 12 /tmp/loc8-ci-diagnostics/scoped.tap
-          node tools/mesh-rnd/verify-branch-integration.cjs
+          node tools/mesh-rnd/verify-branch-integration.cjs --rerun > /tmp/loc8-ci-diagnostics/branch-integration.log 2>&1 || {
+            tail -n 100 /tmp/loc8-ci-diagnostics/branch-integration.log
+            exit 1
+          }
+          tail -n 12 /tmp/loc8-ci-diagnostics/branch-integration.log
           node --test docs/research/rnd/prototypes/mesh-field-kit/mesh-field-kit.test.mjs > /tmp/loc8-ci-diagnostics/field-contract.tap 2>&1 || {
             tail -n 80 /tmp/loc8-ci-diagnostics/field-contract.tap
             exit 1

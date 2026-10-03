@@ -106,3 +106,71 @@ override. All four Android jobs stopped in runner setup at the removed SDK
 `tools` package, before dependency install or native compilation. No APK was
 produced. These failures are retained in the continuation evidence directory;
 the follow-up must earn a fresh complete CI/build pass.
+
+## Fresh final-source software verification
+
+[Actions 37098530069](https://github.com/EmotiveImpact/loc8/actions/runs/37098530069)
+is green for source `26b5cf24228576de7defaa4b0e81e01476594bf1`: exact `npm ci`,
+342 scoped checks, 100 frozen field checks, the full layered source verifier,
+490 Jest tests in 36 suites, root and Guard TypeScript, lint, public/Guard
+Doctor 21/21 each and the Command production build. The separate native job
+passes 34 actual iOS host checks and the iOS 18.5 Simulator source typecheck.
+It does not compile an Expo iOS application or exercise Bluetooth. Complete
+software logs and job status are retained under `ci-26b5cf2/` in the receipt.
+
+Command also rendered locally at `http://127.0.0.1:4173/`; its existing Live Site
+screen explicitly says SCRIPTED DEMO. This preview uses a prior installed
+local bundle; the final dependency installation/build is separately verified
+in the green CI above. No connected provider or phone claim follows.
+
+## Public Android native results
+
+[Native run 37098530051](https://github.com/EmotiveImpact/loc8/actions/runs/37098530051)
+built both public variants from clean source `26b5cf24228576de7defaa4b0e81e01476594bf1`.
+Gradle passed actual `:loc8-mesh:assembleRelease` and `:app:assembleRelease` for
+each. The recorded SDK 57 defaults are Build Tools 36.0.0, min SDK 24, compile/
+target SDK 36, NDK 27.1.12297006 and Kotlin 2.1.20. The earlier CI bootstrap also
+installs Build Tools 35.0.0; Gradle correctly selects its supported 36.0.0 default.
+
+Both downloaded archives match GitHub's SHA-256 digest. Their APKs each contain
+59,129,144 bytes; internal APK hashes match the builder receipts. Independent
+`aapt` checks confirm separate current/branch package identities, API 24 minimum
+and API 36 target; APK content checks confirm arm64-v8a only and nonempty embedded
+JS. `apksigner verify` passes with the generated Android Debug certificate
+`fac61745dc0903786fb9ede62a962b399f7348f0bb6f899b8332667591033b9c`.
+
+| Public mode | APK SHA-256 | Download |
+|---|---|---|
+| current | `0567ad3e5cfbd8c231015d2f687ce8191f59245162b236063e0294aca4ae0a99` | [Artifact 11264684561](https://github.com/EmotiveImpact/loc8/actions/runs/37098530051/artifacts/11264684561) |
+| branch | `7bcca74c416dc9cd701740e50de099f54156a2d6a366c61e4707a1199b466b4e` | [Artifact 11264799379](https://github.com/EmotiveImpact/loc8/actions/runs/37098530051/artifacts/11264799379) |
+
+Artifacts expire 17 October 2026. Complete build/autolink/contents/install logs,
+original builder receipts and independent signature/package review receipts
+are durably compressed under `android-26b5cf2/`. These prove a signed installable
+package with embedded JS; no phone installation or offline launch has occurred.
+
+## Guard Android native results and final boundary
+
+The same native run is fully green for all four variants. Both Guard variants
+passed real module/app Release compilation, archive/APK hash checks, separate
+Guard package IDs, nonempty embedded JS, arm64-v8a inspection and independent
+Android signature verification with the same internal debug certificate.
+
+| Guard mode | APK bytes | APK SHA-256 | Download |
+|---|---|---|---|
+| branch | 46,875,338 | `5757bad5e8ac9f6f5ed7b44b3dfd07b7bcf7c6f132c4a86f7803f286f8b57255` | [Artifact 11266045099](https://github.com/EmotiveImpact/loc8/actions/runs/37098530051/artifacts/11266045099) |
+| current | 46,875,342 | `c7d50e43d2c3d96ea660a0dcbe750ed5af97c9f6e578cb98143456b13de04a08` | [Artifact 11265423935](https://github.com/EmotiveImpact/loc8/actions/runs/37098530051/artifacts/11265423935) |
+
+The APK source is exactly `26b5cf24228576de7defaa4b0e81e01476594bf1`; later
+receipt/docs/verification-workflow commits retain that source identity rather
+than relabelling these binaries. A public current APK is also retained locally
+in the ignored build artifact folder. Guard binary downloads were removed after
+review to respect the workstation's disk limit; all four binaries remain in
+the linked Actions artifacts until 17 October 2026. Build/install commands and
+source, receipts, compressed logs, hashes and limitations remain in Git.
+
+Next required work is physical installation and disconnected cold start on
+A/B/C, observed native mode, the frozen MESH-01 controls/gates, and separately
+registered extra cohorts. There have been zero phone attempts. No iOS Expo app
+was built on the unsupported Xcode, and no physical outcome is inferred from
+Android compilation, bundled JS, signatures or software checks.

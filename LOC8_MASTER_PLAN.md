@@ -12,6 +12,11 @@ For the current public/Guard native field build and Command web commands, use
 [FIELD-TEST.md](FIELD-TEST.md) keeps the frozen physical gates and extra cohorts.
 Internal bundled field builds have separate identities; production relay default
 remains `current` and physical evidence is still required.
+The 3 October continuation has built and independently checked all four Android
+public/Guard × current/branch APKs from `26b5cf2`. Full source/module/app builds
+and fresh software checks are green; iOS app compilation is locally blocked by
+Xcode, and installation/RF/background/battery gates still require phones.
+Download links, hashes and exact limits are in the build guide and handoff.
 
 ## 1. What the four PRs actually are
 

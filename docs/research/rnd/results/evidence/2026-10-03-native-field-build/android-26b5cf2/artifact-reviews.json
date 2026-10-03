@@ -1,0 +1,86 @@
+[
+  {
+    "app": "guard",
+    "mode": "branch",
+    "commit": "26b5cf24228576de7defaa4b0e81e01476594bf1",
+    "artifact_id": 11266045099,
+    "artifact_url": "https://github.com/EmotiveImpact/loc8/actions/runs/37098530051/artifacts/11266045099",
+    "expires_at": "2026-10-17T05:27:11Z",
+    "archive_sha256": "e70e63ff374c04fb5570feb26759ea93640da9dec4db5a7f5d27d46efbd276a0",
+    "apk_sha256": "5757bad5e8ac9f6f5ed7b44b3dfd07b7bcf7c6f132c4a86f7803f286f8b57255",
+    "apk_bytes": 46875338,
+    "embedded_js": true,
+    "abis": [
+      "arm64-v8a"
+    ],
+    "phone_attempts": 0,
+    "package_identity": "com.emotiveimpact.loc8guard.field.branch",
+    "signing_verified": true,
+    "badging_exit": 0,
+    "signature_exit": 0,
+    "signing_certificate_sha256": "fac61745dc0903786fb9ede62a962b399f7348f0bb6f899b8332667591033b9c"
+  },
+  {
+    "app": "guard",
+    "mode": "current",
+    "commit": "26b5cf24228576de7defaa4b0e81e01476594bf1",
+    "artifact_id": 11265423935,
+    "artifact_url": "https://github.com/EmotiveImpact/loc8/actions/runs/37098530051/artifacts/11265423935",
+    "expires_at": "2026-10-17T05:29:13Z",
+    "archive_sha256": "05163df855d00f50da4fd119fa008f9c0d835335038cb6be6863e59fd588c30f",
+    "apk_sha256": "c7d50e43d2c3d96ea660a0dcbe750ed5af97c9f6e578cb98143456b13de04a08",
+    "apk_bytes": 46875342,
+    "embedded_js": true,
+    "abis": [
+      "arm64-v8a"
+    ],
+    "phone_attempts": 0,
+    "package_identity": "com.emotiveimpact.loc8guard.field.current",
+    "signing_verified": true,
+    "badging_exit": 0,
+    "signature_exit": 0,
+    "signing_certificate_sha256": "fac61745dc0903786fb9ede62a962b399f7348f0bb6f899b8332667591033b9c"
+  },
+  {
+    "app": "public",
+    "mode": "branch",
+    "commit": "26b5cf24228576de7defaa4b0e81e01476594bf1",
+    "artifact_id": 11264799379,
+    "artifact_url": "https://github.com/EmotiveImpact/loc8/actions/runs/37098530051/artifacts/11264799379",
+    "expires_at": "2026-10-17T05:16:13Z",
+    "archive_sha256": "f93d5d58292d78adb4dc6c7c1aaf8dd9f63fb26c6897f7514b0bf2a5c49aab14",
+    "apk_sha256": "7bcca74c416dc9cd701740e50de099f54156a2d6a366c61e4707a1199b466b4e",
+    "apk_bytes": 59129144,
+    "embedded_js": true,
+    "abis": [
+      "arm64-v8a"
+    ],
+    "phone_attempts": 0,
+    "package_identity": "com.emotiveimpact.loc8.field.branch",
+    "signing_verified": true,
+    "badging_exit": 0,
+    "signature_exit": 0,
+    "signing_certificate_sha256": "fac61745dc0903786fb9ede62a962b399f7348f0bb6f899b8332667591033b9c"
+  },
+  {
+    "app": "public",
+    "mode": "current",
+    "commit": "26b5cf24228576de7defaa4b0e81e01476594bf1",
+    "artifact_id": 11264684561,
+    "artifact_url": "https://github.com/EmotiveImpact/loc8/actions/runs/37098530051/artifacts/11264684561",
+    "expires_at": "2026-10-17T05:16:40Z",
+    "archive_sha256": "f3940b61d9a183a6964472bddfdb2ae83fd1dfeaf5fb186c3ad90f100d4781fb",
+    "apk_sha256": "0567ad3e5cfbd8c231015d2f687ce8191f59245162b236063e0294aca4ae0a99",
+    "apk_bytes": 59129144,
+    "embedded_js": true,
+    "abis": [
+      "arm64-v8a"
+    ],
+    "phone_attempts": 0,
+    "package_identity": "com.emotiveimpact.loc8.field.current",
+    "signing_verified": true,
+    "badging_exit": 0,
+    "signature_exit": 0,
+    "signing_certificate_sha256": "fac61745dc0903786fb9ede62a962b399f7348f0bb6f899b8332667591033b9c"
+  }
+]

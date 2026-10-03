@@ -19,8 +19,8 @@
     },
     {
       "path": ".github/workflows/rnd-verification.yml",
-      "bytes": 5831,
-      "sha256": "1020f8bd492c10efa5f1f697d69fa1340838e0b295948a5cc3599c78c98e60ba"
+      "bytes": 6071,
+      "sha256": "dd03ad39844cd9c70280690c8245400df2cb329f158835d7caef8aa205ba1fec"
     },
     {
       "path": ".gitignore",
@@ -34,8 +34,8 @@
     },
     {
       "path": "BUILD.md",
-      "bytes": 9030,
-      "sha256": "ded6132a4a9ccaaaf652857db539bba2ce84b724b215a75ce9ab889486e9fa1e"
+      "bytes": 10947,
+      "sha256": "62921e7e7f47d06a42e5f566780819ead47699cde5f004a217f777bfd5a49968"
     },
     {
       "path": "FIELD-TEST.md",
@@ -44,8 +44,8 @@
     },
     {
       "path": "LOC8_MASTER_PLAN.md",
-      "bytes": 15442,
-      "sha256": "82361489451b65df482a03eb14640a72658c48524dea802b116614afc3a1a140"
+      "bytes": 15833,
+      "sha256": "2a097845f1d4a099b98dd05628a63b3aca5b11beceb5c617244985fb67e57f26"
     },
     {
       "path": "README.md",
@@ -109,8 +109,8 @@
     },
     {
       "path": "docs/programme/roadmap.json",
-      "bytes": 21227,
-      "sha256": "de63d69a3fc6842f2515fbf0c6de1bfc43b213eaeb3365dcad65936f6187ad62"
+      "bytes": 21248,
+      "sha256": "0c40d343a5fecd10b1323e8f74b3e6dad7af8a46c433da585b13624e0f292395"
     },
     {
       "path": "docs/research/rnd/BLE-BRANCH-PROTOCOL-2026-10-03.md",
@@ -219,8 +219,8 @@
     },
     {
       "path": "docs/research/rnd/results/2026-10-03-native-field-build.md",
-      "bytes": 8225,
-      "sha256": "88017e33e3cf82de8bc7ba813cd794386eb3fe4febf67628c9430c819dcfc872"
+      "bytes": 12723,
+      "sha256": "06e9cedcba485bb6982788e2df89d3968947a2001a53ea6c807eb8d1c27d6ad8"
     },
     {
       "path": "docs/research/rnd/results/2026-10-03-relay-reattachment.md",
@@ -560,6 +560,226 @@
   ],
   "artifacts": [
     {
+      "path": "docs/research/rnd/results/evidence/2026-10-03-native-field-build/android-26b5cf2/artifact-reviews.json",
+      "bytes": 3319,
+      "sha256": "fca5758d929aae84be61fb7f38b119abfb5ccdb0353b7cc8de85111491c08714"
+    },
+    {
+      "path": "docs/research/rnd/results/evidence/2026-10-03-native-field-build/android-26b5cf2/github-artifacts.json",
+      "bytes": 3047,
+      "sha256": "d0692bd2e915fc4430bc43c09ea6d90a73616fb7febba7881df259830ee2e72c"
+    },
+    {
+      "path": "docs/research/rnd/results/evidence/2026-10-03-native-field-build/android-26b5cf2/guard-branch/apk-contents.log.gz",
+      "bytes": 5885,
+      "sha256": "99823d673f6cdde3430b7dad74672455a5994ca396147047b24158b29bf5a66f"
+    },
+    {
+      "path": "docs/research/rnd/results/evidence/2026-10-03-native-field-build/android-26b5cf2/guard-branch/autolinking.log.gz",
+      "bytes": 1541,
+      "sha256": "220ea35c074d7c439153b9155e9b1177e967a4f5cb5482571a5abb249cc03c8b"
+    },
+    {
+      "path": "docs/research/rnd/results/evidence/2026-10-03-native-field-build/android-26b5cf2/guard-branch/badging.log.gz",
+      "bytes": 1688,
+      "sha256": "b8b798e23e311703afce1a48387f81fa19364a3ff5f8dd6f59ef32d37e3d2238"
+    },
+    {
+      "path": "docs/research/rnd/results/evidence/2026-10-03-native-field-build/android-26b5cf2/guard-branch/gradle.log.gz",
+      "bytes": 9678,
+      "sha256": "933274c426c3089a22e051ea543e8606cbe9bc189ff247a92ba2255bcd9d68fa"
+    },
+    {
+      "path": "docs/research/rnd/results/evidence/2026-10-03-native-field-build/android-26b5cf2/guard-branch/java.log.gz",
+      "bytes": 148,
+      "sha256": "373cf679b318b7b46d9350c8692b5fbc2e8196bf47fa3f0fd9832c033a5b169c"
+    },
+    {
+      "path": "docs/research/rnd/results/evidence/2026-10-03-native-field-build/android-26b5cf2/guard-branch/npm-ci.log.gz",
+      "bytes": 670,
+      "sha256": "ebeeca7ed957e3220cff8cfc03f34887bace8e3ad276bee12f3286c8bfbc6a6b"
+    },
+    {
+      "path": "docs/research/rnd/results/evidence/2026-10-03-native-field-build/android-26b5cf2/guard-branch/prebuild.log.gz",
+      "bytes": 136,
+      "sha256": "b2080d8f9f82a393230d43626e2a30ce8e42ecbcb2524c8ec668a7000f5f2234"
+    },
+    {
+      "path": "docs/research/rnd/results/evidence/2026-10-03-native-field-build/android-26b5cf2/guard-branch/receipt.json.gz",
+      "bytes": 1203,
+      "sha256": "94f26c1076c773c1a0aa6928a8baf21028b5bf0eff01f48b3dab428349617379"
+    },
+    {
+      "path": "docs/research/rnd/results/evidence/2026-10-03-native-field-build/android-26b5cf2/guard-branch/review.json.gz",
+      "bytes": 484,
+      "sha256": "59e71a89baa7f2eaf0cc68065d391f3e7453b74f13e8ceb29aa74d0fdf4ccc2d"
+    },
+    {
+      "path": "docs/research/rnd/results/evidence/2026-10-03-native-field-build/android-26b5cf2/guard-branch/signature.log.gz",
+      "bytes": 471,
+      "sha256": "0dd14b1ced9193e6d4766048f0e21816d1f3fa54f3035d575b0899023d1b0675"
+    },
+    {
+      "path": "docs/research/rnd/results/evidence/2026-10-03-native-field-build/android-26b5cf2/guard-current/apk-contents.log.gz",
+      "bytes": 5885,
+      "sha256": "99823d673f6cdde3430b7dad74672455a5994ca396147047b24158b29bf5a66f"
+    },
+    {
+      "path": "docs/research/rnd/results/evidence/2026-10-03-native-field-build/android-26b5cf2/guard-current/autolinking.log.gz",
+      "bytes": 1541,
+      "sha256": "220ea35c074d7c439153b9155e9b1177e967a4f5cb5482571a5abb249cc03c8b"
+    },
+    {
+      "path": "docs/research/rnd/results/evidence/2026-10-03-native-field-build/android-26b5cf2/guard-current/badging.log.gz",
+      "bytes": 1693,
+      "sha256": "a5c8ea0337a6ecd9d61f5f80bc1c7c98d4e943aa6643e3a4cb78bec2f336df7b"
+    },
+    {
+      "path": "docs/research/rnd/results/evidence/2026-10-03-native-field-build/android-26b5cf2/guard-current/gradle.log.gz",
+      "bytes": 9694,
+      "sha256": "e174b578c1a8face936cea510d7177fd16b6a807ade1cb6193c6fc9b3e35f492"
+    },
+    {
+      "path": "docs/research/rnd/results/evidence/2026-10-03-native-field-build/android-26b5cf2/guard-current/java.log.gz",
+      "bytes": 148,
+      "sha256": "373cf679b318b7b46d9350c8692b5fbc2e8196bf47fa3f0fd9832c033a5b169c"
+    },
+    {
+      "path": "docs/research/rnd/results/evidence/2026-10-03-native-field-build/android-26b5cf2/guard-current/npm-ci.log.gz",
+      "bytes": 670,
+      "sha256": "5d124c6066d54ddc75b5d1c534236b1e56ba613043e12d9515c083163f44bd79"
+    },
+    {
+      "path": "docs/research/rnd/results/evidence/2026-10-03-native-field-build/android-26b5cf2/guard-current/prebuild.log.gz",
+      "bytes": 136,
+      "sha256": "b2080d8f9f82a393230d43626e2a30ce8e42ecbcb2524c8ec668a7000f5f2234"
+    },
+    {
+      "path": "docs/research/rnd/results/evidence/2026-10-03-native-field-build/android-26b5cf2/guard-current/receipt.json.gz",
+      "bytes": 1204,
+      "sha256": "247b3f3ba88b95086261edfb82159f57c4b4ae0e73e981a746cfa3d7d679dc81"
+    },
+    {
+      "path": "docs/research/rnd/results/evidence/2026-10-03-native-field-build/android-26b5cf2/guard-current/review.json.gz",
+      "bytes": 484,
+      "sha256": "61ff88c63bbc4cc49b1f040a81bff12447389e3dd5438b774c2bab08e49de891"
+    },
+    {
+      "path": "docs/research/rnd/results/evidence/2026-10-03-native-field-build/android-26b5cf2/guard-current/signature.log.gz",
+      "bytes": 471,
+      "sha256": "0dd14b1ced9193e6d4766048f0e21816d1f3fa54f3035d575b0899023d1b0675"
+    },
+    {
+      "path": "docs/research/rnd/results/evidence/2026-10-03-native-field-build/android-26b5cf2/public-artifact-reviews.json",
+      "bytes": 1657,
+      "sha256": "da6a4f4a0874d1f0fd4f2bdb95f04b0da6dc791aa963fc62f4fb5029e9d09825"
+    },
+    {
+      "path": "docs/research/rnd/results/evidence/2026-10-03-native-field-build/android-26b5cf2/public-branch/apk-contents.log.gz",
+      "bytes": 6297,
+      "sha256": "d423afb83ff2e4cedc269ad0e6f1d113081551afb7c05755c3f808446ecd9693"
+    },
+    {
+      "path": "docs/research/rnd/results/evidence/2026-10-03-native-field-build/android-26b5cf2/public-branch/autolinking.log.gz",
+      "bytes": 1799,
+      "sha256": "efe9bbf78ebcf2504bff1e872dbc28a396c2681a855d19e14dbaadd805dc0aa2"
+    },
+    {
+      "path": "docs/research/rnd/results/evidence/2026-10-03-native-field-build/android-26b5cf2/public-branch/badging.log.gz",
+      "bytes": 1778,
+      "sha256": "e525a25a045fee7740dfeadda94a4f0ecfe308edeb2ac7c236c0792f92fdba6d"
+    },
+    {
+      "path": "docs/research/rnd/results/evidence/2026-10-03-native-field-build/android-26b5cf2/public-branch/gradle.log.gz",
+      "bytes": 9757,
+      "sha256": "c307066094ebcf8e62fb91c4e3f4d25bff38ff8ae117660f3fb151e2cccf2ef5"
+    },
+    {
+      "path": "docs/research/rnd/results/evidence/2026-10-03-native-field-build/android-26b5cf2/public-branch/java.log.gz",
+      "bytes": 148,
+      "sha256": "373cf679b318b7b46d9350c8692b5fbc2e8196bf47fa3f0fd9832c033a5b169c"
+    },
+    {
+      "path": "docs/research/rnd/results/evidence/2026-10-03-native-field-build/android-26b5cf2/public-branch/npm-ci.log.gz",
+      "bytes": 670,
+      "sha256": "ebeeca7ed957e3220cff8cfc03f34887bace8e3ad276bee12f3286c8bfbc6a6b"
+    },
+    {
+      "path": "docs/research/rnd/results/evidence/2026-10-03-native-field-build/android-26b5cf2/public-branch/prebuild.log.gz",
+      "bytes": 136,
+      "sha256": "b2080d8f9f82a393230d43626e2a30ce8e42ecbcb2524c8ec668a7000f5f2234"
+    },
+    {
+      "path": "docs/research/rnd/results/evidence/2026-10-03-native-field-build/android-26b5cf2/public-branch/receipt.json.gz",
+      "bytes": 1194,
+      "sha256": "f8c9b0e3b2d8e5a1f92433bf947ea212592609bbe5a0ce35e65130c8edf69292"
+    },
+    {
+      "path": "docs/research/rnd/results/evidence/2026-10-03-native-field-build/android-26b5cf2/public-branch/review.json.gz",
+      "bytes": 484,
+      "sha256": "5c92ca3a411dd6914f62ced23b7556f51bcaab7bfcb2a4b69ce04f80b39312e4"
+    },
+    {
+      "path": "docs/research/rnd/results/evidence/2026-10-03-native-field-build/android-26b5cf2/public-branch/signature.log.gz",
+      "bytes": 471,
+      "sha256": "0dd14b1ced9193e6d4766048f0e21816d1f3fa54f3035d575b0899023d1b0675"
+    },
+    {
+      "path": "docs/research/rnd/results/evidence/2026-10-03-native-field-build/android-26b5cf2/public-current/apk-contents.log.gz",
+      "bytes": 6297,
+      "sha256": "d423afb83ff2e4cedc269ad0e6f1d113081551afb7c05755c3f808446ecd9693"
+    },
+    {
+      "path": "docs/research/rnd/results/evidence/2026-10-03-native-field-build/android-26b5cf2/public-current/autolinking.log.gz",
+      "bytes": 1799,
+      "sha256": "efe9bbf78ebcf2504bff1e872dbc28a396c2681a855d19e14dbaadd805dc0aa2"
+    },
+    {
+      "path": "docs/research/rnd/results/evidence/2026-10-03-native-field-build/android-26b5cf2/public-current/badging.log.gz",
+      "bytes": 1774,
+      "sha256": "d47464cb7d3e2c90c3b13ed0f7e85bb2d909b8b09b2faa2819353a49720bcdab"
+    },
+    {
+      "path": "docs/research/rnd/results/evidence/2026-10-03-native-field-build/android-26b5cf2/public-current/gradle.log.gz",
+      "bytes": 9766,
+      "sha256": "7b0f4450f09536bcb7174c1809b408c7f495e08a2beff3de822de26506e6de8e"
+    },
+    {
+      "path": "docs/research/rnd/results/evidence/2026-10-03-native-field-build/android-26b5cf2/public-current/java.log.gz",
+      "bytes": 148,
+      "sha256": "373cf679b318b7b46d9350c8692b5fbc2e8196bf47fa3f0fd9832c033a5b169c"
+    },
+    {
+      "path": "docs/research/rnd/results/evidence/2026-10-03-native-field-build/android-26b5cf2/public-current/npm-ci.log.gz",
+      "bytes": 670,
+      "sha256": "51ec454b884f4b9c439073c9b544b3c49ef5e0ed57b3096574880ed6814b0d47"
+    },
+    {
+      "path": "docs/research/rnd/results/evidence/2026-10-03-native-field-build/android-26b5cf2/public-current/prebuild.log.gz",
+      "bytes": 136,
+      "sha256": "b2080d8f9f82a393230d43626e2a30ce8e42ecbcb2524c8ec668a7000f5f2234"
+    },
+    {
+      "path": "docs/research/rnd/results/evidence/2026-10-03-native-field-build/android-26b5cf2/public-current/receipt.json.gz",
+      "bytes": 1195,
+      "sha256": "144a8cbfea766023b6fab1a34cde599b783ea2b7f166df7235660b636bb23370"
+    },
+    {
+      "path": "docs/research/rnd/results/evidence/2026-10-03-native-field-build/android-26b5cf2/public-current/review.json.gz",
+      "bytes": 484,
+      "sha256": "0b32241c0073d4b45f27c7c3faded5d12fc192edc0eb7c7a82ce647da28c3247"
+    },
+    {
+      "path": "docs/research/rnd/results/evidence/2026-10-03-native-field-build/android-26b5cf2/public-current/signature.log.gz",
+      "bytes": 471,
+      "sha256": "0dd14b1ced9193e6d4766048f0e21816d1f3fa54f3035d575b0899023d1b0675"
+    },
+    {
+      "path": "docs/research/rnd/results/evidence/2026-10-03-native-field-build/android-26b5cf2/workflow-status.json",
+      "bytes": 10069,
+      "sha256": "de13e9ae57676d1a3bd635c737a98c22f3d57cbb1d6d048aa6212ed75e40a7a3"
+    },
+    {
       "path": "docs/research/rnd/results/evidence/2026-10-03-native-field-build/baseline-local/guard-branch-android-2026-10-03T04-10-22-912Z/autolinking.log.gz",
       "bytes": 1579,
       "sha256": "243a11feff962850a3d2a234e675679098d10bfa4eeebb348cd003d56c151f45"
@@ -733,6 +953,76 @@
       "path": "docs/research/rnd/results/evidence/2026-10-03-native-field-build/baseline-local/verification-2026-10-03T04-48-29-095Z/typescript.log.gz",
       "bytes": 20,
       "sha256": "f1b651238a58fe290baec6c5e32f3bdb1943dd2bd582f02569231f7a757c7837"
+    },
+    {
+      "path": "docs/research/rnd/results/evidence/2026-10-03-native-field-build/ci-26b5cf2/command-build.log.gz",
+      "bytes": 545,
+      "sha256": "303a54eb6edb86e95fce0849954fef8ce659ba6ffdfd52327fb12feeca04809d"
+    },
+    {
+      "path": "docs/research/rnd/results/evidence/2026-10-03-native-field-build/ci-26b5cf2/command-preview-observation.json",
+      "bytes": 577,
+      "sha256": "4cb89cd0448462d148ad8c234ef2d9a917db3acaef04e35d20f7b146ab621e9b"
+    },
+    {
+      "path": "docs/research/rnd/results/evidence/2026-10-03-native-field-build/ci-26b5cf2/expo-doctor.log.gz",
+      "bytes": 89,
+      "sha256": "cba4e2976877e1b16a5e80b766b2a66352e89da2e264f6375531f1dc76783a9f"
+    },
+    {
+      "path": "docs/research/rnd/results/evidence/2026-10-03-native-field-build/ci-26b5cf2/field-contract.tap.gz",
+      "bytes": 3128,
+      "sha256": "a9380253c779246d74a91c8f273b6bcc6bc2a314ab53ddb1c24e7753ed6ecf1c"
+    },
+    {
+      "path": "docs/research/rnd/results/evidence/2026-10-03-native-field-build/ci-26b5cf2/guard-expo-doctor.log.gz",
+      "bytes": 89,
+      "sha256": "cba4e2976877e1b16a5e80b766b2a66352e89da2e264f6375531f1dc76783a9f"
+    },
+    {
+      "path": "docs/research/rnd/results/evidence/2026-10-03-native-field-build/ci-26b5cf2/guard-typescript.log.gz",
+      "bytes": 20,
+      "sha256": "f1b651238a58fe290baec6c5e32f3bdb1943dd2bd582f02569231f7a757c7837"
+    },
+    {
+      "path": "docs/research/rnd/results/evidence/2026-10-03-native-field-build/ci-26b5cf2/jest.log.gz",
+      "bytes": 1083,
+      "sha256": "5bc0a3b21577e29c4530f1ed94e349399cbd65bf7d3a727b0310f982dbe67398"
+    },
+    {
+      "path": "docs/research/rnd/results/evidence/2026-10-03-native-field-build/ci-26b5cf2/lint.log.gz",
+      "bytes": 47,
+      "sha256": "69441110dba9500aff2539be6d3a9d1ea82f8702f84a34054f2b057af85ab76e"
+    },
+    {
+      "path": "docs/research/rnd/results/evidence/2026-10-03-native-field-build/ci-26b5cf2/loc8-native-ios.log.gz",
+      "bytes": 1344,
+      "sha256": "6b2c5b42d3bc80015dca9e4673587b9dd42071a594f704dd3cf268f518921be3"
+    },
+    {
+      "path": "docs/research/rnd/results/evidence/2026-10-03-native-field-build/ci-26b5cf2/npm-ci.log.gz",
+      "bytes": 671,
+      "sha256": "52d19875c665adba413876beed8855dc131e99c50d63a4b70375bc44ae002f48"
+    },
+    {
+      "path": "docs/research/rnd/results/evidence/2026-10-03-native-field-build/ci-26b5cf2/scoped.tap.gz",
+      "bytes": 12265,
+      "sha256": "0f4386c8f326315f9f2476dfdde2e5734ada5d70788c5fbb4b03fe8930fba986"
+    },
+    {
+      "path": "docs/research/rnd/results/evidence/2026-10-03-native-field-build/ci-26b5cf2/toolchain.txt.gz",
+      "bytes": 36,
+      "sha256": "ccb322412e3776c6237ee746789a8ddef4abb8d9edf952f0ff070997b2183e8e"
+    },
+    {
+      "path": "docs/research/rnd/results/evidence/2026-10-03-native-field-build/ci-26b5cf2/typescript.log.gz",
+      "bytes": 20,
+      "sha256": "f1b651238a58fe290baec6c5e32f3bdb1943dd2bd582f02569231f7a757c7837"
+    },
+    {
+      "path": "docs/research/rnd/results/evidence/2026-10-03-native-field-build/ci-26b5cf2/workflow-status.json",
+      "bytes": 4781,
+      "sha256": "10bcb5de615e5f7a209428f742289438f5eeb89d4cad559dd54900651b52dba6"
     },
     {
       "path": "docs/research/rnd/results/evidence/2026-10-03-native-field-build/ci-deb46e5/expo-doctor.log.gz",

@@ -404,7 +404,7 @@
     {
       "id": "BUILD",
       "name": "Installable native field clients",
-      "state": "build-verification",
+      "state": "android-packages-built-physical-pending",
       "depends_on": [
         "R0",
         "R1b",

@@ -26,7 +26,7 @@ command retains scoped relay/freshness/source/programme tests, the frozen field
 contract, Jest, root and Guard TypeScript, lint and the branch evidence verifier
 with model reruns. Logs go to `.native-field-artifacts/verification-*`.
 
-Android needs JDK 17, SDK/target 36, Build Tools 35.0.0 and NDK 27.1.12297006.
+Android needs JDK 17, SDK/target 36, Build Tools 36.0.0 and NDK 27.1.12297006.
 Configure `JAVA_HOME`, `ANDROID_HOME` and SDK licences on your own computer.
 For Homebrew Java on an Apple Silicon Mac, for example:
 
@@ -71,6 +71,19 @@ The [Android build workflow](.github/workflows/native-field-build.yml) runs the
 same commands for all four public/Guard × current/branch combinations and
 preserves downloadable APKs and diagnostics for 14 days. Inspect the exact
 source SHA and receipt before installing a workflow artifact.
+
+All four builds below succeeded at source `26b5cf24228576de7defaa4b0e81e01476594bf1`.
+Independent archive/APK hash, native package ID, arm64, embedded-JS and signature
+checks passed. These internal artifacts expire **17 October 2026**; rebuild from
+the commands above afterwards. Installation and offline launch still need phones.
+
+| App | Current APK and logs | Branch APK and logs |
+|---|---|---|
+| Public | [Download current](https://github.com/EmotiveImpact/loc8/actions/runs/37098530051/artifacts/11264684561) | [Download branch](https://github.com/EmotiveImpact/loc8/actions/runs/37098530051/artifacts/11264799379) |
+| Guard | [Download current](https://github.com/EmotiveImpact/loc8/actions/runs/37098530051/artifacts/11265423935) | [Download branch](https://github.com/EmotiveImpact/loc8/actions/runs/37098530051/artifacts/11266045099) |
+
+Download while signed into GitHub, extract the ZIP, and use its labelled APK.
+Full SHA-256 hashes and durable receipts are in the field-build handoff.
 
 Generated `android` directories are ignored. The builder regenerates only a
 directory it created and marked as owned; it refuses existing custom native
@@ -136,6 +149,11 @@ is part of this procedure.
 
 ## Normal app development and the dev-client decision
 
+Use a **separate fresh ordinary-app checkout** for this section. The field
+builder's generated native projects carry dedicated field identities; Expo
+run commands reuse existing native projects and do not automatically replace
+those identities. Do not run an ordinary build over a field-generated directory.
+
 For the ordinary public app:
 
 ```sh
@@ -144,7 +162,20 @@ EXPO_PUBLIC_TRANSPORT=ble EXPO_PUBLIC_MESH_RELAY_MODE=current npm run android
 ```
 
 For ordinary Guard, run the equivalent command from `apps/guard`. These are
-native debug builds and use Metro. The `development` EAS profiles explicitly
+native debug builds and use Metro. For a bundled ordinary Android app needed
+by separately registered public-session/background cohorts, use the following
+from that fresh ordinary checkout (or `apps/guard` for Guard):
+
+```sh
+LOC8_INTERNAL_FIELD_TEST=0 EXPO_PUBLIC_MESH_FIELD_KIT=0 \
+EXPO_PUBLIC_TRANSPORT=ble EXPO_PUBLIC_MESH_RELAY_MODE=current \
+npx expo run:android --variant release --no-bundler
+```
+
+This ordinary Release command is a supported build recipe; it is separate from
+the four internal field APKs built in this continuation. Use `branch` explicitly
+for its own experiment. Record installation, actual mode and producer context.
+ The `development` EAS profiles explicitly
 build Debug without requesting the absent `expo-dev-client` launcher. `preview`
 keeps BLE/current and the synthetic kit disabled. Expo Go cannot run Loc8Mesh.
 
