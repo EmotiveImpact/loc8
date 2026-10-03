@@ -14,8 +14,8 @@
     },
     {
       "path": ".github/workflows/native-field-build.yml",
-      "bytes": 1965,
-      "sha256": "1722fda036e1940f60da225cf260224cab1e5ec89d4dd1251f40138c324cb59f"
+      "bytes": 2088,
+      "sha256": "8c708067d43a05e718283a9a0cde29f1888c164f6fb6497b59a47b078343148e"
     },
     {
       "path": ".github/workflows/rnd-verification.yml",
@@ -34,8 +34,8 @@
     },
     {
       "path": "BUILD.md",
-      "bytes": 8649,
-      "sha256": "342c6219501c763d8ad767a6045324be0707438b4ce912699b335ca637dccf5c"
+      "bytes": 8885,
+      "sha256": "54c19b68cd1b0dfae0e1e04249dd1a9a1878349d22c9a6e8fe48fe08b49b2af0"
     },
     {
       "path": "FIELD-TEST.md",
@@ -91,6 +91,11 @@
       "path": "apps/guard/eas.json",
       "bytes": 1738,
       "sha256": "4f22cf8208aae055d49cfdc1215f2a68474b14a373dcee3eaaea53689003b1b5"
+    },
+    {
+      "path": "apps/guard/metro.config.js",
+      "bytes": 269,
+      "sha256": "10a3871137ef313bfade953774ecca5d1eb26872f6bb31545099c369d7df4bdd"
     },
     {
       "path": "apps/guard/package.json",
@@ -214,8 +219,8 @@
     },
     {
       "path": "docs/research/rnd/results/2026-10-03-native-field-build.md",
-      "bytes": 7071,
-      "sha256": "0eafa7c74e5d091a2672ceb0b44189dcd2381ea9a54f8fa4ba55ba56c8b32122"
+      "bytes": 8036,
+      "sha256": "4fdbe78be58a478d95acae802c76473aac2da4276f5ea9e42f4f26186e8a7aa3"
     },
     {
       "path": "docs/research/rnd/results/2026-10-03-relay-reattachment.md",
@@ -231,6 +236,11 @@
       "path": "jest.setup.js",
       "bytes": 225,
       "sha256": "fe6d10c708ef8529b002f8a907c5aba99686555efdf84fc9077f30b5ad6236ff"
+    },
+    {
+      "path": "metro.config.js",
+      "bytes": 270,
+      "sha256": "d013a3084556e11327b42b12699afd8026460efc5e6aab874ab5f0ade918164c"
     },
     {
       "path": "modules/loc8-mesh/android/build.gradle",
@@ -339,13 +349,13 @@
     },
     {
       "path": "package-lock.json",
-      "bytes": 626288,
-      "sha256": "a180adc2ba36df0e5537ca831248cc26d3ba69668c2b9f92b1623f75d58610b1"
+      "bytes": 626312,
+      "sha256": "ddc0fdbdc25df746303519dcc94a2f7be453d654b92d37fda35e4da9bbde9517"
     },
     {
       "path": "package.json",
-      "bytes": 3343,
-      "sha256": "80ea6523a9382fc9ec06907a498f77e6305989ea03dc8e96340134c0b36a6ab5"
+      "bytes": 3374,
+      "sha256": "b91f2792d55a248b2d42c917b0c18847043d7de68f40dde57362b652df4846ad"
     },
     {
       "path": "packages/engine/src/core/packetCodec.ts",
@@ -725,6 +735,66 @@
       "sha256": "f1b651238a58fe290baec6c5e32f3bdb1943dd2bd582f02569231f7a757c7837"
     },
     {
+      "path": "docs/research/rnd/results/evidence/2026-10-03-native-field-build/ci-deb46e5/expo-doctor.log.gz",
+      "bytes": 89,
+      "sha256": "cba4e2976877e1b16a5e80b766b2a66352e89da2e264f6375531f1dc76783a9f"
+    },
+    {
+      "path": "docs/research/rnd/results/evidence/2026-10-03-native-field-build/ci-deb46e5/field-contract.tap.gz",
+      "bytes": 3122,
+      "sha256": "f984b499bf61be32e2e6df6e26c938870210634acce7ac3532fa4ae9ccc7bfc1"
+    },
+    {
+      "path": "docs/research/rnd/results/evidence/2026-10-03-native-field-build/ci-deb46e5/guard-expo-doctor.log.gz",
+      "bytes": 361,
+      "sha256": "0647e1c09c30ba2dfc54c30ecc45c83798a6ef6cb4188a363719009a0bf90e75"
+    },
+    {
+      "path": "docs/research/rnd/results/evidence/2026-10-03-native-field-build/ci-deb46e5/guard-typescript.log.gz",
+      "bytes": 230,
+      "sha256": "55213e5aa808045bff4c5806b09665c95ad55082e93df827ca3110853f323960"
+    },
+    {
+      "path": "docs/research/rnd/results/evidence/2026-10-03-native-field-build/ci-deb46e5/jest.log.gz",
+      "bytes": 971,
+      "sha256": "b1ac278a149d7307cae130fd142ee5fe31d206e35e5adbecb7894521c67d0a50"
+    },
+    {
+      "path": "docs/research/rnd/results/evidence/2026-10-03-native-field-build/ci-deb46e5/lint.log.gz",
+      "bytes": 47,
+      "sha256": "69441110dba9500aff2539be6d3a9d1ea82f8702f84a34054f2b057af85ab76e"
+    },
+    {
+      "path": "docs/research/rnd/results/evidence/2026-10-03-native-field-build/ci-deb46e5/native-runner-failure.log.gz",
+      "bytes": 87721,
+      "sha256": "0603f844660becf77664ccead47e1069cd005cf9cb16900908ced11aaead76cb"
+    },
+    {
+      "path": "docs/research/rnd/results/evidence/2026-10-03-native-field-build/ci-deb46e5/npm-ci.log.gz",
+      "bytes": 668,
+      "sha256": "93b2298517e67995eb8f538ca3868761aa38d91d00748b71f9248dc040a84e20"
+    },
+    {
+      "path": "docs/research/rnd/results/evidence/2026-10-03-native-field-build/ci-deb46e5/scoped.tap.gz",
+      "bytes": 12247,
+      "sha256": "4e2e5c63e8bd9cd0e587fa6aad6405b79f90fda24070a900759070c069974d50"
+    },
+    {
+      "path": "docs/research/rnd/results/evidence/2026-10-03-native-field-build/ci-deb46e5/status.json",
+      "bytes": 682,
+      "sha256": "f2665f0d69642040b9acdbb83883cb805b73323ef3525b68ab9c5037973c0d7f"
+    },
+    {
+      "path": "docs/research/rnd/results/evidence/2026-10-03-native-field-build/ci-deb46e5/toolchain.txt.gz",
+      "bytes": 36,
+      "sha256": "ccb322412e3776c6237ee746789a8ddef4abb8d9edf952f0ff070997b2183e8e"
+    },
+    {
+      "path": "docs/research/rnd/results/evidence/2026-10-03-native-field-build/ci-deb46e5/typescript.log.gz",
+      "bytes": 260,
+      "sha256": "879dba0fa4e918b404cd134e2a5130e7dcc95d8cd98172c4b8fa36c29ba57cb7"
+    },
+    {
       "path": "docs/research/rnd/results/evidence/2026-10-03-native-field-build/dependency-alignment/loc8-field-sdk57-bundled-modules.json.gz",
       "bytes": 1401,
       "sha256": "ca045dacba1eaa7a101a3351a828ff87e6cba6dca75c3e82e58d97d2a0fa14cd"
@@ -738,6 +808,16 @@
       "path": "docs/research/rnd/results/evidence/2026-10-03-native-field-build/dependency-alignment/loc8-field-sdk57-lock-final.log.gz",
       "bytes": 364,
       "sha256": "5c72eab70b1935f153524bd40622eee18857cd411b05e8e878c698494c114241"
+    },
+    {
+      "path": "docs/research/rnd/results/evidence/2026-10-03-native-field-build/dependency-alignment/loc8-field-sensors-ci-dry-run.log.gz",
+      "bytes": 9457,
+      "sha256": "1c1714ed0ee114676fbe635c9e0e996d6b7dd1919eb8c810e6896794be8bfb0a"
+    },
+    {
+      "path": "docs/research/rnd/results/evidence/2026-10-03-native-field-build/dependency-alignment/loc8-field-sensors-lock.log.gz",
+      "bytes": 38,
+      "sha256": "b251e214615d11989651aff647f72997f2210e8af146e8054a46493e0c95d878"
     },
     {
       "path": "docs/research/rnd/results/evidence/2026-10-03-native-field-build/local-boundary.json",

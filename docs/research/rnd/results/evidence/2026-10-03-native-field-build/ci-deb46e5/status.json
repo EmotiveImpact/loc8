@@ -1,0 +1,18 @@
+{
+  "schema": "loc8.field-ci-attempt.v1",
+  "commit": "deb46e59701e65321e857422318f4bd9f34324bb",
+  "software_run": 37097951171,
+  "android_run": 37097951240,
+  "exact_npm_ci": "passed",
+  "scoped_and_receipts": "passed",
+  "field_contract": "passed",
+  "lint": "passed",
+  "native_ios_host": "passed",
+  "root_expo_doctor": "21/21 passed",
+  "guard_expo_doctor": "20/21 failed old disableHierarchicalLookup override",
+  "jest": "489 passed; one suite could not load expo-sensors",
+  "typescript": "failed missing shared expo-sensors",
+  "android": "failed before dependency install: setup action tried removed SDK tools package",
+  "apk_count": 0,
+  "physical_phone_attempts": 0
+}

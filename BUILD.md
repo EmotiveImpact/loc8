@@ -162,7 +162,10 @@ Both apps now declare the **Expo 57.0.26 / React Native 0.86.3** patch set from
 that Expo package's published dependency map. This repairs the known Hermes
 memory/startup regressions. Keep the deliberate worklets 0.10.2 exception;
 the older 0.10.0 package was missing required JS files. Run `npx expo-doctor`
-after `npm ci` and require all checks to pass before a physical run. The old
+after `npm ci` in the root and in `apps/guard`, and require all checks to pass
+before a physical run. SDK 57 automatically configures Metro for this npm
+workspace; the retired manual resolution overrides have been removed. Both
+native apps declare `expo-sensors`, which the shared engine already imports. The old
 19/21 Doctor result is retained as a failure receipt, not relabelled as a pass.
 
 ## Command: existing web console

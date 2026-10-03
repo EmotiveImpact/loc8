@@ -33,7 +33,11 @@ known Hermes regression in Expo 57.0.8 / RN 0.86.0. Both native apps now use the
 published Expo 57.0.26 dependency map and RN 0.86.3. The required matching
 `@react-native/jest-preset` peer is explicit in dev dependencies; exact lock
 resolution and `npm ci --dry-run` pass without force or legacy peer flags. Worklets stays at the
-previously justified 0.10.2. Guard's stale nested native lock entries are removed.
+previously justified 0.10.2. Guard's stale nested native lock entries are removed. A fresh CI install then
+exposed `expo-sensors` as an undeclared root dependency used by the shared
+engine; it is now explicitly declared by both native apps. The obsolete manual
+Metro monorepo overrides are replaced with SDK 57 defaults. The Android runner
+installs supported platform-tools rather than the removed SDK `tools` package.
 Sources: [SDK 57](https://docs.expo.dev/versions/v57.0.0/) and
 [known regressions](https://expo.dev/changelog/sdk-57#known-regressions).
 
@@ -88,3 +92,14 @@ restart/battery cohorts retain separate methods and gates. The foreground JS
 source loop's guard remains; background-source testing needs a separate producer
 method. No physical observations have been invented. Main is not merged and no
 store release, deployment or publication was performed.
+
+## Recorded first CI attempt
+
+At `deb46e59701e65321e857422318f4bd9f34324bb`, exact `npm ci`, 342 scoped
+checks, the frozen 100 checks, source receipts, lint and the native iOS host job
+passed. Root Doctor passed 21/21. Jest and root/Guard TypeScript exposed the
+missing root sensor dependency; Guard Doctor failed its old hierarchical-lookup
+override. All four Android jobs stopped in runner setup at the removed SDK
+`tools` package, before dependency install or native compilation. No APK was
+produced. These failures are retained in the continuation evidence directory;
+the follow-up must earn a fresh complete CI/build pass.

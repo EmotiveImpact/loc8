@@ -44,6 +44,8 @@ jobs:
           distribution: temurin
           java-version: '17'
       - uses: android-actions/setup-android@v3
+        with:
+          packages: 'platform-tools'
       - name: Install exact SDK packages
         run: sdkmanager 'platforms;android-36' 'build-tools;35.0.0' 'ndk;27.1.12297006'
       - name: Install exact repository dependencies
@@ -61,4 +63,6 @@ jobs:
         with:
           name: loc8-field-${{ matrix.app }}-${{ matrix.mode }}-${{ github.sha }}
           path: .native-field-artifacts/
+          include-hidden-files: true
+          if-no-files-found: error
           retention-days: 14
