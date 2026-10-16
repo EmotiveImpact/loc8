@@ -7,7 +7,7 @@ const out = path.join(root, '.native-field-artifacts', `verification-${new Date(
 fs.mkdirSync(out, { recursive: true });
 const scoped = fs.readdirSync(path.join(root, 'tools/mesh-rnd')).filter(f => f.startsWith('branch-') && f.endsWith('.node.cjs')).map(f => `tools/mesh-rnd/${f}`);
 const checks = [
-  ['scoped', process.execPath, ['--test', ...['verify', 'freshness', 'source-location', 'programme', 'relay-policy', 'relay-simulation', 'native-relay-api'].map(f => `tools/mesh-rnd/${f}.node.cjs`), ...scoped, 'tools/native-field/field-build.node.cjs']],
+  ['scoped', process.execPath, ['--test', ...['verify', 'freshness', 'source-location', 'programme', 'relay-policy', 'relay-simulation', 'native-relay-api'].map(f => `tools/mesh-rnd/${f}.node.cjs`), ...scoped, 'tools/native-field/field-build.node.cjs', 'tools/mesh-rnd/field-telemetry.node.cjs']],
   ['field-contract', process.execPath, ['--test', 'docs/research/rnd/prototypes/mesh-field-kit/mesh-field-kit.test.mjs']],
   ['jest', 'npm', ['test', '--', '--runInBand']],
   ['typescript', process.execPath, [require.resolve('typescript/bin/tsc'), '--noEmit']],

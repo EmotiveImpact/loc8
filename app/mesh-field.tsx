@@ -36,6 +36,7 @@ import {
   participatingRoles,
 } from '../src/research/meshFieldProtocol';
 import { MESH_FIELD_ACCESS } from '../src/research/meshFieldBuild';
+import { analyseMeshFieldTelemetry } from '../src/research/meshFieldTelemetry';
 
 const FIELD_MODE = MESH_FIELD_ACCESS.enabled;
 
@@ -89,6 +90,7 @@ function FieldHarness() {
   const [notice, setNotice] = useState('Select the same run, cohort and block on every participating phone.');
   const [error, setError] = useState<string | null>(null);
 
+  const telemetry = useMemo(() => snapshot ? analyseMeshFieldTelemetry(snapshot) : null, [snapshot]);
   const block = MESH_FIELD_BLOCKS[blockIndex];
   const roles = useMemo(() => participatingRoles(block), [block]);
   const participates = roles.includes(role);
@@ -401,6 +403,22 @@ function FieldHarness() {
           <Metric label="scan-only degraded" value={degraded ? 'YES' : 'NO'} danger={degraded} />
           {snapshot && <Metric label="export lines / overflow" value={`${snapshot.events.length} / ${snapshot.overflowCount}`} danger={snapshot.overflowCount > 0} />}
         </Section>
+
+        {telemetry && (
+          <Section title="Local BLE link and relay observations">
+            <Metric label="evidence boundaries" value={telemetry.quality} danger={telemetry.quality !== 'RECORDED'} />
+            <Metric label="peak observed link handles" value={String(telemetry.observedMaxLinkHandles)} />
+            <Metric label="link up / down events" value={`${telemetry.linkUpEvents} / ${telemetry.linkDownEvents}`} />
+            <Metric label="relay scheduled / forwarded" value={`${telemetry.relayScheduled} / ${telemetry.relayForwarded}`} />
+            <Metric label="relay pending p95 (app ms)" value={telemetry.pendingRelayP95Ms === null ? 'N/A' : telemetry.pendingRelayP95Ms.toFixed(1)} />
+            <Metric label="unmatched forward records" value={String(telemetry.unmatchedRelayForwarded)} danger={telemetry.unmatchedRelayForwarded > 0} />
+            {telemetry.anomalies.length > 0 && <Text style={styles.error}>{telemetry.anomalies.join(', ')}</Text>}
+            <Text style={styles.body}>
+              Read-only native app events. Link handles are not unique people; pending time is not radio airtime.
+              RECORDED does not mean MESH-01 passed. Export the unchanged JSONL evidence.
+            </Text>
+          </Section>
+        )}
 
         <View style={styles.actions}>
           <Button disabled={recovering || phase !== 'idle' || !participates} label="1 · Start diagnostics + BLE" onPress={beginBlock} primary />
