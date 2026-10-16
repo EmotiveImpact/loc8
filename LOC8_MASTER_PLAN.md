@@ -1,5 +1,7 @@
 # Loc8: one system, one development programme
 
+**16 October research intake (planned, not implemented):** The [new source brief](docs/research/rnd/briefs/2026-10-16-offline-ble-mesh.md) and [agent execution handoff](docs/research/rnd/handoffs/2026-10-16-agent-implementation.md) add an R4 diagnostic/physical-evidence task to this existing programme. The draft PR #5 architecture, current relay default, frozen MESH-01 gate and PR stack remain unchanged. Research notes and draft handoff do not constitute shipped code or handset testing.
+
 **Updated 3 October 2026. Current relay implementation work is in draft PR #5, stacked on PR #4. No merge or deployment is authorised by this document.**
 
 Read this first for sequence and meaning. Read `KNOWLEDGE.md` on the separate
