@@ -7,6 +7,7 @@ starting a second relay implementation.
 
 | Read | Purpose |
 |---|---|
+| [23 October BLE brief](docs/research/rnd/briefs/2026-10-23-offline-ble-mesh.md) | 22 Oct BitChat bounded-queue engineering, analytical BLE–LoRa limits, predictive coverage, optional Android bearer and Zephyr release watch |
 | [16 October BLE brief](docs/research/rnd/briefs/2026-10-16-offline-ble-mesh.md) | Verified drift, Zephyr queue/lifecycle and IETF neighbour-discovery source intake; no field promotion |
 | [16 October agent handoff](docs/research/rnd/handoffs/2026-10-16-agent-implementation.md) | Safe R4 instrumentation, lifecycle tests, field-cohort design and Loc8OS research-only continuation |
 | [2 October brief](docs/research/rnd/briefs/2026-10-02-offline-ble-mesh.md) | OEPB/OEPB-BLE drafts, hardware performance controls, Bluetooth IP Link and what Loc8 should test |
