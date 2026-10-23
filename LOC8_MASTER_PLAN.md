@@ -1,5 +1,7 @@
 # Loc8: one system, one development programme
 
+**23 October research continuation (not implemented):** [This week's source-backed brief](docs/research/rnd/briefs/2026-10-23-offline-ble-mesh.md) adds BitChat's verified 22 October bounded-queue release, a caveated *analytical only* BLE–LoRa Gateway feasibility model and a future reachability-calibration experiment to the existing R4 handoff. It does not assert phone RF tests, an operational LoRa backbone or automatic production promotion.
+
 **16 October research intake (planned, not implemented):** The [new source brief](docs/research/rnd/briefs/2026-10-16-offline-ble-mesh.md) and [agent execution handoff](docs/research/rnd/handoffs/2026-10-16-agent-implementation.md) add an R4 diagnostic/physical-evidence task to this existing programme. The draft PR #5 architecture, current relay default, frozen MESH-01 gate and PR stack remain unchanged. Research notes and draft handoff do not constitute shipped code or handset testing.
 
 **Updated 3 October 2026. Current relay implementation work is in draft PR #5, stacked on PR #4. No merge or deployment is authorised by this document.**
