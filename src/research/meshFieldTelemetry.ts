@@ -13,6 +13,19 @@ export function analyseMeshFieldTelemetry(snapshot: FieldSnapshot) {
   let maxLinks = 0, up = 0, down = 0, repeats = 0, unknownDowns = 0, unknownHandles = 0;
   let scheduled = 0, forwarded = 0, cancelled = 0, skipped = 0, delivered = 0, duplicates = 0, unmatched = 0;
   let firstMs: number | null = null, lastMs: number | null = null;
+  // These are recorder-event bursts, NOT measured controller throughput or RF airtime.
+  // Keep each stream's sliding-window work linear even at the 20,000-row bound.
+  const bursts = {
+    ingress: { times: [] as number[], first: 0, peak: 0 },
+    forwarding: { times: [] as number[], first: 0, peak: 0 },
+    duplicates: { times: [] as number[], first: 0, peak: 0 },
+  };
+  function observeBurst(kind: keyof typeof bursts, atMs: number) {
+    const burst = bursts[kind];
+    burst.times.push(atMs);
+    while (burst.first < burst.times.length && atMs - burst.times[burst.first] >= 1000) burst.first++;
+    burst.peak = Math.max(burst.peak, burst.times.length - burst.first);
+  }
   const first = snapshot.events[0];
   for (const [index, event] of snapshot.events.entries()) {
     if (!event || event.eventIndex !== index) anomalies.add('index-gap');
@@ -27,6 +40,9 @@ export function analyseMeshFieldTelemetry(snapshot: FieldSnapshot) {
     }
     if (!event) continue;
     switch (event.action) {
+      case 'ingress':
+        if (Number.isFinite(now)) observeBurst('ingress', now);
+        break;
       case 'link-up':
         up++;
         if (!event.linkHandle) { unknownHandles++; break; }
@@ -50,6 +66,7 @@ export function analyseMeshFieldTelemetry(snapshot: FieldSnapshot) {
         break;
       case 'relay-forwarded': {
         forwarded++;
+        if (Number.isFinite(now)) observeBurst('forwarding', now);
         const start = event.frameId ? pending.get(event.frameId)?.shift() : undefined;
         if (start === undefined || !Number.isFinite(now) || now < start) unmatched++;
         else times.push(now - start);
@@ -57,7 +74,10 @@ export function analyseMeshFieldTelemetry(snapshot: FieldSnapshot) {
       }
       case 'egress-skipped': skipped++; break;
       case 'application-delivery': delivered++; break;
-      case 'duplicate-drop': duplicates++; break;
+      case 'duplicate-drop':
+        duplicates++;
+        if (Number.isFinite(now)) observeBurst('duplicates', now);
+        break;
     }
   }
   if (snapshot.overflowCount > 0) anomalies.add('native-overflow');
@@ -77,6 +97,10 @@ export function analyseMeshFieldTelemetry(snapshot: FieldSnapshot) {
     unattributedLinkEvents: unknownHandles,
     relayScheduled: scheduled, relayForwarded: forwarded, relayCancelled: cancelled,
     egressSkipped: skipped, applicationDeliveries: delivered, duplicateDrops: duplicates,
+    observedPeakIngressEventsPer1s: bursts.ingress.peak,
+    observedPeakRelayForwardEventsPer1s: bursts.forwarding.peak,
+    observedPeakDuplicateDropsPer1s: bursts.duplicates.peak,
+    loadEvidenceScope: 'native-recorder-events-not-gatt-queue-or-rf' as const,
     pendingRelayMatched: times.length, pendingRelayP50Ms: percentile(0.5),
     pendingRelayP95Ms: percentile(0.95), unmatchedRelayForwarded: unmatched,
     anomalies: [...anomalies].sort(), productionRelayRecommendation: 'NO_CHANGE' as const,
