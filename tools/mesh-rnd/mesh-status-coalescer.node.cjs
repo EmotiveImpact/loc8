@@ -1,7 +1,9 @@
 'use strict';
 const { test } = require('node:test');
 const assert = require('node:assert/strict');
-const { createLoader } = require('./source-test-loader.cjs');
+const fs = require('node:fs');
+const path = require('node:path');
+const { createLoader, root } = require('./source-test-loader.cjs');
 const { createMeshStatusCoalescer } = createLoader()('src/research/meshStatusCoalescer.ts');
 function harness() {
   const timers = new Map(); let id = 0; const output = [];
@@ -31,4 +33,14 @@ test('invalid link counts are not published', () => {
   assert.equal(h.timers.size, 0);
   h.collector.push({ nearbyCount: 0, connected: false }); h.flush();
   assert.equal(h.output[0].nearbyCount, 0); h.collector.close();
+});
+
+test('Consumer and Guard field screen really wires status batching with unmount cleanup', () => {
+  const screen = fs.readFileSync(path.join(root, 'app/mesh-field.tsx'), 'utf8');
+  const guard = fs.readFileSync(path.join(root, 'apps/guard/app/mesh-field.tsx'), 'utf8');
+  assert.match(screen, /const screenStatus = createMeshStatusCoalescer\(/);
+  assert.match(screen, /if \(active\) screenStatus\.push\(status\)/);
+  assert.match(screen, /screenStatus\.close\(\)/);
+  assert.match(screen, /addPacketListener\(/);
+  assert.match(guard, /mesh-field/);
 });
