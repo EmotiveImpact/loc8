@@ -37,6 +37,7 @@ import {
 } from '../src/research/meshFieldProtocol';
 import { MESH_FIELD_ACCESS } from '../src/research/meshFieldBuild';
 import { analyseMeshFieldTelemetry } from '../src/research/meshFieldTelemetry';
+import { createMeshStatusCoalescer } from '../src/research/meshStatusCoalescer';
 
 const FIELD_MODE = MESH_FIELD_ACCESS.enabled;
 
