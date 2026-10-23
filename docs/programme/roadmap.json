@@ -1,6 +1,6 @@
 {
   "schema": "loc8-programme-v1",
-  "prepared": "2026-10-03",
+  "prepared": "2026-10-23",
   "application_base": "c141dd6ef351205b6d33fa5aace8222032718f8b",
   "archive_base": "6ddbf4371a64d93d1299b6cba29276c6bf4273b8",
   "status": "proposed integration roadmap; implemented-review is not production-ready",
@@ -157,6 +157,83 @@
       "locator": "BUILD.md",
       "revision": "2026-10-03",
       "scope": "Internal bundled public/Guard field build path, actual native mode check and preserved three-device criteria; no physical promotion from compilation."
+    },
+    {
+      "id": "SRC-BLE-BRIEF-2026-10-16",
+      "kind": "repository",
+      "locator": "docs/research/rnd/briefs/2026-10-16-offline-ble-mesh.md",
+      "revision": "2026-10-16",
+      "scope": "Source-linked research delta on multi-connection BLE contention, Zephyr queue reliability, and non-IP neighbour discovery. Physical outcomes remain unknown."
+    },
+    {
+      "id": "SRC-BLE-CLOCK-2026",
+      "kind": "primary",
+      "locator": "https://arxiv.org/abs/2609.34483",
+      "revision": "submitted-2026-09-28; identified-2026-10-16",
+      "scope": "Model and nRF52840 practical experiments on multi-hop connection clock drift; not a mobile app field test."
+    },
+    {
+      "id": "SRC-ZEPHYR-OCT-2026",
+      "kind": "primary",
+      "locator": "https://docs.zephyrproject.org/latest/security/vulnerabilities.html",
+      "revision": "disclosures-2026-10-11-to-2026-10-12",
+      "scope": "CVE-2026-19935, -19936, -19937; candidate hardware queue/lifecycle hardening and fault injection; no demonstrated Swift/Kotlin impact."
+    },
+    {
+      "id": "SRC-SAND-05",
+      "kind": "primary",
+      "locator": "https://datatracker.ietf.org/doc/draft-ietf-dtn-bp-sand/05/",
+      "revision": "draft-05; 2026-10-09",
+      "scope": "IETF DTN working-group neighbour-discovery draft; Loc8OS design research only."
+    },
+    {
+      "id": "SRC-DDB-02",
+      "kind": "primary",
+      "locator": "https://datatracker.ietf.org/doc/draft-kennedy-dnssd-data-block/02/",
+      "revision": "individual-draft-02; 2026-10-09",
+      "scope": "Non-IP compact TLV service discovery; research only, no mandated wire change."
+    },
+    {
+      "id": "SRC-BLE-BRIEF-2026-10-23",
+      "kind": "repository",
+      "locator": "docs/research/rnd/briefs/2026-10-23-offline-ble-mesh.md",
+      "revision": "2026-10-23",
+      "scope": "New 22 Oct upstream queue pacing/release; older analytical BLE–LoRa, testbed coverage inference and optional Wi-Fi Aware, each with separate evidence limits."
+    },
+    {
+      "id": "SRC-BITCHAT-ANDROID-203",
+      "kind": "primary",
+      "locator": "https://github.com/permissionlesstech/bitchat-android/releases/tag/v2.0.3",
+      "revision": "2026-10-22; dfc67dad41691128bc6e7425bd69f2f409cb5bbf",
+      "scope": "Bounded packet-processing queue and paced sync engineering; upstream physical endurance untested; GPL-3 LICENSE conflicts with README public-domain claim, no source copying."
+    },
+    {
+      "id": "SRC-BLE-LORA-2604",
+      "kind": "primary",
+      "locator": "https://arxiv.org/abs/2604.15532",
+      "revision": "submitted-2026-04-16; newly-shortlisted-2026-10-23",
+      "scope": "Analytical BLE–LoRa model. Explicitly LoRa radio not yet active in prototype, 10km+ / 250–562 nodes unverified, not smartphone field proof."
+    },
+    {
+      "id": "SRC-BLE-DIGITAL-TWIN-2026",
+      "kind": "primary",
+      "locator": "https://ieeexplore.ieee.org/document/11680713/",
+      "revision": "2026 IEEE MNC; newly-shortlisted-2026-10-23",
+      "scope": "BLE Mesh testbed predictions and partial QoS recovery; research-only Command reachability calibration."
+    },
+    {
+      "id": "SRC-BLE-LAYERED-2026",
+      "kind": "primary",
+      "locator": "https://www.iieta.org/journals/ts/paper/10.18280/ts.430323",
+      "revision": "published-2026-06-30; newly-shortlisted-2026-10-23",
+      "scope": "ns-3 simulation of channels/parent selection/implicit ack, not phones or GATT PHY control."
+    },
+    {
+      "id": "SRC-ANDROID-AWARE",
+      "kind": "primary",
+      "locator": "https://developer.android.com/develop/connectivity/wifi/wifi-aware",
+      "revision": "accessed-2026-10-23",
+      "scope": "Optional device-dependent infrastructure-free Android short-range transport; not universal cross-platform or BLE replacement."
     }
   ],
   "concepts": [
@@ -418,6 +495,32 @@
       "products": "Public Loc8 / Guard, with separate Command web build",
       "deliverable": "Labelled bundled internal current/branch builds, explicit local/CI commands, narrow field gating and source/build receipts. Keep normal current default and public infrastructure independence.",
       "gate": "Supported complete native app builds, installation and actual native mode on phones, offline cold start, then unchanged MESH-01 and separately registered R3/E02 cohorts."
+    },
+    {
+      "id": "R4",
+      "name": "BLE connection health and queue-lifecycle evidence",
+      "state": "agent-handoff-prepared-not-implemented",
+      "depends_on": [
+        "R0",
+        "R3",
+        "BUILD"
+      ],
+      "sources": [
+        "SRC-BLE-BRIEF-2026-10-16",
+        "SRC-BLE-CLOCK-2026",
+        "SRC-ZEPHYR-OCT-2026",
+        "SRC-SAND-05",
+        "SRC-DDB-02",
+        "SRC-BLE-BRIEF-2026-10-23",
+        "SRC-BITCHAT-ANDROID-203",
+        "SRC-BLE-LORA-2604",
+        "SRC-BLE-DIGITAL-TWIN-2026",
+        "SRC-BLE-LAYERED-2026",
+        "SRC-ANDROID-AWARE"
+      ],
+      "products": "Consumer / Guard native BLE instrumentation; optional Loc8OS design",
+      "deliverable": "Existing R4 opt-in native connection/queue-health instrumentation and lifecycle tests plus separately measured current-vs-branch phone cohorts. 23 Oct extension: review bounded burst/sync queue engineering, draft an independent optional BLE–LoRa Gateway feasibility protocol, defer predictive Command reachability and Android Wi-Fi Aware to measured research. See 16 Oct agent handoff and 23 Oct brief.",
+      "gate": "Original MESH-01 physical criteria remain frozen; verify queue recovery and instrumentation does not change relay/wire/TTL. No phone/Gateway range claims from simulations or analytical estimates. No default mode change, merge, deployment or cross-platform Wi-Fi dependency."
     },
     {
       "id": "MESH",
