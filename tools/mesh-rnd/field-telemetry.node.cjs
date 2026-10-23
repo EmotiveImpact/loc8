@@ -40,3 +40,30 @@ test('rejects invalid and unbounded snapshots',()=>{
   assert.throws(()=>analyse(x),/invalid field snapshot/);
  }
 });
+
+test('reports one-second recorder bursts without interpreting them as radio throughput',()=>{
+ const actions=[
+  ['diagnostics-started',0], ['ingress',100], ['ingress',200], ['ingress',300],
+  ['relay-forwarded',350], ['relay-forwarded',375],
+  ['duplicate-drop',400], ['duplicate-drop',425], ['duplicate-drop',450],
+  ['ingress',1500], ['relay-forwarded',1800], ['diagnostics-stopped',2400],
+ ];
+ const r=analyse(snap(actions.map(([action,ms],i)=>event(i,action,ms))));
+ assert.equal(r.quality,'RECORDED');
+ assert.equal(r.observedPeakIngressEventsPer1s,3);
+ assert.equal(r.observedPeakRelayForwardEventsPer1s,2);
+ assert.equal(r.observedPeakDuplicateDropsPer1s,3);
+ assert.equal(r.loadEvidenceScope,'native-recorder-events-not-gatt-queue-or-rf');
+ assert.equal(Object.hasOwn(r,'controllerCollisionRate'),false);
+});
+
+test('burst metrics on empty and malformed timestamps do not manufacture rates',()=>{
+ const base=snap([event(0,'diagnostics-started',0),event(1,'diagnostics-stopped',5000)]);
+ assert.equal(analyse(base).observedPeakIngressEventsPer1s,0);
+ const bad=snap([event(0,'diagnostics-started',0),
+  {...event(1,'ingress',10),monotonicNs:'not-a-clock'},
+  event(2,'diagnostics-stopped',100)]);
+ const result=analyse(bad);
+ assert.equal(result.quality,'INCOMPLETE');
+ assert.equal(result.observedPeakIngressEventsPer1s,0);
+});
