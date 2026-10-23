@@ -104,6 +104,13 @@ function FieldHarness() {
     let active = true;
     let packetSub: ReturnType<typeof addPacketListener> | undefined;
     let statusSub: ReturnType<typeof addStatusListener> | undefined;
+    // UI-only: native event collection and the frozen export remain unthrottled.
+    const screenStatus = createMeshStatusCoalescer((status) => {
+      if (!active) return;
+      setNearbyCount(status.nearbyCount);
+      setDegraded(status.degraded === true);
+      if (status.relayMode) setRelayMode(status.relayMode);
+    });
 
     async function initialize() {
       try {
@@ -111,10 +118,7 @@ function FieldHarness() {
           if (active) setReceived((value) => value + 1);
         });
         statusSub = addStatusListener((status) => {
-          if (!active) return;
-          setNearbyCount(status.nearbyCount);
-          setDegraded(status.degraded === true);
-          if (status.relayMode) setRelayMode(status.relayMode);
+          if (active) screenStatus.push(status);
         });
         const selectedMode = await getRelayMode();
         if (active) setRelayMode(selectedMode);
@@ -153,6 +157,7 @@ function FieldHarness() {
     void initialize();
     return () => {
       active = false;
+      screenStatus.close();
       packetSub?.remove();
       statusSub?.remove();
     };
@@ -413,9 +418,13 @@ function FieldHarness() {
             <Metric label="relay scheduled / forwarded" value={`${telemetry.relayScheduled} / ${telemetry.relayForwarded}`} />
             <Metric label="relay pending p95 (app ms)" value={telemetry.pendingRelayP95Ms === null ? 'N/A' : telemetry.pendingRelayP95Ms.toFixed(1)} />
             <Metric label="unmatched forward records" value={String(telemetry.unmatchedRelayForwarded)} danger={telemetry.unmatchedRelayForwarded > 0} />
+            <Metric label="peak ingress events / 1s" value={String(telemetry.observedPeakIngressEventsPer1s)} />
+            <Metric label="peak relay-forward events / 1s" value={String(telemetry.observedPeakRelayForwardEventsPer1s)} />
+            <Metric label="peak duplicate drops / 1s" value={String(telemetry.observedPeakDuplicateDropsPer1s)} />
             {telemetry.anomalies.length > 0 && <Text style={styles.error}>{telemetry.anomalies.join(', ')}</Text>}
             <Text style={styles.body}>
-              Read-only native app events. Link handles are not unique people; pending time is not radio airtime.
+              Read-only native app events. One-second peaks count recorded actions, not GATT queue depth,
+              radio throughput or RF collisions. Link handles are not unique people; pending time is not radio airtime.
               RECORDED does not mean MESH-01 passed. Export the unchanged JSONL evidence.
             </Text>
           </Section>
