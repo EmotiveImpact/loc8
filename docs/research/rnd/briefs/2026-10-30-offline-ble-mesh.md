@@ -16,9 +16,9 @@
 
 ### 2. Concurrent relay snapshots and security-cache clean-up races
 
-**Verified upstream engineering:** [BitChat Android PR #1006](https://github.com/permissionlesstech/bitchat-android/pull/1006), opened and **merged 26 October**. Upstream fixed concurrent collection traversal and a race between checking relay collection size and iterating while the last peer disconnects. They report 742 JVM phone tests passing and no physical paired-device lab run for the change.
+**Verified upstream engineering:** [BitChat Android PR #1006](https://github.com/permissionlesstech/bitchat-android/pull/1006), opened and **merged 26 October**. Upstream fixed concurrent security-cache traversal and a race when snapshotting **Nostr relay WebSocket connections** while the last relay connection disappears. This is NOT a finding about BLE GATT links. They report 742 JVM phone tests passing and no physical paired-device lab run for the change.
 
-**Why Loc8 cares:** a dense or moving crowd repeatedly joins and leaves. A single disappearing relay should not crash or corrupt a field session, confuse queue accounting, or permit stale peer state. This is an implementation-race signal, not proof Loc8 has the same defect.
+**Why Loc8 cares:** a dense or moving crowd repeatedly joins and leaves. An analogous disappearing **BLE link** must not crash or corrupt a Loc8 field session, confuse queue accounting, or permit stale peer state. This is a hypothesis for Loc8's distinct transport, not a bug imported from the Nostr implementation. This is an implementation-race signal, not proof Loc8 has the same defect.
 
 **Test next:** inject disconnects during send/snapshot/stop; run Android native Handler and iOS role-state tests plus physical repeated connects at 2/3/5 links. Verify no double completion or stale queue ownership. Maintain immutable snapshot/export semantics.
 
