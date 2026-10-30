@@ -427,13 +427,13 @@ function FieldHarness() {
               <>
                 <Metric label="local clock / event quality" value={pressure.quality} danger={pressure.quality !== 'RECORDED'} />
                 <Metric label="peak recorded link churn / 1s" value={String(pressure.observedPeakLinkTransitionsPer1s)} />
-                <Metric label="max unmatched scheduled records" value={String(pressure.observedPeakOutstandingRelayScheduleRecords)} />
+                <Metric label="peak outstanding schedule records" value={String(pressure.observedPeakOutstandingRelayScheduleRecords)} />
                 <Metric label="unresolved schedules in export" value={String(pressure.observedUnresolvedRelayScheduleRecords)} danger={pressure.observedUnresolvedRelayScheduleRecords > 0} />
                 <Metric label="unmatched relay resolutions" value={String(pressure.unmatchedRelayResolutionEvents)} danger={pressure.unmatchedRelayResolutionEvents > 0} />
                 <Metric label="local clock regressions" value={String(pressure.localClockRegressions)} danger={pressure.localClockRegressions > 0} />
                 {pressure.anomalies.length > 0 && <Text style={styles.error}>{pressure.anomalies.join(', ')}</Text>}
               </>
-            )>
+            )}
             {telemetry.anomalies.length > 0 && <Text style={styles.error}>{telemetry.anomalies.join(', ')}</Text>}
             <Text style={styles.body}>
               Read-only native app events. One-second peaks count recorded actions, not GATT queue depth,
