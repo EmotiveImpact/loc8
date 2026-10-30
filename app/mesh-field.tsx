@@ -439,7 +439,7 @@ function FieldHarness() {
               Read-only native app events. One-second peaks count recorded actions, not GATT queue depth,
               radio throughput or RF collisions. Link handles are not unique people; pending time is not radio airtime.
               Link churn and outstanding schedule records are recorder observations, not physical queue depth.
-              Timings only compare this phone's monotonic events, never another phone's clock.
+              Timings only compare this phone&apos;s monotonic events, never another phone&apos;s clock.
               RECORDED does not mean MESH-01 passed. Export the unchanged JSONL evidence.
             </Text>
           </Section>
