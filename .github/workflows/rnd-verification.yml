@@ -1,7 +1,7 @@
 name: R&D verification
 on:
   push:
-    branches: ['rnd/position-freshness-2026-09-25', 'rnd/ble-density-2026-10-03', 'rnd/ble-egress-2026-10-03']
+    branches: ['rnd/position-freshness-2026-09-25', 'rnd/ble-density-2026-10-03', 'rnd/ble-egress-2026-10-03', 'rnd/ble-evidence-pressure-2026-10-30']
   pull_request:
     paths:
       - 'packages/engine/**'
@@ -75,7 +75,7 @@ jobs:
       - name: Scoped BLE, freshness, source and programme checks
         if: ${{ always() && steps.install.outcome == 'success' }}
         run: |
-          node --test tools/mesh-rnd/verify.node.cjs tools/mesh-rnd/freshness.node.cjs tools/mesh-rnd/source-location.node.cjs tools/mesh-rnd/programme.node.cjs tools/mesh-rnd/relay-policy.node.cjs tools/mesh-rnd/relay-simulation.node.cjs tools/mesh-rnd/native-relay-api.node.cjs tools/mesh-rnd/branch-*.node.cjs tools/mesh-rnd/field-telemetry.node.cjs tools/mesh-rnd/mesh-status-coalescer.node.cjs tools/native-field/field-build.node.cjs > /tmp/loc8-ci-diagnostics/scoped.tap 2>&1 || {
+          node --test tools/mesh-rnd/verify.node.cjs tools/mesh-rnd/freshness.node.cjs tools/mesh-rnd/source-location.node.cjs tools/mesh-rnd/programme.node.cjs tools/mesh-rnd/relay-policy.node.cjs tools/mesh-rnd/relay-simulation.node.cjs tools/mesh-rnd/native-relay-api.node.cjs tools/mesh-rnd/branch-*.node.cjs tools/mesh-rnd/field-telemetry.node.cjs tools/mesh-rnd/mesh-field-pressure.node.cjs tools/mesh-rnd/mesh-status-coalescer.node.cjs tools/native-field/field-build.node.cjs > /tmp/loc8-ci-diagnostics/scoped.tap 2>&1 || {
             grep -A 45 '^not ok' /tmp/loc8-ci-diagnostics/scoped.tap || true
             tail -n 12 /tmp/loc8-ci-diagnostics/scoped.tap
             exit 1
