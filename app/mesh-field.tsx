@@ -37,6 +37,7 @@ import {
 } from '../src/research/meshFieldProtocol';
 import { MESH_FIELD_ACCESS } from '../src/research/meshFieldBuild';
 import { analyseMeshFieldTelemetry } from '../src/research/meshFieldTelemetry';
+import { analyseMeshFieldPressure } from '../src/research/meshFieldPressure';
 import { createMeshStatusCoalescer } from '../src/research/meshStatusCoalescer';
 
 const FIELD_MODE = MESH_FIELD_ACCESS.enabled;
@@ -92,6 +93,7 @@ function FieldHarness() {
   const [error, setError] = useState<string | null>(null);
 
   const telemetry = useMemo(() => snapshot ? analyseMeshFieldTelemetry(snapshot) : null, [snapshot]);
+  const pressure = useMemo(() => snapshot ? analyseMeshFieldPressure(snapshot) : null, [snapshot]);
   const block = MESH_FIELD_BLOCKS[blockIndex];
   const roles = useMemo(() => participatingRoles(block), [block]);
   const participates = roles.includes(role);
@@ -421,10 +423,23 @@ function FieldHarness() {
             <Metric label="peak ingress events / 1s" value={String(telemetry.observedPeakIngressEventsPer1s)} />
             <Metric label="peak relay-forward events / 1s" value={String(telemetry.observedPeakRelayForwardEventsPer1s)} />
             <Metric label="peak duplicate drops / 1s" value={String(telemetry.observedPeakDuplicateDropsPer1s)} />
+            {pressure && (
+              <>
+                <Metric label="local clock / event quality" value={pressure.quality} danger={pressure.quality !== 'RECORDED'} />
+                <Metric label="peak recorded link churn / 1s" value={String(pressure.observedPeakLinkTransitionsPer1s)} />
+                <Metric label="peak outstanding schedule records" value={String(pressure.observedPeakOutstandingRelayScheduleRecords)} />
+                <Metric label="unresolved schedules in export" value={String(pressure.observedUnresolvedRelayScheduleRecords)} danger={pressure.observedUnresolvedRelayScheduleRecords > 0} />
+                <Metric label="unmatched relay resolutions" value={String(pressure.unmatchedRelayResolutionEvents)} danger={pressure.unmatchedRelayResolutionEvents > 0} />
+                <Metric label="local clock regressions" value={String(pressure.localClockRegressions)} danger={pressure.localClockRegressions > 0} />
+                {pressure.anomalies.length > 0 && <Text style={styles.error}>{pressure.anomalies.join(', ')}</Text>}
+              </>
+            )}
             {telemetry.anomalies.length > 0 && <Text style={styles.error}>{telemetry.anomalies.join(', ')}</Text>}
             <Text style={styles.body}>
               Read-only native app events. One-second peaks count recorded actions, not GATT queue depth,
               radio throughput or RF collisions. Link handles are not unique people; pending time is not radio airtime.
+              Link churn and outstanding schedule records are recorder observations, not physical queue depth.
+              Timings only compare this phone&apos;s monotonic events, never another phone&apos;s clock.
               RECORDED does not mean MESH-01 passed. Export the unchanged JSONL evidence.
             </Text>
           </Section>
