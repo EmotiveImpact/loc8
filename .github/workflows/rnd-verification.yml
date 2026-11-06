@@ -1,7 +1,7 @@
 name: R&D verification
 on:
   push:
-    branches: ['rnd/position-freshness-2026-09-25', 'rnd/ble-density-2026-10-03', 'rnd/ble-egress-2026-10-03', 'rnd/ble-evidence-pressure-2026-10-30', 'rnd/ble-link-epoch-2026-11-06'
+    branches: ['rnd/position-freshness-2026-09-25', 'rnd/ble-density-2026-10-03', 'rnd/ble-egress-2026-10-03', 'rnd/ble-evidence-pressure-2026-10-30', 'rnd/ble-link-epoch-2026-11-06']
   pull_request:
     paths:
       - 'packages/engine/**'
