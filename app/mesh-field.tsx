@@ -38,6 +38,7 @@ import {
 import { MESH_FIELD_ACCESS } from '../src/research/meshFieldBuild';
 import { analyseMeshFieldTelemetry } from '../src/research/meshFieldTelemetry';
 import { analyseMeshFieldPressure } from '../src/research/meshFieldPressure';
+import { analyseMeshLinkEpochEvidence } from '../src/research/meshLinkEpochEvidence';
 import { createMeshStatusCoalescer } from '../src/research/meshStatusCoalescer';
 
 const FIELD_MODE = MESH_FIELD_ACCESS.enabled;
@@ -94,6 +95,7 @@ function FieldHarness() {
 
   const telemetry = useMemo(() => snapshot ? analyseMeshFieldTelemetry(snapshot) : null, [snapshot]);
   const pressure = useMemo(() => snapshot ? analyseMeshFieldPressure(snapshot) : null, [snapshot]);
+  const linkEpochs = useMemo(() => snapshot ? analyseMeshLinkEpochEvidence(snapshot) : null, [snapshot]);
   const block = MESH_FIELD_BLOCKS[blockIndex];
   const roles = useMemo(() => participatingRoles(block), [block]);
   const participates = roles.includes(role);
@@ -441,6 +443,25 @@ function FieldHarness() {
               Link churn and outstanding schedule records are recorder observations, not physical queue depth.
               Timings only compare this phone&apos;s monotonic events, never another phone&apos;s clock.
               RECORDED does not mean MESH-01 passed. Export the unchanged JSONL evidence.
+            </Text>
+          </Section>
+        )}
+
+        {linkEpochs && (
+          <Section title="GATT link epoch observations">
+            <Metric label="record quality" value={linkEpochs.quality} danger={linkEpochs.quality !== 'RECORDED'} />
+            <Metric label="distinct recorded link handles" value={String(linkEpochs.observedDistinctLinkHandles)} />
+            <Metric label="peak recorded open handles" value={String(linkEpochs.observedPeakOpenLinkHandles)} />
+            <Metric label="handle reconnections" value={String(linkEpochs.observedReopenedLinkHandles)} />
+            <Metric label="repeated up / unmatched down" value={`${linkEpochs.observedRepeatedLinkUps} / ${linkEpochs.observedUnmatchedLinkDowns}`} danger={linkEpochs.reviewSuggested} />
+            <Metric label="incoming frames before recorded up" value={String(linkEpochs.observedInboundWithoutPriorUp)} danger={linkEpochs.observedInboundWithoutPriorUp > 0} />
+            <Metric label="incoming frames after last recorded down" value={String(linkEpochs.observedInboundAfterLastDown)} danger={linkEpochs.observedInboundAfterLastDown > 0} />
+            <Metric label="link-order follow-up" value={linkEpochs.reviewSuggested ? 'REVIEW' : 'NO OBSERVED CONFLICT'} danger={linkEpochs.reviewSuggested} />
+            <Text style={styles.body}>
+              These are local recorder ordering observations, not proof of stale peer data,
+              radio collisions or compromised forwarding. Dual-role GATT can make one hashed
+              handle represent more than one role. No peer identity or RF range is inferred.
+              Export the frozen native JSONL before reviewing the cohort.
             </Text>
           </Section>
         )}
