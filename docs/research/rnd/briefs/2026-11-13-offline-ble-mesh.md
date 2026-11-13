@@ -18,7 +18,7 @@
 
 ## Code/source intake and licence boundary
 
-Read the upstream PR problem statements, implementation descriptions, testing limits and original URLs at the dates above. These are **proposals** rather than released components. Their source repositories include BitChat's public-domain/Unlicense iOS tree, the Android repository's GPL-3.0 licence context, and Zephyr's predominantly Apache-2.0 file-specific terms. File-level and transitive clearance would be needed before copying code into proprietary Loc8. **No upstream source was copied or added as a dependency.** The new module is independently authored, and its logic only analyses Loc8's existing local diagnostic records.
+Read the upstream PR problem statements, implementation descriptions, testing limits and original URLs at the dates above. These are **proposals** rather than released components. Their source repositories include BitChat's public-domain/Unlicense iOS tree, the Android repository's GPL-3.0 licence context, and Zephyr's predominantly Apache-2.0 file-specific terms. File-level and transitive clearance would be needed before copying code into proprietary Loc8. **No upstream source was copied or added as a dependency.** New work is independently authored. The observer only analyses Loc8's existing local diagnostic records; the Android scan recovery is a separate native R&D candidate.
 
 ## Implementation (R10)
 
@@ -27,9 +27,11 @@ On `rnd/ble-recovery-2026-11-13`, stacked on the R9/PR #11 branch:
 - `src/research/meshRecoveryEvidence.ts`: bounded (20,000 events, 512 local link handles) read-only same-handle disconnect/reopen evidence, local monotonic down-to-up and reopen-to-first-incoming intervals, conservative completeness flags; no raw handles returned.
 - `src/research/meshRecoveryEvidence.test.ts` and `tools/mesh-rnd/mesh-recovery.node.cjs`: same-handle and changed-handle controls, no payload/peer ID leaks, invalid capture and clock controls, bounded capacity.
 - `app/mesh-field.tsx`: read-only display inside the existing internal Consumer/Guard MESH-01 screen; frozen native JSONL unchanged.
+- `modules/loc8-mesh/android/src/main/java/expo/modules/loc8mesh/MeshBleService.kt`: an **Android-native experimental reliability fix**, after inspecting current Loc8 code and finding that `onScanFailed` logged an error without clearing `scanning`, stopping a still-registered callback, or restarting discovery. The callback was already stable, unlike the BitChat defect. R10 now dispatches failure to its owning handler, forcibly stops the registered callback, clears the flag, schedules 2/4/8/16/30-second bounded attempts, cancels retries during radio teardown, and treats unsupported scanner hardware as a stop condition. Actual scan results reset backoff. This is not an imported BitChat patch or a promise of reliable discovery.
+- `tools/mesh-rnd/android-scan-recovery.node.cjs`: source-level wiring/ordering contracts. These are **not Android execution tests**. Rebuild and exercise the exact Android module against the SDK and run physical scan recovery before considering any merge.
 - R&D CI scopes source execution tests and this branch.
 
-**Careful semantics:** a down-to-up interval on the *same local link handle* is not scan discovery latency or confirmed recovery of a particular peer. Privacy rotation can change handles; incoming native events are not acknowledgements; a blank/no-traffic interval need not be a failure. Incomplete recorder boundaries and overflowing collections cannot support a performance verdict. The 25-byte payload, 47-byte native frame, TTL, relay default and existing runbook are unchanged.
+**Careful semantics:** a down-to-up interval on the *same local link handle* is not scan discovery latency or confirmed recovery of a particular peer. Privacy rotation can change handles; incoming native events are not acknowledgements; a blank/no-traffic interval need not be a failure. Incomplete recorder boundaries and overflowing collections cannot support a performance verdict. The 25-byte payload, 47-byte native frame, TTL, relay default and existing runbook are unchanged. Android scanner lifecycle **does change on this unmerged R&D branch only**, and must be validated for callback races, adapter shutdown and background radio limits before production.
 
 ## Next experimental protocol and release gate
 
@@ -43,7 +45,7 @@ On `rnd/ble-recovery-2026-11-13`, stacked on the R9/PR #11 branch:
 
 ```sh
 npm ci
-node --test tools/mesh-rnd/mesh-recovery.node.cjs
+node --test tools/mesh-rnd/mesh-recovery.node.cjs tools/mesh-rnd/android-scan-recovery.node.cjs
 npm test -- --runInBand
 npx tsc --noEmit
 npm run lint
