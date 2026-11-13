@@ -215,6 +215,10 @@ class MeshBleService private constructor() {
 
     private var running = false
     private var scanning = false
+    // Experimental R10: scanner callback identity is stable across retries.
+    // All recovery scheduling is owned by the BLE handler, never by a binder thread.
+    private var scanRetryAttempt = 0
+    private var scanRetry: Runnable? = null
     private var advertising = false
     private var scanOnlyMode = false
 
@@ -432,10 +436,12 @@ class MeshBleService private constructor() {
             MeshDiagnostics.recordLifecycle("link-down", address)
         }
 
-        if (scanning) {
-            runCatching { scanner?.stopScan(scanCallback) }
-            scanning = false
-        }
+        cancelScanRetry()
+        scanRetryAttempt = 0
+        // A failed registration may still be live even when our flag is false.
+        // Releasing by the same callback instance is safe if it was not registered.
+        runCatching { scanner?.stopScan(scanCallback) }
+        scanning = false
         if (advertising) {
             runCatching { advertiser?.stopAdvertising(advertiseCallback) }
             advertising = false
@@ -821,10 +827,55 @@ class MeshBleService private constructor() {
 
     // MARK: - Scanning (central role)
 
+    private fun cancelScanRetry() {
+        scanRetry?.let { handler?.removeCallbacks(it) }
+        scanRetry = null
+    }
+
+    /** Handler-owned, bounded backoff. A scan-start call is not proof the radio is scanning. */
+    private fun scheduleScanRetry(reason: String) {
+        if (!running || adapter?.isEnabled != true || scanRetry != null) return
+        val shift = scanRetryAttempt.coerceAtMost(4)
+        val delayMs = (2_000L shl shift).coerceAtMost(30_000L)
+        scanRetryAttempt = (scanRetryAttempt + 1).coerceAtMost(5)
+        val owner = handler ?: return
+        val retry = object : Runnable {
+            override fun run() {
+                if (scanRetry !== this) return
+                scanRetry = null
+                if (!running || adapter?.isEnabled != true || handler !== owner) return
+                startScanningIfPossible()
+            }
+        }
+        scanRetry = retry
+        if (!owner.postDelayed(retry, delayMs)) {
+            scanRetry = null
+            Log.w(TAG, "Could not schedule BLE scan recovery")
+        } else {
+            Log.w(TAG, "Retrying BLE scan after $delayMs ms ($reason)")
+        }
+    }
+
+    /** Called on the BLE handler, including after a scan error callback on a binder thread. */
+    private fun recoverScanFromFailure(errorCode: Int) {
+        if (!running) return
+        // stopScan must use exactly the same ScanCallback registered by startScan.
+        // Do not let the scanning flag veto cleanup after an asynchronous failure.
+        runCatching { scanner?.stopScan(scanCallback) }
+        scanning = false
+        if (errorCode == ScanCallback.SCAN_FAILED_FEATURE_UNSUPPORTED) {
+            Log.w(TAG, "BLE scanning unsupported by controller; no automatic retry")
+            cancelScanRetry()
+            return
+        }
+        scheduleScanRetry("platform error $errorCode")
+    }
+
     private fun startScanningIfPossible() {
-        if (!running || scanning) return
+        if (!running || scanning || scanRetry != null || adapter?.isEnabled != true) return
         val sc = adapter?.bluetoothLeScanner ?: run {
             Log.w(TAG, "BluetoothLeScanner unavailable")
+            scheduleScanRetry("scanner unavailable")
             return
         }
         scanner = sc
@@ -836,18 +887,34 @@ class MeshBleService private constructor() {
             .build()
         runCatching { sc.startScan(listOf(filter), settings, scanCallback) }
             .onSuccess { scanning = true }
-            .onFailure { Log.w(TAG, "startScan failed", it) }
+            .onFailure {
+                Log.w(TAG, "startScan failed", it)
+                runCatching { sc.stopScan(scanCallback) }
+                scanning = false
+                scheduleScanRetry("start exception")
+            }
     }
 
     private val scanCallback = object : ScanCallback() {
         override fun onScanResult(callbackType: Int, result: ScanResult) {
             val device = result.device ?: return
             val rssi = result.rssi
-            handler?.post { handleScanResult(device, rssi) }
+            val owner = handler ?: return
+            owner.post {
+                if (handler !== owner || !running || !scanning) return@post
+                // A real result, unlike startScan() returning, proves scan activity.
+                scanRetryAttempt = 0
+                handleScanResult(device, rssi)
+            }
         }
 
         override fun onScanFailed(errorCode: Int) {
             Log.w(TAG, "BLE scan failed: $errorCode")
+            val owner = handler ?: return
+            owner.post {
+                if (handler !== owner) return@post
+                recoverScanFromFailure(errorCode)
+            }
         }
     }
 
