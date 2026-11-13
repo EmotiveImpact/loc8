@@ -39,6 +39,7 @@ import { MESH_FIELD_ACCESS } from '../src/research/meshFieldBuild';
 import { analyseMeshFieldTelemetry } from '../src/research/meshFieldTelemetry';
 import { analyseMeshFieldPressure } from '../src/research/meshFieldPressure';
 import { analyseMeshLinkEpochEvidence } from '../src/research/meshLinkEpochEvidence';
+import { analyseMeshRecoveryEvidence } from '../src/research/meshRecoveryEvidence';
 import { createMeshStatusCoalescer } from '../src/research/meshStatusCoalescer';
 
 const FIELD_MODE = MESH_FIELD_ACCESS.enabled;
@@ -96,6 +97,7 @@ function FieldHarness() {
   const telemetry = useMemo(() => snapshot ? analyseMeshFieldTelemetry(snapshot) : null, [snapshot]);
   const pressure = useMemo(() => snapshot ? analyseMeshFieldPressure(snapshot) : null, [snapshot]);
   const linkEpochs = useMemo(() => snapshot ? analyseMeshLinkEpochEvidence(snapshot) : null, [snapshot]);
+  const recovery = useMemo(() => snapshot ? analyseMeshRecoveryEvidence(snapshot) : null, [snapshot]);
   const block = MESH_FIELD_BLOCKS[blockIndex];
   const roles = useMemo(() => participatingRoles(block), [block]);
   const participates = roles.includes(role);
@@ -462,6 +464,31 @@ function FieldHarness() {
               radio collisions or compromised forwarding. Dual-role GATT can make one hashed
               handle represent more than one role. No peer identity or RF range is inferred.
               Export the frozen native JSONL before reviewing the cohort.
+            </Text>
+          </Section>
+        )}
+
+        {recovery && (
+          <Section title="GATT reconnect follow-up">
+            <Metric label="record quality" value={recovery.quality} danger={recovery.quality !== 'RECORDED'} />
+            <Metric label="same-handle reopens" value={String(recovery.observedSameHandleReopens)} />
+            <Metric label="same-handle down → up p95 (local ms)"
+              value={recovery.observedSameHandleReconnectP95Ms === null ? 'N/A' : recovery.observedSameHandleReconnectP95Ms.toFixed(1)} />
+            <Metric label="reopen → first incoming event p95 (ms)"
+              value={recovery.observedReopenToFirstInboundP95Ms === null ? 'N/A' : recovery.observedReopenToFirstInboundP95Ms.toFixed(1)} />
+            <Metric label="reopens without later incoming event"
+              value={String(recovery.observedReopensWithoutSubsequentInbound)} />
+            <Metric label="downs without same-handle reopen"
+              value={String(recovery.observedDownWithoutSameHandleReopen)} />
+            <Metric label="reconnect evidence follow-up"
+              value={recovery.reviewSuggested ? 'REVIEW' : 'NO OBSERVED EVENT CONFLICT'}
+              danger={recovery.reviewSuggested} />
+            <Text style={styles.body}>
+              Same-device, same-handle recorder intervals only. Missing a same-handle reopen
+              is not proof of failed discovery: privacy addresses can rotate and a block may
+              finish before reconnection. Incoming events are not acknowledgements or
+              radio coverage. No scan callback, Bluetooth controller reset, PHY or power
+              metrics exist in this snapshot. Export the unchanged native JSONL.
             </Text>
           </Section>
         )}
