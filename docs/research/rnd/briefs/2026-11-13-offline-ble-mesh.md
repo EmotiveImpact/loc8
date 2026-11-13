@@ -52,3 +52,7 @@ npm run lint
 ```
 
 These commands are a reproducibility prescription. Passing CI must be checked at this branch's exact commit separately. There is no claim that physical phones, RF or Gateway firmware were exercised by this research change.
+
+## Exact-head GitHub verification receipt
+
+At commit `fd00570c1665918b94b96cab85939154d791b4c9`, [push workflow 43397151494](https://github.com/EmotiveImpact/loc8/actions/runs/43397151494) completed. **380/380 scoped Node tests, 100/100 frozen field-contract checks, 514/514 Jest tests in 41 suites, iOS native host checks, root TypeScript, Guard TypeScript, lint and Command build passed.** Existing historical deterministic simulation receipts were also rechecked. The overall workflow **failed** Expo Doctor: 20/21 checks passed; 12 patch-version mismatches in the existing Expo SDK 57 dependency baseline (including Expo, expo-router, expo-location and jest-expo). This branch did not edit package/lockfiles. Android runtime Controller, Handler, SDK compilation and phone BLE are not verified by that workflow. Source-based Kotlin contracts are not a substitute for native execution. The [draft PR #12](https://github.com/EmotiveImpact/loc8/pull/12) is stacked on R9, unmerged and undeployed.
